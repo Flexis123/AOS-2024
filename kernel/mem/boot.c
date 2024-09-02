@@ -3,6 +3,8 @@
 
 #include <kernel/mem.h>
 
+//does this shit need checking for reserved pieces of memory?
+
 /* This simple physical memory allocator is used only while OpenLSD is setting up
  * its virtual memory system.
  *
@@ -16,6 +18,7 @@
  * This function may ONLY be used during initialization, before the buddy
  * allocator has been set up.
  */
+
 void *boot_alloc(uint32_t n)
 {
 	/* Virtual address of the next byte of free memory. */
@@ -27,10 +30,15 @@ void *boot_alloc(uint32_t n)
 	 * end of the kernel's bss segment: the first virtual address that the
 	 * linker did not assign to any kernel code or global variables.
 	 */
-	if (!next_free) {
-		extern char end[];
-		next_free = ROUNDUP((char *)end, PAGE_SIZE);
-	}
+	extern char end[];
+	char* kdata_pages_start = ROUNDUP((char *)end, PAGE_SIZE);
+	if (!next_free) next_free = kdata_pages_start;
+    
+    cprintf("next free: %u\n", next_free);
+
+	//what are the 2 suppose to mean?
+	//cprintf("bootstacktop: %p", (char*) bootstacktop);
+	//cprintf("bootstack: %p", (char*) bootstack);
 
 	/* Allocate a chunk large enough to hold 'n' bytes, then update
 	 * next_free. Make sure next_free is kept aligned to a multiple of
@@ -38,7 +46,25 @@ void *boot_alloc(uint32_t n)
 	 *
 	 * LAB 1: your code here.
 	 */
-	return NULL;
+
+	if(n == 0) return next_free;
+
+	//check that we have enough pages left for the allocation if not we panic
+	//should probably use some bit shifting except divison for better efficiency
+	uint32_t pages = (n / PAGE_SIZE) + 1;
+
+	cprintf("pages up for alloc: %u\n", pages);
+	uint32_t kdata_bytes = BOOT_MAP_LIM - ((uint64_t)kdata_pages_start - KPAGES);
+	uint32_t kdata_pages = kdata_bytes >> PAGE_TABLE_SHIFT;
+
+	cprintf("%u\n", kdata_pages);
+
+	if(pages > kdata_pages) panic("OOM in boot loader");
+
+	result = next_free;
+	next_free += pages * PAGE_SIZE;
+	
+	return result;
 }
 
 /* The addresses and lengths in the memory map provided by the boot loader may

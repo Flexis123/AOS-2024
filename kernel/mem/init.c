@@ -52,7 +52,7 @@ void mem_init(struct boot_info *boot_info)
 	npages = MIN(BOOT_MAP_LIM, highest_addr) / PAGE_SIZE;
 
 	/* Remove this line when you're ready to test this function. */
-	panic("mem_init: This function is not finished\n");
+	//panic("mem_init: This function is not finished\n");
 
 	/*
 	 * Allocate an array of npages 'struct page_info's and store it in 'pages'.
@@ -62,6 +62,7 @@ void mem_init(struct boot_info *boot_info)
 	 */
 	pages = boot_alloc(npages * sizeof *pages);
 
+
 	/*
 	 * Now that we've allocated the initial kernel data structures, we set
 	 * up the list of free physical pages. Once we've done so, all further
@@ -69,6 +70,8 @@ void mem_init(struct boot_info *boot_info)
 	 * can now map memory using boot_map_region or page_insert.
 	 */
 	page_init(boot_info);
+
+	panic("need to implement buddy allocator\n");
 
 	/* Perform the tests of lab 1. */
 	lab1_check_mem(boot_info);
@@ -95,8 +98,14 @@ void page_init(struct boot_info *boot_info)
 	 *  3) mark the page as in use by setting pp_free to zero.
 	 *  4) set the order pp_order to zero.
 	 */
+
 	for (i = 0; i < npages; ++i) {
-		/* LAB 1: your code here. */
+		page = pages + i;
+
+		list_init(&page->pp_node);
+		page->pp_free = 0;
+		page->pp_ref = 0;
+		page->pp_order = 0;
 	}
 
 	entry = (struct mmap_entry *)KADDR(boot_info->mmap_addr);
@@ -114,8 +123,12 @@ void page_init(struct boot_info *boot_info)
 	 *  - boot_info->elf_hdr points to the ELF header.
 	 *  - Any address in [KERNEL_LMA, end) is part of the kernel.
 	 */
+
 	for (i = 0; i < boot_info->mmap_len; ++i, ++entry) {
 		/* LAB 1: your code here. */
+		if(entry->type != MMAP_FREE) continue;
+
+		cprintf("%d\n", (entry->addr % PAGE_SIZE) == 0);
 	}
 }
 
