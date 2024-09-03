@@ -51,7 +51,20 @@ void *boot_alloc(uint32_t n)
 
 	//check that we have enough pages left for the allocation if not we panic
 	//should probably use some bit shifting except divison for better efficiency
+<<<<<<< HEAD
+	uint32_t pages = (n / PAGE_SIZE) + 1;
+
+	//this is wrong todo get back to it
+	cprintf("pages up for alloc: %u\n", pages);
+	uint32_t kdata_bytes = BOOT_MAP_LIM - ((uint64_t)kdata_pages_start - KERNEL_VMA);
+	uint32_t kdata_pages = kdata_bytes >> PAGE_TABLE_SHIFT;
+
+	cprintf("%u\n", kdata_pages);
+
+	if(pages > kdata_pages) panic("OOM in boot loader");
+=======
 	uint32_t pages = ROUNDUP(n, PAGE_SIZE) / PAGE_SIZE;
+>>>>>>> main
 
 	if(next_free + pages * PAGE_SIZE > kdata_pages_start + npages * PAGE_SIZE){
 		panic("OOM in boot loader");

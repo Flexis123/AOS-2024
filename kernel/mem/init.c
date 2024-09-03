@@ -60,6 +60,9 @@ void mem_init(struct boot_info *boot_info)
 	 * physical page, there is a corresponding struct page_info in this array.
 	 * 'npages' is the number of physical pages in memory.  Your code goes here.
 	 */
+	cprintf("npages: %lu\n", npages);
+	cprintf("bytes alloc: %lu\n", npages * sizeof *pages);
+	cprintf("size of page_info: %lu\n", sizeof(struct page_info));
 	pages = boot_alloc(npages * sizeof *pages);
 
 
