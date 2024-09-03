@@ -92,9 +92,16 @@ size_t count_total_free_pages(void)
 {
 	//get page adress
 	//flip order bit to get buddy
+	assert(lhs->pp_order >= req_order);
+	
+	while(lhs->pp_order > req_order){
+		//find buddy
+		struct page_info* buddy = (struct page_info*) ((uintptr_t)lhs ^ (1 << lhs->pp_order));
+		buddy->pp_order = lhs->pp_order - 1;
+		buddy->pp_free = 1;
 
-	while(lhs->pp_order != req_order){
-		
+		lhs->pp_order--;
+		list_add(&buddy_free_list[lhs->pp_order], buddy);
 	}
 	
 	return lhs;
@@ -132,11 +139,11 @@ struct page_info *buddy_merge(struct page_info *page)
 struct page_info *buddy_find(size_t req_order)
 {
 	/* LAB 1: your code here. */
-	struct list* node;
+	struct list* head;
 	struct page_info* page;
-	for(size_t ord = req_order; ord < BUDDY_MAX_ORDER; ord++){
-		node = buddy_free_list[ord].next;
-		if(node != NULL) return buddy_split(container_of(node, struct page_info, pp_node), req_order);
+	for(size_t ord = req_order; ord <= BUDDY_MAX_ORDER; ord++){
+		head = &buddy_free_list[ord]; //TODO maybe change look at how linked list works
+		if(head->next != head) return buddy_split(container_of(head->next, struct page_info, pp_node), req_order);
 	}
 	return NULL;
 }
@@ -159,10 +166,20 @@ struct page_info *buddy_find(size_t req_order)
 struct page_info *page_alloc(int alloc_flags)
 {
 	/* LAB 1: your code here. */
+	struct page_info* page;
+	if (alloc_flags & ALLOC_HUGE) page = buddy_find(9);
+	else page = buddy_find(0);
 
+	//check for OOM
+	if(page) {
+		if(alloc_flags & ALLOC_ZERO) {
+			memset(page2pa(page), 0, 1 << (page->pp_order + PAGE_TABLE_SHIFT));
+		}
 
-
-	return NULL;
+		page->pp_free = 0;
+		list_pop(&buddy_free_list[page->pp_order]);
+	}
+	return page;
 }
 
 /*

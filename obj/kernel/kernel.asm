@@ -4,97 +4,55 @@ obj/kernel/kernel:	file format elf64-x86-64
 Disassembly of section .boot:
 
 0000000000100000 <_start>:
-; 	cli
   100000: fa                           	cli
-; 	movl $bootstack_top, %esp
   100001: bc 00 90 10 00               	movl	$1085440, %esp          # imm = 0x109000
-; 	pushl $0
   100006: 6a 00                        	pushq	$0
-; 	pushl %ebx
   100008: 53                           	pushq	%rbx
-; 	movl $(PAGE_PRESENT | PAGE_WRITE | PAGE_HUGE), %eax
   100009: b8 83 00 00 00               	movl	$131, %eax
-; 	movl $page_dir, %edi
   10000e: bf 00 b0 10 00               	movl	$1093632, %edi          # imm = 0x10B000
-; 	movl $4, %ecx
   100013: b9 04 00 00 00               	movl	$4, %ecx
 
 0000000000100018 <.map_pages>:
-; 	movl %eax, (%edi)
   100018: 89 07                        	movl	%eax, (%rdi)
-; 	addl $0x200000, %eax
   10001a: 05 00 00 20 00               	addl	$2097152, %eax          # imm = 0x200000
-; 	addl $8, %edi
   10001f: 83 c7 08                     	addl	$8, %edi
-; 	dec %ecx
   100022: 49 75 f3                     	jne	0x100018 <.map_pages>
-; 	movl $page_dir, %eax
   100025: b8 00 b0 10 00               	movl	$1093632, %eax          # imm = 0x10B000
-; 	orl $(PAGE_PRESENT | PAGE_WRITE), %eax
   10002a: 83 c8 03                     	orl	$3, %eax
-; 	movl %eax, pdpt
   10002d: a3 00 a0 10 00 b8 00 a0 10   	movabsl	%eax, 1197958291155623936
-; 	movl $pdpt, %eax
   100036: 00 83 c8 03 a3 00            	addb	%al, 10683336(%rbx)
-; 	movl %eax, pml4
   10003c: 90                           	nop
   10003d: 10 00                        	adcb	%al, (%rax)
-; 	movl %eax, pml4 + 256 * 8
   10003f: a3 00 98 10 00 b8 00 90 10   	movabsl	%eax, 1193454691528251392
-; 	movl $pml4, %eax
   100048: 00 0f                        	addb	%cl, (%rdi)
-; 	movl %eax, %cr3
   10004a: 22 d8                        	andb	%al, %bl
-; 	movl %cr4, %eax
   10004c: 0f 20 e0                     	movq	%cr4, %rax
-; 	orl $CR4_PAE, %eax
   10004f: 83 c8 20                     	orl	$32, %eax
-; 	movl %eax, %cr4
   100052: 0f 22 e0                     	movq	%rax, %cr4
-; 	movl $MSR_EFER, %ecx
   100055: b9 80 00 00 c0               	movl	$3221225600, %ecx       # imm = 0xC0000080
-; 	rdmsr
   10005a: 0f 32                        	rdmsr
-; 	orl $MSR_EFER_LME, %eax
   10005c: 0d 00 01 00 00               	orl	$256, %eax              # imm = 0x100
-; 	wrmsr
   100061: 0f 30                        	wrmsr
-; 	movl %cr0, %eax
   100063: 0f 20 c0                     	movq	%cr0, %rax
-; 	orl $CR0_PAGING, %eax
   100066: 0d 00 00 00 80               	orl	$2147483648, %eax       # imm = 0x80000000
-; 	movl %eax, %cr0
   10006b: 0f 22 c0                     	movq	%rax, %cr0
-; 	lgdt gdtr64
   10006e: 0f 01 15 c0 00 10 00         	lgdtq	1048768(%rip)           # 0x200135 <boot_end+0xf4135>
-; 	movw $0x10, %ax
   100075: 66 b8 10 00                  	movw	$16, %ax
-; 	movw %ax, %ds
   100079: 8e d8                        	movl	%eax, %ds
-; 	movw %ax, %es
   10007b: 8e c0                        	movl	%eax, %es
-; 	movw %ax, %ss
   10007d: 8e d0                        	movl	%eax, %ss
-; 	ljmp $0x08, $_start64
   10007f: ea                           	<unknown>
   100080: 86 00                        	xchgb	%al, (%rax)
   100082: 10 00                        	adcb	%al, (%rax)
   100084: 08 00                        	orb	%al, (%rax)
 
 0000000000100086 <_start64>:
-; 	movabs $KERNEL_VMA, %rax
   100086: 48 b8 00 00 00 00 00 80 ff ff	movabsq	$-140737488355328, %rax # imm = 0xFFFF800000000000
-; 	addq %rax, %rsp
   100090: 48 01 c4                     	addq	%rax, %rsp
-; 	popq %rdi
   100093: 5f                           	popq	%rdi
-; 	addq %rax, %rdi
   100094: 48 01 c7                     	addq	%rax, %rdi
-; 	movabs $kmain, %rax
   100097: 48 b8 f0 c7 10 00 00 80 ff ff	movabsq	$-140737487255568, %rax # imm = 0xFFFF80000010C7F0
-; 	call *%rax
   1000a1: ff d0                        	callq	*%rax
-; 	hlt
   1000a3: f4                           	hlt
   1000a4: cc                           	int3
   1000a5: cc                           	int3
@@ -4023,24 +3981,19 @@ Disassembly of section .boot:
 Disassembly of section .text:
 
 ffff80000010c000 <serial_intr>:
-; {
 ffff80000010c000: 55                   	pushq	%rbp
 ffff80000010c001: 48 89 e5             	movq	%rsp, %rbp
-;     if (serial_exists)
 ffff80000010c004: 48 b8 00 40 11 00 00 80 ff ff	movabsq	$-140737487224832, %rax # imm = 0xFFFF800000114000
 ffff80000010c00e: 80 38 00             	cmpb	$0, (%rax)
 ffff80000010c011: 74 16                	je	0xffff80000010c029 <serial_intr+0x29>
-;         cons_intr(serial_proc_data);
 ffff80000010c013: 48 bf 90 c0 10 00 00 80 ff ff	movabsq	$-140737487257456, %rdi # imm = 0xFFFF80000010C090
 ffff80000010c01d: 48 b8 30 c0 10 00 00 80 ff ff	movabsq	$-140737487257552, %rax # imm = 0xFFFF80000010C030
 ffff80000010c027: ff d0                	callq	*%rax
-; }
 ffff80000010c029: 5d                   	popq	%rbp
 ffff80000010c02a: c3                   	retq
 ffff80000010c02b: 0f 1f 44 00 00       	nopl	(%rax,%rax)
 
 ffff80000010c030 <cons_intr>:
-; {
 ffff80000010c030: 55                   	pushq	%rbp
 ffff80000010c031: 48 89 e5             	movq	%rsp, %rbp
 ffff80000010c034: 41 56                	pushq	%r14
@@ -4049,24 +4002,19 @@ ffff80000010c037: 49 89 fe             	movq	%rdi, %r14
 ffff80000010c03a: 48 bb 04 40 11 00 00 80 ff ff	movabsq	$-140737487224828, %rbx # imm = 0xFFFF800000114004
 ffff80000010c044: 66 2e 0f 1f 84 00 00 00 00 00	nopw	%cs:(%rax,%rax)
 ffff80000010c04e: 66 90                	nop
-;     while ((c = (*proc)()) != -1) {
 ffff80000010c050: 41 ff d6             	callq	*%r14
 ffff80000010c053: 85 c0                	testl	%eax, %eax
 ffff80000010c055: 74 f9                	je	0xffff80000010c050 <cons_intr+0x20>
 ffff80000010c057: 83 f8 ff             	cmpl	$-1, %eax
 ffff80000010c05a: 74 2a                	je	0xffff80000010c086 <cons_intr+0x56>
-;         cons.buf[cons.wpos++] = c;
 ffff80000010c05c: 8b 8b 04 02 00 00    	movl	516(%rbx), %ecx
 ffff80000010c062: 8d 51 01             	leal	1(%rcx), %edx
 ffff80000010c065: 89 93 04 02 00 00    	movl	%edx, 516(%rbx)
 ffff80000010c06b: 88 04 19             	movb	%al, (%rcx,%rbx)
-;         if (cons.wpos == CONSBUFSIZE)
 ffff80000010c06e: 81 bb 04 02 00 00 00 02 00 00	cmpl	$512, 516(%rbx) # imm = 0x200
 ffff80000010c078: 75 d6                	jne	0xffff80000010c050 <cons_intr+0x20>
-;             cons.wpos = 0;
 ffff80000010c07a: c7 83 04 02 00 00 00 00 00 00	movl	$0, 516(%rbx)
 ffff80000010c084: eb ca                	jmp	0xffff80000010c050 <cons_intr+0x20>
-; }
 ffff80000010c086: 5b                   	popq	%rbx
 ffff80000010c087: 41 5e                	popq	%r14
 ffff80000010c089: 5d                   	popq	%rbp
@@ -4074,12 +4022,10 @@ ffff80000010c08a: c3                   	retq
 ffff80000010c08b: 0f 1f 44 00 00       	nopl	(%rax,%rax)
 
 ffff80000010c090 <serial_proc_data>:
-; {
 ffff80000010c090: 55                   	pushq	%rbp
 ffff80000010c091: 48 89 e5             	movq	%rsp, %rbp
 ffff80000010c094: 53                   	pushq	%rbx
 ffff80000010c095: 50                   	pushq	%rax
-;     if (!(inb(COM1+COM_LSR) & COM_LSR_DATA))
 ffff80000010c096: 48 bb 10 c5 10 00 00 80 ff ff	movabsq	$-140737487256304, %rbx # imm = 0xFFFF80000010C510
 ffff80000010c0a0: bf fd 03 00 00       	movl	$1021, %edi             # imm = 0x3FD
 ffff80000010c0a5: ff d3                	callq	*%rbx
@@ -4087,11 +4033,9 @@ ffff80000010c0a7: 89 c1                	movl	%eax, %ecx
 ffff80000010c0a9: b8 ff ff ff ff       	movl	$4294967295, %eax       # imm = 0xFFFFFFFF
 ffff80000010c0ae: f6 c1 01             	testb	$1, %cl
 ffff80000010c0b1: 74 0a                	je	0xffff80000010c0bd <serial_proc_data+0x2d>
-;     return inb(COM1+COM_RX);
 ffff80000010c0b3: bf f8 03 00 00       	movl	$1016, %edi             # imm = 0x3F8
 ffff80000010c0b8: ff d3                	callq	*%rbx
 ffff80000010c0ba: 0f b6 c0             	movzbl	%al, %eax
-; }
 ffff80000010c0bd: 48 83 c4 08          	addq	$8, %rsp
 ffff80000010c0c1: 5b                   	popq	%rbx
 ffff80000010c0c2: 5d                   	popq	%rbp
@@ -4100,89 +4044,68 @@ ffff80000010c0c4: 66 2e 0f 1f 84 00 00 00 00 00	nopw	%cs:(%rax,%rax)
 ffff80000010c0ce: 66 90                	nop
 
 ffff80000010c0d0 <kbd_intr>:
-; {
 ffff80000010c0d0: 55                   	pushq	%rbp
 ffff80000010c0d1: 48 89 e5             	movq	%rsp, %rbp
-;     cons_intr(kbd_proc_data);
 ffff80000010c0d4: 48 bf f0 c0 10 00 00 80 ff ff	movabsq	$-140737487257360, %rdi # imm = 0xFFFF80000010C0F0
 ffff80000010c0de: 48 b8 30 c0 10 00 00 80 ff ff	movabsq	$-140737487257552, %rax # imm = 0xFFFF80000010C030
 ffff80000010c0e8: ff d0                	callq	*%rax
-; }
 ffff80000010c0ea: 5d                   	popq	%rbp
 ffff80000010c0eb: c3                   	retq
 ffff80000010c0ec: 0f 1f 40 00          	nopl	(%rax)
 
 ffff80000010c0f0 <kbd_proc_data>:
-; {
 ffff80000010c0f0: 55                   	pushq	%rbp
 ffff80000010c0f1: 48 89 e5             	movq	%rsp, %rbp
 ffff80000010c0f4: 41 56                	pushq	%r14
 ffff80000010c0f6: 53                   	pushq	%rbx
-;     if ((inb(KBSTATP) & KBS_DIB) == 0)
 ffff80000010c0f7: 48 bb 10 c5 10 00 00 80 ff ff	movabsq	$-140737487256304, %rbx # imm = 0xFFFF80000010C510
 ffff80000010c101: bf 64 00 00 00       	movl	$100, %edi
 ffff80000010c106: ff d3                	callq	*%rbx
 ffff80000010c108: 41 be ff ff ff ff    	movl	$4294967295, %r14d      # imm = 0xFFFFFFFF
 ffff80000010c10e: a8 01                	testb	$1, %al
 ffff80000010c110: 0f 84 08 01 00 00    	je	0xffff80000010c21e <kbd_proc_data+0x12e>
-;     data = inb(KBDATAP);
 ffff80000010c116: bf 60 00 00 00       	movl	$96, %edi
 ffff80000010c11b: ff d3                	callq	*%rbx
-;     if (data == 0xE0) {
 ffff80000010c11d: 3c e0                	cmpb	$-32, %al
 ffff80000010c11f: 75 15                	jne	0xffff80000010c136 <kbd_proc_data+0x46>
-;         shift |= E0ESC;
 ffff80000010c121: 48 b8 0c 42 11 00 00 80 ff ff	movabsq	$-140737487224308, %rax # imm = 0xFFFF80000011420C
 ffff80000010c12b: 80 08 40             	orb	$64, (%rax)
 ffff80000010c12e: 45 31 f6             	xorl	%r14d, %r14d
 ffff80000010c131: e9 e8 00 00 00       	jmp	0xffff80000010c21e <kbd_proc_data+0x12e>
 ffff80000010c136: 48 b9 0c 42 11 00 00 80 ff ff	movabsq	$-140737487224308, %rcx # imm = 0xFFFF80000011420C
 ffff80000010c140: 8b 11                	movl	(%rcx), %edx
-;     } else if (data & 0x80) {
 ffff80000010c142: 84 c0                	testb	%al, %al
 ffff80000010c144: 78 5c                	js	0xffff80000010c1a2 <kbd_proc_data+0xb2>
 ffff80000010c146: f6 c2 40             	testb	$64, %dl
-;     } else if (shift & E0ESC) {
 ffff80000010c149: 74 07                	je	0xffff80000010c152 <kbd_proc_data+0x62>
-;         data |= 0x80;
 ffff80000010c14b: 0c 80                	orb	$-128, %al
-;         shift &= ~E0ESC;
 ffff80000010c14d: 83 e2 bf             	andl	$-65, %edx
 ffff80000010c150: 89 11                	movl	%edx, (%rcx)
-;     shift |= shiftcode[data];
 ffff80000010c152: 0f b6 d0             	movzbl	%al, %edx
 ffff80000010c155: 48 b8 50 00 11 00 00 80 ff ff	movabsq	$-140737487241136, %rax # imm = 0xFFFF800000110050
 ffff80000010c15f: 0f b6 34 02          	movzbl	(%rdx,%rax), %esi
 ffff80000010c163: 0b 31                	orl	(%rcx), %esi
-;     shift ^= togglecode[data];
 ffff80000010c165: 48 b8 50 01 11 00 00 80 ff ff	movabsq	$-140737487240880, %rax # imm = 0xFFFF800000110150
 ffff80000010c16f: 0f b6 04 02          	movzbl	(%rdx,%rax), %eax
 ffff80000010c173: 31 f0                	xorl	%esi, %eax
 ffff80000010c175: 89 01                	movl	%eax, (%rcx)
-;     c = charcode[shift & (CTL | SHIFT)][data];
 ffff80000010c177: 89 c1                	movl	%eax, %ecx
 ffff80000010c179: 83 e1 03             	andl	$3, %ecx
 ffff80000010c17c: 48 be 30 00 11 00 00 80 ff ff	movabsq	$-140737487241168, %rsi # imm = 0xFFFF800000110030
 ffff80000010c186: 48 8b 0c ce          	movq	(%rsi,%rcx,8), %rcx
 ffff80000010c18a: 44 0f b6 34 11       	movzbl	(%rcx,%rdx), %r14d
-;     if (shift & CAPSLOCK) {
 ffff80000010c18f: a8 08                	testb	$8, %al
 ffff80000010c191: 74 4e                	je	0xffff80000010c1e1 <kbd_proc_data+0xf1>
-;         if ('a' <= c && c <= 'z')
 ffff80000010c193: 41 8d 4e 9f          	leal	-97(%r14), %ecx
 ffff80000010c197: 80 f9 19             	cmpb	$25, %cl
 ffff80000010c19a: 77 33                	ja	0xffff80000010c1cf <kbd_proc_data+0xdf>
-;             c += 'A' - 'a';
 ffff80000010c19c: 41 83 c6 e0          	addl	$-32, %r14d
 ffff80000010c1a0: eb 3f                	jmp	0xffff80000010c1e1 <kbd_proc_data+0xf1>
-;         data = (shift & E0ESC ? data : data & 0x7F);
 ffff80000010c1a2: 0f b6 f0             	movzbl	%al, %esi
 ffff80000010c1a5: 24 7f                	andb	$127, %al
 ffff80000010c1a7: f6 c2 40             	testb	$64, %dl
-;         data = (shift & E0ESC ? data : data & 0x7F);
 ffff80000010c1aa: 0f b6 c0             	movzbl	%al, %eax
 ffff80000010c1ad: 0f 45 c6             	cmovnel	%esi, %eax
-;         shift &= ~(shiftcode[data] | E0ESC);
 ffff80000010c1b0: 0f b6 c0             	movzbl	%al, %eax
 ffff80000010c1b3: 48 be 50 00 11 00 00 80 ff ff	movabsq	$-140737487241136, %rsi # imm = 0xFFFF800000110050
 ffff80000010c1bd: 0f b6 04 30          	movzbl	(%rax,%rsi), %eax
@@ -4192,29 +4115,24 @@ ffff80000010c1c5: 83 e0 bf             	andl	$-65, %eax
 ffff80000010c1c8: 89 01                	movl	%eax, (%rcx)
 ffff80000010c1ca: 45 31 f6             	xorl	%r14d, %r14d
 ffff80000010c1cd: eb 4f                	jmp	0xffff80000010c21e <kbd_proc_data+0x12e>
-;         else if ('A' <= c && c <= 'Z')
 ffff80000010c1cf: 41 8d 4e bf          	leal	-65(%r14), %ecx
 ffff80000010c1d3: 41 8d 56 20          	leal	32(%r14), %edx
 ffff80000010c1d7: 80 f9 1a             	cmpb	$26, %cl
 ffff80000010c1da: 41 0f 43 d6          	cmovael	%r14d, %edx
 ffff80000010c1de: 41 89 d6             	movl	%edx, %r14d
-;     if (!(~shift & (CTL | ALT)) && c == KEY_DEL) {
 ffff80000010c1e1: f7 d0                	notl	%eax
 ffff80000010c1e3: a8 06                	testb	$6, %al
 ffff80000010c1e5: 75 37                	jne	0xffff80000010c21e <kbd_proc_data+0x12e>
 ffff80000010c1e7: 41 81 fe e9 00 00 00 	cmpl	$233, %r14d
 ffff80000010c1ee: 75 2e                	jne	0xffff80000010c21e <kbd_proc_data+0x12e>
-;         cprintf("Rebooting!\n");
 ffff80000010c1f0: 48 bf c7 0a 11 00 00 80 ff ff	movabsq	$-140737487238457, %rdi # imm = 0xFFFF800000110AC7
 ffff80000010c1fa: 48 b9 c0 d3 10 00 00 80 ff ff	movabsq	$-140737487252544, %rcx # imm = 0xFFFF80000010D3C0
 ffff80000010c204: 31 c0                	xorl	%eax, %eax
 ffff80000010c206: ff d1                	callq	*%rcx
-;         outb(0x92, 0x3); /* courtesy of Chris Frost */
 ffff80000010c208: 48 b8 20 c5 10 00 00 80 ff ff	movabsq	$-140737487256288, %rax # imm = 0xFFFF80000010C520
 ffff80000010c212: bf 92 00 00 00       	movl	$146, %edi
 ffff80000010c217: be 03 00 00 00       	movl	$3, %esi
 ffff80000010c21c: ff d0                	callq	*%rax
-; }
 ffff80000010c21e: 44 89 f0             	movl	%r14d, %eax
 ffff80000010c221: 5b                   	popq	%rbx
 ffff80000010c222: 41 5e                	popq	%r14
@@ -4223,68 +4141,52 @@ ffff80000010c225: c3                   	retq
 ffff80000010c226: 66 2e 0f 1f 84 00 00 00 00 00	nopw	%cs:(%rax,%rax)
 
 ffff80000010c230 <cons_getc>:
-; {
 ffff80000010c230: 55                   	pushq	%rbp
 ffff80000010c231: 48 89 e5             	movq	%rsp, %rbp
-;     serial_intr();
 ffff80000010c234: 48 b8 00 c0 10 00 00 80 ff ff	movabsq	$-140737487257600, %rax # imm = 0xFFFF80000010C000
 ffff80000010c23e: ff d0                	callq	*%rax
-;     kbd_intr();
 ffff80000010c240: 48 b8 d0 c0 10 00 00 80 ff ff	movabsq	$-140737487257392, %rax # imm = 0xFFFF80000010C0D0
 ffff80000010c24a: ff d0                	callq	*%rax
 ffff80000010c24c: 48 b9 04 40 11 00 00 80 ff ff	movabsq	$-140737487224828, %rcx # imm = 0xFFFF800000114004
-;     if (cons.rpos != cons.wpos) {
 ffff80000010c256: 8b 91 00 02 00 00    	movl	512(%rcx), %edx
 ffff80000010c25c: 31 c0                	xorl	%eax, %eax
 ffff80000010c25e: 3b 91 04 02 00 00    	cmpl	516(%rcx), %edx
 ffff80000010c264: 74 1e                	je	0xffff80000010c284 <cons_getc+0x54>
-;         c = cons.buf[cons.rpos++];
 ffff80000010c266: 8d 72 01             	leal	1(%rdx), %esi
 ffff80000010c269: 89 b1 00 02 00 00    	movl	%esi, 512(%rcx)
 ffff80000010c26f: 0f b6 04 0a          	movzbl	(%rdx,%rcx), %eax
 ffff80000010c273: 31 d2                	xorl	%edx, %edx
-;         if (cons.rpos == CONSBUFSIZE)
 ffff80000010c275: 81 fe 00 02 00 00    	cmpl	$512, %esi              # imm = 0x200
 ffff80000010c27b: 0f 45 d6             	cmovnel	%esi, %edx
 ffff80000010c27e: 89 91 00 02 00 00    	movl	%edx, 512(%rcx)
-; }
 ffff80000010c284: 5d                   	popq	%rbp
 ffff80000010c285: c3                   	retq
 ffff80000010c286: 66 2e 0f 1f 84 00 00 00 00 00	nopw	%cs:(%rax,%rax)
 
 ffff80000010c290 <cons_init>:
-; {
 ffff80000010c290: 55                   	pushq	%rbp
 ffff80000010c291: 48 89 e5             	movq	%rsp, %rbp
-;     cga_init();
 ffff80000010c294: 48 b8 f0 c2 10 00 00 80 ff ff	movabsq	$-140737487256848, %rax # imm = 0xFFFF80000010C2F0
 ffff80000010c29e: ff d0                	callq	*%rax
-;     kbd_init();
 ffff80000010c2a0: 48 b8 c0 c3 10 00 00 80 ff ff	movabsq	$-140737487256640, %rax # imm = 0xFFFF80000010C3C0
 ffff80000010c2aa: ff d0                	callq	*%rax
-;     serial_init();
 ffff80000010c2ac: 48 b8 f0 c3 10 00 00 80 ff ff	movabsq	$-140737487256592, %rax # imm = 0xFFFF80000010C3F0
 ffff80000010c2b6: ff d0                	callq	*%rax
-;     if (!serial_exists)
 ffff80000010c2b8: 48 b8 00 40 11 00 00 80 ff ff	movabsq	$-140737487224832, %rax # imm = 0xFFFF800000114000
 ffff80000010c2c2: 80 38 00             	cmpb	$0, (%rax)
 ffff80000010c2c5: 74 02                	je	0xffff80000010c2c9 <cons_init+0x39>
-; }
 ffff80000010c2c7: 5d                   	popq	%rbp
 ffff80000010c2c8: c3                   	retq
-;         cprintf("Serial port does not exist!\n");
 ffff80000010c2c9: 48 bf 96 0e 11 00 00 80 ff ff	movabsq	$-140737487237482, %rdi # imm = 0xFFFF800000110E96
 ffff80000010c2d3: 48 b9 c0 d3 10 00 00 80 ff ff	movabsq	$-140737487252544, %rcx # imm = 0xFFFF80000010D3C0
 ffff80000010c2dd: 31 c0                	xorl	%eax, %eax
 ffff80000010c2df: ff d1                	callq	*%rcx
-; }
 ffff80000010c2e1: 5d                   	popq	%rbp
 ffff80000010c2e2: c3                   	retq
 ffff80000010c2e3: 66 2e 0f 1f 84 00 00 00 00 00	nopw	%cs:(%rax,%rax)
 ffff80000010c2ed: 0f 1f 00             	nopl	(%rax)
 
 ffff80000010c2f0 <cga_init>:
-; {
 ffff80000010c2f0: 55                   	pushq	%rbp
 ffff80000010c2f1: 48 89 e5             	movq	%rsp, %rbp
 ffff80000010c2f4: 41 57                	pushq	%r15
@@ -4294,15 +4196,11 @@ ffff80000010c2fa: 41 54                	pushq	%r12
 ffff80000010c2fc: 53                   	pushq	%rbx
 ffff80000010c2fd: 50                   	pushq	%rax
 ffff80000010c2fe: 49 bd 00 80 0b 00 00 80 ff ff	movabsq	$-140737487601664, %r13 # imm = 0xFFFF8000000B8000
-;     was = *cp;
 ffff80000010c308: 41 0f b7 45 00       	movzwl	(%r13), %eax
-;     *cp = (uint16_t) 0xA55A;
 ffff80000010c30d: 66 41 c7 45 00 5a a5 	movw	$42330, (%r13)          # imm = 0xA55A
-;     if (*cp != 0xA55A) {
 ffff80000010c314: 41 0f b7 4d 00       	movzwl	(%r13), %ecx
 ffff80000010c319: 81 f9 5a a5 00 00    	cmpl	$42330, %ecx            # imm = 0xA55A
 ffff80000010c31f: 75 0c                	jne	0xffff80000010c32d <cga_init+0x3d>
-;         *cp = was;
 ffff80000010c321: 66 41 89 45 00       	movw	%ax, (%r13)
 ffff80000010c326: bf d4 03 00 00       	movl	$980, %edi              # imm = 0x3D4
 ffff80000010c32b: eb 0c                	jmp	0xffff80000010c339 <cga_init+0x49>
@@ -4310,11 +4208,9 @@ ffff80000010c32d: 49 81 c5 00 80 ff ff 	addq	$-32768, %r13           # imm = 0x8
 ffff80000010c334: bf b4 03 00 00       	movl	$948, %edi              # imm = 0x3B4
 ffff80000010c339: 49 be 10 42 11 00 00 80 ff ff	movabsq	$-140737487224304, %r14 # imm = 0xFFFF800000114210
 ffff80000010c343: 41 89 3e             	movl	%edi, (%r14)
-;     outb(addr_6845, 14);
 ffff80000010c346: 49 bf 20 c5 10 00 00 80 ff ff	movabsq	$-140737487256288, %r15 # imm = 0xFFFF80000010C520
 ffff80000010c350: be 0e 00 00 00       	movl	$14, %esi
 ffff80000010c355: 41 ff d7             	callq	*%r15
-;     pos = inb(addr_6845 + 1) << 8;
 ffff80000010c358: 41 8b 06             	movl	(%r14), %eax
 ffff80000010c35b: 83 c0 01             	addl	$1, %eax
 ffff80000010c35e: 0f b7 f8             	movzwl	%ax, %edi
@@ -4322,24 +4218,19 @@ ffff80000010c361: 49 bc 10 c5 10 00 00 80 ff ff	movabsq	$-140737487256304, %r12 
 ffff80000010c36b: 41 ff d4             	callq	*%r12
 ffff80000010c36e: 0f b6 d8             	movzbl	%al, %ebx
 ffff80000010c371: c1 e3 08             	shll	$8, %ebx
-;     outb(addr_6845, 15);
 ffff80000010c374: 41 0f b7 3e          	movzwl	(%r14), %edi
 ffff80000010c378: be 0f 00 00 00       	movl	$15, %esi
 ffff80000010c37d: 41 ff d7             	callq	*%r15
-;     pos |= inb(addr_6845 + 1);
 ffff80000010c380: 41 8b 06             	movl	(%r14), %eax
 ffff80000010c383: 83 c0 01             	addl	$1, %eax
 ffff80000010c386: 0f b7 f8             	movzwl	%ax, %edi
 ffff80000010c389: 41 ff d4             	callq	*%r12
 ffff80000010c38c: 0f b6 c0             	movzbl	%al, %eax
 ffff80000010c38f: 09 d8                	orl	%ebx, %eax
-;     crt_buf = (uint16_t*) cp;
 ffff80000010c391: 48 b9 18 42 11 00 00 80 ff ff	movabsq	$-140737487224296, %rcx # imm = 0xFFFF800000114218
 ffff80000010c39b: 4c 89 29             	movq	%r13, (%rcx)
-;     crt_pos = pos;
 ffff80000010c39e: 48 b9 20 42 11 00 00 80 ff ff	movabsq	$-140737487224288, %rcx # imm = 0xFFFF800000114220
 ffff80000010c3a8: 66 89 01             	movw	%ax, (%rcx)
-; }
 ffff80000010c3ab: 48 83 c4 08          	addq	$8, %rsp
 ffff80000010c3af: 5b                   	popq	%rbx
 ffff80000010c3b0: 41 5c                	popq	%r12
@@ -4351,108 +4242,84 @@ ffff80000010c3b9: c3                   	retq
 ffff80000010c3ba: 66 0f 1f 44 00 00    	nopw	(%rax,%rax)
 
 ffff80000010c3c0 <kbd_init>:
-; {
 ffff80000010c3c0: 55                   	pushq	%rbp
 ffff80000010c3c1: 48 89 e5             	movq	%rsp, %rbp
-;     kbd_intr();
 ffff80000010c3c4: 48 b8 d0 c0 10 00 00 80 ff ff	movabsq	$-140737487257392, %rax # imm = 0xFFFF80000010C0D0
 ffff80000010c3ce: ff d0                	callq	*%rax
-;     pic_enable_irq(1);
 ffff80000010c3d0: 48 b8 20 d2 10 00 00 80 ff ff	movabsq	$-140737487252960, %rax # imm = 0xFFFF80000010D220
 ffff80000010c3da: bf 01 00 00 00       	movl	$1, %edi
 ffff80000010c3df: ff d0                	callq	*%rax
-; }
 ffff80000010c3e1: 5d                   	popq	%rbp
 ffff80000010c3e2: c3                   	retq
 ffff80000010c3e3: 66 2e 0f 1f 84 00 00 00 00 00	nopw	%cs:(%rax,%rax)
 ffff80000010c3ed: 0f 1f 00             	nopl	(%rax)
 
 ffff80000010c3f0 <serial_init>:
-; {
 ffff80000010c3f0: 55                   	pushq	%rbp
 ffff80000010c3f1: 48 89 e5             	movq	%rsp, %rbp
 ffff80000010c3f4: 53                   	pushq	%rbx
 ffff80000010c3f5: 50                   	pushq	%rax
-;     outb(COM1+COM_FCR, 0);
 ffff80000010c3f6: 48 bb 20 c5 10 00 00 80 ff ff	movabsq	$-140737487256288, %rbx # imm = 0xFFFF80000010C520
 ffff80000010c400: bf fa 03 00 00       	movl	$1018, %edi             # imm = 0x3FA
 ffff80000010c405: 31 f6                	xorl	%esi, %esi
 ffff80000010c407: ff d3                	callq	*%rbx
-;     outb(COM1+COM_LCR, COM_LCR_DLAB);
 ffff80000010c409: bf fb 03 00 00       	movl	$1019, %edi             # imm = 0x3FB
 ffff80000010c40e: be 80 00 00 00       	movl	$128, %esi
 ffff80000010c413: ff d3                	callq	*%rbx
-;     outb(COM1+COM_DLL, (uint8_t) (115200 / 9600));
 ffff80000010c415: bf f8 03 00 00       	movl	$1016, %edi             # imm = 0x3F8
 ffff80000010c41a: be 0c 00 00 00       	movl	$12, %esi
 ffff80000010c41f: ff d3                	callq	*%rbx
-;     outb(COM1+COM_DLM, 0);
 ffff80000010c421: bf f9 03 00 00       	movl	$1017, %edi             # imm = 0x3F9
 ffff80000010c426: 31 f6                	xorl	%esi, %esi
 ffff80000010c428: ff d3                	callq	*%rbx
-;     outb(COM1+COM_LCR, COM_LCR_WLEN8 & ~COM_LCR_DLAB);
 ffff80000010c42a: bf fb 03 00 00       	movl	$1019, %edi             # imm = 0x3FB
 ffff80000010c42f: be 03 00 00 00       	movl	$3, %esi
 ffff80000010c434: ff d3                	callq	*%rbx
-;     outb(COM1+COM_MCR, 0);
 ffff80000010c436: bf fc 03 00 00       	movl	$1020, %edi             # imm = 0x3FC
 ffff80000010c43b: 31 f6                	xorl	%esi, %esi
 ffff80000010c43d: ff d3                	callq	*%rbx
-;     outb(COM1+COM_IER, COM_IER_RDI);
 ffff80000010c43f: bf f9 03 00 00       	movl	$1017, %edi             # imm = 0x3F9
 ffff80000010c444: be 01 00 00 00       	movl	$1, %esi
 ffff80000010c449: ff d3                	callq	*%rbx
-;     serial_exists = (inb(COM1+COM_LSR) != 0xFF);
 ffff80000010c44b: 48 bb 10 c5 10 00 00 80 ff ff	movabsq	$-140737487256304, %rbx # imm = 0xFFFF80000010C510
 ffff80000010c455: bf fd 03 00 00       	movl	$1021, %edi             # imm = 0x3FD
 ffff80000010c45a: ff d3                	callq	*%rbx
 ffff80000010c45c: 3c ff                	cmpb	$-1, %al
 ffff80000010c45e: 48 b8 00 40 11 00 00 80 ff ff	movabsq	$-140737487224832, %rax # imm = 0xFFFF800000114000
 ffff80000010c468: 0f 95 00             	setne	(%rax)
-;     (void) inb(COM1+COM_IIR);
 ffff80000010c46b: bf fa 03 00 00       	movl	$1018, %edi             # imm = 0x3FA
 ffff80000010c470: ff d3                	callq	*%rbx
-;     (void) inb(COM1+COM_RX);
 ffff80000010c472: bf f8 03 00 00       	movl	$1016, %edi             # imm = 0x3F8
 ffff80000010c477: ff d3                	callq	*%rbx
-; }
 ffff80000010c479: 48 83 c4 08          	addq	$8, %rsp
 ffff80000010c47d: 5b                   	popq	%rbx
 ffff80000010c47e: 5d                   	popq	%rbp
 ffff80000010c47f: c3                   	retq
 
 ffff80000010c480 <cputchar>:
-; {
 ffff80000010c480: 55                   	pushq	%rbp
 ffff80000010c481: 48 89 e5             	movq	%rsp, %rbp
-;     cons_putc(c);
 ffff80000010c484: 48 b8 a0 c4 10 00 00 80 ff ff	movabsq	$-140737487256416, %rax # imm = 0xFFFF80000010C4A0
 ffff80000010c48e: ff d0                	callq	*%rax
-; }
 ffff80000010c490: 5d                   	popq	%rbp
 ffff80000010c491: c3                   	retq
 ffff80000010c492: 66 2e 0f 1f 84 00 00 00 00 00	nopw	%cs:(%rax,%rax)
 ffff80000010c49c: 0f 1f 40 00          	nopl	(%rax)
 
 ffff80000010c4a0 <cons_putc>:
-; {
 ffff80000010c4a0: 55                   	pushq	%rbp
 ffff80000010c4a1: 48 89 e5             	movq	%rsp, %rbp
 ffff80000010c4a4: 53                   	pushq	%rbx
 ffff80000010c4a5: 50                   	pushq	%rax
 ffff80000010c4a6: 89 fb                	movl	%edi, %ebx
-;     serial_putc(c);
 ffff80000010c4a8: 48 b8 30 c5 10 00 00 80 ff ff	movabsq	$-140737487256272, %rax # imm = 0xFFFF80000010C530
 ffff80000010c4b2: ff d0                	callq	*%rax
-;     lpt_putc(c);
 ffff80000010c4b4: 48 b8 a0 c5 10 00 00 80 ff ff	movabsq	$-140737487256160, %rax # imm = 0xFFFF80000010C5A0
 ffff80000010c4be: 89 df                	movl	%ebx, %edi
 ffff80000010c4c0: ff d0                	callq	*%rax
-;     cga_putc(c);
 ffff80000010c4c2: 48 b8 30 c6 10 00 00 80 ff ff	movabsq	$-140737487256016, %rax # imm = 0xFFFF80000010C630
 ffff80000010c4cc: 89 df                	movl	%ebx, %edi
 ffff80000010c4ce: ff d0                	callq	*%rax
-; }
 ffff80000010c4d0: 48 83 c4 08          	addq	$8, %rsp
 ffff80000010c4d4: 5b                   	popq	%rbx
 ffff80000010c4d5: 5d                   	popq	%rbp
@@ -4460,17 +4327,14 @@ ffff80000010c4d6: c3                   	retq
 ffff80000010c4d7: 66 0f 1f 84 00 00 00 00 00   	nopw	(%rax,%rax)
 
 ffff80000010c4e0 <getchar>:
-; {
 ffff80000010c4e0: 55                   	pushq	%rbp
 ffff80000010c4e1: 48 89 e5             	movq	%rsp, %rbp
 ffff80000010c4e4: 53                   	pushq	%rbx
 ffff80000010c4e5: 50                   	pushq	%rax
 ffff80000010c4e6: 48 bb 30 c2 10 00 00 80 ff ff	movabsq	$-140737487257040, %rbx # imm = 0xFFFF80000010C230
-;     while ((c = cons_getc()) == 0)
 ffff80000010c4f0: ff d3                	callq	*%rbx
 ffff80000010c4f2: 85 c0                	testl	%eax, %eax
 ffff80000010c4f4: 74 fa                	je	0xffff80000010c4f0 <getchar+0x10>
-;     return c;
 ffff80000010c4f6: 48 83 c4 08          	addq	$8, %rsp
 ffff80000010c4fa: 5b                   	popq	%rbx
 ffff80000010c4fb: 5d                   	popq	%rbp
@@ -4478,42 +4342,33 @@ ffff80000010c4fc: c3                   	retq
 ffff80000010c4fd: 0f 1f 00             	nopl	(%rax)
 
 ffff80000010c500 <iscons>:
-; {
 ffff80000010c500: 55                   	pushq	%rbp
 ffff80000010c501: 48 89 e5             	movq	%rsp, %rbp
-;     return 1;
 ffff80000010c504: b8 01 00 00 00       	movl	$1, %eax
 ffff80000010c509: 5d                   	popq	%rbp
 ffff80000010c50a: c3                   	retq
 ffff80000010c50b: 0f 1f 44 00 00       	nopl	(%rax,%rax)
 
 ffff80000010c510 <inb>:
-; {
 ffff80000010c510: 55                   	pushq	%rbp
 ffff80000010c511: 48 89 e5             	movq	%rsp, %rbp
-; 	asm volatile("inb %w1, %0" : "=a" (data) : "d" (port));
 ffff80000010c514: 89 fa                	movl	%edi, %edx
 ffff80000010c516: ec                   	inb	%dx, %al
-; 	return data;
 ffff80000010c517: 5d                   	popq	%rbp
 ffff80000010c518: c3                   	retq
 ffff80000010c519: 0f 1f 80 00 00 00 00 	nopl	(%rax)
 
 ffff80000010c520 <outb>:
-; {
 ffff80000010c520: 55                   	pushq	%rbp
 ffff80000010c521: 48 89 e5             	movq	%rsp, %rbp
 ffff80000010c524: 89 f0                	movl	%esi, %eax
-; 	asm volatile("outb %0, %w1" :: "a" (data), "d" (port));
 ffff80000010c526: 89 fa                	movl	%edi, %edx
 ffff80000010c528: ee                   	outb	%al, %dx
-; }
 ffff80000010c529: 5d                   	popq	%rbp
 ffff80000010c52a: c3                   	retq
 ffff80000010c52b: 0f 1f 44 00 00       	nopl	(%rax,%rax)
 
 ffff80000010c530 <serial_putc>:
-; {
 ffff80000010c530: 55                   	pushq	%rbp
 ffff80000010c531: 48 89 e5             	movq	%rsp, %rbp
 ffff80000010c534: 41 57                	pushq	%r15
@@ -4521,34 +4376,26 @@ ffff80000010c536: 41 56                	pushq	%r14
 ffff80000010c538: 41 54                	pushq	%r12
 ffff80000010c53a: 53                   	pushq	%rbx
 ffff80000010c53b: 41 89 fe             	movl	%edi, %r14d
-;          !(inb(COM1 + COM_LSR) & COM_LSR_TXRDY) && i < 12800;
 ffff80000010c53e: 49 bf 10 c5 10 00 00 80 ff ff	movabsq	$-140737487256304, %r15 # imm = 0xFFFF80000010C510
 ffff80000010c548: bf fd 03 00 00       	movl	$1021, %edi             # imm = 0x3FD
 ffff80000010c54d: 41 ff d7             	callq	*%r15
 ffff80000010c550: a8 20                	testb	$32, %al
-;     for (i = 0;
 ffff80000010c552: 75 28                	jne	0xffff80000010c57c <serial_putc+0x4c>
 ffff80000010c554: 31 db                	xorl	%ebx, %ebx
 ffff80000010c556: 49 bc b0 c7 10 00 00 80 ff ff	movabsq	$-140737487255632, %r12 # imm = 0xFFFF80000010C7B0
-;         delay();
 ffff80000010c560: 41 ff d4             	callq	*%r12
-;          !(inb(COM1 + COM_LSR) & COM_LSR_TXRDY) && i < 12800;
 ffff80000010c563: bf fd 03 00 00       	movl	$1021, %edi             # imm = 0x3FD
 ffff80000010c568: 41 ff d7             	callq	*%r15
 ffff80000010c56b: a8 20                	testb	$32, %al
-;     for (i = 0;
 ffff80000010c56d: 75 0d                	jne	0xffff80000010c57c <serial_putc+0x4c>
 ffff80000010c56f: 8d 43 01             	leal	1(%rbx), %eax
-;     for (i = 0;
 ffff80000010c572: 81 fb ff 31 00 00    	cmpl	$12799, %ebx            # imm = 0x31FF
 ffff80000010c578: 89 c3                	movl	%eax, %ebx
 ffff80000010c57a: 72 e4                	jb	0xffff80000010c560 <serial_putc+0x30>
-;     outb(COM1 + COM_TX, c);
 ffff80000010c57c: 41 0f b6 f6          	movzbl	%r14b, %esi
 ffff80000010c580: 48 b8 20 c5 10 00 00 80 ff ff	movabsq	$-140737487256288, %rax # imm = 0xFFFF80000010C520
 ffff80000010c58a: bf f8 03 00 00       	movl	$1016, %edi             # imm = 0x3F8
 ffff80000010c58f: ff d0                	callq	*%rax
-; }
 ffff80000010c591: 5b                   	popq	%rbx
 ffff80000010c592: 41 5c                	popq	%r12
 ffff80000010c594: 41 5e                	popq	%r14
@@ -4558,7 +4405,6 @@ ffff80000010c599: c3                   	retq
 ffff80000010c59a: 66 0f 1f 44 00 00    	nopw	(%rax,%rax)
 
 ffff80000010c5a0 <lpt_putc>:
-; {
 ffff80000010c5a0: 55                   	pushq	%rbp
 ffff80000010c5a1: 48 89 e5             	movq	%rsp, %rbp
 ffff80000010c5a4: 41 57                	pushq	%r15
@@ -4566,7 +4412,6 @@ ffff80000010c5a6: 41 56                	pushq	%r14
 ffff80000010c5a8: 41 54                	pushq	%r12
 ffff80000010c5aa: 53                   	pushq	%rbx
 ffff80000010c5ab: 41 89 fe             	movl	%edi, %r14d
-;     for (i = 0; !(inb(0x378+1) & 0x80) && i < 12800; i++)
 ffff80000010c5ae: 49 bf 10 c5 10 00 00 80 ff ff	movabsq	$-140737487256304, %r15 # imm = 0xFFFF80000010C510
 ffff80000010c5b8: bf 79 03 00 00       	movl	$889, %edi              # imm = 0x379
 ffff80000010c5bd: 41 ff d7             	callq	*%r15
@@ -4574,32 +4419,25 @@ ffff80000010c5c0: 84 c0                	testb	%al, %al
 ffff80000010c5c2: 78 28                	js	0xffff80000010c5ec <lpt_putc+0x4c>
 ffff80000010c5c4: 31 db                	xorl	%ebx, %ebx
 ffff80000010c5c6: 49 bc b0 c7 10 00 00 80 ff ff	movabsq	$-140737487255632, %r12 # imm = 0xFFFF80000010C7B0
-;         delay();
 ffff80000010c5d0: 41 ff d4             	callq	*%r12
-;     for (i = 0; !(inb(0x378+1) & 0x80) && i < 12800; i++)
 ffff80000010c5d3: bf 79 03 00 00       	movl	$889, %edi              # imm = 0x379
 ffff80000010c5d8: 41 ff d7             	callq	*%r15
 ffff80000010c5db: 84 c0                	testb	%al, %al
 ffff80000010c5dd: 78 0d                	js	0xffff80000010c5ec <lpt_putc+0x4c>
 ffff80000010c5df: 8d 43 01             	leal	1(%rbx), %eax
-;     for (i = 0; !(inb(0x378+1) & 0x80) && i < 12800; i++)
 ffff80000010c5e2: 81 fb ff 31 00 00    	cmpl	$12799, %ebx            # imm = 0x31FF
 ffff80000010c5e8: 89 c3                	movl	%eax, %ebx
 ffff80000010c5ea: 72 e4                	jb	0xffff80000010c5d0 <lpt_putc+0x30>
-;     outb(0x378+0, c);
 ffff80000010c5ec: 41 0f b6 f6          	movzbl	%r14b, %esi
 ffff80000010c5f0: 48 bb 20 c5 10 00 00 80 ff ff	movabsq	$-140737487256288, %rbx # imm = 0xFFFF80000010C520
 ffff80000010c5fa: bf 78 03 00 00       	movl	$888, %edi              # imm = 0x378
 ffff80000010c5ff: ff d3                	callq	*%rbx
-;     outb(0x378+2, 0x08|0x04|0x01);
 ffff80000010c601: bf 7a 03 00 00       	movl	$890, %edi              # imm = 0x37A
 ffff80000010c606: be 0d 00 00 00       	movl	$13, %esi
 ffff80000010c60b: ff d3                	callq	*%rbx
-;     outb(0x378+2, 0x08);
 ffff80000010c60d: bf 7a 03 00 00       	movl	$890, %edi              # imm = 0x37A
 ffff80000010c612: be 08 00 00 00       	movl	$8, %esi
 ffff80000010c617: ff d3                	callq	*%rbx
-; }
 ffff80000010c619: 5b                   	popq	%rbx
 ffff80000010c61a: 41 5c                	popq	%r12
 ffff80000010c61c: 41 5e                	popq	%r14
@@ -4610,7 +4448,6 @@ ffff80000010c622: 66 2e 0f 1f 84 00 00 00 00 00	nopw	%cs:(%rax,%rax)
 ffff80000010c62c: 0f 1f 40 00          	nopl	(%rax)
 
 ffff80000010c630 <cga_putc>:
-; {
 ffff80000010c630: 55                   	pushq	%rbp
 ffff80000010c631: 48 89 e5             	movq	%rsp, %rbp
 ffff80000010c634: 41 57                	pushq	%r15
@@ -4619,10 +4456,8 @@ ffff80000010c638: 53                   	pushq	%rbx
 ffff80000010c639: 50                   	pushq	%rax
 ffff80000010c63a: 89 f8                	movl	%edi, %eax
 ffff80000010c63c: 0d 00 07 00 00       	orl	$1792, %eax             # imm = 0x700
-;     if (!(c & ~0xFF))
 ffff80000010c641: 81 ff 00 01 00 00    	cmpl	$256, %edi              # imm = 0x100
 ffff80000010c647: 0f 43 c7             	cmovael	%edi, %eax
-;     switch (c & 0xff) {
 ffff80000010c64a: 8d 48 f8             	leal	-8(%rax), %ecx
 ffff80000010c64d: 49 be 20 42 11 00 00 80 ff ff	movabsq	$-140737487224288, %r14 # imm = 0xFFFF800000114220
 ffff80000010c657: 80 f9 05             	cmpb	$5, %cl
@@ -4630,14 +4465,11 @@ ffff80000010c65a: 0f 87 8f 00 00 00    	ja	0xffff80000010c6ef <cga_putc+0xbf>
 ffff80000010c660: 0f b6 c9             	movzbl	%cl, %ecx
 ffff80000010c663: 48 ba 00 00 11 00 00 80 ff ff	movabsq	$-140737487241216, %rdx # imm = 0xFFFF800000110000
 ffff80000010c66d: ff 24 ca             	jmpq	*(%rdx,%rcx,8)
-;         if (crt_pos > 0) {
 ffff80000010c670: 41 0f b7 0e          	movzwl	(%r14), %ecx
 ffff80000010c674: 66 85 c9             	testw	%cx, %cx
 ffff80000010c677: 0f 84 8e 00 00 00    	je	0xffff80000010c70b <cga_putc+0xdb>
-;             crt_pos--;
 ffff80000010c67d: 83 c1 ff             	addl	$-1, %ecx
 ffff80000010c680: 66 41 89 0e          	movw	%cx, (%r14)
-;             crt_buf[crt_pos] = (c & ~0xff) | ' ';
 ffff80000010c684: 25 00 ff ff ff       	andl	$4294967040, %eax       # imm = 0xFFFFFF00
 ffff80000010c689: 83 c8 20             	orl	$32, %eax
 ffff80000010c68c: 48 ba 18 42 11 00 00 80 ff ff	movabsq	$-140737487224296, %rdx # imm = 0xFFFF800000114218
@@ -4645,26 +4477,19 @@ ffff80000010c696: 48 8b 12             	movq	(%rdx), %rdx
 ffff80000010c699: 0f b7 c9             	movzwl	%cx, %ecx
 ffff80000010c69c: 66 89 04 4a          	movw	%ax, (%rdx,%rcx,2)
 ffff80000010c6a0: eb 69                	jmp	0xffff80000010c70b <cga_putc+0xdb>
-;         cons_putc(' ');
 ffff80000010c6a2: 48 bb a0 c4 10 00 00 80 ff ff	movabsq	$-140737487256416, %rbx # imm = 0xFFFF80000010C4A0
 ffff80000010c6ac: bf 20 00 00 00       	movl	$32, %edi
 ffff80000010c6b1: ff d3                	callq	*%rbx
-;         cons_putc(' ');
 ffff80000010c6b3: bf 20 00 00 00       	movl	$32, %edi
 ffff80000010c6b8: ff d3                	callq	*%rbx
-;         cons_putc(' ');
 ffff80000010c6ba: bf 20 00 00 00       	movl	$32, %edi
 ffff80000010c6bf: ff d3                	callq	*%rbx
-;         cons_putc(' ');
 ffff80000010c6c1: bf 20 00 00 00       	movl	$32, %edi
 ffff80000010c6c6: ff d3                	callq	*%rbx
-;         cons_putc(' ');
 ffff80000010c6c8: bf 20 00 00 00       	movl	$32, %edi
 ffff80000010c6cd: ff d3                	callq	*%rbx
 ffff80000010c6cf: eb 3a                	jmp	0xffff80000010c70b <cga_putc+0xdb>
-;         crt_pos += CRT_COLS;
 ffff80000010c6d1: 66 41 83 06 50       	addw	$80, (%r14)
-;         crt_pos -= (crt_pos % CRT_COLS);
 ffff80000010c6d6: 41 0f b7 06          	movzwl	(%r14), %eax
 ffff80000010c6da: 69 c0 cd cc 00 00    	imull	$52429, %eax, %eax      # imm = 0xCCCD
 ffff80000010c6e0: c1 e8 12             	shrl	$18, %eax
@@ -4672,18 +4497,15 @@ ffff80000010c6e3: 83 e0 f0             	andl	$-16, %eax
 ffff80000010c6e6: 8d 04 80             	leal	(%rax,%rax,4), %eax
 ffff80000010c6e9: 66 41 89 06          	movw	%ax, (%r14)
 ffff80000010c6ed: eb 1c                	jmp	0xffff80000010c70b <cga_putc+0xdb>
-;         crt_buf[crt_pos++] = c;     /* write the character */
 ffff80000010c6ef: 48 b9 18 42 11 00 00 80 ff ff	movabsq	$-140737487224296, %rcx # imm = 0xFFFF800000114218
 ffff80000010c6f9: 48 8b 09             	movq	(%rcx), %rcx
 ffff80000010c6fc: 41 0f b7 16          	movzwl	(%r14), %edx
 ffff80000010c700: 8d 72 01             	leal	1(%rdx), %esi
 ffff80000010c703: 66 41 89 36          	movw	%si, (%r14)
 ffff80000010c707: 66 89 04 51          	movw	%ax, (%rcx,%rdx,2)
-;     if (crt_pos >= CRT_SIZE) {
 ffff80000010c70b: 41 0f b7 06          	movzwl	(%r14), %eax
 ffff80000010c70f: 3d d0 07 00 00       	cmpl	$2000, %eax             # imm = 0x7D0
 ffff80000010c714: 72 43                	jb	0xffff80000010c759 <cga_putc+0x129>
-;         memmove(crt_buf, crt_buf + CRT_COLS, (CRT_SIZE - CRT_COLS) * sizeof(uint16_t));
 ffff80000010c716: 48 bb 18 42 11 00 00 80 ff ff	movabsq	$-140737487224296, %rbx # imm = 0xFFFF800000114218
 ffff80000010c720: 48 8b 3b             	movq	(%rbx), %rdi
 ffff80000010c723: 48 8d b7 a0 00 00 00 	leaq	160(%rdi), %rsi
@@ -4692,37 +4514,29 @@ ffff80000010c734: ba 00 0f 00 00       	movl	$3840, %edx             # imm = 0xF
 ffff80000010c739: ff d0                	callq	*%rax
 ffff80000010c73b: 48 8b 03             	movq	(%rbx), %rax
 ffff80000010c73e: 31 c9                	xorl	%ecx, %ecx
-;             crt_buf[i] = 0x0700 | ' ';
 ffff80000010c740: 66 c7 84 48 00 0f 00 00 20 07	movw	$1824, 3840(%rax,%rcx,2) # imm = 0x720
-;         for (i = CRT_SIZE - CRT_COLS; i < CRT_SIZE; i++)
 ffff80000010c74a: 48 83 c1 01          	addq	$1, %rcx
 ffff80000010c74e: 48 83 f9 50          	cmpq	$80, %rcx
 ffff80000010c752: 75 ec                	jne	0xffff80000010c740 <cga_putc+0x110>
-;         crt_pos -= CRT_COLS;
 ffff80000010c754: 66 41 83 06 b0       	addw	$-80, (%r14)
-;     outb(addr_6845, 14);
 ffff80000010c759: 48 bb 10 42 11 00 00 80 ff ff	movabsq	$-140737487224304, %rbx # imm = 0xFFFF800000114210
 ffff80000010c763: 0f b7 3b             	movzwl	(%rbx), %edi
 ffff80000010c766: 49 bf 20 c5 10 00 00 80 ff ff	movabsq	$-140737487256288, %r15 # imm = 0xFFFF80000010C520
 ffff80000010c770: be 0e 00 00 00       	movl	$14, %esi
 ffff80000010c775: 41 ff d7             	callq	*%r15
-;     outb(addr_6845 + 1, crt_pos >> 8);
 ffff80000010c778: 8b 03                	movl	(%rbx), %eax
 ffff80000010c77a: 83 c0 01             	addl	$1, %eax
 ffff80000010c77d: 41 0f b6 76 01       	movzbl	1(%r14), %esi
 ffff80000010c782: 0f b7 f8             	movzwl	%ax, %edi
 ffff80000010c785: 41 ff d7             	callq	*%r15
-;     outb(addr_6845, 15);
 ffff80000010c788: 0f b7 3b             	movzwl	(%rbx), %edi
 ffff80000010c78b: be 0f 00 00 00       	movl	$15, %esi
 ffff80000010c790: 41 ff d7             	callq	*%r15
-;     outb(addr_6845 + 1, crt_pos);
 ffff80000010c793: 8b 03                	movl	(%rbx), %eax
 ffff80000010c795: 83 c0 01             	addl	$1, %eax
 ffff80000010c798: 41 0f b6 36          	movzbl	(%r14), %esi
 ffff80000010c79c: 0f b7 f8             	movzwl	%ax, %edi
 ffff80000010c79f: 41 ff d7             	callq	*%r15
-; }
 ffff80000010c7a2: 48 83 c4 08          	addq	$8, %rsp
 ffff80000010c7a6: 5b                   	popq	%rbx
 ffff80000010c7a7: 41 5e                	popq	%r14
@@ -4732,25 +4546,19 @@ ffff80000010c7ac: c3                   	retq
 ffff80000010c7ad: 0f 1f 00             	nopl	(%rax)
 
 ffff80000010c7b0 <delay>:
-; {
 ffff80000010c7b0: 55                   	pushq	%rbp
 ffff80000010c7b1: 48 89 e5             	movq	%rsp, %rbp
 ffff80000010c7b4: 53                   	pushq	%rbx
 ffff80000010c7b5: 50                   	pushq	%rax
-;     inb(0x84);
 ffff80000010c7b6: 48 bb 10 c5 10 00 00 80 ff ff	movabsq	$-140737487256304, %rbx # imm = 0xFFFF80000010C510
 ffff80000010c7c0: bf 84 00 00 00       	movl	$132, %edi
 ffff80000010c7c5: ff d3                	callq	*%rbx
-;     inb(0x84);
 ffff80000010c7c7: bf 84 00 00 00       	movl	$132, %edi
 ffff80000010c7cc: ff d3                	callq	*%rbx
-;     inb(0x84);
 ffff80000010c7ce: bf 84 00 00 00       	movl	$132, %edi
 ffff80000010c7d3: ff d3                	callq	*%rbx
-;     inb(0x84);
 ffff80000010c7d5: bf 84 00 00 00       	movl	$132, %edi
 ffff80000010c7da: ff d3                	callq	*%rbx
-; }
 ffff80000010c7dc: 48 83 c4 08          	addq	$8, %rsp
 ffff80000010c7e0: 5b                   	popq	%rbx
 ffff80000010c7e1: 5d                   	popq	%rbp
@@ -4770,42 +4578,34 @@ ffff80000010c7ee: cc                   	int3
 ffff80000010c7ef: cc                   	int3
 
 ffff80000010c7f0 <kmain>:
-; {
 ffff80000010c7f0: 55                   	pushq	%rbp
 ffff80000010c7f1: 48 89 e5             	movq	%rsp, %rbp
 ffff80000010c7f4: 53                   	pushq	%rbx
 ffff80000010c7f5: 50                   	pushq	%rax
 ffff80000010c7f6: 48 89 fb             	movq	%rdi, %rbx
-; 	memset(edata, 0, end - edata);
 ffff80000010c7f9: 48 bf 00 33 11 00 00 80 ff ff	movabsq	$-140737487228160, %rdi # imm = 0xFFFF800000113300
 ffff80000010c803: 48 ba f0 46 11 00 00 80 ff ff	movabsq	$-140737487223056, %rdx # imm = 0xFFFF8000001146F0
 ffff80000010c80d: 48 29 fa             	subq	%rdi, %rdx
 ffff80000010c810: 48 b8 90 f8 10 00 00 80 ff ff	movabsq	$-140737487243120, %rax # imm = 0xFFFF80000010F890
 ffff80000010c81a: 31 f6                	xorl	%esi, %esi
 ffff80000010c81c: ff d0                	callq	*%rax
-; 	cons_init();
 ffff80000010c81e: 48 b8 90 c2 10 00 00 80 ff ff	movabsq	$-140737487256944, %rax # imm = 0xFFFF80000010C290
 ffff80000010c828: ff d0                	callq	*%rax
-; 	cprintf("\n");
 ffff80000010c82a: 48 bf fb 0d 11 00 00 80 ff ff	movabsq	$-140737487237637, %rdi # imm = 0xFFFF800000110DFB
 ffff80000010c834: 48 b9 c0 d3 10 00 00 80 ff ff	movabsq	$-140737487252544, %rcx # imm = 0xFFFF80000010D3C0
 ffff80000010c83e: 31 c0                	xorl	%eax, %eax
 ffff80000010c840: ff d1                	callq	*%rcx
-; 	mem_init(boot_info);
 ffff80000010c842: 48 b8 d0 d8 10 00 00 80 ff ff	movabsq	$-140737487251248, %rax # imm = 0xFFFF80000010D8D0
 ffff80000010c84c: 48 89 df             	movq	%rbx, %rdi
 ffff80000010c84f: ff d0                	callq	*%rax
 ffff80000010c851: 48 bb 60 ce 10 00 00 80 ff ff	movabsq	$-140737487253920, %rbx # imm = 0xFFFF80000010CE60
 ffff80000010c85b: 0f 1f 44 00 00       	nopl	(%rax,%rax)
-; 		monitor(NULL);
 ffff80000010c860: 31 ff                	xorl	%edi, %edi
 ffff80000010c862: ff d3                	callq	*%rbx
-; 	while (1)
 ffff80000010c864: eb fa                	jmp	0xffff80000010c860 <kmain+0x70>
 ffff80000010c866: 66 2e 0f 1f 84 00 00 00 00 00	nopw	%cs:(%rax,%rax)
 
 ffff80000010c870 <_panic>:
-; {
 ffff80000010c870: 55                   	pushq	%rbp
 ffff80000010c871: 48 89 e5             	movq	%rsp, %rbp
 ffff80000010c874: 41 56                	pushq	%r14
@@ -4814,50 +4614,40 @@ ffff80000010c877: 48 83 ec 50          	subq	$80, %rsp
 ffff80000010c87b: 48 89 4d b8          	movq	%rcx, -72(%rbp)
 ffff80000010c87f: 4c 89 45 c0          	movq	%r8, -64(%rbp)
 ffff80000010c883: 4c 89 4d c8          	movq	%r9, -56(%rbp)
-; 	if (panicstr)
 ffff80000010c887: 48 b8 28 42 11 00 00 80 ff ff	movabsq	$-140737487224280, %rax # imm = 0xFFFF800000114228
 ffff80000010c891: 48 83 38 00          	cmpq	$0, (%rax)
 ffff80000010c895: 75 66                	jne	0xffff80000010c8fd <_panic+0x8d>
 ffff80000010c897: 48 89 d3             	movq	%rdx, %rbx
 ffff80000010c89a: 89 f2                	movl	%esi, %edx
 ffff80000010c89c: 48 89 fe             	movq	%rdi, %rsi
-; 	panicstr = fmt;
 ffff80000010c89f: 48 89 18             	movq	%rbx, (%rax)
-; 	__asm __volatile("cli; cld");
 ffff80000010c8a2: fa                   	cli
 ffff80000010c8a3: fc                   	cld
 ffff80000010c8a4: 48 8d 45 a0          	leaq	-96(%rbp), %rax
-; 	va_start(ap, fmt);
 ffff80000010c8a8: 48 89 45 e0          	movq	%rax, -32(%rbp)
 ffff80000010c8ac: 48 8d 45 10          	leaq	16(%rbp), %rax
 ffff80000010c8b0: 48 89 45 d8          	movq	%rax, -40(%rbp)
 ffff80000010c8b4: 48 b8 18 00 00 00 30 00 00 00	movabsq	$206158430232, %rax # imm = 0x3000000018
 ffff80000010c8be: 48 89 45 d0          	movq	%rax, -48(%rbp)
-; 	cprintf("kernel panic at %s:%d: ", file, line);
 ffff80000010c8c2: 48 bf 67 09 11 00 00 80 ff ff	movabsq	$-140737487238809, %rdi # imm = 0xFFFF800000110967
 ffff80000010c8cc: 49 be c0 d3 10 00 00 80 ff ff	movabsq	$-140737487252544, %r14 # imm = 0xFFFF80000010D3C0
 ffff80000010c8d6: 31 c0                	xorl	%eax, %eax
 ffff80000010c8d8: 41 ff d6             	callq	*%r14
-; 	vcprintf(fmt, ap);
 ffff80000010c8db: 48 b8 60 d3 10 00 00 80 ff ff	movabsq	$-140737487252640, %rax # imm = 0xFFFF80000010D360
 ffff80000010c8e5: 48 8d 75 d0          	leaq	-48(%rbp), %rsi
 ffff80000010c8e9: 48 89 df             	movq	%rbx, %rdi
 ffff80000010c8ec: ff d0                	callq	*%rax
-; 	cprintf("\n");
 ffff80000010c8ee: 48 bf fb 0d 11 00 00 80 ff ff	movabsq	$-140737487237637, %rdi # imm = 0xFFFF800000110DFB
 ffff80000010c8f8: 31 c0                	xorl	%eax, %eax
 ffff80000010c8fa: 41 ff d6             	callq	*%r14
 ffff80000010c8fd: 48 bb 60 ce 10 00 00 80 ff ff	movabsq	$-140737487253920, %rbx # imm = 0xFFFF80000010CE60
 ffff80000010c907: 66 0f 1f 84 00 00 00 00 00   	nopw	(%rax,%rax)
-; 		monitor(NULL);
 ffff80000010c910: 31 ff                	xorl	%edi, %edi
 ffff80000010c912: ff d3                	callq	*%rbx
-; 	while (1)
 ffff80000010c914: eb fa                	jmp	0xffff80000010c910 <_panic+0xa0>
 ffff80000010c916: 66 2e 0f 1f 84 00 00 00 00 00	nopw	%cs:(%rax,%rax)
 
 ffff80000010c920 <_warn>:
-; {
 ffff80000010c920: 55                   	pushq	%rbp
 ffff80000010c921: 48 89 e5             	movq	%rsp, %rbp
 ffff80000010c924: 41 56                	pushq	%r14
@@ -4870,27 +4660,22 @@ ffff80000010c933: 48 89 4d b8          	movq	%rcx, -72(%rbp)
 ffff80000010c937: 4c 89 45 c0          	movq	%r8, -64(%rbp)
 ffff80000010c93b: 4c 89 4d c8          	movq	%r9, -56(%rbp)
 ffff80000010c93f: 48 8d 45 a0          	leaq	-96(%rbp), %rax
-; 	va_start(ap, fmt);
 ffff80000010c943: 48 89 45 e0          	movq	%rax, -32(%rbp)
 ffff80000010c947: 48 8d 45 10          	leaq	16(%rbp), %rax
 ffff80000010c94b: 48 89 45 d8          	movq	%rax, -40(%rbp)
 ffff80000010c94f: 48 b8 18 00 00 00 30 00 00 00	movabsq	$206158430232, %rax # imm = 0x3000000018
 ffff80000010c959: 48 89 45 d0          	movq	%rax, -48(%rbp)
-; 	cprintf("kernel warning at %s:%d: ", file, line);
 ffff80000010c95d: 48 bf fd 0d 11 00 00 80 ff ff	movabsq	$-140737487237635, %rdi # imm = 0xFFFF800000110DFD
 ffff80000010c967: 49 be c0 d3 10 00 00 80 ff ff	movabsq	$-140737487252544, %r14 # imm = 0xFFFF80000010D3C0
 ffff80000010c971: 31 c0                	xorl	%eax, %eax
 ffff80000010c973: 41 ff d6             	callq	*%r14
-; 	vcprintf(fmt, ap);
 ffff80000010c976: 48 b8 60 d3 10 00 00 80 ff ff	movabsq	$-140737487252640, %rax # imm = 0xFFFF80000010D360
 ffff80000010c980: 48 8d 75 d0          	leaq	-48(%rbp), %rsi
 ffff80000010c984: 48 89 df             	movq	%rbx, %rdi
 ffff80000010c987: ff d0                	callq	*%rax
-; 	cprintf("\n");
 ffff80000010c989: 48 bf fb 0d 11 00 00 80 ff ff	movabsq	$-140737487237637, %rdi # imm = 0xFFFF800000110DFB
 ffff80000010c993: 31 c0                	xorl	%eax, %eax
 ffff80000010c995: 41 ff d6             	callq	*%r14
-; }
 ffff80000010c998: 48 83 c4 50          	addq	$80, %rsp
 ffff80000010c99c: 5b                   	popq	%rbx
 ffff80000010c99d: 41 5e                	popq	%r14
@@ -4913,7 +4698,6 @@ ffff80000010c9ae: cc                   	int3
 ffff80000010c9af: cc                   	int3
 
 ffff80000010c9b0 <mon_help>:
-; {
 ffff80000010c9b0: 55                   	pushq	%rbp
 ffff80000010c9b1: 48 89 e5             	movq	%rsp, %rbp
 ffff80000010c9b4: 41 57                	pushq	%r15
@@ -4925,17 +4709,14 @@ ffff80000010c9c0: 49 bf 50 02 11 00 00 80 ff ff	movabsq	$-140737487240624, %r15 
 ffff80000010c9ca: 49 be 17 0e 11 00 00 80 ff ff	movabsq	$-140737487237609, %r14 # imm = 0xFFFF800000110E17
 ffff80000010c9d4: 49 bc c0 d3 10 00 00 80 ff ff	movabsq	$-140737487252544, %r12 # imm = 0xFFFF80000010D3C0
 ffff80000010c9de: 66 90                	nop
-; 		cprintf("%s - %s\n", commands[i].name, commands[i].desc);
 ffff80000010c9e0: 4a 8b 74 3b f8       	movq	-8(%rbx,%r15), %rsi
 ffff80000010c9e5: 4a 8b 14 3b          	movq	(%rbx,%r15), %rdx
 ffff80000010c9e9: 4c 89 f7             	movq	%r14, %rdi
 ffff80000010c9ec: 31 c0                	xorl	%eax, %eax
 ffff80000010c9ee: 41 ff d4             	callq	*%r12
-; 	for (i = 0; i < NCOMMANDS; i++)
 ffff80000010c9f1: 48 83 c3 18          	addq	$24, %rbx
 ffff80000010c9f5: 48 81 fb 80 00 00 00 	cmpq	$128, %rbx
 ffff80000010c9fc: 75 e2                	jne	0xffff80000010c9e0 <mon_help+0x30>
-; 	return 0;
 ffff80000010c9fe: 31 c0                	xorl	%eax, %eax
 ffff80000010ca00: 5b                   	popq	%rbx
 ffff80000010ca01: 41 5c                	popq	%r12
@@ -4946,24 +4727,20 @@ ffff80000010ca08: c3                   	retq
 ffff80000010ca09: 0f 1f 80 00 00 00 00 	nopl	(%rax)
 
 ffff80000010ca10 <mon_kerninfo>:
-; {
 ffff80000010ca10: 55                   	pushq	%rbp
 ffff80000010ca11: 48 89 e5             	movq	%rsp, %rbp
 ffff80000010ca14: 41 57                	pushq	%r15
 ffff80000010ca16: 41 56                	pushq	%r14
 ffff80000010ca18: 41 54                	pushq	%r12
 ffff80000010ca1a: 53                   	pushq	%rbx
-; 	cprintf("Special kernel symbols:\n");
 ffff80000010ca1b: 48 bf 8f 0b 11 00 00 80 ff ff	movabsq	$-140737487238257, %rdi # imm = 0xFFFF800000110B8F
 ffff80000010ca25: 49 bc c0 d3 10 00 00 80 ff ff	movabsq	$-140737487252544, %r12 # imm = 0xFFFF80000010D3C0
 ffff80000010ca2f: 31 c0                	xorl	%eax, %eax
 ffff80000010ca31: 41 ff d4             	callq	*%r12
-; 	cprintf("  _start                            %016p (phys)\n", _start);
 ffff80000010ca34: 48 bf e9 0e 11 00 00 80 ff ff	movabsq	$-140737487237399, %rdi # imm = 0xFFFF800000110EE9
 ffff80000010ca3e: 48 be 00 00 10 00 00 00 00 00	movabsq	$1048576, %rsi  # imm = 0x100000
 ffff80000010ca48: 31 c0                	xorl	%eax, %eax
 ffff80000010ca4a: 41 ff d4             	callq	*%r12
-; 	cprintf("  entry  %016p (virt)  %016p (phys)\n", entry, entry - KERNEL_VMA);
 ffff80000010ca4d: 48 bf 74 08 11 00 00 80 ff ff	movabsq	$-140737487239052, %rdi # imm = 0xFFFF800000110874
 ffff80000010ca57: 49 bf 00 00 00 00 00 80 00 00	movabsq	$140737488355328, %r15 # imm = 0x800000000000
 ffff80000010ca61: 49 be 00 00 10 00 00 80 ff ff	movabsq	$-140737487306752, %r14 # imm = 0xFFFF800000100000
@@ -4971,19 +4748,16 @@ ffff80000010ca6b: 4b 8d 14 3e          	leaq	(%r14,%r15), %rdx
 ffff80000010ca6f: 4c 89 f6             	movq	%r14, %rsi
 ffff80000010ca72: 31 c0                	xorl	%eax, %eax
 ffff80000010ca74: 41 ff d4             	callq	*%r12
-; 	cprintf("  etext  %016p (virt)  %016p (phys)\n", etext, etext - KERNEL_VMA);
 ffff80000010ca77: 48 bf 0d 0a 11 00 00 80 ff ff	movabsq	$-140737487238643, %rdi # imm = 0xFFFF800000110A0D
 ffff80000010ca81: 48 be c0 fa 10 00 00 80 ff ff	movabsq	$-140737487242560, %rsi # imm = 0xFFFF80000010FAC0
 ffff80000010ca8b: 4a 8d 14 3e          	leaq	(%rsi,%r15), %rdx
 ffff80000010ca8f: 31 c0                	xorl	%eax, %eax
 ffff80000010ca91: 41 ff d4             	callq	*%r12
-; 	cprintf("  edata  %016p (virt)  %016p (phys)\n", edata, edata - KERNEL_VMA);
 ffff80000010ca94: 48 bf 7f 09 11 00 00 80 ff ff	movabsq	$-140737487238785, %rdi # imm = 0xFFFF80000011097F
 ffff80000010ca9e: 48 be 00 33 11 00 00 80 ff ff	movabsq	$-140737487228160, %rsi # imm = 0xFFFF800000113300
 ffff80000010caa8: 4a 8d 14 3e          	leaq	(%rsi,%r15), %rdx
 ffff80000010caac: 31 c0                	xorl	%eax, %eax
 ffff80000010caae: 41 ff d4             	callq	*%r12
-; 	cprintf("  end    %016p (virt)  %016p (phys)\n", end, end - KERNEL_VMA);
 ffff80000010cab1: 48 bf 99 08 11 00 00 80 ff ff	movabsq	$-140737487239015, %rdi # imm = 0xFFFF800000110899
 ffff80000010cabb: 48 bb f0 46 11 00 00 80 ff ff	movabsq	$-140737487223056, %rbx # imm = 0xFFFF8000001146F0
 ffff80000010cac5: 49 01 df             	addq	%rbx, %r15
@@ -4991,7 +4765,6 @@ ffff80000010cac8: 48 89 de             	movq	%rbx, %rsi
 ffff80000010cacb: 4c 89 fa             	movq	%r15, %rdx
 ffff80000010cace: 31 c0                	xorl	%eax, %eax
 ffff80000010cad0: 41 ff d4             	callq	*%r12
-; 	cprintf("Kernel executable memory footprint: %llu kiB\n",
 ffff80000010cad3: 4c 29 f3             	subq	%r14, %rbx
 ffff80000010cad6: 48 81 c3 ff 03 00 00 	addq	$1023, %rbx             # imm = 0x3FF
 ffff80000010cadd: 48 81 e3 00 fc ff ff 	andq	$-1024, %rbx            # imm = 0xFC00
@@ -5002,7 +4775,6 @@ ffff80000010caf2: 48 c1 fe 0a          	sarq	$10, %rsi
 ffff80000010caf6: 48 bf 72 0c 11 00 00 80 ff ff	movabsq	$-140737487238030, %rdi # imm = 0xFFFF800000110C72
 ffff80000010cb00: 31 c0                	xorl	%eax, %eax
 ffff80000010cb02: 41 ff d4             	callq	*%r12
-; 	return 0;
 ffff80000010cb05: 31 c0                	xorl	%eax, %eax
 ffff80000010cb07: 5b                   	popq	%rbx
 ffff80000010cb08: 41 5c                	popq	%r12
@@ -5012,7 +4784,6 @@ ffff80000010cb0e: 5d                   	popq	%rbp
 ffff80000010cb0f: c3                   	retq
 
 ffff80000010cb10 <mon_backtrace>:
-; {
 ffff80000010cb10: 55                   	pushq	%rbp
 ffff80000010cb11: 48 89 e5             	movq	%rsp, %rbp
 ffff80000010cb14: 41 57                	pushq	%r15
@@ -5021,62 +4792,48 @@ ffff80000010cb18: 41 55                	pushq	%r13
 ffff80000010cb1a: 41 54                	pushq	%r12
 ffff80000010cb1c: 53                   	pushq	%rbx
 ffff80000010cb1d: 50                   	pushq	%rax
-; 	uintptr_t *rbp = read_rbp();
 ffff80000010cb1e: 48 b8 00 cc 10 00 00 80 ff ff	movabsq	$-140737487254528, %rax # imm = 0xFFFF80000010CC00
 ffff80000010cb28: ff d0                	callq	*%rax
 ffff80000010cb2a: 48 89 c3             	movq	%rax, %rbx
-; 	cprintf("Stack backtrace:\n");
 ffff80000010cb2d: 48 bf 10 07 11 00 00 80 ff ff	movabsq	$-140737487239408, %rdi # imm = 0xFFFF800000110710
 ffff80000010cb37: 49 bc c0 d3 10 00 00 80 ff ff	movabsq	$-140737487252544, %r12 # imm = 0xFFFF80000010D3C0
 ffff80000010cb41: 31 c0                	xorl	%eax, %eax
 ffff80000010cb43: 41 ff d4             	callq	*%r12
-; 	while (rbp) {
 ffff80000010cb46: 48 85 db             	testq	%rbx, %rbx
 ffff80000010cb49: 0f 84 97 00 00 00    	je	0xffff80000010cbe6 <mon_backtrace+0xd6>
 ffff80000010cb4f: 49 be 1d 0d 11 00 00 80 ff ff	movabsq	$-140737487237859, %r14 # imm = 0xFFFF800000110D1D
 ffff80000010cb59: 49 bf fb 0d 11 00 00 80 ff ff	movabsq	$-140737487237637, %r15 # imm = 0xFFFF800000110DFB
 ffff80000010cb63: 66 2e 0f 1f 84 00 00 00 00 00	nopw	%cs:(%rax,%rax)
 ffff80000010cb6d: 0f 1f 00             	nopl	(%rax)
-; 		uintptr_t rip = *(rbp + 1);
 ffff80000010cb70: 48 8b 73 08          	movq	8(%rbx), %rsi
-; 		cprintf("  RIP: %016p ", rip);
 ffff80000010cb74: 48 bf f7 0f 11 00 00 80 ff ff	movabsq	$-140737487237129, %rdi # imm = 0xFFFF800000110FF7
 ffff80000010cb7e: 31 c0                	xorl	%eax, %eax
 ffff80000010cb80: 41 ff d4             	callq	*%r12
-; 		cprintf("<no debug info>\t");
 ffff80000010cb83: 48 bf 20 0e 11 00 00 80 ff ff	movabsq	$-140737487237600, %rdi # imm = 0xFFFF800000110E20
 ffff80000010cb8d: 31 c0                	xorl	%eax, %eax
 ffff80000010cb8f: 41 ff d4             	callq	*%r12
-; 		cprintf("  RBP: %016p ", rbp);
 ffff80000010cb92: 48 bf 63 0d 11 00 00 80 ff ff	movabsq	$-140737487237789, %rdi # imm = 0xFFFF800000110D63
 ffff80000010cb9c: 48 89 de             	movq	%rbx, %rsi
 ffff80000010cb9f: 31 c0                	xorl	%eax, %eax
 ffff80000010cba1: 41 ff d4             	callq	*%r12
-; 			cprintf("  args ");
 ffff80000010cba4: 48 bf fd 0a 11 00 00 80 ff ff	movabsq	$-140737487238403, %rdi # imm = 0xFFFF800000110AFD
 ffff80000010cbae: 31 c0                	xorl	%eax, %eax
 ffff80000010cbb0: 41 ff d4             	callq	*%r12
 ffff80000010cbb3: 41 bd 02 00 00 00    	movl	$2, %r13d
 ffff80000010cbb9: 0f 1f 80 00 00 00 00 	nopl	(%rax)
-; 			cprintf("%016p ", args[i]);
 ffff80000010cbc0: 4a 8b 34 eb          	movq	(%rbx,%r13,8), %rsi
 ffff80000010cbc4: 4c 89 f7             	movq	%r14, %rdi
 ffff80000010cbc7: 31 c0                	xorl	%eax, %eax
 ffff80000010cbc9: 41 ff d4             	callq	*%r12
-; 		for (i = 0; i < nargs; i++)
 ffff80000010cbcc: 49 83 c5 01          	addq	$1, %r13
 ffff80000010cbd0: 49 83 fd 08          	cmpq	$8, %r13
 ffff80000010cbd4: 75 ea                	jne	0xffff80000010cbc0 <mon_backtrace+0xb0>
-; 		cprintf("\n");
 ffff80000010cbd6: 4c 89 ff             	movq	%r15, %rdi
 ffff80000010cbd9: 31 c0                	xorl	%eax, %eax
 ffff80000010cbdb: 41 ff d4             	callq	*%r12
-; 		rbp = (uintptr_t *)*rbp;
 ffff80000010cbde: 48 8b 1b             	movq	(%rbx), %rbx
-; 	while (rbp) {
 ffff80000010cbe1: 48 85 db             	testq	%rbx, %rbx
 ffff80000010cbe4: 75 8a                	jne	0xffff80000010cb70 <mon_backtrace+0x60>
-; 	return 0;
 ffff80000010cbe6: 31 c0                	xorl	%eax, %eax
 ffff80000010cbe8: 48 83 c4 08          	addq	$8, %rsp
 ffff80000010cbec: 5b                   	popq	%rbx
@@ -5089,24 +4846,18 @@ ffff80000010cbf6: c3                   	retq
 ffff80000010cbf7: 66 0f 1f 84 00 00 00 00 00   	nopw	(%rax,%rax)
 
 ffff80000010cc00 <read_rbp>:
-; {
 ffff80000010cc00: 55                   	pushq	%rbp
 ffff80000010cc01: 48 89 e5             	movq	%rsp, %rbp
-; 	asm volatile("movq %%rbp, %0" : "=r" (ret));
 ffff80000010cc04: 48 89 e8             	movq	%rbp, %rax
-; 	return ret;
 ffff80000010cc07: 5d                   	popq	%rbp
 ffff80000010cc08: c3                   	retq
 ffff80000010cc09: 0f 1f 80 00 00 00 00 	nopl	(%rax)
 
 ffff80000010cc10 <mon_buddyinfo>:
-; {
 ffff80000010cc10: 55                   	pushq	%rbp
 ffff80000010cc11: 48 89 e5             	movq	%rsp, %rbp
-; 	show_buddy_info();
 ffff80000010cc14: 48 b8 f0 d6 10 00 00 80 ff ff	movabsq	$-140737487251728, %rax # imm = 0xFFFF80000010D6F0
 ffff80000010cc1e: ff d0                	callq	*%rax
-; 	return 0;
 ffff80000010cc20: 31 c0                	xorl	%eax, %eax
 ffff80000010cc22: 5d                   	popq	%rbp
 ffff80000010cc23: c3                   	retq
@@ -5114,7 +4865,6 @@ ffff80000010cc24: 66 2e 0f 1f 84 00 00 00 00 00	nopw	%cs:(%rax,%rax)
 ffff80000010cc2e: 66 90                	nop
 
 ffff80000010cc30 <mon_pageinfo>:
-; {
 ffff80000010cc30: 55                   	pushq	%rbp
 ffff80000010cc31: 48 89 e5             	movq	%rsp, %rbp
 ffff80000010cc34: 41 57                	pushq	%r15
@@ -5123,33 +4873,27 @@ ffff80000010cc38: 41 55                	pushq	%r13
 ffff80000010cc3a: 41 54                	pushq	%r12
 ffff80000010cc3c: 53                   	pushq	%rbx
 ffff80000010cc3d: 50                   	pushq	%rax
-; 	if (!pages || npages == 0) {
 ffff80000010cc3e: 49 bf e8 42 11 00 00 80 ff ff	movabsq	$-140737487224088, %r15 # imm = 0xFFFF8000001142E8
 ffff80000010cc48: 49 83 3f 00          	cmpq	$0, (%r15)
 ffff80000010cc4c: 0f 84 81 00 00 00    	je	0xffff80000010ccd3 <mon_pageinfo+0xa3>
 ffff80000010cc52: 49 bc e0 42 11 00 00 80 ff ff	movabsq	$-140737487224096, %r12 # imm = 0xFFFF8000001142E0
-; 	if (!pages || npages == 0) {
 ffff80000010cc5c: 49 83 3c 24 00       	cmpq	$0, (%r12)
 ffff80000010cc61: 74 70                	je	0xffff80000010ccd3 <mon_pageinfo+0xa3>
 ffff80000010cc63: 48 89 f3             	movq	%rsi, %rbx
-; 	if (argc < 3) {
 ffff80000010cc66: 83 ff 02             	cmpl	$2, %edi
 ffff80000010cc69: 7e 4b                	jle	0xffff80000010ccb6 <mon_pageinfo+0x86>
-; 	addr = strtol(argv[2], NULL, 0);
 ffff80000010cc6b: 48 8b 7b 10          	movq	16(%rbx), %rdi
 ffff80000010cc6f: 48 b8 d0 f9 10 00 00 80 ff ff	movabsq	$-140737487242800, %rax # imm = 0xFFFF80000010F9D0
 ffff80000010cc79: 31 f6                	xorl	%esi, %esi
 ffff80000010cc7b: 31 d2                	xorl	%edx, %edx
 ffff80000010cc7d: ff d0                	callq	*%rax
 ffff80000010cc7f: 49 89 c6             	movq	%rax, %r14
-; 	if (strcmp(argv[1], "idx") == 0) {
 ffff80000010cc82: 48 8b 7b 08          	movq	8(%rbx), %rdi
 ffff80000010cc86: 48 be a0 0c 11 00 00 80 ff ff	movabsq	$-140737487237984, %rsi # imm = 0xFFFF800000110CA0
 ffff80000010cc90: 49 bd c0 f7 10 00 00 80 ff ff	movabsq	$-140737487243328, %r13 # imm = 0xFFFF80000010F7C0
 ffff80000010cc9a: 41 ff d5             	callq	*%r13
 ffff80000010cc9d: 85 c0                	testl	%eax, %eax
 ffff80000010cc9f: 74 5b                	je	0xffff80000010ccfc <mon_pageinfo+0xcc>
-; 	} else if (strcmp(argv[1], "pa") == 0) {
 ffff80000010cca1: 48 8b 7b 08          	movq	8(%rbx), %rdi
 ffff80000010cca5: 48 be 1b 0f 11 00 00 80 ff ff	movabsq	$-140737487237349, %rsi # imm = 0xFFFF800000110F1B
 ffff80000010ccaf: 41 ff d5             	callq	*%r13
@@ -5161,12 +4905,10 @@ ffff80000010ccc3: 48 b9 c0 d3 10 00 00 80 ff ff	movabsq	$-140737487252544, %rcx 
 ffff80000010cccd: 31 c0                	xorl	%eax, %eax
 ffff80000010cccf: ff d1                	callq	*%rcx
 ffff80000010ccd1: eb 18                	jmp	0xffff80000010cceb <mon_pageinfo+0xbb>
-; 		cprintf("error: buddy allocator not set up\n");
 ffff80000010ccd3: 48 bf a0 07 11 00 00 80 ff ff	movabsq	$-140737487239264, %rdi # imm = 0xFFFF8000001107A0
 ffff80000010ccdd: 48 b9 c0 d3 10 00 00 80 ff ff	movabsq	$-140737487252544, %rcx # imm = 0xFFFF80000010D3C0
 ffff80000010cce7: 31 c0                	xorl	%eax, %eax
 ffff80000010cce9: ff d1                	callq	*%rcx
-; }
 ffff80000010cceb: 31 c0                	xorl	%eax, %eax
 ffff80000010cced: 48 83 c4 08          	addq	$8, %rsp
 ffff80000010ccf1: 5b                   	popq	%rbx
@@ -5176,30 +4918,24 @@ ffff80000010ccf6: 41 5e                	popq	%r14
 ffff80000010ccf8: 41 5f                	popq	%r15
 ffff80000010ccfa: 5d                   	popq	%rbp
 ffff80000010ccfb: c3                   	retq
-; 		if (idx >= npages) {
 ffff80000010ccfc: 4d 3b 34 24          	cmpq	(%r12), %r14
 ffff80000010cd00: 0f 83 be 00 00 00    	jae	0xffff80000010cdc4 <mon_pageinfo+0x194>
-; 		page = pages + idx;
 ffff80000010cd06: 4c 89 f3             	movq	%r14, %rbx
 ffff80000010cd09: 48 c1 e3 05          	shlq	$5, %rbx
 ffff80000010cd0d: 49 03 1f             	addq	(%r15), %rbx
 ffff80000010cd10: eb 1c                	jmp	0xffff80000010cd2e <mon_pageinfo+0xfe>
-; 		idx = PAGE_INDEX(addr);
 ffff80000010cd12: 4d 89 f7             	movq	%r14, %r15
 ffff80000010cd15: 49 c1 ef 0c          	shrq	$12, %r15
-; 		page = pa2page(addr);
 ffff80000010cd19: 48 b8 e0 cd 10 00 00 80 ff ff	movabsq	$-140737487254048, %rax # imm = 0xFFFF80000010CDE0
 ffff80000010cd23: 4c 89 f7             	movq	%r14, %rdi
 ffff80000010cd26: ff d0                	callq	*%rax
 ffff80000010cd28: 48 89 c3             	movq	%rax, %rbx
 ffff80000010cd2b: 4d 89 fe             	movq	%r15, %r14
-; 	cprintf("  Page index: %u\n", idx);
 ffff80000010cd2e: 48 bf c3 07 11 00 00 80 ff ff	movabsq	$-140737487239229, %rdi # imm = 0xFFFF8000001107C3
 ffff80000010cd38: 49 bf c0 d3 10 00 00 80 ff ff	movabsq	$-140737487252544, %r15 # imm = 0xFFFF80000010D3C0
 ffff80000010cd42: 4c 89 f6             	movq	%r14, %rsi
 ffff80000010cd45: 31 c0                	xorl	%eax, %eax
 ffff80000010cd47: 41 ff d7             	callq	*%r15
-; 	cprintf("  Physical address: %p\n", page2pa(page));
 ffff80000010cd4a: 48 b8 40 ce 10 00 00 80 ff ff	movabsq	$-140737487253952, %rax # imm = 0xFFFF80000010CE40
 ffff80000010cd54: 48 89 df             	movq	%rbx, %rdi
 ffff80000010cd57: ff d0                	callq	*%rax
@@ -5207,7 +4943,6 @@ ffff80000010cd59: 48 bf d5 07 11 00 00 80 ff ff	movabsq	$-140737487239211, %rdi 
 ffff80000010cd63: 48 89 c6             	movq	%rax, %rsi
 ffff80000010cd66: 31 c0                	xorl	%eax, %eax
 ffff80000010cd68: 41 ff d7             	callq	*%r15
-; 	cprintf("  State: %s\n", page->pp_free ? "free" : "used");
 ffff80000010cd6b: 80 7b 12 00          	cmpb	$0, 18(%rbx)
 ffff80000010cd6f: 48 b8 4a 0f 11 00 00 80 ff ff	movabsq	$-140737487237302, %rax # imm = 0xFFFF800000110F4A
 ffff80000010cd79: 48 be 73 0a 11 00 00 80 ff ff	movabsq	$-140737487238541, %rsi # imm = 0xFFFF800000110A73
@@ -5215,41 +4950,34 @@ ffff80000010cd83: 48 0f 49 f0          	cmovnsq	%rax, %rsi
 ffff80000010cd87: 48 bf d3 0a 11 00 00 80 ff ff	movabsq	$-140737487238445, %rdi # imm = 0xFFFF800000110AD3
 ffff80000010cd91: 31 c0                	xorl	%eax, %eax
 ffff80000010cd93: 41 ff d7             	callq	*%r15
-; 	cprintf("  References: %u\n", page->pp_ref);
 ffff80000010cd96: 0f b7 73 10          	movzwl	16(%rbx), %esi
 ffff80000010cd9a: 48 bf 4f 0f 11 00 00 80 ff ff	movabsq	$-140737487237297, %rdi # imm = 0xFFFF800000110F4F
 ffff80000010cda4: 31 c0                	xorl	%eax, %eax
 ffff80000010cda6: 41 ff d7             	callq	*%r15
-; 	cprintf("  Order: %u\n", page->pp_order);
 ffff80000010cda9: 0f b6 73 12          	movzbl	18(%rbx), %esi
 ffff80000010cdad: 83 e6 7f             	andl	$127, %esi
 ffff80000010cdb0: 48 bf d8 0f 11 00 00 80 ff ff	movabsq	$-140737487237160, %rdi # imm = 0xFFFF800000110FD8
 ffff80000010cdba: 31 c0                	xorl	%eax, %eax
 ffff80000010cdbc: 41 ff d7             	callq	*%r15
 ffff80000010cdbf: e9 27 ff ff ff       	jmp	0xffff80000010cceb <mon_pageinfo+0xbb>
-; 			cprintf("error: index %u out of range.\n", addr);
 ffff80000010cdc4: 48 bf a4 09 11 00 00 80 ff ff	movabsq	$-140737487238748, %rdi # imm = 0xFFFF8000001109A4
 ffff80000010cdce: 48 b9 c0 d3 10 00 00 80 ff ff	movabsq	$-140737487252544, %rcx # imm = 0xFFFF80000010D3C0
 ffff80000010cdd8: 4c 89 f6             	movq	%r14, %rsi
 ffff80000010cddb: e9 ed fe ff ff       	jmp	0xffff80000010cccd <mon_pageinfo+0x9d>
 
 ffff80000010cde0 <pa2page>:
-; {
 ffff80000010cde0: 55                   	pushq	%rbp
 ffff80000010cde1: 48 89 e5             	movq	%rsp, %rbp
-; 	if (PAGE_INDEX(pa) >= npages)
 ffff80000010cde4: 48 c1 ef 0c          	shrq	$12, %rdi
 ffff80000010cde8: 48 b8 e0 42 11 00 00 80 ff ff	movabsq	$-140737487224096, %rax # imm = 0xFFFF8000001142E0
 ffff80000010cdf2: 48 3b 38             	cmpq	(%rax), %rdi
 ffff80000010cdf5: 73 16                	jae	0xffff80000010ce0d <pa2page+0x2d>
-; 	return pages + PAGE_INDEX(pa);
 ffff80000010cdf7: 48 b8 e8 42 11 00 00 80 ff ff	movabsq	$-140737487224088, %rax # imm = 0xFFFF8000001142E8
 ffff80000010ce01: 48 c1 e7 05          	shlq	$5, %rdi
 ffff80000010ce05: 48 03 38             	addq	(%rax), %rdi
 ffff80000010ce08: 48 89 f8             	movq	%rdi, %rax
 ffff80000010ce0b: 5d                   	popq	%rbp
 ffff80000010ce0c: c3                   	retq
-; 		panic("pa2page called with invalid pa");
 ffff80000010ce0d: 48 bf 23 08 11 00 00 80 ff ff	movabsq	$-140737487239133, %rdi # imm = 0xFFFF800000110823
 ffff80000010ce17: 48 ba 61 0f 11 00 00 80 ff ff	movabsq	$-140737487237279, %rdx # imm = 0xFFFF800000110F61
 ffff80000010ce21: 48 b9 70 c8 10 00 00 80 ff ff	movabsq	$-140737487255440, %rcx # imm = 0xFFFF80000010C870
@@ -5260,11 +4988,9 @@ ffff80000010ce34: 66 2e 0f 1f 84 00 00 00 00 00	nopw	%cs:(%rax,%rax)
 ffff80000010ce3e: 66 90                	nop
 
 ffff80000010ce40 <page2pa>:
-; {
 ffff80000010ce40: 55                   	pushq	%rbp
 ffff80000010ce41: 48 89 e5             	movq	%rsp, %rbp
 ffff80000010ce44: 48 89 f8             	movq	%rdi, %rax
-; 	return (pp - pages) << PAGE_TABLE_SHIFT;
 ffff80000010ce47: 48 b9 e8 42 11 00 00 80 ff ff	movabsq	$-140737487224088, %rcx # imm = 0xFFFF8000001142E8
 ffff80000010ce51: 48 2b 01             	subq	(%rcx), %rax
 ffff80000010ce54: 48 c1 e0 07          	shlq	$7, %rax
@@ -5273,7 +4999,6 @@ ffff80000010ce59: c3                   	retq
 ffff80000010ce5a: 66 0f 1f 44 00 00    	nopw	(%rax,%rax)
 
 ffff80000010ce60 <monitor>:
-; {
 ffff80000010ce60: 55                   	pushq	%rbp
 ffff80000010ce61: 48 89 e5             	movq	%rsp, %rbp
 ffff80000010ce64: 41 57                	pushq	%r15
@@ -5281,12 +5006,10 @@ ffff80000010ce66: 41 56                	pushq	%r14
 ffff80000010ce68: 41 54                	pushq	%r12
 ffff80000010ce6a: 53                   	pushq	%rbx
 ffff80000010ce6b: 49 89 fe             	movq	%rdi, %r14
-; 	cprintf("Welcome to the OpenLSD kernel monitor!\n");
 ffff80000010ce6e: 48 bf d3 0d 11 00 00 80 ff ff	movabsq	$-140737487237677, %rdi # imm = 0xFFFF800000110DD3
 ffff80000010ce78: 48 bb c0 d3 10 00 00 80 ff ff	movabsq	$-140737487252544, %rbx # imm = 0xFFFF80000010D3C0
 ffff80000010ce82: 31 c0                	xorl	%eax, %eax
 ffff80000010ce84: ff d3                	callq	*%rbx
-; 	cprintf("Type 'help' for a list of commands.\n");
 ffff80000010ce86: 48 bf 32 0a 11 00 00 80 ff ff	movabsq	$-140737487238606, %rdi # imm = 0xFFFF800000110A32
 ffff80000010ce90: 31 c0                	xorl	%eax, %eax
 ffff80000010ce92: ff d3                	callq	*%rbx
@@ -5295,19 +5018,15 @@ ffff80000010ce9e: 48 bb 40 f5 10 00 00 80 ff ff	movabsq	$-140737487243968, %rbx 
 ffff80000010cea8: 49 bc e0 ce 10 00 00 80 ff ff	movabsq	$-140737487253792, %r12 # imm = 0xFFFF80000010CEE0
 ffff80000010ceb2: 66 2e 0f 1f 84 00 00 00 00 00	nopw	%cs:(%rax,%rax)
 ffff80000010cebc: 0f 1f 40 00          	nopl	(%rax)
-; 		buf = readline("K> ");
 ffff80000010cec0: 4c 89 ff             	movq	%r15, %rdi
 ffff80000010cec3: ff d3                	callq	*%rbx
-; 		if (buf != NULL)
 ffff80000010cec5: 48 85 c0             	testq	%rax, %rax
 ffff80000010cec8: 74 f6                	je	0xffff80000010cec0 <monitor+0x60>
-; 			if (runcmd(buf, frame) < 0)
 ffff80000010ceca: 48 89 c7             	movq	%rax, %rdi
 ffff80000010cecd: 4c 89 f6             	movq	%r14, %rsi
 ffff80000010ced0: 41 ff d4             	callq	*%r12
 ffff80000010ced3: 85 c0                	testl	%eax, %eax
 ffff80000010ced5: 79 e9                	jns	0xffff80000010cec0 <monitor+0x60>
-; }
 ffff80000010ced7: 5b                   	popq	%rbx
 ffff80000010ced8: 41 5c                	popq	%r12
 ffff80000010ceda: 41 5e                	popq	%r14
@@ -5316,7 +5035,6 @@ ffff80000010cede: 5d                   	popq	%rbp
 ffff80000010cedf: c3                   	retq
 
 ffff80000010cee0 <runcmd>:
-; {
 ffff80000010cee0: 55                   	pushq	%rbp
 ffff80000010cee1: 48 89 e5             	movq	%rsp, %rbp
 ffff80000010cee4: 41 57                	pushq	%r15
@@ -5327,28 +5045,23 @@ ffff80000010ceec: 53                   	pushq	%rbx
 ffff80000010ceed: 48 81 ec 88 00 00 00 	subq	$136, %rsp
 ffff80000010cef4: 48 89 75 d0          	movq	%rsi, -48(%rbp)
 ffff80000010cef8: 49 89 fe             	movq	%rdi, %r14
-; 	argv[argc] = 0;
 ffff80000010cefb: 48 c7 85 50 ff ff ff 00 00 00 00     	movq	$0, -176(%rbp)
 ffff80000010cf06: 45 31 ff             	xorl	%r15d, %r15d
 ffff80000010cf09: 49 bc 5c 10 11 00 00 80 ff ff	movabsq	$-140737487237028, %r12 # imm = 0xFFFF80000011105C
 ffff80000010cf13: 49 bd 30 f8 10 00 00 80 ff ff	movabsq	$-140737487243216, %r13 # imm = 0xFFFF80000010F830
 ffff80000010cf1d: 0f 1f 00             	nopl	(%rax)
-; 		while (*buf && strchr(WHITESPACE, *buf))
 ffff80000010cf20: 41 8a 06             	movb	(%r14), %al
 ffff80000010cf23: 84 c0                	testb	%al, %al
 ffff80000010cf25: 74 3c                	je	0xffff80000010cf63 <runcmd+0x83>
 ffff80000010cf27: 4c 89 f3             	movq	%r14, %rbx
 ffff80000010cf2a: 66 0f 1f 44 00 00    	nopw	(%rax,%rax)
-; 		while (*buf && strchr(WHITESPACE, *buf))
 ffff80000010cf30: 0f be f0             	movsbl	%al, %esi
 ffff80000010cf33: 4c 89 e7             	movq	%r12, %rdi
 ffff80000010cf36: 41 ff d5             	callq	*%r13
 ffff80000010cf39: 48 85 c0             	testq	%rax, %rax
 ffff80000010cf3c: 74 22                	je	0xffff80000010cf60 <runcmd+0x80>
-; 			*buf++ = 0;
 ffff80000010cf3e: 4c 8d 73 01          	leaq	1(%rbx), %r14
 ffff80000010cf42: c6 03 00             	movb	$0, (%rbx)
-; 		while (*buf && strchr(WHITESPACE, *buf))
 ffff80000010cf45: 0f b6 43 01          	movzbl	1(%rbx), %eax
 ffff80000010cf49: 4c 89 f3             	movq	%r14, %rbx
 ffff80000010cf4c: 84 c0                	testb	%al, %al
@@ -5357,16 +5070,12 @@ ffff80000010cf50: eb 11                	jmp	0xffff80000010cf63 <runcmd+0x83>
 ffff80000010cf52: 66 2e 0f 1f 84 00 00 00 00 00	nopw	%cs:(%rax,%rax)
 ffff80000010cf5c: 0f 1f 40 00          	nopl	(%rax)
 ffff80000010cf60: 49 89 de             	movq	%rbx, %r14
-; 		if (*buf == 0)
 ffff80000010cf63: 41 80 3e 00          	cmpb	$0, (%r14)
 ffff80000010cf67: 74 48                	je	0xffff80000010cfb1 <runcmd+0xd1>
-; 		if (argc == MAXARGS-1) {
 ffff80000010cf69: 49 83 ff 0f          	cmpq	$15, %r15
 ffff80000010cf6d: 0f 84 ac 00 00 00    	je	0xffff80000010d01f <runcmd+0x13f>
-; 		argv[argc++] = buf;
 ffff80000010cf73: 4e 89 b4 fd 50 ff ff ff      	movq	%r14, -176(%rbp,%r15,8)
 ffff80000010cf7b: 49 83 c7 01          	addq	$1, %r15
-; 		while (*buf && !strchr(WHITESPACE, *buf))
 ffff80000010cf7f: 41 8a 06             	movb	(%r14), %al
 ffff80000010cf82: 66 2e 0f 1f 84 00 00 00 00 00	nopw	%cs:(%rax,%rax)
 ffff80000010cf8c: 0f 1f 40 00          	nopl	(%rax)
@@ -5378,30 +5087,24 @@ ffff80000010cf9a: 41 ff d5             	callq	*%r13
 ffff80000010cf9d: 48 85 c0             	testq	%rax, %rax
 ffff80000010cfa0: 0f 85 7a ff ff ff    	jne	0xffff80000010cf20 <runcmd+0x40>
 ffff80000010cfa6: 41 0f b6 46 01       	movzbl	1(%r14), %eax
-; 			buf++;
 ffff80000010cfab: 49 83 c6 01          	addq	$1, %r14
 ffff80000010cfaf: eb df                	jmp	0xffff80000010cf90 <runcmd+0xb0>
-; 	argv[argc] = 0;
 ffff80000010cfb1: 44 89 f8             	movl	%r15d, %eax
 ffff80000010cfb4: 48 c7 84 c5 50 ff ff ff 00 00 00 00  	movq	$0, -176(%rbp,%rax,8)
-; 	if (argc == 0)
 ffff80000010cfc0: 45 85 ff             	testl	%r15d, %r15d
 ffff80000010cfc3: 74 7b                	je	0xffff80000010d040 <runcmd+0x160>
 ffff80000010cfc5: 31 db                	xorl	%ebx, %ebx
 ffff80000010cfc7: 49 bc 50 02 11 00 00 80 ff ff	movabsq	$-140737487240624, %r12 # imm = 0xFFFF800000110250
 ffff80000010cfd1: 49 bd c0 f7 10 00 00 80 ff ff	movabsq	$-140737487243328, %r13 # imm = 0xFFFF80000010F7C0
 ffff80000010cfdb: 0f 1f 44 00 00       	nopl	(%rax,%rax)
-; 		if (strcmp(argv[0], commands[i].name) == 0)
 ffff80000010cfe0: 48 8b bd 50 ff ff ff 	movq	-176(%rbp), %rdi
 ffff80000010cfe7: 4a 8b 34 23          	movq	(%rbx,%r12), %rsi
 ffff80000010cfeb: 41 ff d5             	callq	*%r13
 ffff80000010cfee: 85 c0                	testl	%eax, %eax
 ffff80000010cff0: 74 52                	je	0xffff80000010d044 <runcmd+0x164>
-; 	for (i = 0; i < NCOMMANDS; i++) {
 ffff80000010cff2: 48 83 c3 18          	addq	$24, %rbx
 ffff80000010cff6: 48 83 fb 78          	cmpq	$120, %rbx
 ffff80000010cffa: 75 e4                	jne	0xffff80000010cfe0 <runcmd+0x100>
-; 	cprintf("Unknown command '%s'\n", argv[0]);
 ffff80000010cffc: 48 8b b5 50 ff ff ff 	movq	-176(%rbp), %rsi
 ffff80000010d003: 48 bf 5c 07 11 00 00 80 ff ff	movabsq	$-140737487239332, %rdi # imm = 0xFFFF80000011075C
 ffff80000010d00d: 48 b9 c0 d3 10 00 00 80 ff ff	movabsq	$-140737487252544, %rcx # imm = 0xFFFF80000010D3C0
@@ -5409,7 +5112,6 @@ ffff80000010d017: 31 db                	xorl	%ebx, %ebx
 ffff80000010d019: 31 c0                	xorl	%eax, %eax
 ffff80000010d01b: ff d1                	callq	*%rcx
 ffff80000010d01d: eb 3a                	jmp	0xffff80000010d059 <runcmd+0x179>
-; 			cprintf("Too many arguments (max %d)\n", MAXARGS);
 ffff80000010d01f: 48 bf e0 0a 11 00 00 80 ff ff	movabsq	$-140737487238432, %rdi # imm = 0xFFFF800000110AE0
 ffff80000010d029: 48 b9 c0 d3 10 00 00 80 ff ff	movabsq	$-140737487252544, %rcx # imm = 0xFFFF80000010D3C0
 ffff80000010d033: 31 db                	xorl	%ebx, %ebx
@@ -5420,12 +5122,10 @@ ffff80000010d03e: eb 19                	jmp	0xffff80000010d059 <runcmd+0x179>
 ffff80000010d040: 31 db                	xorl	%ebx, %ebx
 ffff80000010d042: eb 15                	jmp	0xffff80000010d059 <runcmd+0x179>
 ffff80000010d044: 48 8d b5 50 ff ff ff 	leaq	-176(%rbp), %rsi
-; 			return commands[i].func(argc, argv, frame);
 ffff80000010d04b: 44 89 ff             	movl	%r15d, %edi
 ffff80000010d04e: 48 8b 55 d0          	movq	-48(%rbp), %rdx
 ffff80000010d052: 41 ff 54 1c 10       	callq	*16(%r12,%rbx)
 ffff80000010d057: 89 c3                	movl	%eax, %ebx
-; }
 ffff80000010d059: 89 d8                	movl	%ebx, %eax
 ffff80000010d05b: 48 81 c4 88 00 00 00 	addq	$136, %rsp
 ffff80000010d062: 5b                   	popq	%rbx
@@ -5440,7 +5140,6 @@ ffff80000010d06e: cc                   	int3
 ffff80000010d06f: cc                   	int3
 
 ffff80000010d070 <pic_remap>:
-; {
 ffff80000010d070: 55                   	pushq	%rbp
 ffff80000010d071: 48 89 e5             	movq	%rsp, %rbp
 ffff80000010d074: 41 57                	pushq	%r15
@@ -5451,57 +5150,44 @@ ffff80000010d07c: 53                   	pushq	%rbx
 ffff80000010d07d: 50                   	pushq	%rax
 ffff80000010d07e: 41 89 f4             	movl	%esi, %r12d
 ffff80000010d081: 41 89 fd             	movl	%edi, %r13d
-; 	masks[0] = inb(PIC1_DATA);
 ffff80000010d084: 48 bb 30 d1 10 00 00 80 ff ff	movabsq	$-140737487253200, %rbx # imm = 0xFFFF80000010D130
 ffff80000010d08e: bf 21 00 00 00       	movl	$33, %edi
 ffff80000010d093: ff d3                	callq	*%rbx
 ffff80000010d095: 41 89 c7             	movl	%eax, %r15d
-; 	masks[1] = inb(PIC2_DATA);
 ffff80000010d098: bf a1 00 00 00       	movl	$161, %edi
 ffff80000010d09d: ff d3                	callq	*%rbx
 ffff80000010d09f: 41 89 c6             	movl	%eax, %r14d
-; 	outb(PIC1_CMD, PIC_ICW1_INIT | PIC_ICW1_ICW4);
 ffff80000010d0a2: 48 bb 40 d1 10 00 00 80 ff ff	movabsq	$-140737487253184, %rbx # imm = 0xFFFF80000010D140
 ffff80000010d0ac: bf 20 00 00 00       	movl	$32, %edi
 ffff80000010d0b1: be 11 00 00 00       	movl	$17, %esi
 ffff80000010d0b6: ff d3                	callq	*%rbx
-; 	outb(PIC2_CMD, PIC_ICW1_INIT | PIC_ICW1_ICW4);
 ffff80000010d0b8: bf a0 00 00 00       	movl	$160, %edi
 ffff80000010d0bd: be 11 00 00 00       	movl	$17, %esi
 ffff80000010d0c2: ff d3                	callq	*%rbx
-; 	outb(PIC1_DATA, offset1);
 ffff80000010d0c4: 41 0f b6 f5          	movzbl	%r13b, %esi
 ffff80000010d0c8: bf 21 00 00 00       	movl	$33, %edi
 ffff80000010d0cd: ff d3                	callq	*%rbx
-; 	outb(PIC2_DATA, offset2);
 ffff80000010d0cf: 41 0f b6 f4          	movzbl	%r12b, %esi
 ffff80000010d0d3: bf a1 00 00 00       	movl	$161, %edi
 ffff80000010d0d8: ff d3                	callq	*%rbx
-; 	outb(PIC1_DATA, 1 << IRQ_SLAVE);
 ffff80000010d0da: bf 21 00 00 00       	movl	$33, %edi
 ffff80000010d0df: be 04 00 00 00       	movl	$4, %esi
 ffff80000010d0e4: ff d3                	callq	*%rbx
-; 	outb(PIC2_DATA, IRQ_SLAVE);
 ffff80000010d0e6: bf a1 00 00 00       	movl	$161, %edi
 ffff80000010d0eb: be 02 00 00 00       	movl	$2, %esi
 ffff80000010d0f0: ff d3                	callq	*%rbx
-; 	outb(PIC1_DATA, PIC_ICW4_8086 | PIC_ICW4_AUTO);
 ffff80000010d0f2: bf 21 00 00 00       	movl	$33, %edi
 ffff80000010d0f7: be 03 00 00 00       	movl	$3, %esi
 ffff80000010d0fc: ff d3                	callq	*%rbx
-; 	outb(PIC2_DATA, PIC_ICW4_8086);
 ffff80000010d0fe: bf a1 00 00 00       	movl	$161, %edi
 ffff80000010d103: be 01 00 00 00       	movl	$1, %esi
 ffff80000010d108: ff d3                	callq	*%rbx
-; 	outb(PIC1_DATA, masks[0]);
 ffff80000010d10a: 41 0f b6 f7          	movzbl	%r15b, %esi
 ffff80000010d10e: bf 21 00 00 00       	movl	$33, %edi
 ffff80000010d113: ff d3                	callq	*%rbx
-; 	outb(PIC2_DATA, masks[1]);
 ffff80000010d115: 41 0f b6 f6          	movzbl	%r14b, %esi
 ffff80000010d119: bf a1 00 00 00       	movl	$161, %edi
 ffff80000010d11e: ff d3                	callq	*%rbx
-; }
 ffff80000010d120: 48 83 c4 08          	addq	$8, %rsp
 ffff80000010d124: 5b                   	popq	%rbx
 ffff80000010d125: 41 5c                	popq	%r12
@@ -5513,47 +5199,37 @@ ffff80000010d12e: c3                   	retq
 ffff80000010d12f: 90                   	nop
 
 ffff80000010d130 <inb>:
-; {
 ffff80000010d130: 55                   	pushq	%rbp
 ffff80000010d131: 48 89 e5             	movq	%rsp, %rbp
-; 	asm volatile("inb %w1, %0" : "=a" (data) : "d" (port));
 ffff80000010d134: 89 fa                	movl	%edi, %edx
 ffff80000010d136: ec                   	inb	%dx, %al
-; 	return data;
 ffff80000010d137: 5d                   	popq	%rbp
 ffff80000010d138: c3                   	retq
 ffff80000010d139: 0f 1f 80 00 00 00 00 	nopl	(%rax)
 
 ffff80000010d140 <outb>:
-; {
 ffff80000010d140: 55                   	pushq	%rbp
 ffff80000010d141: 48 89 e5             	movq	%rsp, %rbp
 ffff80000010d144: 89 f0                	movl	%esi, %eax
-; 	asm volatile("outb %0, %w1" :: "a" (data), "d" (port));
 ffff80000010d146: 89 fa                	movl	%edi, %edx
 ffff80000010d148: ee                   	outb	%al, %dx
-; }
 ffff80000010d149: 5d                   	popq	%rbp
 ffff80000010d14a: c3                   	retq
 ffff80000010d14b: 0f 1f 44 00 00       	nopl	(%rax,%rax)
 
 ffff80000010d150 <pic_get_reg>:
-; {
 ffff80000010d150: 55                   	pushq	%rbp
 ffff80000010d151: 48 89 e5             	movq	%rsp, %rbp
 ffff80000010d154: 41 56                	pushq	%r14
 ffff80000010d156: 53                   	pushq	%rbx
-; 	outb(PIC1_CMD, ocw3);
 ffff80000010d157: 40 0f b6 df          	movzbl	%dil, %ebx
 ffff80000010d15b: 49 be 40 d1 10 00 00 80 ff ff	movabsq	$-140737487253184, %r14 # imm = 0xFFFF80000010D140
 ffff80000010d165: bf 20 00 00 00       	movl	$32, %edi
 ffff80000010d16a: 89 de                	movl	%ebx, %esi
 ffff80000010d16c: 41 ff d6             	callq	*%r14
-; 	outb(PIC2_CMD, ocw3);
 ffff80000010d16f: bf a0 00 00 00       	movl	$160, %edi
 ffff80000010d174: 89 de                	movl	%ebx, %esi
 ffff80000010d176: 41 ff d6             	callq	*%r14
-; 	return (inb(PIC2_CMD) << 8) | inb(PIC1_CMD);
 ffff80000010d179: 49 be 30 d1 10 00 00 80 ff ff	movabsq	$-140737487253200, %r14 # imm = 0xFFFF80000010D130
 ffff80000010d183: bf a0 00 00 00       	movl	$160, %edi
 ffff80000010d188: 41 ff d6             	callq	*%r14
@@ -5571,10 +5247,8 @@ ffff80000010d1a3: 66 2e 0f 1f 84 00 00 00 00 00	nopw	%cs:(%rax,%rax)
 ffff80000010d1ad: 0f 1f 00             	nopl	(%rax)
 
 ffff80000010d1b0 <pic_get_irr>:
-; {
 ffff80000010d1b0: 55                   	pushq	%rbp
 ffff80000010d1b1: 48 89 e5             	movq	%rsp, %rbp
-; 	return pic_get_reg(PIC_READ_IRR);
 ffff80000010d1b4: 48 b8 50 d1 10 00 00 80 ff ff	movabsq	$-140737487253168, %rax # imm = 0xFFFF80000010D150
 ffff80000010d1be: bf 0a 00 00 00       	movl	$10, %edi
 ffff80000010d1c3: ff d0                	callq	*%rax
@@ -5583,10 +5257,8 @@ ffff80000010d1c6: c3                   	retq
 ffff80000010d1c7: 66 0f 1f 84 00 00 00 00 00   	nopw	(%rax,%rax)
 
 ffff80000010d1d0 <pic_get_isr>:
-; {
 ffff80000010d1d0: 55                   	pushq	%rbp
 ffff80000010d1d1: 48 89 e5             	movq	%rsp, %rbp
-; 	return pic_get_reg(PIC_READ_ISR);
 ffff80000010d1d4: 48 b8 50 d1 10 00 00 80 ff ff	movabsq	$-140737487253168, %rax # imm = 0xFFFF80000010D150
 ffff80000010d1de: bf 0b 00 00 00       	movl	$11, %edi
 ffff80000010d1e3: ff d0                	callq	*%rax
@@ -5595,21 +5267,17 @@ ffff80000010d1e6: c3                   	retq
 ffff80000010d1e7: 66 0f 1f 84 00 00 00 00 00   	nopw	(%rax,%rax)
 
 ffff80000010d1f0 <pic_disable_all_irqs>:
-; {
 ffff80000010d1f0: 55                   	pushq	%rbp
 ffff80000010d1f1: 48 89 e5             	movq	%rsp, %rbp
 ffff80000010d1f4: 53                   	pushq	%rbx
 ffff80000010d1f5: 50                   	pushq	%rax
-; 	outb(PIC1_DATA, 0xff);
 ffff80000010d1f6: 48 bb 40 d1 10 00 00 80 ff ff	movabsq	$-140737487253184, %rbx # imm = 0xFFFF80000010D140
 ffff80000010d200: bf 21 00 00 00       	movl	$33, %edi
 ffff80000010d205: be ff 00 00 00       	movl	$255, %esi
 ffff80000010d20a: ff d3                	callq	*%rbx
-; 	outb(PIC2_DATA, 0xff);
 ffff80000010d20c: bf a1 00 00 00       	movl	$161, %edi
 ffff80000010d211: be ff 00 00 00       	movl	$255, %esi
 ffff80000010d216: ff d3                	callq	*%rbx
-; }
 ffff80000010d218: 48 83 c4 08          	addq	$8, %rsp
 ffff80000010d21c: 5b                   	popq	%rbx
 ffff80000010d21d: 5d                   	popq	%rbp
@@ -5617,17 +5285,14 @@ ffff80000010d21e: c3                   	retq
 ffff80000010d21f: 90                   	nop
 
 ffff80000010d220 <pic_enable_irq>:
-; {
 ffff80000010d220: 55                   	pushq	%rbp
 ffff80000010d221: 48 89 e5             	movq	%rsp, %rbp
 ffff80000010d224: 41 56                	pushq	%r14
 ffff80000010d226: 53                   	pushq	%rbx
-; 	if (irq < 8) {
 ffff80000010d227: 8d 47 f8             	leal	-8(%rdi), %eax
 ffff80000010d22a: 31 db                	xorl	%ebx, %ebx
 ffff80000010d22c: 83 ff 08             	cmpl	$8, %edi
 ffff80000010d22f: 0f 9d c3             	setge	%bl
-; 	outb(port, inb(port) & ~(1 << irq));
 ffff80000010d232: 48 b9 30 d1 10 00 00 80 ff ff	movabsq	$-140737487253200, %rcx # imm = 0xFFFF80000010D130
 ffff80000010d23c: 44 0f b6 f0          	movzbl	%al, %r14d
 ffff80000010d240: 44 0f 4c f7          	cmovll	%edi, %r14d
@@ -5644,7 +5309,6 @@ ffff80000010d25c: 0f b6 f2             	movzbl	%dl, %esi
 ffff80000010d25f: 48 b8 40 d1 10 00 00 80 ff ff	movabsq	$-140737487253184, %rax # imm = 0xFFFF80000010D140
 ffff80000010d269: 89 df                	movl	%ebx, %edi
 ffff80000010d26b: ff d0                	callq	*%rax
-; }
 ffff80000010d26d: 5b                   	popq	%rbx
 ffff80000010d26e: 41 5e                	popq	%r14
 ffff80000010d270: 5d                   	popq	%rbp
@@ -5653,17 +5317,14 @@ ffff80000010d272: 66 2e 0f 1f 84 00 00 00 00 00	nopw	%cs:(%rax,%rax)
 ffff80000010d27c: 0f 1f 40 00          	nopl	(%rax)
 
 ffff80000010d280 <pic_disable_irq>:
-; {
 ffff80000010d280: 55                   	pushq	%rbp
 ffff80000010d281: 48 89 e5             	movq	%rsp, %rbp
 ffff80000010d284: 41 56                	pushq	%r14
 ffff80000010d286: 53                   	pushq	%rbx
-; 	if (irq < 8) {
 ffff80000010d287: 8d 47 f8             	leal	-8(%rdi), %eax
 ffff80000010d28a: 31 db                	xorl	%ebx, %ebx
 ffff80000010d28c: 83 ff 08             	cmpl	$8, %edi
 ffff80000010d28f: 0f 9d c3             	setge	%bl
-; 	outb(port, inb(port) | (1 << irq));
 ffff80000010d292: 48 b9 30 d1 10 00 00 80 ff ff	movabsq	$-140737487253200, %rcx # imm = 0xFFFF80000010D130
 ffff80000010d29c: 44 0f b6 f0          	movzbl	%al, %r14d
 ffff80000010d2a0: 44 0f 4c f7          	cmovll	%edi, %r14d
@@ -5679,31 +5340,25 @@ ffff80000010d2ba: 0f b6 f2             	movzbl	%dl, %esi
 ffff80000010d2bd: 48 b8 40 d1 10 00 00 80 ff ff	movabsq	$-140737487253184, %rax # imm = 0xFFFF80000010D140
 ffff80000010d2c7: 89 df                	movl	%ebx, %edi
 ffff80000010d2c9: ff d0                	callq	*%rax
-; }
 ffff80000010d2cb: 5b                   	popq	%rbx
 ffff80000010d2cc: 41 5e                	popq	%r14
 ffff80000010d2ce: 5d                   	popq	%rbp
 ffff80000010d2cf: c3                   	retq
 
 ffff80000010d2d0 <pic_eoi>:
-; {
 ffff80000010d2d0: 55                   	pushq	%rbp
 ffff80000010d2d1: 48 89 e5             	movq	%rsp, %rbp
 ffff80000010d2d4: 53                   	pushq	%rbx
 ffff80000010d2d5: 50                   	pushq	%rax
 ffff80000010d2d6: 48 bb 40 d1 10 00 00 80 ff ff	movabsq	$-140737487253184, %rbx # imm = 0xFFFF80000010D140
-; 	if (irq >= 8) {
 ffff80000010d2e0: 83 ff 08             	cmpl	$8, %edi
 ffff80000010d2e3: 7c 0c                	jl	0xffff80000010d2f1 <pic_eoi+0x21>
-; 		outb(PIC2_CMD, PIC_EOI);
 ffff80000010d2e5: bf a0 00 00 00       	movl	$160, %edi
 ffff80000010d2ea: be 20 00 00 00       	movl	$32, %esi
 ffff80000010d2ef: ff d3                	callq	*%rbx
-; 	outb(PIC1_CMD, PIC_EOI);
 ffff80000010d2f1: bf 20 00 00 00       	movl	$32, %edi
 ffff80000010d2f6: be 20 00 00 00       	movl	$32, %esi
 ffff80000010d2fb: ff d3                	callq	*%rbx
-; }
 ffff80000010d2fd: 48 83 c4 08          	addq	$8, %rsp
 ffff80000010d301: 5b                   	popq	%rbx
 ffff80000010d302: 5d                   	popq	%rbp
@@ -5712,25 +5367,19 @@ ffff80000010d304: 66 2e 0f 1f 84 00 00 00 00 00	nopw	%cs:(%rax,%rax)
 ffff80000010d30e: 66 90                	nop
 
 ffff80000010d310 <pic_init>:
-; {
 ffff80000010d310: 55                   	pushq	%rbp
 ffff80000010d311: 48 89 e5             	movq	%rsp, %rbp
-; 	pic_disable_all_irqs();
 ffff80000010d314: 48 b8 f0 d1 10 00 00 80 ff ff	movabsq	$-140737487253008, %rax # imm = 0xFFFF80000010D1F0
 ffff80000010d31e: ff d0                	callq	*%rax
-; 	pic_remap(IRQ_OFFSET, IRQ_OFFSET + 8);
 ffff80000010d320: 48 b8 70 d0 10 00 00 80 ff ff	movabsq	$-140737487253392, %rax # imm = 0xFFFF80000010D070
 ffff80000010d32a: bf 20 00 00 00       	movl	$32, %edi
 ffff80000010d32f: be 28 00 00 00       	movl	$40, %esi
 ffff80000010d334: ff d0                	callq	*%rax
-; 	pic_get_irr();
 ffff80000010d336: 48 b8 b0 d1 10 00 00 80 ff ff	movabsq	$-140737487253072, %rax # imm = 0xFFFF80000010D1B0
 ffff80000010d340: ff d0                	callq	*%rax
-; 	pic_enable_irq(IRQ_SLAVE);
 ffff80000010d342: 48 b8 20 d2 10 00 00 80 ff ff	movabsq	$-140737487252960, %rax # imm = 0xFFFF80000010D220
 ffff80000010d34c: bf 02 00 00 00       	movl	$2, %edi
 ffff80000010d351: ff d0                	callq	*%rax
-; }
 ffff80000010d353: 5d                   	popq	%rbp
 ffff80000010d354: c3                   	retq
 ffff80000010d355: cc                   	int3
@@ -5746,20 +5395,16 @@ ffff80000010d35e: cc                   	int3
 ffff80000010d35f: cc                   	int3
 
 ffff80000010d360 <vcprintf>:
-; {
 ffff80000010d360: 55                   	pushq	%rbp
 ffff80000010d361: 48 89 e5             	movq	%rsp, %rbp
 ffff80000010d364: 48 83 ec 10          	subq	$16, %rsp
 ffff80000010d368: 48 89 f1             	movq	%rsi, %rcx
 ffff80000010d36b: 48 89 fa             	movq	%rdi, %rdx
-; 	int cnt = 0;
 ffff80000010d36e: c7 45 fc 00 00 00 00 	movl	$0, -4(%rbp)
-; 	vprintfmt((void*)putch, &cnt, fmt, ap);
 ffff80000010d375: 48 bf a0 d3 10 00 00 80 ff ff	movabsq	$-140737487252576, %rdi # imm = 0xFFFF80000010D3A0
 ffff80000010d37f: 48 b8 00 e8 10 00 00 80 ff ff	movabsq	$-140737487247360, %rax # imm = 0xFFFF80000010E800
 ffff80000010d389: 48 8d 75 fc          	leaq	-4(%rbp), %rsi
 ffff80000010d38d: ff d0                	callq	*%rax
-; 	return cnt;
 ffff80000010d38f: 8b 45 fc             	movl	-4(%rbp), %eax
 ffff80000010d392: 48 83 c4 10          	addq	$16, %rsp
 ffff80000010d396: 5d                   	popq	%rbp
@@ -5767,20 +5412,16 @@ ffff80000010d397: c3                   	retq
 ffff80000010d398: 0f 1f 84 00 00 00 00 00      	nopl	(%rax,%rax)
 
 ffff80000010d3a0 <putch>:
-; {
 ffff80000010d3a0: 55                   	pushq	%rbp
 ffff80000010d3a1: 48 89 e5             	movq	%rsp, %rbp
-; 	cputchar(ch);
 ffff80000010d3a4: 48 b8 80 c4 10 00 00 80 ff ff	movabsq	$-140737487256448, %rax # imm = 0xFFFF80000010C480
 ffff80000010d3ae: ff d0                	callq	*%rax
-; }
 ffff80000010d3b0: 5d                   	popq	%rbp
 ffff80000010d3b1: c3                   	retq
 ffff80000010d3b2: 66 2e 0f 1f 84 00 00 00 00 00	nopw	%cs:(%rax,%rax)
 ffff80000010d3bc: 0f 1f 40 00          	nopl	(%rax)
 
 ffff80000010d3c0 <cprintf>:
-; {
 ffff80000010d3c0: 55                   	pushq	%rbp
 ffff80000010d3c1: 48 89 e5             	movq	%rsp, %rbp
 ffff80000010d3c4: 48 83 ec 50          	subq	$80, %rsp
@@ -5790,23 +5431,19 @@ ffff80000010d3d0: 48 89 4d c8          	movq	%rcx, -56(%rbp)
 ffff80000010d3d4: 4c 89 45 d0          	movq	%r8, -48(%rbp)
 ffff80000010d3d8: 4c 89 4d d8          	movq	%r9, -40(%rbp)
 ffff80000010d3dc: 48 8d 45 b0          	leaq	-80(%rbp), %rax
-; 	va_start(ap, fmt);
 ffff80000010d3e0: 48 89 45 f0          	movq	%rax, -16(%rbp)
 ffff80000010d3e4: 48 8d 45 10          	leaq	16(%rbp), %rax
 ffff80000010d3e8: 48 89 45 e8          	movq	%rax, -24(%rbp)
 ffff80000010d3ec: 48 b8 08 00 00 00 30 00 00 00	movabsq	$206158430216, %rax # imm = 0x3000000008
 ffff80000010d3f6: 48 89 45 e0          	movq	%rax, -32(%rbp)
-; 	cnt = vcprintf(fmt, ap);
 ffff80000010d3fa: 48 b8 60 d3 10 00 00 80 ff ff	movabsq	$-140737487252640, %rax # imm = 0xFFFF80000010D360
 ffff80000010d404: 48 8d 75 e0          	leaq	-32(%rbp), %rsi
 ffff80000010d408: ff d0                	callq	*%rax
-; 	return cnt;
 ffff80000010d40a: 48 83 c4 50          	addq	$80, %rsp
 ffff80000010d40e: 5d                   	popq	%rbp
 ffff80000010d40f: c3                   	retq
 
 ffff80000010d410 <boot_alloc>:
-; {
 ffff80000010d410: 55                   	pushq	%rbp
 ffff80000010d411: 48 89 e5             	movq	%rsp, %rbp
 ffff80000010d414: 41 57                	pushq	%r15
@@ -5816,35 +5453,28 @@ ffff80000010d41a: 41 54                	pushq	%r12
 ffff80000010d41c: 53                   	pushq	%rbx
 ffff80000010d41d: 50                   	pushq	%rax
 ffff80000010d41e: 41 89 fe             	movl	%edi, %r14d
-; 	if (!next_free) next_free = kdata_pages_start;
 ffff80000010d421: 49 bc 30 42 11 00 00 80 ff ff	movabsq	$-140737487224272, %r12 # imm = 0xFFFF800000114230
 ffff80000010d42b: 49 83 3c 24 00       	cmpq	$0, (%r12)
 ffff80000010d430: 75 1a                	jne	0xffff80000010d44c <boot_alloc+0x3c>
 ffff80000010d432: 48 b8 f0 46 11 00 00 80 ff ff	movabsq	$-140737487223056, %rax # imm = 0xFFFF8000001146F0
 ffff80000010d43c: 48 05 ff 0f 00 00    	addq	$4095, %rax             # imm = 0xFFF
-; 	if (!next_free) next_free = kdata_pages_start;
 ffff80000010d442: 48 25 00 f0 ff ff    	andq	$-4096, %rax            # imm = 0xF000
 ffff80000010d448: 49 89 04 24          	movq	%rax, (%r12)
-;     cprintf("next free: %u\n", next_free);
 ffff80000010d44c: 49 8b 34 24          	movq	(%r12), %rsi
 ffff80000010d450: 48 bf 05 0b 11 00 00 80 ff ff	movabsq	$-140737487238395, %rdi # imm = 0xFFFF800000110B05
 ffff80000010d45a: 49 bd c0 d3 10 00 00 80 ff ff	movabsq	$-140737487252544, %r13 # imm = 0xFFFF80000010D3C0
 ffff80000010d464: 31 c0                	xorl	%eax, %eax
 ffff80000010d466: 41 ff d5             	callq	*%r13
-; 	if(n == 0) return next_free;
 ffff80000010d469: 45 85 f6             	testl	%r14d, %r14d
 ffff80000010d46c: 74 63                	je	0xffff80000010d4d1 <boot_alloc+0xc1>
-; 	uint32_t pages = (n / PAGE_SIZE) + 1;
 ffff80000010d46e: 41 c1 ee 0c          	shrl	$12, %r14d
 ffff80000010d472: 45 8d 7e 01          	leal	1(%r14), %r15d
-; 	cprintf("pages up for alloc: %u\n", pages);
 ffff80000010d476: 48 bf ca 0b 11 00 00 80 ff ff	movabsq	$-140737487238198, %rdi # imm = 0xFFFF800000110BCA
 ffff80000010d480: 44 89 fe             	movl	%r15d, %esi
 ffff80000010d483: 31 c0                	xorl	%eax, %eax
 ffff80000010d485: 41 ff d5             	callq	*%r13
 ffff80000010d488: 48 b8 f0 46 11 00 00 80 ff ff	movabsq	$-140737487223056, %rax # imm = 0xFFFF8000001146F0
 ffff80000010d492: 05 ff 0f 00 00       	addl	$4095, %eax             # imm = 0xFFF
-; 	cprintf("%u\n", kdata_pages);
 ffff80000010d497: 89 c3                	movl	%eax, %ebx
 ffff80000010d499: 81 e3 ff 0f 00 00    	andl	$4095, %ebx             # imm = 0xFFF
 ffff80000010d49f: 29 c3                	subl	%eax, %ebx
@@ -5854,19 +5484,14 @@ ffff80000010d4aa: 48 bf 57 0a 11 00 00 80 ff ff	movabsq	$-140737487238569, %rdi 
 ffff80000010d4b4: 89 de                	movl	%ebx, %esi
 ffff80000010d4b6: 31 c0                	xorl	%eax, %eax
 ffff80000010d4b8: 41 ff d5             	callq	*%r13
-; 	if(pages > kdata_pages) panic("OOM in boot loader");
 ffff80000010d4bb: 41 39 de             	cmpl	%ebx, %r14d
 ffff80000010d4be: 73 24                	jae	0xffff80000010d4e4 <boot_alloc+0xd4>
-; 	result = next_free;
 ffff80000010d4c0: 49 8b 04 24          	movq	(%r12), %rax
-; 	next_free += pages * PAGE_SIZE;
 ffff80000010d4c4: 41 c1 e7 0c          	shll	$12, %r15d
 ffff80000010d4c8: 49 01 c7             	addq	%rax, %r15
 ffff80000010d4cb: 4d 89 3c 24          	movq	%r15, (%r12)
 ffff80000010d4cf: eb 04                	jmp	0xffff80000010d4d5 <boot_alloc+0xc5>
-; 	if(n == 0) return next_free;
 ffff80000010d4d1: 49 8b 04 24          	movq	(%r12), %rax
-; }
 ffff80000010d4d5: 48 83 c4 08          	addq	$8, %rsp
 ffff80000010d4d9: 5b                   	popq	%rbx
 ffff80000010d4da: 41 5c                	popq	%r12
@@ -5875,7 +5500,6 @@ ffff80000010d4de: 41 5e                	popq	%r14
 ffff80000010d4e0: 41 5f                	popq	%r15
 ffff80000010d4e2: 5d                   	popq	%rbp
 ffff80000010d4e3: c3                   	retq
-; 	if(pages > kdata_pages) panic("OOM in boot loader");
 ffff80000010d4e4: 48 bf 61 10 11 00 00 80 ff ff	movabsq	$-140737487237023, %rdi # imm = 0xFFFF800000111061
 ffff80000010d4ee: 48 ba 80 0f 11 00 00 80 ff ff	movabsq	$-140737487237248, %rdx # imm = 0xFFFF800000110F80
 ffff80000010d4f8: 48 b9 70 c8 10 00 00 80 ff ff	movabsq	$-140737487255440, %rcx # imm = 0xFFFF80000010C870
@@ -5885,58 +5509,42 @@ ffff80000010d509: ff d1                	callq	*%rcx
 ffff80000010d50b: 0f 1f 44 00 00       	nopl	(%rax,%rax)
 
 ffff80000010d510 <align_boot_info>:
-; {
 ffff80000010d510: 55                   	pushq	%rbp
 ffff80000010d511: 48 89 e5             	movq	%rsp, %rbp
 ffff80000010d514: 8b 4f 04             	movl	4(%rdi), %ecx
 ffff80000010d517: 48 85 c9             	testq	%rcx, %rcx
-; 	for (i = 0; i < boot_info->mmap_len; ++i, ++entry) {
 ffff80000010d51a: 74 6f                	je	0xffff80000010d58b <align_boot_info+0x7b>
-; 	entry = (struct mmap_entry *)((physaddr_t)boot_info->mmap_addr);
 ffff80000010d51c: 8b 07                	movl	(%rdi), %eax
-; 	for (i = 0; i < boot_info->mmap_len; ++i, ++entry) {
 ffff80000010d51e: 48 c1 e1 03          	shlq	$3, %rcx
 ffff80000010d522: 48 8d 0c 49          	leaq	(%rcx,%rcx,2), %rcx
 ffff80000010d526: 31 d2                	xorl	%edx, %edx
 ffff80000010d528: eb 41                	jmp	0xffff80000010d56b <align_boot_info+0x5b>
 ffff80000010d52a: 66 0f 1f 44 00 00    	nopw	(%rax,%rax)
-; 			base = ROUNDDOWN(entry->addr, PAGE_SIZE);
 ffff80000010d530: 48 89 f7             	movq	%rsi, %rdi
 ffff80000010d533: 81 e6 ff 0f 00 00    	andl	$4095, %esi             # imm = 0xFFF
 ffff80000010d539: 48 81 e7 00 f0 ff ff 	andq	$-4096, %rdi            # imm = 0xF000
-; 			end = entry->len + (entry->addr - base);
 ffff80000010d540: 48 03 74 10 08       	addq	8(%rax,%rdx), %rsi
-; 			end = ROUNDUP(base + end, PAGE_SIZE);
 ffff80000010d545: 48 01 fe             	addq	%rdi, %rsi
 ffff80000010d548: 48 81 c6 ff 0f 00 00 	addq	$4095, %rsi             # imm = 0xFFF
 ffff80000010d54f: 48 81 e6 00 f0 ff ff 	andq	$-4096, %rsi            # imm = 0xF000
-; 		entry->addr = base;
 ffff80000010d556: 48 89 3c 10          	movq	%rdi, (%rax,%rdx)
-; 		entry->len = end - base;
 ffff80000010d55a: 48 29 fe             	subq	%rdi, %rsi
 ffff80000010d55d: 48 89 74 10 08       	movq	%rsi, 8(%rax,%rdx)
-; 	for (i = 0; i < boot_info->mmap_len; ++i, ++entry) {
 ffff80000010d562: 48 83 c2 18          	addq	$24, %rdx
 ffff80000010d566: 48 39 d1             	cmpq	%rdx, %rcx
 ffff80000010d569: 74 20                	je	0xffff80000010d58b <align_boot_info+0x7b>
-; 		switch (entry->type) {
 ffff80000010d56b: 83 7c 10 10 01       	cmpl	$1, 16(%rax,%rdx)
 ffff80000010d570: 48 8b 34 10          	movq	(%rax,%rdx), %rsi
-; 		switch (entry->type) {
 ffff80000010d574: 75 ba                	jne	0xffff80000010d530 <align_boot_info+0x20>
-; 			base = ROUNDUP(entry->addr, PAGE_SIZE);
 ffff80000010d576: 48 8d be ff 0f 00 00 	leaq	4095(%rsi), %rdi
 ffff80000010d57d: 48 81 e7 00 f0 ff ff 	andq	$-4096, %rdi            # imm = 0xF000
-; 			end = ROUNDDOWN(base + end, PAGE_SIZE);
 ffff80000010d584: 48 03 74 10 08       	addq	8(%rax,%rdx), %rsi
 ffff80000010d589: eb c4                	jmp	0xffff80000010d54f <align_boot_info+0x3f>
-; }
 ffff80000010d58b: 5d                   	popq	%rbp
 ffff80000010d58c: c3                   	retq
 ffff80000010d58d: 0f 1f 00             	nopl	(%rax)
 
 ffff80000010d590 <show_boot_mmap>:
-; {
 ffff80000010d590: 55                   	pushq	%rbp
 ffff80000010d591: 48 89 e5             	movq	%rsp, %rbp
 ffff80000010d594: 41 57                	pushq	%r15
@@ -5946,17 +5554,14 @@ ffff80000010d59a: 41 54                	pushq	%r12
 ffff80000010d59c: 53                   	pushq	%rbx
 ffff80000010d59d: 50                   	pushq	%rax
 ffff80000010d59e: 49 89 fe             	movq	%rdi, %r14
-; 	entry = (struct mmap_entry *)KADDR(boot_info->mmap_addr);
 ffff80000010d5a1: 8b 3f                	movl	(%rdi), %edi
 ffff80000010d5a3: 48 b8 50 d6 10 00 00 80 ff ff	movabsq	$-140737487251888, %rax # imm = 0xFFFF80000010D650
 ffff80000010d5ad: ff d0                	callq	*%rax
 ffff80000010d5af: 49 89 c5             	movq	%rax, %r13
-; 	cprintf("Boot memory map:\n");
 ffff80000010d5b2: 48 bf 93 0f 11 00 00 80 ff ff	movabsq	$-140737487237229, %rdi # imm = 0xFFFF800000110F93
 ffff80000010d5bc: 48 b9 c0 d3 10 00 00 80 ff ff	movabsq	$-140737487252544, %rcx # imm = 0xFFFF80000010D3C0
 ffff80000010d5c6: 31 c0                	xorl	%eax, %eax
 ffff80000010d5c8: ff d1                	callq	*%rcx
-; 	for (i = 0; i < boot_info->mmap_len; ++i, ++entry) {
 ffff80000010d5ca: 41 83 7e 04 00       	cmpl	$0, 4(%r14)
 ffff80000010d5cf: 74 6a                	je	0xffff80000010d63b <show_boot_mmap+0xab>
 ffff80000010d5d1: 49 83 c5 10          	addq	$16, %r13
@@ -5965,22 +5570,17 @@ ffff80000010d5df: 45 31 e4             	xorl	%r12d, %r12d
 ffff80000010d5e2: 48 bb c0 d3 10 00 00 80 ff ff	movabsq	$-140737487252544, %rbx # imm = 0xFFFF80000010D3C0
 ffff80000010d5ec: eb 25                	jmp	0xffff80000010d613 <show_boot_mmap+0x83>
 ffff80000010d5ee: 66 90                	nop
-; 			entry->addr,
 ffff80000010d5f0: 49 8b 75 f0          	movq	-16(%r13), %rsi
 ffff80000010d5f4: 49 8b 55 f8          	movq	-8(%r13), %rdx
-; 			entry->addr + entry->len,
 ffff80000010d5f8: 48 01 f2             	addq	%rsi, %rdx
-; 		cprintf("  %016p - %016p [%s]\n",
 ffff80000010d5fb: 4c 89 ff             	movq	%r15, %rdi
 ffff80000010d5fe: 31 c0                	xorl	%eax, %eax
 ffff80000010d600: ff d3                	callq	*%rbx
-; 	for (i = 0; i < boot_info->mmap_len; ++i, ++entry) {
 ffff80000010d602: 49 83 c4 01          	addq	$1, %r12
 ffff80000010d606: 41 8b 46 04          	movl	4(%r14), %eax
 ffff80000010d60a: 49 83 c5 18          	addq	$24, %r13
 ffff80000010d60e: 49 39 c4             	cmpq	%rax, %r12
 ffff80000010d611: 73 28                	jae	0xffff80000010d63b <show_boot_mmap+0xab>
-; 		switch (entry->type) {
 ffff80000010d613: 41 8b 45 00          	movl	(%r13), %eax
 ffff80000010d617: 83 c0 ff             	addl	$-1, %eax
 ffff80000010d61a: 48 b9 14 0b 11 00 00 80 ff ff	movabsq	$-140737487238380, %rcx # imm = 0xFFFF800000110B14
@@ -5990,7 +5590,6 @@ ffff80000010d629: 48 98                	cltq
 ffff80000010d62b: 48 b9 c8 02 11 00 00 80 ff ff	movabsq	$-140737487240504, %rcx # imm = 0xFFFF8000001102C8
 ffff80000010d635: 48 8b 0c c1          	movq	(%rcx,%rax,8), %rcx
 ffff80000010d639: eb b5                	jmp	0xffff80000010d5f0 <show_boot_mmap+0x60>
-; }
 ffff80000010d63b: 48 83 c4 08          	addq	$8, %rsp
 ffff80000010d63f: 5b                   	popq	%rbx
 ffff80000010d640: 41 5c                	popq	%r12
@@ -6002,22 +5601,18 @@ ffff80000010d649: c3                   	retq
 ffff80000010d64a: 66 0f 1f 44 00 00    	nopw	(%rax,%rax)
 
 ffff80000010d650 <_kaddr>:
-; {
 ffff80000010d650: 55                   	pushq	%rbp
 ffff80000010d651: 48 89 e5             	movq	%rsp, %rbp
 ffff80000010d654: 48 89 f8             	movq	%rdi, %rax
-; 	if (PAGE_INDEX(pa) >= npages)
 ffff80000010d657: 48 89 f9             	movq	%rdi, %rcx
 ffff80000010d65a: 48 c1 e9 0c          	shrq	$12, %rcx
 ffff80000010d65e: 48 ba e0 42 11 00 00 80 ff ff	movabsq	$-140737487224096, %rdx # imm = 0xFFFF8000001142E0
 ffff80000010d668: 48 3b 0a             	cmpq	(%rdx), %rcx
 ffff80000010d66b: 73 0f                	jae	0xffff80000010d67c <_kaddr+0x2c>
 ffff80000010d66d: 48 b9 00 00 00 00 00 80 ff ff	movabsq	$-140737488355328, %rcx # imm = 0xFFFF800000000000
-; 	return (void *)(pa + KERNEL_VMA);
 ffff80000010d677: 48 01 c8             	addq	%rcx, %rax
 ffff80000010d67a: 5d                   	popq	%rbp
 ffff80000010d67b: c3                   	retq
-; 		_panic(file, line, "KADDR called with invalid pa %08lx", pa);
 ffff80000010d67c: 48 bf 61 10 11 00 00 80 ff ff	movabsq	$-140737487237023, %rdi # imm = 0xFFFF800000111061
 ffff80000010d686: 48 ba 2e 0d 11 00 00 80 ff ff	movabsq	$-140737487237842, %rdx # imm = 0xFFFF800000110D2E
 ffff80000010d690: 49 b8 70 c8 10 00 00 80 ff ff	movabsq	$-140737487255440, %r8 # imm = 0xFFFF80000010C870
@@ -6036,17 +5631,13 @@ ffff80000010d6ae: cc                   	int3
 ffff80000010d6af: cc                   	int3
 
 ffff80000010d6b0 <count_free_pages>:
-; {
 ffff80000010d6b0: 55                   	pushq	%rbp
 ffff80000010d6b1: 48 89 e5             	movq	%rsp, %rbp
-; 	if (order >= BUDDY_MAX_ORDER) {
 ffff80000010d6b4: 48 83 ff 09          	cmpq	$9, %rdi
 ffff80000010d6b8: 76 04                	jbe	0xffff80000010d6be <count_free_pages+0xe>
 ffff80000010d6ba: 31 c0                	xorl	%eax, %eax
-; }
 ffff80000010d6bc: 5d                   	popq	%rbp
 ffff80000010d6bd: c3                   	retq
-; 	list_foreach(buddy_free_list + order, node) {
 ffff80000010d6be: 48 c1 e7 04          	shlq	$4, %rdi
 ffff80000010d6c2: 48 b9 40 42 11 00 00 80 ff ff	movabsq	$-140737487224256, %rcx # imm = 0xFFFF800000114240
 ffff80000010d6cc: 48 01 f9             	addq	%rdi, %rcx
@@ -6054,17 +5645,14 @@ ffff80000010d6cf: 48 c7 c0 ff ff ff ff 	movq	$-1, %rax
 ffff80000010d6d6: 48 89 ca             	movq	%rcx, %rdx
 ffff80000010d6d9: 0f 1f 80 00 00 00 00 	nopl	(%rax)
 ffff80000010d6e0: 48 8b 12             	movq	(%rdx), %rdx
-; 	list_foreach(buddy_free_list + order, node) {
 ffff80000010d6e3: 48 83 c0 01          	addq	$1, %rax
 ffff80000010d6e7: 48 39 ca             	cmpq	%rcx, %rdx
 ffff80000010d6ea: 75 f4                	jne	0xffff80000010d6e0 <count_free_pages+0x30>
-; }
 ffff80000010d6ec: 5d                   	popq	%rbp
 ffff80000010d6ed: c3                   	retq
 ffff80000010d6ee: 66 90                	nop
 
 ffff80000010d6f0 <show_buddy_info>:
-; {
 ffff80000010d6f0: 55                   	pushq	%rbp
 ffff80000010d6f1: 48 89 e5             	movq	%rsp, %rbp
 ffff80000010d6f4: 41 57                	pushq	%r15
@@ -6073,7 +5661,6 @@ ffff80000010d6f8: 41 55                	pushq	%r13
 ffff80000010d6fa: 41 54                	pushq	%r12
 ffff80000010d6fc: 53                   	pushq	%rbx
 ffff80000010d6fd: 50                   	pushq	%rax
-; 	cprintf("Buddy allocator:\n");
 ffff80000010d6fe: 48 bf fb 09 11 00 00 80 ff ff	movabsq	$-140737487238661, %rdi # imm = 0xFFFF8000001109FB
 ffff80000010d708: 48 b9 c0 d3 10 00 00 80 ff ff	movabsq	$-140737487252544, %rcx # imm = 0xFFFF80000010D3C0
 ffff80000010d712: 31 c0                	xorl	%eax, %eax
@@ -6083,35 +5670,29 @@ ffff80000010d720: 49 be 31 0e 11 00 00 80 ff ff	movabsq	$-140737487237583, %r14 
 ffff80000010d72a: 45 31 ff             	xorl	%r15d, %r15d
 ffff80000010d72d: 31 db                	xorl	%ebx, %ebx
 ffff80000010d72f: 90                   	nop
-; 		nfree_pages = count_free_pages(order);
 ffff80000010d730: 48 89 df             	movq	%rbx, %rdi
 ffff80000010d733: 41 ff d5             	callq	*%r13
 ffff80000010d736: 49 89 c4             	movq	%rax, %r12
-; 		cprintf("  order #%u pages=%u\n", order, nfree_pages);
 ffff80000010d739: 4c 89 f7             	movq	%r14, %rdi
 ffff80000010d73c: 48 89 de             	movq	%rbx, %rsi
 ffff80000010d73f: 48 89 c2             	movq	%rax, %rdx
 ffff80000010d742: 31 c0                	xorl	%eax, %eax
 ffff80000010d744: 48 b9 c0 d3 10 00 00 80 ff ff	movabsq	$-140737487252544, %rcx # imm = 0xFFFF80000010D3C0
 ffff80000010d74e: ff d1                	callq	*%rcx
-; 		nfree += nfree_pages * (1 << (order + 12));
 ffff80000010d750: 8d 4b 0c             	leal	12(%rbx), %ecx
 ffff80000010d753: b8 01 00 00 00       	movl	$1, %eax
 ffff80000010d758: d3 e0                	shll	%cl, %eax
 ffff80000010d75a: 49 0f af c4          	imulq	%r12, %rax
 ffff80000010d75e: 49 01 c7             	addq	%rax, %r15
-; 	for (order = 0; order < BUDDY_MAX_ORDER; ++order) {
 ffff80000010d761: 48 83 c3 01          	addq	$1, %rbx
 ffff80000010d765: 48 83 fb 0a          	cmpq	$10, %rbx
 ffff80000010d769: 75 c5                	jne	0xffff80000010d730 <show_buddy_info+0x40>
-; 	cprintf("  free: %u kiB\n", nfree / 1024);
 ffff80000010d76b: 49 c1 ef 0a          	shrq	$10, %r15
 ffff80000010d76f: 48 bf da 08 11 00 00 80 ff ff	movabsq	$-140737487238950, %rdi # imm = 0xFFFF8000001108DA
 ffff80000010d779: 4c 89 fe             	movq	%r15, %rsi
 ffff80000010d77c: 31 c0                	xorl	%eax, %eax
 ffff80000010d77e: 48 b9 c0 d3 10 00 00 80 ff ff	movabsq	$-140737487252544, %rcx # imm = 0xFFFF80000010D3C0
 ffff80000010d788: ff d1                	callq	*%rcx
-; }
 ffff80000010d78a: 48 83 c4 08          	addq	$8, %rsp
 ffff80000010d78e: 5b                   	popq	%rbx
 ffff80000010d78f: 41 5c                	popq	%r12
@@ -6123,7 +5704,6 @@ ffff80000010d798: c3                   	retq
 ffff80000010d799: 0f 1f 80 00 00 00 00 	nopl	(%rax)
 
 ffff80000010d7a0 <count_total_free_pages>:
-; {
 ffff80000010d7a0: 55                   	pushq	%rbp
 ffff80000010d7a1: 48 89 e5             	movq	%rsp, %rbp
 ffff80000010d7a4: 41 57                	pushq	%r15
@@ -6134,20 +5714,16 @@ ffff80000010d7aa: 45 31 f6             	xorl	%r14d, %r14d
 ffff80000010d7ad: 49 bf b0 d6 10 00 00 80 ff ff	movabsq	$-140737487251792, %r15 # imm = 0xFFFF80000010D6B0
 ffff80000010d7b7: 31 db                	xorl	%ebx, %ebx
 ffff80000010d7b9: 0f 1f 80 00 00 00 00 	nopl	(%rax)
-; 		nfree_pages = count_free_pages(order);
 ffff80000010d7c0: 48 89 df             	movq	%rbx, %rdi
 ffff80000010d7c3: 41 ff d7             	callq	*%r15
-; 		nfree += nfree_pages * (1 << order);
 ffff80000010d7c6: ba 01 00 00 00       	movl	$1, %edx
 ffff80000010d7cb: 89 d9                	movl	%ebx, %ecx
 ffff80000010d7cd: d3 e2                	shll	%cl, %edx
 ffff80000010d7cf: 48 0f af d0          	imulq	%rax, %rdx
 ffff80000010d7d3: 49 01 d6             	addq	%rdx, %r14
-; 	for (order = 0; order < BUDDY_MAX_ORDER; ++order) {
 ffff80000010d7d6: 48 83 c3 01          	addq	$1, %rbx
 ffff80000010d7da: 48 83 fb 0a          	cmpq	$10, %rbx
 ffff80000010d7de: 75 e0                	jne	0xffff80000010d7c0 <count_total_free_pages+0x20>
-; 	return nfree;
 ffff80000010d7e0: 4c 89 f0             	movq	%r14, %rax
 ffff80000010d7e3: 48 83 c4 08          	addq	$8, %rsp
 ffff80000010d7e7: 5b                   	popq	%rbx
@@ -6158,15 +5734,12 @@ ffff80000010d7ed: c3                   	retq
 ffff80000010d7ee: 66 90                	nop
 
 ffff80000010d7f0 <buddy_split>:
-; {
 ffff80000010d7f0: 55                   	pushq	%rbp
 ffff80000010d7f1: 48 89 e5             	movq	%rsp, %rbp
 ffff80000010d7f4: 0f b6 47 12          	movzbl	18(%rdi), %eax
 ffff80000010d7f8: 83 e0 7f             	andl	$127, %eax
 ffff80000010d7fb: 48 39 f0             	cmpq	%rsi, %rax
-; 	while(lhs->pp_order != req_order){
 ffff80000010d7fe: 75 10                	jne	0xffff80000010d810 <buddy_split+0x20>
-; 	return lhs;
 ffff80000010d800: 48 89 f8             	movq	%rdi, %rax
 ffff80000010d803: 5d                   	popq	%rbp
 ffff80000010d804: c3                   	retq
@@ -6177,26 +5750,21 @@ ffff80000010d812: 66 2e 0f 1f 84 00 00 00 00 00	nopw	%cs:(%rax,%rax)
 ffff80000010d81c: 0f 1f 40 00          	nopl	(%rax)
 
 ffff80000010d820 <buddy_merge>:
-; {
 ffff80000010d820: 55                   	pushq	%rbp
 ffff80000010d821: 48 89 e5             	movq	%rsp, %rbp
-; 	return NULL;
 ffff80000010d824: 31 c0                	xorl	%eax, %eax
 ffff80000010d826: 5d                   	popq	%rbp
 ffff80000010d827: c3                   	retq
 ffff80000010d828: 0f 1f 84 00 00 00 00 00      	nopl	(%rax,%rax)
 
 ffff80000010d830 <buddy_find>:
-; {
 ffff80000010d830: 55                   	pushq	%rbp
 ffff80000010d831: 48 89 e5             	movq	%rsp, %rbp
 ffff80000010d834: 53                   	pushq	%rbx
 ffff80000010d835: 50                   	pushq	%rax
-; 	for(size_t ord = req_order; ord < BUDDY_MAX_ORDER; ord++){
 ffff80000010d836: 48 83 ff 09          	cmpq	$9, %rdi
 ffff80000010d83a: 77 3b                	ja	0xffff80000010d877 <buddy_find+0x47>
 ffff80000010d83c: 48 89 fe             	movq	%rdi, %rsi
-; 	for(size_t ord = req_order; ord < BUDDY_MAX_ORDER; ord++){
 ffff80000010d83f: 48 89 f8             	movq	%rdi, %rax
 ffff80000010d842: 48 c1 e0 04          	shlq	$4, %rax
 ffff80000010d846: 48 b9 40 42 11 00 00 80 ff ff	movabsq	$-140737487224256, %rcx # imm = 0xFFFF800000114240
@@ -6204,12 +5772,9 @@ ffff80000010d850: 48 01 c1             	addq	%rax, %rcx
 ffff80000010d853: ba 0a 00 00 00       	movl	$10, %edx
 ffff80000010d858: 31 c0                	xorl	%eax, %eax
 ffff80000010d85a: 66 0f 1f 44 00 00    	nopw	(%rax,%rax)
-; 		node = buddy_free_list[ord].next;
 ffff80000010d860: 48 8b 19             	movq	(%rcx), %rbx
-; 		if(node != NULL) return buddy_split(container_of(node, struct page_info, pp_node), req_order);
 ffff80000010d863: 48 85 db             	testq	%rbx, %rbx
 ffff80000010d866: 75 13                	jne	0xffff80000010d87b <buddy_find+0x4b>
-; 	for(size_t ord = req_order; ord < BUDDY_MAX_ORDER; ord++){
 ffff80000010d868: 48 83 c2 ff          	addq	$-1, %rdx
 ffff80000010d86c: 48 83 c1 10          	addq	$16, %rcx
 ffff80000010d870: 48 39 d6             	cmpq	%rdx, %rsi
@@ -6217,12 +5782,10 @@ ffff80000010d873: 75 eb                	jne	0xffff80000010d860 <buddy_find+0x30>
 ffff80000010d875: eb 16                	jmp	0xffff80000010d88d <buddy_find+0x5d>
 ffff80000010d877: 31 c0                	xorl	%eax, %eax
 ffff80000010d879: eb 12                	jmp	0xffff80000010d88d <buddy_find+0x5d>
-; 		if(node != NULL) return buddy_split(container_of(node, struct page_info, pp_node), req_order);
 ffff80000010d87b: 48 b8 f0 d7 10 00 00 80 ff ff	movabsq	$-140737487251472, %rax # imm = 0xFFFF80000010D7F0
 ffff80000010d885: 48 89 df             	movq	%rbx, %rdi
 ffff80000010d888: ff d0                	callq	*%rax
 ffff80000010d88a: 48 89 d8             	movq	%rbx, %rax
-; }
 ffff80000010d88d: 48 83 c4 08          	addq	$8, %rsp
 ffff80000010d891: 5b                   	popq	%rbx
 ffff80000010d892: 5d                   	popq	%rbp
@@ -6231,31 +5794,24 @@ ffff80000010d894: 66 2e 0f 1f 84 00 00 00 00 00	nopw	%cs:(%rax,%rax)
 ffff80000010d89e: 66 90                	nop
 
 ffff80000010d8a0 <page_alloc>:
-; {
 ffff80000010d8a0: 55                   	pushq	%rbp
 ffff80000010d8a1: 48 89 e5             	movq	%rsp, %rbp
-; 	return NULL;
 ffff80000010d8a4: 31 c0                	xorl	%eax, %eax
 ffff80000010d8a6: 5d                   	popq	%rbp
 ffff80000010d8a7: c3                   	retq
 ffff80000010d8a8: 0f 1f 84 00 00 00 00 00      	nopl	(%rax,%rax)
 
 ffff80000010d8b0 <page_free>:
-; {
 ffff80000010d8b0: 55                   	pushq	%rbp
 ffff80000010d8b1: 48 89 e5             	movq	%rsp, %rbp
-; }
 ffff80000010d8b4: 5d                   	popq	%rbp
 ffff80000010d8b5: c3                   	retq
 ffff80000010d8b6: 66 2e 0f 1f 84 00 00 00 00 00	nopw	%cs:(%rax,%rax)
 
 ffff80000010d8c0 <page_decref>:
-; {
 ffff80000010d8c0: 55                   	pushq	%rbp
 ffff80000010d8c1: 48 89 e5             	movq	%rsp, %rbp
-; 	if (--pp->pp_ref == 0) {
 ffff80000010d8c4: 66 83 47 10 ff       	addw	$-1, 16(%rdi)
-; }
 ffff80000010d8c9: 5d                   	popq	%rbp
 ffff80000010d8ca: c3                   	retq
 ffff80000010d8cb: cc                   	int3
@@ -6265,7 +5821,6 @@ ffff80000010d8ce: cc                   	int3
 ffff80000010d8cf: cc                   	int3
 
 ffff80000010d8d0 <mem_init>:
-; {
 ffff80000010d8d0: 55                   	pushq	%rbp
 ffff80000010d8d1: 48 89 e5             	movq	%rsp, %rbp
 ffff80000010d8d4: 41 57                	pushq	%r15
@@ -6273,68 +5828,55 @@ ffff80000010d8d6: 41 56                	pushq	%r14
 ffff80000010d8d8: 41 54                	pushq	%r12
 ffff80000010d8da: 53                   	pushq	%rbx
 ffff80000010d8db: 49 89 fe             	movq	%rdi, %r14
-; 	align_boot_info(boot_info);
 ffff80000010d8de: 48 b8 10 d5 10 00 00 80 ff ff	movabsq	$-140737487252208, %rax # imm = 0xFFFF80000010D510
 ffff80000010d8e8: ff d0                	callq	*%rax
 ffff80000010d8ea: 31 db                	xorl	%ebx, %ebx
 ffff80000010d8ec: 49 bf 40 42 11 00 00 80 ff ff	movabsq	$-140737487224256, %r15 # imm = 0xFFFF800000114240
 ffff80000010d8f6: 49 bc f0 e6 10 00 00 80 ff ff	movabsq	$-140737487247632, %r12 # imm = 0xFFFF80000010E6F0
-; 		list_init(buddy_free_list + i);
 ffff80000010d900: 4a 8d 3c 3b          	leaq	(%rbx,%r15), %rdi
 ffff80000010d904: 41 ff d4             	callq	*%r12
-; 	for (i = 0; i < BUDDY_MAX_ORDER; ++i) {
 ffff80000010d907: 48 83 c3 10          	addq	$16, %rbx
 ffff80000010d90b: 48 81 fb a0 00 00 00 	cmpq	$160, %rbx
 ffff80000010d912: 75 ec                	jne	0xffff80000010d900 <mem_init+0x30>
 ffff80000010d914: 41 8b 4e 04          	movl	4(%r14), %ecx
 ffff80000010d918: 48 85 c9             	testq	%rcx, %rcx
-; 	for (i = 0; i < boot_info->mmap_len; ++i, ++entry) {
 ffff80000010d91b: 0f 85 b8 00 00 00    	jne	0xffff80000010d9d9 <mem_init+0x109>
 ffff80000010d921: 31 c9                	xorl	%ecx, %ecx
-; 	npages = MIN(BOOT_MAP_LIM, highest_addr) / PAGE_SIZE;
 ffff80000010d923: 48 81 f9 00 00 80 00 	cmpq	$8388608, %rcx          # imm = 0x800000
 ffff80000010d92a: be 00 00 80 00       	movl	$8388608, %esi          # imm = 0x800000
 ffff80000010d92f: 48 0f 42 f1          	cmovbq	%rcx, %rsi
 ffff80000010d933: 48 c1 ee 0c          	shrq	$12, %rsi
 ffff80000010d937: 49 bf e0 42 11 00 00 80 ff ff	movabsq	$-140737487224096, %r15 # imm = 0xFFFF8000001142E0
 ffff80000010d941: 49 89 37             	movq	%rsi, (%r15)
-; 	cprintf("npages: %lu\n", npages);
 ffff80000010d944: 48 bf 2a 0c 11 00 00 80 ff ff	movabsq	$-140737487238102, %rdi # imm = 0xFFFF800000110C2A
 ffff80000010d94e: 48 bb c0 d3 10 00 00 80 ff ff	movabsq	$-140737487252544, %rbx # imm = 0xFFFF80000010D3C0
 ffff80000010d958: 31 c0                	xorl	%eax, %eax
 ffff80000010d95a: ff d3                	callq	*%rbx
-; 	cprintf("bytes alloc: %lu\n", npages * sizeof *pages);
 ffff80000010d95c: 49 8b 37             	movq	(%r15), %rsi
 ffff80000010d95f: 48 c1 e6 05          	shlq	$5, %rsi
 ffff80000010d963: 48 bf e5 0f 11 00 00 80 ff ff	movabsq	$-140737487237147, %rdi # imm = 0xFFFF800000110FE5
 ffff80000010d96d: 31 c0                	xorl	%eax, %eax
 ffff80000010d96f: ff d3                	callq	*%rbx
-; 	cprintf("size of page_info: %lu\n", sizeof(struct page_info));
 ffff80000010d971: 48 bf cc 09 11 00 00 80 ff ff	movabsq	$-140737487238708, %rdi # imm = 0xFFFF8000001109CC
 ffff80000010d97b: be 20 00 00 00       	movl	$32, %esi
 ffff80000010d980: 31 c0                	xorl	%eax, %eax
 ffff80000010d982: ff d3                	callq	*%rbx
-; 	pages = boot_alloc(npages * sizeof *pages);
 ffff80000010d984: 41 8b 3f             	movl	(%r15), %edi
 ffff80000010d987: c1 e7 05             	shll	$5, %edi
 ffff80000010d98a: 48 b8 10 d4 10 00 00 80 ff ff	movabsq	$-140737487252464, %rax # imm = 0xFFFF80000010D410
 ffff80000010d994: ff d0                	callq	*%rax
 ffff80000010d996: 48 b9 e8 42 11 00 00 80 ff ff	movabsq	$-140737487224088, %rcx # imm = 0xFFFF8000001142E8
 ffff80000010d9a0: 48 89 01             	movq	%rax, (%rcx)
-; 	page_init(boot_info);
 ffff80000010d9a3: 48 b8 10 da 10 00 00 80 ff ff	movabsq	$-140737487250928, %rax # imm = 0xFFFF80000010DA10
 ffff80000010d9ad: 4c 89 f7             	movq	%r14, %rdi
 ffff80000010d9b0: ff d0                	callq	*%rax
-; 	panic("need to implement buddy allocator\n");
 ffff80000010d9b2: 48 bf 51 0d 11 00 00 80 ff ff	movabsq	$-140737487237807, %rdi # imm = 0xFFFF800000110D51
 ffff80000010d9bc: 48 ba 47 0e 11 00 00 80 ff ff	movabsq	$-140737487237561, %rdx # imm = 0xFFFF800000110E47
 ffff80000010d9c6: 48 b9 70 c8 10 00 00 80 ff ff	movabsq	$-140737487255440, %rcx # imm = 0xFFFF80000010C870
 ffff80000010d9d0: be 4d 00 00 00       	movl	$77, %esi
 ffff80000010d9d5: 31 c0                	xorl	%eax, %eax
 ffff80000010d9d7: ff d1                	callq	*%rcx
-; 	entry = (struct mmap_entry *)((physaddr_t)boot_info->mmap_addr);
 ffff80000010d9d9: 41 8b 06             	movl	(%r14), %eax
-; 	for (i = 0; i < boot_info->mmap_len; ++i, ++entry) {
 ffff80000010d9dc: 48 c1 e1 03          	shlq	$3, %rcx
 ffff80000010d9e0: 48 8d 14 49          	leaq	(%rcx,%rcx,2), %rdx
 ffff80000010d9e4: 31 f6                	xorl	%esi, %esi
@@ -6344,17 +5886,14 @@ ffff80000010d9ea: 66 0f 1f 44 00 00    	nopw	(%rax,%rax)
 ffff80000010d9f0: 48 83 c6 18          	addq	$24, %rsi
 ffff80000010d9f4: 48 39 f2             	cmpq	%rsi, %rdx
 ffff80000010d9f7: 0f 84 26 ff ff ff    	je	0xffff80000010d923 <mem_init+0x53>
-; 		if (entry->type != MMAP_FREE)
 ffff80000010d9fd: 83 7c 30 10 01       	cmpl	$1, 16(%rax,%rsi)
 ffff80000010da02: 75 ec                	jne	0xffff80000010d9f0 <mem_init+0x120>
-; 		highest_addr = entry->addr + entry->len;
 ffff80000010da04: 48 8b 4c 30 08       	movq	8(%rax,%rsi), %rcx
 ffff80000010da09: 48 03 0c 30          	addq	(%rax,%rsi), %rcx
 ffff80000010da0d: eb e1                	jmp	0xffff80000010d9f0 <mem_init+0x120>
 ffff80000010da0f: 90                   	nop
 
 ffff80000010da10 <page_init>:
-; {
 ffff80000010da10: 55                   	pushq	%rbp
 ffff80000010da11: 48 89 e5             	movq	%rsp, %rbp
 ffff80000010da14: 41 57                	pushq	%r15
@@ -6364,7 +5903,6 @@ ffff80000010da1a: 41 54                	pushq	%r12
 ffff80000010da1c: 53                   	pushq	%rbx
 ffff80000010da1d: 50                   	pushq	%rax
 ffff80000010da1e: 48 89 7d d0          	movq	%rdi, -48(%rbp)
-; 	for (i = 0; i < npages; ++i) {
 ffff80000010da22: 49 bc e0 42 11 00 00 80 ff ff	movabsq	$-140737487224096, %r12 # imm = 0xFFFF8000001142E0
 ffff80000010da2c: 49 83 3c 24 00       	cmpq	$0, (%r12)
 ffff80000010da31: 74 4d                	je	0xffff80000010da80 <page_init+0x70>
@@ -6373,41 +5911,32 @@ ffff80000010da35: 49 bd f0 e6 10 00 00 80 ff ff	movabsq	$-140737487247632, %r13 
 ffff80000010da3f: 45 31 f6             	xorl	%r14d, %r14d
 ffff80000010da42: 66 2e 0f 1f 84 00 00 00 00 00	nopw	%cs:(%rax,%rax)
 ffff80000010da4c: 0f 1f 40 00          	nopl	(%rax)
-; 		page = pages + i;
 ffff80000010da50: 48 b9 e8 42 11 00 00 80 ff ff	movabsq	$-140737487224088, %rcx # imm = 0xFFFF8000001142E8
 ffff80000010da5a: 4c 8b 39             	movq	(%rcx), %r15
-; 		list_init(&page->pp_node);
 ffff80000010da5d: 49 8d 3c 1f          	leaq	(%r15,%rbx), %rdi
 ffff80000010da61: 41 ff d5             	callq	*%r13
-; 		page->pp_ref = 0;
 ffff80000010da64: 66 41 c7 44 1f 10 00 00      	movw	$0, 16(%r15,%rbx)
-; 		page->pp_order = 0;
 ffff80000010da6c: 41 c6 44 1f 12 00    	movb	$0, 18(%r15,%rbx)
-; 	for (i = 0; i < npages; ++i) {
 ffff80000010da72: 49 83 c6 01          	addq	$1, %r14
 ffff80000010da76: 48 83 c3 20          	addq	$32, %rbx
 ffff80000010da7a: 4d 3b 34 24          	cmpq	(%r12), %r14
 ffff80000010da7e: 72 d0                	jb	0xffff80000010da50 <page_init+0x40>
 ffff80000010da80: 4c 8b 75 d0          	movq	-48(%rbp), %r14
-; 	entry = (struct mmap_entry *)KADDR(boot_info->mmap_addr);
 ffff80000010da84: 41 8b 3e             	movl	(%r14), %edi
 ffff80000010da87: 48 b8 40 db 10 00 00 80 ff ff	movabsq	$-140737487250624, %rax # imm = 0xFFFF80000010DB40
 ffff80000010da91: ff d0                	callq	*%rax
 ffff80000010da93: 48 89 c3             	movq	%rax, %rbx
-; 	end = PADDR(boot_alloc(0));
 ffff80000010da96: 48 b8 10 d4 10 00 00 80 ff ff	movabsq	$-140737487252464, %rax # imm = 0xFFFF80000010D410
 ffff80000010daa0: 31 ff                	xorl	%edi, %edi
 ffff80000010daa2: ff d0                	callq	*%rax
 ffff80000010daa4: 48 b9 a0 db 10 00 00 80 ff ff	movabsq	$-140737487250528, %rcx # imm = 0xFFFF80000010DBA0
 ffff80000010daae: 48 89 c7             	movq	%rax, %rdi
 ffff80000010dab1: ff d1                	callq	*%rcx
-; 	cprintf("elf header: %p\n", boot_info->elf_hdr);
 ffff80000010dab3: 49 8b 76 08          	movq	8(%r14), %rsi
 ffff80000010dab7: 48 bf 37 0c 11 00 00 80 ff ff	movabsq	$-140737487238089, %rdi # imm = 0xFFFF800000110C37
 ffff80000010dac1: 49 bd c0 d3 10 00 00 80 ff ff	movabsq	$-140737487252544, %r13 # imm = 0xFFFF80000010D3C0
 ffff80000010dacb: 31 c0                	xorl	%eax, %eax
 ffff80000010dacd: 41 ff d5             	callq	*%r13
-; 	for (i = 0; i < boot_info->mmap_len; ++i, ++entry) {
 ffff80000010dad0: 41 83 7e 04 00       	cmpl	$0, 4(%r14)
 ffff80000010dad5: 74 55                	je	0xffff80000010db2c <page_init+0x11c>
 ffff80000010dad7: 48 83 c3 10          	addq	$16, %rbx
@@ -6415,29 +5944,24 @@ ffff80000010dadb: 49 bc 3e 08 11 00 00 80 ff ff	movabsq	$-140737487239106, %r12 
 ffff80000010dae5: 45 31 ff             	xorl	%r15d, %r15d
 ffff80000010dae8: eb 17                	jmp	0xffff80000010db01 <page_init+0xf1>
 ffff80000010daea: 66 0f 1f 44 00 00    	nopw	(%rax,%rax)
-; 	for (i = 0; i < boot_info->mmap_len; ++i, ++entry) {
 ffff80000010daf0: 49 83 c7 01          	addq	$1, %r15
 ffff80000010daf4: 41 8b 46 04          	movl	4(%r14), %eax
 ffff80000010daf8: 48 83 c3 18          	addq	$24, %rbx
 ffff80000010dafc: 49 39 c7             	cmpq	%rax, %r15
 ffff80000010daff: 73 2b                	jae	0xffff80000010db2c <page_init+0x11c>
-; 		if(entry->type != MMAP_FREE) continue;
 ffff80000010db01: 83 3b 01             	cmpl	$1, (%rbx)
 ffff80000010db04: 75 ea                	jne	0xffff80000010daf0 <page_init+0xe0>
-; 		cprintf("%p - %p\n", entry->addr, entry->addr + entry->len);
 ffff80000010db06: 48 8b 73 f0          	movq	-16(%rbx), %rsi
 ffff80000010db0a: 48 8b 53 f8          	movq	-8(%rbx), %rdx
 ffff80000010db0e: 48 01 f2             	addq	%rsi, %rdx
 ffff80000010db11: 48 bf 47 0c 11 00 00 80 ff ff	movabsq	$-140737487238073, %rdi # imm = 0xFFFF800000110C47
 ffff80000010db1b: 31 c0                	xorl	%eax, %eax
 ffff80000010db1d: 41 ff d5             	callq	*%r13
-; 		cprintf("entry->type: %d\n", entry->type);
 ffff80000010db20: 8b 33                	movl	(%rbx), %esi
 ffff80000010db22: 4c 89 e7             	movq	%r12, %rdi
 ffff80000010db25: 31 c0                	xorl	%eax, %eax
 ffff80000010db27: 41 ff d5             	callq	*%r13
 ffff80000010db2a: eb c4                	jmp	0xffff80000010daf0 <page_init+0xe0>
-; }
 ffff80000010db2c: 48 83 c4 08          	addq	$8, %rsp
 ffff80000010db30: 5b                   	popq	%rbx
 ffff80000010db31: 41 5c                	popq	%r12
@@ -6449,22 +5973,18 @@ ffff80000010db3a: c3                   	retq
 ffff80000010db3b: 0f 1f 44 00 00       	nopl	(%rax,%rax)
 
 ffff80000010db40 <_kaddr>:
-; {
 ffff80000010db40: 55                   	pushq	%rbp
 ffff80000010db41: 48 89 e5             	movq	%rsp, %rbp
 ffff80000010db44: 48 89 f8             	movq	%rdi, %rax
-; 	if (PAGE_INDEX(pa) >= npages)
 ffff80000010db47: 48 89 f9             	movq	%rdi, %rcx
 ffff80000010db4a: 48 c1 e9 0c          	shrq	$12, %rcx
 ffff80000010db4e: 48 ba e0 42 11 00 00 80 ff ff	movabsq	$-140737487224096, %rdx # imm = 0xFFFF8000001142E0
 ffff80000010db58: 48 3b 0a             	cmpq	(%rdx), %rcx
 ffff80000010db5b: 73 0f                	jae	0xffff80000010db6c <_kaddr+0x2c>
 ffff80000010db5d: 48 b9 00 00 00 00 00 80 ff ff	movabsq	$-140737488355328, %rcx # imm = 0xFFFF800000000000
-; 	return (void *)(pa + KERNEL_VMA);
 ffff80000010db67: 48 01 c8             	addq	%rcx, %rax
 ffff80000010db6a: 5d                   	popq	%rbp
 ffff80000010db6b: c3                   	retq
-; 		_panic(file, line, "KADDR called with invalid pa %08lx", pa);
 ffff80000010db6c: 48 bf 51 0d 11 00 00 80 ff ff	movabsq	$-140737487237807, %rdi # imm = 0xFFFF800000110D51
 ffff80000010db76: 48 ba 2e 0d 11 00 00 80 ff ff	movabsq	$-140737487237842, %rdx # imm = 0xFFFF800000110D2E
 ffff80000010db80: 49 b8 70 c8 10 00 00 80 ff ff	movabsq	$-140737487255440, %r8 # imm = 0xFFFF80000010C870
@@ -6475,17 +5995,14 @@ ffff80000010db94: 41 ff d0             	callq	*%r8
 ffff80000010db97: 66 0f 1f 84 00 00 00 00 00   	nopw	(%rax,%rax)
 
 ffff80000010dba0 <_paddr>:
-; 	if ((uintptr_t)kva < KERNEL_VMA)
 ffff80000010dba0: 48 89 f8             	movq	%rdi, %rax
 ffff80000010dba3: 48 c1 e8 2f          	shrq	$47, %rax
 ffff80000010dba7: 3d fe ff 01 00       	cmpl	$131070, %eax           # imm = 0x1FFFE
 ffff80000010dbac: 76 01                	jbe	0xffff80000010dbaf <_paddr+0xf>
-; 	return (physaddr_t)kva - KERNEL_VMA;
 ffff80000010dbae: c3                   	retq
 ffff80000010dbaf: 55                   	pushq	%rbp
 ffff80000010dbb0: 48 89 e5             	movq	%rsp, %rbp
 ffff80000010dbb3: 48 89 f9             	movq	%rdi, %rcx
-; 		_panic(file, line, "PADDR called with invalid kva %08lx", kva);
 ffff80000010dbb6: 48 bf 51 0d 11 00 00 80 ff ff	movabsq	$-140737487237807, %rdi # imm = 0xFFFF800000110D51
 ffff80000010dbc0: 48 ba 16 09 11 00 00 80 ff ff	movabsq	$-140737487238890, %rdx # imm = 0xFFFF800000110916
 ffff80000010dbca: 49 b8 70 c8 10 00 00 80 ff ff	movabsq	$-140737487255440, %r8 # imm = 0xFFFF80000010C870
@@ -6496,7 +6013,6 @@ ffff80000010dbde: cc                   	int3
 ffff80000010dbdf: cc                   	int3
 
 ffff80000010dbe0 <lab1_check_free_list_avail>:
-; {
 ffff80000010dbe0: 55                   	pushq	%rbp
 ffff80000010dbe1: 48 89 e5             	movq	%rsp, %rbp
 ffff80000010dbe4: 41 57                	pushq	%r15
@@ -6513,21 +6029,17 @@ ffff80000010dc01: eb 1b                	jmp	0xffff80000010dc1e <lab1_check_free_
 ffff80000010dc03: 66 2e 0f 1f 84 00 00 00 00 00	nopw	%cs:(%rax,%rax)
 ffff80000010dc0d: 0f 1f 00             	nopl	(%rax)
 ffff80000010dc10: 4c 8b 7d d0          	movq	-48(%rbp), %r15
-; 	for (order = 0; order < BUDDY_MAX_ORDER; ++order) {
 ffff80000010dc14: 49 83 c7 01          	addq	$1, %r15
 ffff80000010dc18: 49 83 ff 0a          	cmpq	$10, %r15
 ffff80000010dc1c: 74 46                	je	0xffff80000010dc64 <lab1_check_free_list_avail+0x84>
 ffff80000010dc1e: 4c 89 7d d0          	movq	%r15, -48(%rbp)
-; 		list_foreach(buddy_free_list + order, node) {
 ffff80000010dc22: 49 c1 e7 04          	shlq	$4, %r15
 ffff80000010dc26: 48 b8 40 42 11 00 00 80 ff ff	movabsq	$-140737487224256, %rax # imm = 0xFFFF800000114240
 ffff80000010dc30: 49 8b 1c 07          	movq	(%r15,%rax), %rbx
-; 		list_foreach(buddy_free_list + order, node) {
 ffff80000010dc34: 49 01 c7             	addq	%rax, %r15
 ffff80000010dc37: 4c 39 fb             	cmpq	%r15, %rbx
 ffff80000010dc3a: 74 d4                	je	0xffff80000010dc10 <lab1_check_free_list_avail+0x30>
 ffff80000010dc3c: 0f 1f 40 00          	nopl	(%rax)
-; 			if (page2pa(page) < EXT_PHYS_MEM) {
 ffff80000010dc40: 48 89 df             	movq	%rbx, %rdi
 ffff80000010dc43: 41 ff d4             	callq	*%r12
 ffff80000010dc46: 48 3d 00 00 10 00    	cmpq	$1048576, %rax          # imm = 0x100000
@@ -6535,22 +6047,17 @@ ffff80000010dc4c: 49 83 d5 00          	adcq	$0, %r13
 ffff80000010dc50: 48 3d 00 00 10 00    	cmpq	$1048576, %rax          # imm = 0x100000
 ffff80000010dc56: 49 83 de ff          	sbbq	$-1, %r14
 ffff80000010dc5a: 48 8b 1b             	movq	(%rbx), %rbx
-; 		list_foreach(buddy_free_list + order, node) {
 ffff80000010dc5d: 4c 39 fb             	cmpq	%r15, %rbx
 ffff80000010dc60: 75 de                	jne	0xffff80000010dc40 <lab1_check_free_list_avail+0x60>
 ffff80000010dc62: eb ac                	jmp	0xffff80000010dc10 <lab1_check_free_list_avail+0x30>
-; 	assert(nfree_basemem > 0);
 ffff80000010dc64: 4d 85 ed             	testq	%r13, %r13
 ffff80000010dc67: 74 2c                	je	0xffff80000010dc95 <lab1_check_free_list_avail+0xb5>
-; 	assert(nfree_extmem > 0);
 ffff80000010dc69: 4d 85 f6             	testq	%r14, %r14
 ffff80000010dc6c: 74 58                	je	0xffff80000010dcc6 <lab1_check_free_list_avail+0xe6>
-; 	cprintf("[LAB 1] check_free_list_avail() succeeded!\n");
 ffff80000010dc6e: 48 bf ea 08 11 00 00 80 ff ff	movabsq	$-140737487238934, %rdi # imm = 0xFFFF8000001108EA
 ffff80000010dc78: 48 b9 c0 d3 10 00 00 80 ff ff	movabsq	$-140737487252544, %rcx # imm = 0xFFFF80000010D3C0
 ffff80000010dc82: 31 c0                	xorl	%eax, %eax
 ffff80000010dc84: ff d1                	callq	*%rcx
-; }
 ffff80000010dc86: 48 83 c4 08          	addq	$8, %rsp
 ffff80000010dc8a: 5b                   	popq	%rbx
 ffff80000010dc8b: 41 5c                	popq	%r12
@@ -6559,7 +6066,6 @@ ffff80000010dc8f: 41 5e                	popq	%r14
 ffff80000010dc91: 41 5f                	popq	%r15
 ffff80000010dc93: 5d                   	popq	%rbp
 ffff80000010dc94: c3                   	retq
-; 	assert(nfree_basemem > 0);
 ffff80000010dc95: 48 bf 72 07 11 00 00 80 ff ff	movabsq	$-140737487239310, %rdi # imm = 0xFFFF800000110772
 ffff80000010dc9f: 48 ba 16 0b 11 00 00 80 ff ff	movabsq	$-140737487238378, %rdx # imm = 0xFFFF800000110B16
 ffff80000010dca9: 48 b9 b3 0e 11 00 00 80 ff ff	movabsq	$-140737487237453, %rcx # imm = 0xFFFF800000110EB3
@@ -6567,7 +6073,6 @@ ffff80000010dcb3: 48 bb 70 c8 10 00 00 80 ff ff	movabsq	$-140737487255440, %rbx 
 ffff80000010dcbd: be 21 00 00 00       	movl	$33, %esi
 ffff80000010dcc2: 31 c0                	xorl	%eax, %eax
 ffff80000010dcc4: ff d3                	callq	*%rbx
-; 	assert(nfree_extmem > 0);
 ffff80000010dcc6: 48 bf 72 07 11 00 00 80 ff ff	movabsq	$-140737487239310, %rdi # imm = 0xFFFF800000110772
 ffff80000010dcd0: 48 ba 16 0b 11 00 00 80 ff ff	movabsq	$-140737487238378, %rdx # imm = 0xFFFF800000110B16
 ffff80000010dcda: 48 b9 a4 0c 11 00 00 80 ff ff	movabsq	$-140737487237980, %rcx # imm = 0xFFFF800000110CA4
@@ -6578,11 +6083,9 @@ ffff80000010dcf5: ff d3                	callq	*%rbx
 ffff80000010dcf7: 66 0f 1f 84 00 00 00 00 00   	nopw	(%rax,%rax)
 
 ffff80000010dd00 <page2pa>:
-; {
 ffff80000010dd00: 55                   	pushq	%rbp
 ffff80000010dd01: 48 89 e5             	movq	%rsp, %rbp
 ffff80000010dd04: 48 89 f8             	movq	%rdi, %rax
-; 	return (pp - pages) << PAGE_TABLE_SHIFT;
 ffff80000010dd07: 48 b9 e8 42 11 00 00 80 ff ff	movabsq	$-140737487224088, %rcx # imm = 0xFFFF8000001142E8
 ffff80000010dd11: 48 2b 01             	subq	(%rcx), %rax
 ffff80000010dd14: 48 c1 e0 07          	shlq	$7, %rax
@@ -6591,7 +6094,6 @@ ffff80000010dd19: c3                   	retq
 ffff80000010dd1a: 66 0f 1f 44 00 00    	nopw	(%rax,%rax)
 
 ffff80000010dd20 <lab1_check_free_list_order>:
-; {
 ffff80000010dd20: 55                   	pushq	%rbp
 ffff80000010dd21: 48 89 e5             	movq	%rsp, %rbp
 ffff80000010dd24: 31 c9                	xorl	%ecx, %ecx
@@ -6600,20 +6102,16 @@ ffff80000010dd30: 45 31 c9             	xorl	%r9d, %r9d
 ffff80000010dd33: eb 15                	jmp	0xffff80000010dd4a <lab1_check_free_list_order+0x2a>
 ffff80000010dd35: 66 2e 0f 1f 84 00 00 00 00 00	nopw	%cs:(%rax,%rax)
 ffff80000010dd3f: 90                   	nop
-; 	for (order = 0; order < BUDDY_MAX_ORDER; ++order) {
 ffff80000010dd40: 49 83 c1 01          	addq	$1, %r9
 ffff80000010dd44: 49 83 f9 0a          	cmpq	$10, %r9
 ffff80000010dd48: 74 32                	je	0xffff80000010dd7c <lab1_check_free_list_order+0x5c>
-; 		list_foreach(buddy_free_list + order, node) {
 ffff80000010dd4a: 4c 89 ce             	movq	%r9, %rsi
 ffff80000010dd4d: 48 c1 e6 04          	shlq	$4, %rsi
 ffff80000010dd51: 4a 8b 3c 06          	movq	(%rsi,%r8), %rdi
-; 		list_foreach(buddy_free_list + order, node) {
 ffff80000010dd55: 4c 01 c6             	addq	%r8, %rsi
 ffff80000010dd58: 48 39 f7             	cmpq	%rsi, %rdi
 ffff80000010dd5b: 74 e3                	je	0xffff80000010dd40 <lab1_check_free_list_order+0x20>
 ffff80000010dd5d: 0f 1f 00             	nopl	(%rax)
-; 			if (page->pp_order != order)
 ffff80000010dd60: 0f b6 47 12          	movzbl	18(%rdi), %eax
 ffff80000010dd64: 83 e0 7f             	andl	$127, %eax
 ffff80000010dd67: 31 d2                	xorl	%edx, %edx
@@ -6621,22 +6119,17 @@ ffff80000010dd69: 49 39 c1             	cmpq	%rax, %r9
 ffff80000010dd6c: 0f 95 c2             	setne	%dl
 ffff80000010dd6f: 48 01 d1             	addq	%rdx, %rcx
 ffff80000010dd72: 48 8b 3f             	movq	(%rdi), %rdi
-; 		list_foreach(buddy_free_list + order, node) {
 ffff80000010dd75: 48 39 f7             	cmpq	%rsi, %rdi
 ffff80000010dd78: 75 e6                	jne	0xffff80000010dd60 <lab1_check_free_list_order+0x40>
 ffff80000010dd7a: eb c4                	jmp	0xffff80000010dd40 <lab1_check_free_list_order+0x20>
-; 	if (nviolations != 0) {
 ffff80000010dd7c: 48 85 c9             	testq	%rcx, %rcx
 ffff80000010dd7f: 75 1a                	jne	0xffff80000010dd9b <lab1_check_free_list_order+0x7b>
-; 	cprintf("[LAB 1] check_free_list_order() succeeded!\n");
 ffff80000010dd81: 48 bf 71 0d 11 00 00 80 ff ff	movabsq	$-140737487237775, %rdi # imm = 0xFFFF800000110D71
 ffff80000010dd8b: 48 b9 c0 d3 10 00 00 80 ff ff	movabsq	$-140737487252544, %rcx # imm = 0xFFFF80000010D3C0
 ffff80000010dd95: 31 c0                	xorl	%eax, %eax
 ffff80000010dd97: ff d1                	callq	*%rcx
-; }
 ffff80000010dd99: 5d                   	popq	%rbp
 ffff80000010dd9a: c3                   	retq
-; 		panic("found %u order violations in free list", nviolations);
 ffff80000010dd9b: 48 bf 72 07 11 00 00 80 ff ff	movabsq	$-140737487239310, %rdi # imm = 0xFFFF800000110772
 ffff80000010dda5: 48 ba 23 0f 11 00 00 80 ff ff	movabsq	$-140737487237341, %rdx # imm = 0xFFFF800000110F23
 ffff80000010ddaf: 49 b8 70 c8 10 00 00 80 ff ff	movabsq	$-140737487255440, %r8 # imm = 0xFFFF80000010C870
@@ -6647,7 +6140,6 @@ ffff80000010ddc3: 66 2e 0f 1f 84 00 00 00 00 00	nopw	%cs:(%rax,%rax)
 ffff80000010ddcd: 0f 1f 00             	nopl	(%rax)
 
 ffff80000010ddd0 <lab1_check_memory_layout>:
-; {
 ffff80000010ddd0: 55                   	pushq	%rbp
 ffff80000010ddd1: 48 89 e5             	movq	%rsp, %rbp
 ffff80000010ddd4: 41 57                	pushq	%r15
@@ -6657,12 +6149,10 @@ ffff80000010ddda: 41 54                	pushq	%r12
 ffff80000010dddc: 53                   	pushq	%rbx
 ffff80000010dddd: 50                   	pushq	%rax
 ffff80000010ddde: 49 89 fe             	movq	%rdi, %r14
-; 	entry = (struct mmap_entry *)KADDR(boot_info->mmap_addr);
 ffff80000010dde1: 8b 3f                	movl	(%rdi), %edi
 ffff80000010dde3: 48 b8 50 df 10 00 00 80 ff ff	movabsq	$-140737487249584, %rax # imm = 0xFFFF80000010DF50
 ffff80000010dded: ff d0                	callq	*%rax
 ffff80000010ddef: 49 89 c4             	movq	%rax, %r12
-; 	end = PADDR(boot_alloc(0));
 ffff80000010ddf2: 48 b8 10 d4 10 00 00 80 ff ff	movabsq	$-140737487252464, %rax # imm = 0xFFFF80000010D410
 ffff80000010ddfc: 31 ff                	xorl	%edi, %edi
 ffff80000010ddfe: ff d0                	callq	*%rax
@@ -6671,49 +6161,37 @@ ffff80000010de0a: bf 49 00 00 00       	movl	$73, %edi
 ffff80000010de0f: 48 89 c6             	movq	%rax, %rsi
 ffff80000010de12: ff d1                	callq	*%rcx
 ffff80000010de14: 48 89 45 d0          	movq	%rax, -48(%rbp)
-; 	for (order = 0; order < boot_info->mmap_len; ++order, ++entry) {
 ffff80000010de18: 41 83 7e 04 00       	cmpl	$0, 4(%r14)
 ffff80000010de1d: 0f 84 c6 00 00 00    	je	0xffff80000010dee9 <lab1_check_memory_layout+0x119>
 ffff80000010de23: 45 31 ff             	xorl	%r15d, %r15d
 ffff80000010de26: eb 1d                	jmp	0xffff80000010de45 <lab1_check_memory_layout+0x75>
 ffff80000010de28: 0f 1f 84 00 00 00 00 00      	nopl	(%rax,%rax)
-; 	for (order = 0; order < boot_info->mmap_len; ++order, ++entry) {
 ffff80000010de30: 49 83 c7 01          	addq	$1, %r15
 ffff80000010de34: 49 83 c4 18          	addq	$24, %r12
 ffff80000010de38: 41 8b 46 04          	movl	4(%r14), %eax
 ffff80000010de3c: 49 39 c7             	cmpq	%rax, %r15
 ffff80000010de3f: 0f 83 a4 00 00 00    	jae	0xffff80000010dee9 <lab1_check_memory_layout+0x119>
-; 		for (pa = entry->addr; pa < entry->addr + entry->len;
 ffff80000010de45: 49 8b 1c 24          	movq	(%r12), %rbx
 ffff80000010de49: 49 8b 44 24 08       	movq	8(%r12), %rax
-; 		for (pa = entry->addr; pa < entry->addr + entry->len;
 ffff80000010de4e: 48 01 d8             	addq	%rbx, %rax
 ffff80000010de51: eb 28                	jmp	0xffff80000010de7b <lab1_check_memory_layout+0xab>
 ffff80000010de53: 66 2e 0f 1f 84 00 00 00 00 00	nopw	%cs:(%rax,%rax)
 ffff80000010de5d: 0f 1f 00             	nopl	(%rax)
-; 			    page->pp_free) {
 ffff80000010de60: 41 80 7d 12 00       	cmpb	$0, 18(%r13)
-; 			if ((pa == 0 ||
 ffff80000010de65: 0f 88 a5 00 00 00    	js	0xffff80000010df10 <lab1_check_memory_layout+0x140>
-; 		     pa += PAGE_SIZE) {
 ffff80000010de6b: 48 81 c3 00 10 00 00 	addq	$4096, %rbx             # imm = 0x1000
-; 		for (pa = entry->addr; pa < entry->addr + entry->len;
 ffff80000010de72: 49 8b 44 24 08       	movq	8(%r12), %rax
 ffff80000010de77: 49 03 04 24          	addq	(%r12), %rax
 ffff80000010de7b: 48 39 c3             	cmpq	%rax, %rbx
 ffff80000010de7e: 73 b0                	jae	0xffff80000010de30 <lab1_check_memory_layout+0x60>
-; 			if (pa >= BOOT_MAP_LIM)
 ffff80000010de80: 48 81 fb ff ff 7f 00 	cmpq	$8388607, %rbx          # imm = 0x7FFFFF
 ffff80000010de87: 77 e2                	ja	0xffff80000010de6b <lab1_check_memory_layout+0x9b>
-; 			page = pa2page(pa);
 ffff80000010de89: 48 89 df             	movq	%rbx, %rdi
 ffff80000010de8c: 48 b8 00 e0 10 00 00 80 ff ff	movabsq	$-140737487249408, %rax # imm = 0xFFFF80000010E000
 ffff80000010de96: ff d0                	callq	*%rax
 ffff80000010de98: 49 89 c5             	movq	%rax, %r13
-; 			if ((pa == 0 ||
 ffff80000010de9b: 48 85 db             	testq	%rbx, %rbx
 ffff80000010de9e: 74 c0                	je	0xffff80000010de60 <lab1_check_memory_layout+0x90>
-; 			    pa == PAGE_ADDR(PADDR(boot_info)) ||
 ffff80000010dea0: bf 54 00 00 00       	movl	$84, %edi
 ffff80000010dea5: 4c 89 f6             	movq	%r14, %rsi
 ffff80000010dea8: 48 b8 b0 df 10 00 00 80 ff ff	movabsq	$-140737487249488, %rax # imm = 0xFFFF80000010DFB0
@@ -6722,24 +6200,19 @@ ffff80000010deb4: 48 b9 00 f0 ff ff ff ff 00 00	movabsq	$281474976706560, %rcx #
 ffff80000010debe: 48 21 c8             	andq	%rcx, %rax
 ffff80000010dec1: 48 39 c3             	cmpq	%rax, %rbx
 ffff80000010dec4: 74 9a                	je	0xffff80000010de60 <lab1_check_memory_layout+0x90>
-; 			    pa == (uintptr_t)boot_info->elf_hdr ||
 ffff80000010dec6: 49 3b 5e 08          	cmpq	8(%r14), %rbx
 ffff80000010deca: 74 94                	je	0xffff80000010de60 <lab1_check_memory_layout+0x90>
-; 			    (KERNEL_LMA <= pa && pa < end) ||
 ffff80000010decc: 48 81 fb 00 00 10 00 	cmpq	$1048576, %rbx          # imm = 0x100000
 ffff80000010ded3: 72 06                	jb	0xffff80000010dedb <lab1_check_memory_layout+0x10b>
 ffff80000010ded5: 48 3b 5d d0          	cmpq	-48(%rbp), %rbx
 ffff80000010ded9: 72 85                	jb	0xffff80000010de60 <lab1_check_memory_layout+0x90>
-; 			    entry->type != MMAP_FREE) &&
 ffff80000010dedb: 41 83 7c 24 10 01    	cmpl	$1, 16(%r12)
 ffff80000010dee1: 0f 85 79 ff ff ff    	jne	0xffff80000010de60 <lab1_check_memory_layout+0x90>
 ffff80000010dee7: eb 82                	jmp	0xffff80000010de6b <lab1_check_memory_layout+0x9b>
-; 	cprintf("[LAB 1] check_memory_layout() succeeded!\n");
 ffff80000010dee9: 48 bf 3a 09 11 00 00 80 ff ff	movabsq	$-140737487238854, %rdi # imm = 0xFFFF80000011093A
 ffff80000010def3: 48 b9 c0 d3 10 00 00 80 ff ff	movabsq	$-140737487252544, %rcx # imm = 0xFFFF80000010D3C0
 ffff80000010defd: 31 c0                	xorl	%eax, %eax
 ffff80000010deff: ff d1                	callq	*%rcx
-; }
 ffff80000010df01: 48 83 c4 08          	addq	$8, %rsp
 ffff80000010df05: 5b                   	popq	%rbx
 ffff80000010df06: 41 5c                	popq	%r12
@@ -6748,7 +6221,6 @@ ffff80000010df0a: 41 5e                	popq	%r14
 ffff80000010df0c: 41 5f                	popq	%r15
 ffff80000010df0e: 5d                   	popq	%rbp
 ffff80000010df0f: c3                   	retq
-; 				panic("%p should not be free\n", page2pa(page));
 ffff80000010df10: 48 b8 00 dd 10 00 00 80 ff ff	movabsq	$-140737487250176, %rax # imm = 0xFFFF80000010DD00
 ffff80000010df1a: 4c 89 ef             	movq	%r13, %rdi
 ffff80000010df1d: ff d0                	callq	*%rax
@@ -6762,22 +6234,18 @@ ffff80000010df47: ff d3                	callq	*%rbx
 ffff80000010df49: 0f 1f 80 00 00 00 00 	nopl	(%rax)
 
 ffff80000010df50 <_kaddr>:
-; {
 ffff80000010df50: 55                   	pushq	%rbp
 ffff80000010df51: 48 89 e5             	movq	%rsp, %rbp
 ffff80000010df54: 48 89 f8             	movq	%rdi, %rax
-; 	if (PAGE_INDEX(pa) >= npages)
 ffff80000010df57: 48 89 f9             	movq	%rdi, %rcx
 ffff80000010df5a: 48 c1 e9 0c          	shrq	$12, %rcx
 ffff80000010df5e: 48 ba e0 42 11 00 00 80 ff ff	movabsq	$-140737487224096, %rdx # imm = 0xFFFF8000001142E0
 ffff80000010df68: 48 3b 0a             	cmpq	(%rdx), %rcx
 ffff80000010df6b: 73 0f                	jae	0xffff80000010df7c <_kaddr+0x2c>
 ffff80000010df6d: 48 b9 00 00 00 00 00 80 ff ff	movabsq	$-140737488355328, %rcx # imm = 0xFFFF800000000000
-; 	return (void *)(pa + KERNEL_VMA);
 ffff80000010df77: 48 01 c8             	addq	%rcx, %rax
 ffff80000010df7a: 5d                   	popq	%rbp
 ffff80000010df7b: c3                   	retq
-; 		_panic(file, line, "KADDR called with invalid pa %08lx", pa);
 ffff80000010df7c: 48 bf 72 07 11 00 00 80 ff ff	movabsq	$-140737487239310, %rdi # imm = 0xFFFF800000110772
 ffff80000010df86: 48 ba 2e 0d 11 00 00 80 ff ff	movabsq	$-140737487237842, %rdx # imm = 0xFFFF800000110D2E
 ffff80000010df90: 49 b8 70 c8 10 00 00 80 ff ff	movabsq	$-140737487255440, %r8 # imm = 0xFFFF80000010C870
@@ -6788,21 +6256,17 @@ ffff80000010dfa4: 41 ff d0             	callq	*%r8
 ffff80000010dfa7: 66 0f 1f 84 00 00 00 00 00   	nopw	(%rax,%rax)
 
 ffff80000010dfb0 <_paddr>:
-; {
 ffff80000010dfb0: 48 89 f0             	movq	%rsi, %rax
-; 	if ((uintptr_t)kva < KERNEL_VMA)
 ffff80000010dfb3: 48 89 f1             	movq	%rsi, %rcx
 ffff80000010dfb6: 48 c1 e9 2f          	shrq	$47, %rcx
 ffff80000010dfba: 81 f9 fe ff 01 00    	cmpl	$131070, %ecx           # imm = 0x1FFFE
 ffff80000010dfc0: 76 0e                	jbe	0xffff80000010dfd0 <_paddr+0x20>
 ffff80000010dfc2: 48 b9 00 00 00 00 00 80 00 00	movabsq	$140737488355328, %rcx # imm = 0x800000000000
-; 	return (physaddr_t)kva - KERNEL_VMA;
 ffff80000010dfcc: 48 01 c8             	addq	%rcx, %rax
 ffff80000010dfcf: c3                   	retq
 ffff80000010dfd0: 55                   	pushq	%rbp
 ffff80000010dfd1: 48 89 e5             	movq	%rsp, %rbp
 ffff80000010dfd4: 89 fe                	movl	%edi, %esi
-; 		_panic(file, line, "PADDR called with invalid kva %08lx", kva);
 ffff80000010dfd6: 48 bf 72 07 11 00 00 80 ff ff	movabsq	$-140737487239310, %rdi # imm = 0xFFFF800000110772
 ffff80000010dfe0: 48 ba 16 09 11 00 00 80 ff ff	movabsq	$-140737487238890, %rdx # imm = 0xFFFF800000110916
 ffff80000010dfea: 49 b8 70 c8 10 00 00 80 ff ff	movabsq	$-140737487255440, %r8 # imm = 0xFFFF80000010C870
@@ -6812,22 +6276,18 @@ ffff80000010dff9: 41 ff d0             	callq	*%r8
 ffff80000010dffc: 0f 1f 40 00          	nopl	(%rax)
 
 ffff80000010e000 <pa2page>:
-; {
 ffff80000010e000: 55                   	pushq	%rbp
 ffff80000010e001: 48 89 e5             	movq	%rsp, %rbp
-; 	if (PAGE_INDEX(pa) >= npages)
 ffff80000010e004: 48 c1 ef 0c          	shrq	$12, %rdi
 ffff80000010e008: 48 b8 e0 42 11 00 00 80 ff ff	movabsq	$-140737487224096, %rax # imm = 0xFFFF8000001142E0
 ffff80000010e012: 48 3b 38             	cmpq	(%rax), %rdi
 ffff80000010e015: 73 16                	jae	0xffff80000010e02d <pa2page+0x2d>
-; 	return pages + PAGE_INDEX(pa);
 ffff80000010e017: 48 b8 e8 42 11 00 00 80 ff ff	movabsq	$-140737487224088, %rax # imm = 0xFFFF8000001142E8
 ffff80000010e021: 48 c1 e7 05          	shlq	$5, %rdi
 ffff80000010e025: 48 03 38             	addq	(%rax), %rdi
 ffff80000010e028: 48 89 f8             	movq	%rdi, %rax
 ffff80000010e02b: 5d                   	popq	%rbp
 ffff80000010e02c: c3                   	retq
-; 		panic("pa2page called with invalid pa");
 ffff80000010e02d: 48 bf 23 08 11 00 00 80 ff ff	movabsq	$-140737487239133, %rdi # imm = 0xFFFF800000110823
 ffff80000010e037: 48 ba 61 0f 11 00 00 80 ff ff	movabsq	$-140737487237279, %rdx # imm = 0xFFFF800000110F61
 ffff80000010e041: 48 b9 70 c8 10 00 00 80 ff ff	movabsq	$-140737487255440, %rcx # imm = 0xFFFF80000010C870
@@ -6838,7 +6298,6 @@ ffff80000010e054: 66 2e 0f 1f 84 00 00 00 00 00	nopw	%cs:(%rax,%rax)
 ffff80000010e05e: 66 90                	nop
 
 ffff80000010e060 <check_buddy_consistency>:
-; {
 ffff80000010e060: 55                   	pushq	%rbp
 ffff80000010e061: 48 89 e5             	movq	%rsp, %rbp
 ffff80000010e064: 41 57                	pushq	%r15
@@ -6850,16 +6309,13 @@ ffff80000010e06d: 50                   	pushq	%rax
 ffff80000010e06e: 49 89 d4             	movq	%rdx, %r12
 ffff80000010e071: 49 89 f7             	movq	%rsi, %r15
 ffff80000010e074: 49 89 fe             	movq	%rdi, %r14
-; 	page = pa2page(addr);
 ffff80000010e077: 48 b8 00 e0 10 00 00 80 ff ff	movabsq	$-140737487249408, %rax # imm = 0xFFFF80000010E000
 ffff80000010e081: ff d0                	callq	*%rax
 ffff80000010e083: 48 89 c3             	movq	%rax, %rbx
-; 	if (parent && parent != page) {
 ffff80000010e086: 4d 85 e4             	testq	%r12, %r12
 ffff80000010e089: 74 3f                	je	0xffff80000010e0ca <check_buddy_consistency+0x6a>
 ffff80000010e08b: 4c 39 e3             	cmpq	%r12, %rbx
 ffff80000010e08e: 74 3a                	je	0xffff80000010e0ca <check_buddy_consistency+0x6a>
-; 		if (page->pp_free || !list_is_empty(&page->pp_node) ||
 ffff80000010e090: 44 0f b6 6b 12       	movzbl	18(%rbx), %r13d
 ffff80000010e095: 45 84 ed             	testb	%r13b, %r13b
 ffff80000010e098: 0f 88 ce 00 00 00    	js	0xffff80000010e16c <check_buddy_consistency+0x10c>
@@ -6868,15 +6324,12 @@ ffff80000010e0a1: 48 b8 40 e2 10 00 00 80 ff ff	movabsq	$-140737487248832, %rax 
 ffff80000010e0ab: ff d0                	callq	*%rax
 ffff80000010e0ad: 85 c0                	testl	%eax, %eax
 ffff80000010e0af: 0f 84 b7 00 00 00    	je	0xffff80000010e16c <check_buddy_consistency+0x10c>
-; 			page->pp_order < parent->pp_order) {
 ffff80000010e0b5: 44 89 e8             	movl	%r13d, %eax
 ffff80000010e0b8: 24 7f                	andb	$127, %al
 ffff80000010e0ba: 41 8a 4c 24 12       	movb	18(%r12), %cl
 ffff80000010e0bf: 80 e1 7f             	andb	$127, %cl
 ffff80000010e0c2: 38 c8                	cmpb	%cl, %al
-; 		if (page->pp_free || !list_is_empty(&page->pp_node) ||
 ffff80000010e0c4: 0f 82 a2 00 00 00    	jb	0xffff80000010e16c <check_buddy_consistency+0x10c>
-; 	if (page->pp_free && list_is_empty(&page->pp_node)) {
 ffff80000010e0ca: 44 0f b6 6b 12       	movzbl	18(%rbx), %r13d
 ffff80000010e0cf: 45 84 ed             	testb	%r13b, %r13b
 ffff80000010e0d2: 79 1c                	jns	0xffff80000010e0f0 <check_buddy_consistency+0x90>
@@ -6886,34 +6339,27 @@ ffff80000010e0e1: ff d0                	callq	*%rax
 ffff80000010e0e3: 85 c0                	testl	%eax, %eax
 ffff80000010e0e5: 0f 85 13 01 00 00    	jne	0xffff80000010e1fe <check_buddy_consistency+0x19e>
 ffff80000010e0eb: 45 84 ed             	testb	%r13b, %r13b
-; 	if (!page->pp_free && !list_is_empty(&page->pp_node)) {
 ffff80000010e0ee: 78 1c                	js	0xffff80000010e10c <check_buddy_consistency+0xac>
 ffff80000010e0f0: 48 89 df             	movq	%rbx, %rdi
 ffff80000010e0f3: 48 b8 40 e2 10 00 00 80 ff ff	movabsq	$-140737487248832, %rax # imm = 0xFFFF80000010E240
 ffff80000010e0fd: ff d0                	callq	*%rax
 ffff80000010e0ff: 85 c0                	testl	%eax, %eax
 ffff80000010e101: 0f 84 bf 00 00 00    	je	0xffff80000010e1c6 <check_buddy_consistency+0x166>
-; 	if (page->pp_free && list_is_empty(&page->pp_node)) {
 ffff80000010e107: 45 84 ed             	testb	%r13b, %r13b
-; 	if (page->pp_free && list_is_empty(&page->pp_node)) {
 ffff80000010e10a: 79 15                	jns	0xffff80000010e121 <check_buddy_consistency+0xc1>
 ffff80000010e10c: 48 89 df             	movq	%rbx, %rdi
 ffff80000010e10f: 48 b8 40 e2 10 00 00 80 ff ff	movabsq	$-140737487248832, %rax # imm = 0xFFFF80000010E240
 ffff80000010e119: ff d0                	callq	*%rax
 ffff80000010e11b: 85 c0                	testl	%eax, %eax
 ffff80000010e11d: 4c 0f 45 e3          	cmovneq	%rbx, %r12
-; 	if (order == 0) {
 ffff80000010e121: 4d 85 ff             	testq	%r15, %r15
 ffff80000010e124: 74 37                	je	0xffff80000010e15d <check_buddy_consistency+0xfd>
-; 	--order;
 ffff80000010e126: 49 8d 5f ff          	leaq	-1(%r15), %rbx
-; 	check_buddy_consistency(addr, order, parent);
 ffff80000010e12a: 49 bd 60 e0 10 00 00 80 ff ff	movabsq	$-140737487249312, %r13 # imm = 0xFFFF80000010E060
 ffff80000010e134: 4c 89 f7             	movq	%r14, %rdi
 ffff80000010e137: 48 89 de             	movq	%rbx, %rsi
 ffff80000010e13a: 4c 89 e2             	movq	%r12, %rdx
 ffff80000010e13d: 41 ff d5             	callq	*%r13
-; 	check_buddy_consistency(addr | (1 << (order + 12)), order, parent);
 ffff80000010e140: 41 80 c7 0b          	addb	$11, %r15b
 ffff80000010e144: b8 01 00 00 00       	movl	$1, %eax
 ffff80000010e149: 44 89 f9             	movl	%r15d, %ecx
@@ -6923,7 +6369,6 @@ ffff80000010e151: 4c 09 f7             	orq	%r14, %rdi
 ffff80000010e154: 48 89 de             	movq	%rbx, %rsi
 ffff80000010e157: 4c 89 e2             	movq	%r12, %rdx
 ffff80000010e15a: 41 ff d5             	callq	*%r13
-; }
 ffff80000010e15d: 48 83 c4 08          	addq	$8, %rsp
 ffff80000010e161: 5b                   	popq	%rbx
 ffff80000010e162: 41 5c                	popq	%r12
@@ -6932,7 +6377,6 @@ ffff80000010e166: 41 5e                	popq	%r14
 ffff80000010e168: 41 5f                	popq	%r15
 ffff80000010e16a: 5d                   	popq	%rbp
 ffff80000010e16b: c3                   	retq
-; 			panic("page %p of order %u is free, while parent page "
 ffff80000010e16c: 49 be 00 dd 10 00 00 80 ff ff	movabsq	$-140737487250176, %r14 # imm = 0xFFFF80000010DD00
 ffff80000010e176: 48 89 df             	movq	%rbx, %rdi
 ffff80000010e179: 41 ff d6             	callq	*%r14
@@ -6952,7 +6396,6 @@ ffff80000010e1bb: 45 89 e8             	movl	%r13d, %r8d
 ffff80000010e1be: 49 89 c1             	movq	%rax, %r9
 ffff80000010e1c1: 31 c0                	xorl	%eax, %eax
 ffff80000010e1c3: 41 ff d2             	callq	*%r10
-; 		panic("page %p of order %u is in use, but on the free list",
 ffff80000010e1c6: 48 b8 00 dd 10 00 00 80 ff ff	movabsq	$-140737487250176, %rax # imm = 0xFFFF80000010DD00
 ffff80000010e1d0: 48 89 df             	movq	%rbx, %rdi
 ffff80000010e1d3: ff d0                	callq	*%rax
@@ -6962,7 +6405,6 @@ ffff80000010e1e3: 48 ba 2b 0b 11 00 00 80 ff ff	movabsq	$-140737487238357, %rdx 
 ffff80000010e1ed: 48 bb 70 c8 10 00 00 80 ff ff	movabsq	$-140737487255440, %rbx # imm = 0xFFFF80000010C870
 ffff80000010e1f7: be 78 00 00 00       	movl	$120, %esi
 ffff80000010e1fc: eb 36                	jmp	0xffff80000010e234 <check_buddy_consistency+0x1d4>
-; 		panic("page %p of order %u is free, but not on the free list",
 ffff80000010e1fe: 48 b8 00 dd 10 00 00 80 ff ff	movabsq	$-140737487250176, %rax # imm = 0xFFFF80000010DD00
 ffff80000010e208: 48 89 df             	movq	%rbx, %rdi
 ffff80000010e20b: ff d0                	callq	*%rax
@@ -6978,10 +6420,8 @@ ffff80000010e23c: ff d3                	callq	*%rbx
 ffff80000010e23e: 66 90                	nop
 
 ffff80000010e240 <list_is_empty>:
-; {
 ffff80000010e240: 55                   	pushq	%rbp
 ffff80000010e241: 48 89 e5             	movq	%rsp, %rbp
-; 	return head->next == head;
 ffff80000010e244: 31 c0                	xorl	%eax, %eax
 ffff80000010e246: 48 39 3f             	cmpq	%rdi, (%rdi)
 ffff80000010e249: 0f 94 c0             	sete	%al
@@ -6990,7 +6430,6 @@ ffff80000010e24d: c3                   	retq
 ffff80000010e24e: 66 90                	nop
 
 ffff80000010e250 <lab1_check_buddy_consistency>:
-; {
 ffff80000010e250: 55                   	pushq	%rbp
 ffff80000010e251: 48 89 e5             	movq	%rsp, %rbp
 ffff80000010e254: 41 56                	pushq	%r14
@@ -6998,22 +6437,17 @@ ffff80000010e256: 53                   	pushq	%rbx
 ffff80000010e257: 48 c7 c3 00 00 e0 ff 	movq	$-2097152, %rbx         # imm = 0xFFE00000
 ffff80000010e25e: 49 be 60 e0 10 00 00 80 ff ff	movabsq	$-140737487249312, %r14 # imm = 0xFFFF80000010E060
 ffff80000010e268: 0f 1f 84 00 00 00 00 00      	nopl	(%rax,%rax)
-; 		check_buddy_consistency(addr, BUDDY_MAX_ORDER - 1, NULL);
 ffff80000010e270: 48 81 c3 00 00 20 00 	addq	$2097152, %rbx          # imm = 0x200000
 ffff80000010e277: be 09 00 00 00       	movl	$9, %esi
 ffff80000010e27c: 48 89 df             	movq	%rbx, %rdi
 ffff80000010e27f: 31 d2                	xorl	%edx, %edx
 ffff80000010e281: 41 ff d6             	callq	*%r14
-; 	     addr < BOOT_MAP_LIM;
 ffff80000010e284: 48 81 fb 00 00 60 00 	cmpq	$6291456, %rbx          # imm = 0x600000
-; 	for (addr = 0;
 ffff80000010e28b: 72 e3                	jb	0xffff80000010e270 <lab1_check_buddy_consistency+0x20>
-; 	cprintf("[LAB 1] check_buddy_consistency() succeeded!\n");
 ffff80000010e28d: 48 bf 2e 10 11 00 00 80 ff ff	movabsq	$-140737487237074, %rdi # imm = 0xFFFF80000011102E
 ffff80000010e297: 48 b9 c0 d3 10 00 00 80 ff ff	movabsq	$-140737487252544, %rcx # imm = 0xFFFF80000010D3C0
 ffff80000010e2a1: 31 c0                	xorl	%eax, %eax
 ffff80000010e2a3: ff d1                	callq	*%rcx
-; }
 ffff80000010e2a5: 5b                   	popq	%rbx
 ffff80000010e2a6: 41 5e                	popq	%r14
 ffff80000010e2a8: 5d                   	popq	%rbp
@@ -7021,7 +6455,6 @@ ffff80000010e2a9: c3                   	retq
 ffff80000010e2aa: 66 0f 1f 44 00 00    	nopw	(%rax,%rax)
 
 ffff80000010e2b0 <lab1_check_split_and_merge>:
-; {
 ffff80000010e2b0: 55                   	pushq	%rbp
 ffff80000010e2b1: 48 89 e5             	movq	%rsp, %rbp
 ffff80000010e2b4: 41 57                	pushq	%r15
@@ -7031,21 +6464,17 @@ ffff80000010e2ba: 41 54                	pushq	%r12
 ffff80000010e2bc: 53                   	pushq	%rbx
 ffff80000010e2bd: 48 81 ec a8 00 00 00 	subq	$168, %rsp
 ffff80000010e2c4: 89 fb                	movl	%edi, %ebx
-; 	nfree_pages = count_free_pages(BUDDY_2M_PAGE);
 ffff80000010e2c6: 49 be b0 d6 10 00 00 80 ff ff	movabsq	$-140737487251792, %r14 # imm = 0xFFFF80000010D6B0
 ffff80000010e2d0: bf 09 00 00 00       	movl	$9, %edi
 ffff80000010e2d5: 41 ff d6             	callq	*%r14
 ffff80000010e2d8: 49 89 c4             	movq	%rax, %r12
-; 		page = buddy_find(BUDDY_2M_PAGE);
 ffff80000010e2db: 48 b8 30 d8 10 00 00 80 ff ff	movabsq	$-140737487251408, %rax # imm = 0xFFFF80000010D830
 ffff80000010e2e5: bf 09 00 00 00       	movl	$9, %edi
 ffff80000010e2ea: ff d0                	callq	*%rax
-; 	if (!page) {
 ffff80000010e2ec: 48 85 c0             	testq	%rax, %rax
 ffff80000010e2ef: 0f 84 5d 02 00 00    	je	0xffff80000010e552 <lab1_check_split_and_merge+0x2a2>
 ffff80000010e2f5: 49 89 c7             	movq	%rax, %r15
 ffff80000010e2f8: 89 5d d4             	movl	%ebx, -44(%rbp)
-; 	assert(count_free_pages(BUDDY_2M_PAGE) + 1 == nfree_pages);
 ffff80000010e2fb: bf 09 00 00 00       	movl	$9, %edi
 ffff80000010e300: 41 ff d6             	callq	*%r14
 ffff80000010e303: 48 83 c0 01          	addq	$1, %rax
@@ -7055,117 +6484,92 @@ ffff80000010e310: 31 db                	xorl	%ebx, %ebx
 ffff80000010e312: 49 bc 40 42 11 00 00 80 ff ff	movabsq	$-140737487224256, %r12 # imm = 0xFFFF800000114240
 ffff80000010e31c: 49 bd f0 e6 10 00 00 80 ff ff	movabsq	$-140737487247632, %r13 # imm = 0xFFFF80000010E6F0
 ffff80000010e326: 66 2e 0f 1f 84 00 00 00 00 00	nopw	%cs:(%rax,%rax)
-; 		stolen_free_list[order] = buddy_free_list[order];
 ffff80000010e330: 4a 8d 3c 23          	leaq	(%rbx,%r12), %rdi
 ffff80000010e334: 4a 8b 04 23          	movq	(%rbx,%r12), %rax
 ffff80000010e338: 4a 8b 4c 23 08       	movq	8(%rbx,%r12), %rcx
 ffff80000010e33d: 48 89 8c 1d 38 ff ff ff      	movq	%rcx, -200(%rbp,%rbx)
 ffff80000010e345: 48 89 84 1d 30 ff ff ff      	movq	%rax, -208(%rbp,%rbx)
-; 		list_init(buddy_free_list + order);
 ffff80000010e34d: 41 ff d5             	callq	*%r13
-; 	for (order = 0; order < BUDDY_MAX_ORDER; ++order) {
 ffff80000010e350: 48 83 c3 10          	addq	$16, %rbx
 ffff80000010e354: 48 81 fb a0 00 00 00 	cmpq	$160, %rbx
 ffff80000010e35b: 75 d3                	jne	0xffff80000010e330 <lab1_check_split_and_merge+0x80>
-; 	page_free(page);
 ffff80000010e35d: 48 b8 b0 d8 10 00 00 80 ff ff	movabsq	$-140737487251280, %rax # imm = 0xFFFF80000010D8B0
 ffff80000010e367: 4c 89 ff             	movq	%r15, %rdi
 ffff80000010e36a: ff d0                	callq	*%rax
 ffff80000010e36c: 31 db                	xorl	%ebx, %ebx
 ffff80000010e36e: 66 90                	nop
-; 		assert(count_free_pages(order) == 0);
 ffff80000010e370: 48 89 df             	movq	%rbx, %rdi
 ffff80000010e373: 41 ff d6             	callq	*%r14
 ffff80000010e376: 48 85 c0             	testq	%rax, %rax
 ffff80000010e379: 0f 85 40 01 00 00    	jne	0xffff80000010e4bf <lab1_check_split_and_merge+0x20f>
 ffff80000010e37f: 48 83 c3 01          	addq	$1, %rbx
-; 	for (order = 0; order < BUDDY_2M_PAGE; ++order) {
 ffff80000010e383: 48 83 fb 09          	cmpq	$9, %rbx
 ffff80000010e387: 75 e7                	jne	0xffff80000010e370 <lab1_check_split_and_merge+0xc0>
-; 	assert(count_free_pages(BUDDY_2M_PAGE) == 1);
 ffff80000010e389: bf 09 00 00 00       	movl	$9, %edi
 ffff80000010e38e: 41 ff d6             	callq	*%r14
 ffff80000010e391: 48 83 f8 01          	cmpq	$1, %rax
 ffff80000010e395: 0f 85 0f 02 00 00    	jne	0xffff80000010e5aa <lab1_check_split_and_merge+0x2fa>
-; 	page = page_alloc(0);
 ffff80000010e39b: 49 bd a0 d8 10 00 00 80 ff ff	movabsq	$-140737487251296, %r13 # imm = 0xFFFF80000010D8A0
 ffff80000010e3a5: 31 ff                	xorl	%edi, %edi
 ffff80000010e3a7: 41 ff d5             	callq	*%r13
-; 	if (!page) {
 ffff80000010e3aa: 48 85 c0             	testq	%rax, %rax
 ffff80000010e3ad: 0f 84 28 02 00 00    	je	0xffff80000010e5db <lab1_check_split_and_merge+0x32b>
 ffff80000010e3b3: 49 89 c7             	movq	%rax, %r15
 ffff80000010e3b6: 31 db                	xorl	%ebx, %ebx
 ffff80000010e3b8: 0f 1f 84 00 00 00 00 00      	nopl	(%rax,%rax)
-; 		assert(count_free_pages(order) == 1);
 ffff80000010e3c0: 48 89 df             	movq	%rbx, %rdi
 ffff80000010e3c3: 41 ff d6             	callq	*%r14
 ffff80000010e3c6: 48 83 f8 01          	cmpq	$1, %rax
 ffff80000010e3ca: 0f 85 20 01 00 00    	jne	0xffff80000010e4f0 <lab1_check_split_and_merge+0x240>
 ffff80000010e3d0: 48 83 c3 01          	addq	$1, %rbx
-; 	for (order = 0; order < BUDDY_2M_PAGE; ++order) {
 ffff80000010e3d4: 48 83 fb 09          	cmpq	$9, %rbx
 ffff80000010e3d8: 75 e6                	jne	0xffff80000010e3c0 <lab1_check_split_and_merge+0x110>
-; 	assert(count_free_pages(BUDDY_2M_PAGE) == 0);
 ffff80000010e3da: bf 09 00 00 00       	movl	$9, %edi
 ffff80000010e3df: 41 ff d6             	callq	*%r14
 ffff80000010e3e2: 48 85 c0             	testq	%rax, %rax
 ffff80000010e3e5: 0f 85 17 02 00 00    	jne	0xffff80000010e602 <lab1_check_split_and_merge+0x352>
-; 	page_free(page);
 ffff80000010e3eb: 4c 89 ff             	movq	%r15, %rdi
 ffff80000010e3ee: 48 b8 b0 d8 10 00 00 80 ff ff	movabsq	$-140737487251280, %rax # imm = 0xFFFF80000010D8B0
 ffff80000010e3f8: ff d0                	callq	*%rax
 ffff80000010e3fa: 31 db                	xorl	%ebx, %ebx
 ffff80000010e3fc: 0f 1f 40 00          	nopl	(%rax)
-; 		assert(count_free_pages(order) == 0);
 ffff80000010e400: 48 89 df             	movq	%rbx, %rdi
 ffff80000010e403: 41 ff d6             	callq	*%r14
 ffff80000010e406: 48 85 c0             	testq	%rax, %rax
 ffff80000010e409: 0f 85 12 01 00 00    	jne	0xffff80000010e521 <lab1_check_split_and_merge+0x271>
 ffff80000010e40f: 48 83 c3 01          	addq	$1, %rbx
-; 	for (order = 0; order < BUDDY_2M_PAGE; ++order) {
 ffff80000010e413: 48 83 fb 09          	cmpq	$9, %rbx
 ffff80000010e417: 75 e7                	jne	0xffff80000010e400 <lab1_check_split_and_merge+0x150>
-; 	assert(count_free_pages(BUDDY_2M_PAGE) == 1);
 ffff80000010e419: bf 09 00 00 00       	movl	$9, %edi
 ffff80000010e41e: 41 ff d6             	callq	*%r14
 ffff80000010e421: 48 83 f8 01          	cmpq	$1, %rax
 ffff80000010e425: 0f 85 08 02 00 00    	jne	0xffff80000010e633 <lab1_check_split_and_merge+0x383>
-; 	if (flags & ALLOC_HUGE)
 ffff80000010e42b: f6 45 d4 02          	testb	$2, -44(%rbp)
 ffff80000010e42f: 75 13                	jne	0xffff80000010e444 <lab1_check_split_and_merge+0x194>
-; 		page = buddy_find(BUDDY_2M_PAGE);
 ffff80000010e431: bf 09 00 00 00       	movl	$9, %edi
 ffff80000010e436: 48 b8 30 d8 10 00 00 80 ff ff	movabsq	$-140737487251408, %rax # imm = 0xFFFF80000010D830
 ffff80000010e440: ff d0                	callq	*%rax
 ffff80000010e442: eb 08                	jmp	0xffff80000010e44c <lab1_check_split_and_merge+0x19c>
-; 		page = page_alloc(ALLOC_HUGE);
 ffff80000010e444: bf 02 00 00 00       	movl	$2, %edi
 ffff80000010e449: 41 ff d5             	callq	*%r13
-; 	if (!page) {
 ffff80000010e44c: 48 85 c0             	testq	%rax, %rax
 ffff80000010e44f: 0f 84 0f 02 00 00    	je	0xffff80000010e664 <lab1_check_split_and_merge+0x3b4>
 ffff80000010e455: 31 c9                	xorl	%ecx, %ecx
 ffff80000010e457: 66 0f 1f 84 00 00 00 00 00   	nopw	(%rax,%rax)
-; 		buddy_free_list[order] = stolen_free_list[order];
 ffff80000010e460: 48 8b 94 0d 30 ff ff ff      	movq	-208(%rbp,%rcx), %rdx
 ffff80000010e468: 48 8b b4 0d 38 ff ff ff      	movq	-200(%rbp,%rcx), %rsi
 ffff80000010e470: 4a 89 74 21 08       	movq	%rsi, 8(%rcx,%r12)
 ffff80000010e475: 4a 89 14 21          	movq	%rdx, (%rcx,%r12)
-; 	for (order = 0; order < BUDDY_MAX_ORDER; ++order) {
 ffff80000010e479: 48 83 c1 10          	addq	$16, %rcx
 ffff80000010e47d: 48 81 f9 a0 00 00 00 	cmpq	$160, %rcx
 ffff80000010e484: 75 da                	jne	0xffff80000010e460 <lab1_check_split_and_merge+0x1b0>
-; 	page_free(page);
 ffff80000010e486: 48 89 c7             	movq	%rax, %rdi
 ffff80000010e489: 48 b8 b0 d8 10 00 00 80 ff ff	movabsq	$-140737487251280, %rax # imm = 0xFFFF80000010D8B0
 ffff80000010e493: ff d0                	callq	*%rax
-; 		cprintf("[LAB 1] check_split_and_merge() succeeded!\n");
 ffff80000010e495: 48 bf 6a 0e 11 00 00 80 ff ff	movabsq	$-140737487237526, %rdi # imm = 0xFFFF800000110E6A
 ffff80000010e49f: 48 b9 c0 d3 10 00 00 80 ff ff	movabsq	$-140737487252544, %rcx # imm = 0xFFFF80000010D3C0
 ffff80000010e4a9: 31 c0                	xorl	%eax, %eax
 ffff80000010e4ab: ff d1                	callq	*%rcx
-; }
 ffff80000010e4ad: 48 81 c4 a8 00 00 00 	addq	$168, %rsp
 ffff80000010e4b4: 5b                   	popq	%rbx
 ffff80000010e4b5: 41 5c                	popq	%r12
@@ -7174,7 +6578,6 @@ ffff80000010e4b9: 41 5e                	popq	%r14
 ffff80000010e4bb: 41 5f                	popq	%r15
 ffff80000010e4bd: 5d                   	popq	%rbp
 ffff80000010e4be: c3                   	retq
-; 		assert(count_free_pages(order) == 0);
 ffff80000010e4bf: 48 bf 72 07 11 00 00 80 ff ff	movabsq	$-140737487239310, %rdi # imm = 0xFFFF800000110772
 ffff80000010e4c9: 48 ba 16 0b 11 00 00 80 ff ff	movabsq	$-140737487238378, %rdx # imm = 0xFFFF800000110B16
 ffff80000010e4d3: 48 b9 c5 0e 11 00 00 80 ff ff	movabsq	$-140737487237435, %rcx # imm = 0xFFFF800000110EC5
@@ -7182,7 +6585,6 @@ ffff80000010e4dd: 48 bb 70 c8 10 00 00 80 ff ff	movabsq	$-140737487255440, %rbx 
 ffff80000010e4e7: be ba 00 00 00       	movl	$186, %esi
 ffff80000010e4ec: 31 c0                	xorl	%eax, %eax
 ffff80000010e4ee: ff d3                	callq	*%rbx
-; 		assert(count_free_pages(order) == 1);
 ffff80000010e4f0: 48 bf 72 07 11 00 00 80 ff ff	movabsq	$-140737487239310, %rdi # imm = 0xFFFF800000110772
 ffff80000010e4fa: 48 ba 16 0b 11 00 00 80 ff ff	movabsq	$-140737487238378, %rdx # imm = 0xFFFF800000110B16
 ffff80000010e504: 48 b9 bb 0f 11 00 00 80 ff ff	movabsq	$-140737487237189, %rcx # imm = 0xFFFF800000110FBB
@@ -7190,7 +6592,6 @@ ffff80000010e50e: 48 bb 70 c8 10 00 00 80 ff ff	movabsq	$-140737487255440, %rbx 
 ffff80000010e518: be c8 00 00 00       	movl	$200, %esi
 ffff80000010e51d: 31 c0                	xorl	%eax, %eax
 ffff80000010e51f: ff d3                	callq	*%rbx
-; 		assert(count_free_pages(order) == 0);
 ffff80000010e521: 48 bf 72 07 11 00 00 80 ff ff	movabsq	$-140737487239310, %rdi # imm = 0xFFFF800000110772
 ffff80000010e52b: 48 ba 16 0b 11 00 00 80 ff ff	movabsq	$-140737487238378, %rdx # imm = 0xFFFF800000110B16
 ffff80000010e535: 48 b9 c5 0e 11 00 00 80 ff ff	movabsq	$-140737487237435, %rcx # imm = 0xFFFF800000110EC5
@@ -7198,14 +6599,12 @@ ffff80000010e53f: 48 bb 70 c8 10 00 00 80 ff ff	movabsq	$-140737487255440, %rbx 
 ffff80000010e549: be d2 00 00 00       	movl	$210, %esi
 ffff80000010e54e: 31 c0                	xorl	%eax, %eax
 ffff80000010e550: ff d3                	callq	*%rbx
-; 		panic("can't allocate 2M page!");
 ffff80000010e552: 48 bf 72 07 11 00 00 80 ff ff	movabsq	$-140737487239310, %rdi # imm = 0xFFFF800000110772
 ffff80000010e55c: 48 ba 5f 0b 11 00 00 80 ff ff	movabsq	$-140737487238305, %rdx # imm = 0xFFFF800000110B5F
 ffff80000010e566: 48 b9 70 c8 10 00 00 80 ff ff	movabsq	$-140737487255440, %rcx # imm = 0xFFFF80000010C870
 ffff80000010e570: be a9 00 00 00       	movl	$169, %esi
 ffff80000010e575: 31 c0                	xorl	%eax, %eax
 ffff80000010e577: ff d1                	callq	*%rcx
-; 	assert(count_free_pages(BUDDY_2M_PAGE) + 1 == nfree_pages);
 ffff80000010e579: 48 bf 72 07 11 00 00 80 ff ff	movabsq	$-140737487239310, %rdi # imm = 0xFFFF800000110772
 ffff80000010e583: 48 ba 16 0b 11 00 00 80 ff ff	movabsq	$-140737487238378, %rdx # imm = 0xFFFF800000110B16
 ffff80000010e58d: 48 b9 f2 0b 11 00 00 80 ff ff	movabsq	$-140737487238158, %rcx # imm = 0xFFFF800000110BF2
@@ -7213,7 +6612,6 @@ ffff80000010e597: 48 bb 70 c8 10 00 00 80 ff ff	movabsq	$-140737487255440, %rbx 
 ffff80000010e5a1: be ad 00 00 00       	movl	$173, %esi
 ffff80000010e5a6: 31 c0                	xorl	%eax, %eax
 ffff80000010e5a8: ff d3                	callq	*%rbx
-; 	assert(count_free_pages(BUDDY_2M_PAGE) == 1);
 ffff80000010e5aa: 48 bf 72 07 11 00 00 80 ff ff	movabsq	$-140737487239310, %rdi # imm = 0xFFFF800000110772
 ffff80000010e5b4: 48 ba 16 0b 11 00 00 80 ff ff	movabsq	$-140737487238378, %rdx # imm = 0xFFFF800000110B16
 ffff80000010e5be: 48 b9 4f 08 11 00 00 80 ff ff	movabsq	$-140737487239089, %rcx # imm = 0xFFFF80000011084F
@@ -7221,14 +6619,12 @@ ffff80000010e5c8: 48 bb 70 c8 10 00 00 80 ff ff	movabsq	$-140737487255440, %rbx 
 ffff80000010e5d2: be bd 00 00 00       	movl	$189, %esi
 ffff80000010e5d7: 31 c0                	xorl	%eax, %eax
 ffff80000010e5d9: ff d3                	callq	*%rbx
-; 		panic("can't allocate 4K page!");
 ffff80000010e5db: 48 bf 72 07 11 00 00 80 ff ff	movabsq	$-140737487239310, %rdi # imm = 0xFFFF800000110772
 ffff80000010e5e5: 48 ba 5b 0a 11 00 00 80 ff ff	movabsq	$-140737487238565, %rdx # imm = 0xFFFF800000110A5B
 ffff80000010e5ef: 48 b9 70 c8 10 00 00 80 ff ff	movabsq	$-140737487255440, %rcx # imm = 0xFFFF80000010C870
 ffff80000010e5f9: be c3 00 00 00       	movl	$195, %esi
 ffff80000010e5fe: 31 c0                	xorl	%eax, %eax
 ffff80000010e600: ff d1                	callq	*%rcx
-; 	assert(count_free_pages(BUDDY_2M_PAGE) == 0);
 ffff80000010e602: 48 bf 72 07 11 00 00 80 ff ff	movabsq	$-140737487239310, %rdi # imm = 0xFFFF800000110772
 ffff80000010e60c: 48 ba 16 0b 11 00 00 80 ff ff	movabsq	$-140737487238378, %rdx # imm = 0xFFFF800000110B16
 ffff80000010e616: 48 b9 a2 0a 11 00 00 80 ff ff	movabsq	$-140737487238494, %rcx # imm = 0xFFFF800000110AA2
@@ -7236,7 +6632,6 @@ ffff80000010e620: 48 bb 70 c8 10 00 00 80 ff ff	movabsq	$-140737487255440, %rbx 
 ffff80000010e62a: be cb 00 00 00       	movl	$203, %esi
 ffff80000010e62f: 31 c0                	xorl	%eax, %eax
 ffff80000010e631: ff d3                	callq	*%rbx
-; 	assert(count_free_pages(BUDDY_2M_PAGE) == 1);
 ffff80000010e633: 48 bf 72 07 11 00 00 80 ff ff	movabsq	$-140737487239310, %rdi # imm = 0xFFFF800000110772
 ffff80000010e63d: 48 ba 16 0b 11 00 00 80 ff ff	movabsq	$-140737487238378, %rdx # imm = 0xFFFF800000110B16
 ffff80000010e647: 48 b9 4f 08 11 00 00 80 ff ff	movabsq	$-140737487239089, %rcx # imm = 0xFFFF80000011084F
@@ -7244,7 +6639,6 @@ ffff80000010e651: 48 bb 70 c8 10 00 00 80 ff ff	movabsq	$-140737487255440, %rbx 
 ffff80000010e65b: be d5 00 00 00       	movl	$213, %esi
 ffff80000010e660: 31 c0                	xorl	%eax, %eax
 ffff80000010e662: ff d3                	callq	*%rbx
-; 		panic("can't allocate 2M page!");
 ffff80000010e664: 48 bf 72 07 11 00 00 80 ff ff	movabsq	$-140737487239310, %rdi # imm = 0xFFFF800000110772
 ffff80000010e66e: 48 ba 5f 0b 11 00 00 80 ff ff	movabsq	$-140737487238305, %rdx # imm = 0xFFFF800000110B5F
 ffff80000010e678: 48 b9 70 c8 10 00 00 80 ff ff	movabsq	$-140737487255440, %rcx # imm = 0xFFFF80000010C870
@@ -7254,30 +6648,23 @@ ffff80000010e689: ff d1                	callq	*%rcx
 ffff80000010e68b: 0f 1f 44 00 00       	nopl	(%rax,%rax)
 
 ffff80000010e690 <lab1_check_mem>:
-; {
 ffff80000010e690: 55                   	pushq	%rbp
 ffff80000010e691: 48 89 e5             	movq	%rsp, %rbp
 ffff80000010e694: 53                   	pushq	%rbx
 ffff80000010e695: 50                   	pushq	%rax
 ffff80000010e696: 48 89 fb             	movq	%rdi, %rbx
-; 	lab1_check_free_list_avail();
 ffff80000010e699: 48 b8 e0 db 10 00 00 80 ff ff	movabsq	$-140737487250464, %rax # imm = 0xFFFF80000010DBE0
 ffff80000010e6a3: ff d0                	callq	*%rax
-; 	lab1_check_free_list_order();
 ffff80000010e6a5: 48 b8 20 dd 10 00 00 80 ff ff	movabsq	$-140737487250144, %rax # imm = 0xFFFF80000010DD20
 ffff80000010e6af: ff d0                	callq	*%rax
-; 	lab1_check_memory_layout(boot_info);
 ffff80000010e6b1: 48 b8 d0 dd 10 00 00 80 ff ff	movabsq	$-140737487249968, %rax # imm = 0xFFFF80000010DDD0
 ffff80000010e6bb: 48 89 df             	movq	%rbx, %rdi
 ffff80000010e6be: ff d0                	callq	*%rax
-; 	lab1_check_buddy_consistency();
 ffff80000010e6c0: 48 b8 50 e2 10 00 00 80 ff ff	movabsq	$-140737487248816, %rax # imm = 0xFFFF80000010E250
 ffff80000010e6ca: ff d0                	callq	*%rax
-; 	lab1_check_split_and_merge(0);
 ffff80000010e6cc: 48 b8 b0 e2 10 00 00 80 ff ff	movabsq	$-140737487248720, %rax # imm = 0xFFFF80000010E2B0
 ffff80000010e6d6: 31 ff                	xorl	%edi, %edi
 ffff80000010e6d8: ff d0                	callq	*%rax
-; }
 ffff80000010e6da: 48 83 c4 08          	addq	$8, %rsp
 ffff80000010e6de: 5b                   	popq	%rbx
 ffff80000010e6df: 5d                   	popq	%rbp
@@ -7299,119 +6686,87 @@ ffff80000010e6ee: cc                   	int3
 ffff80000010e6ef: cc                   	int3
 
 ffff80000010e6f0 <list_init>:
-; {
 ffff80000010e6f0: 55                   	pushq	%rbp
 ffff80000010e6f1: 48 89 e5             	movq	%rsp, %rbp
-; 	head->next = head;
 ffff80000010e6f4: 48 89 3f             	movq	%rdi, (%rdi)
-; 	head->prev = head;
 ffff80000010e6f7: 48 89 7f 08          	movq	%rdi, 8(%rdi)
-; }
 ffff80000010e6fb: 5d                   	popq	%rbp
 ffff80000010e6fc: c3                   	retq
 ffff80000010e6fd: 0f 1f 00             	nopl	(%rax)
 
 ffff80000010e700 <list_insert_after>:
-; {
 ffff80000010e700: 55                   	pushq	%rbp
 ffff80000010e701: 48 89 e5             	movq	%rsp, %rbp
-; 	new->prev = after;
 ffff80000010e704: 48 89 7e 08          	movq	%rdi, 8(%rsi)
-; 	new->next = after->next;
 ffff80000010e708: 48 8b 07             	movq	(%rdi), %rax
 ffff80000010e70b: 48 89 06             	movq	%rax, (%rsi)
-; 	after->next->prev = new;
 ffff80000010e70e: 48 8b 07             	movq	(%rdi), %rax
 ffff80000010e711: 48 89 70 08          	movq	%rsi, 8(%rax)
-; 	after->next = new;
 ffff80000010e715: 48 89 37             	movq	%rsi, (%rdi)
-; }
 ffff80000010e718: 5d                   	popq	%rbp
 ffff80000010e719: c3                   	retq
 ffff80000010e71a: 66 0f 1f 44 00 00    	nopw	(%rax,%rax)
 
 ffff80000010e720 <list_insert_before>:
-; {
 ffff80000010e720: 55                   	pushq	%rbp
 ffff80000010e721: 48 89 e5             	movq	%rsp, %rbp
-; 	new->next = before;
 ffff80000010e724: 48 89 3e             	movq	%rdi, (%rsi)
-; 	new->prev = before->prev;
 ffff80000010e727: 48 8b 47 08          	movq	8(%rdi), %rax
 ffff80000010e72b: 48 89 46 08          	movq	%rax, 8(%rsi)
-; 	before->prev->next = new;
 ffff80000010e72f: 48 8b 47 08          	movq	8(%rdi), %rax
 ffff80000010e733: 48 89 30             	movq	%rsi, (%rax)
-; 	before->prev = new;
 ffff80000010e736: 48 89 77 08          	movq	%rsi, 8(%rdi)
-; }
 ffff80000010e73a: 5d                   	popq	%rbp
 ffff80000010e73b: c3                   	retq
 ffff80000010e73c: 0f 1f 40 00          	nopl	(%rax)
 
 ffff80000010e740 <list_del>:
-; {
 ffff80000010e740: 55                   	pushq	%rbp
 ffff80000010e741: 48 89 e5             	movq	%rsp, %rbp
-; 	node->prev->next = node->next;
 ffff80000010e744: 48 8b 07             	movq	(%rdi), %rax
 ffff80000010e747: 48 8b 4f 08          	movq	8(%rdi), %rcx
 ffff80000010e74b: 48 89 01             	movq	%rax, (%rcx)
-; 	node->next->prev = node->prev;
 ffff80000010e74e: 48 8b 07             	movq	(%rdi), %rax
 ffff80000010e751: 48 89 48 08          	movq	%rcx, 8(%rax)
-; 	node->next = node;
 ffff80000010e755: 48 89 3f             	movq	%rdi, (%rdi)
-; 	node->prev = node;
 ffff80000010e758: 48 89 7f 08          	movq	%rdi, 8(%rdi)
-; }
 ffff80000010e75c: 5d                   	popq	%rbp
 ffff80000010e75d: c3                   	retq
 ffff80000010e75e: 66 90                	nop
 
 ffff80000010e760 <list_add>:
-; {
 ffff80000010e760: 55                   	pushq	%rbp
 ffff80000010e761: 48 89 e5             	movq	%rsp, %rbp
-; 	list_insert_after(head, new);
 ffff80000010e764: 48 b8 00 e7 10 00 00 80 ff ff	movabsq	$-140737487247616, %rax # imm = 0xFFFF80000010E700
 ffff80000010e76e: ff d0                	callq	*%rax
-; }
 ffff80000010e770: 5d                   	popq	%rbp
 ffff80000010e771: c3                   	retq
 ffff80000010e772: 66 2e 0f 1f 84 00 00 00 00 00	nopw	%cs:(%rax,%rax)
 ffff80000010e77c: 0f 1f 40 00          	nopl	(%rax)
 
 ffff80000010e780 <list_add_tail>:
-; {
 ffff80000010e780: 55                   	pushq	%rbp
 ffff80000010e781: 48 89 e5             	movq	%rsp, %rbp
-; 	list_insert_before(head, new);
 ffff80000010e784: 48 b8 20 e7 10 00 00 80 ff ff	movabsq	$-140737487247584, %rax # imm = 0xFFFF80000010E720
 ffff80000010e78e: ff d0                	callq	*%rax
-; }
 ffff80000010e790: 5d                   	popq	%rbp
 ffff80000010e791: c3                   	retq
 ffff80000010e792: 66 2e 0f 1f 84 00 00 00 00 00	nopw	%cs:(%rax,%rax)
 ffff80000010e79c: 0f 1f 40 00          	nopl	(%rax)
 
 ffff80000010e7a0 <list_pop_tail>:
-; {
 ffff80000010e7a0: 55                   	pushq	%rbp
 ffff80000010e7a1: 48 89 e5             	movq	%rsp, %rbp
 ffff80000010e7a4: 53                   	pushq	%rbx
 ffff80000010e7a5: 50                   	pushq	%rax
-; 	if (head->prev == head)
 ffff80000010e7a6: 48 8b 5f 08          	movq	8(%rdi), %rbx
 ffff80000010e7aa: 48 39 fb             	cmpq	%rdi, %rbx
 ffff80000010e7ad: 74 11                	je	0xffff80000010e7c0 <list_pop_tail+0x20>
-; 	list_del(node);
 ffff80000010e7af: 48 b8 40 e7 10 00 00 80 ff ff	movabsq	$-140737487247552, %rax # imm = 0xFFFF80000010E740
 ffff80000010e7b9: 48 89 df             	movq	%rbx, %rdi
 ffff80000010e7bc: ff d0                	callq	*%rax
 ffff80000010e7be: eb 02                	jmp	0xffff80000010e7c2 <list_pop_tail+0x22>
 ffff80000010e7c0: 31 db                	xorl	%ebx, %ebx
-; }
 ffff80000010e7c2: 48 89 d8             	movq	%rbx, %rax
 ffff80000010e7c5: 48 83 c4 08          	addq	$8, %rsp
 ffff80000010e7c9: 5b                   	popq	%rbx
@@ -7420,22 +6775,18 @@ ffff80000010e7cb: c3                   	retq
 ffff80000010e7cc: 0f 1f 40 00          	nopl	(%rax)
 
 ffff80000010e7d0 <list_pop>:
-; {
 ffff80000010e7d0: 55                   	pushq	%rbp
 ffff80000010e7d1: 48 89 e5             	movq	%rsp, %rbp
 ffff80000010e7d4: 53                   	pushq	%rbx
 ffff80000010e7d5: 50                   	pushq	%rax
-; 	if (head->next == head)
 ffff80000010e7d6: 48 8b 1f             	movq	(%rdi), %rbx
 ffff80000010e7d9: 48 39 fb             	cmpq	%rdi, %rbx
 ffff80000010e7dc: 74 11                	je	0xffff80000010e7ef <list_pop+0x1f>
-; 	list_del(node);
 ffff80000010e7de: 48 b8 40 e7 10 00 00 80 ff ff	movabsq	$-140737487247552, %rax # imm = 0xFFFF80000010E740
 ffff80000010e7e8: 48 89 df             	movq	%rbx, %rdi
 ffff80000010e7eb: ff d0                	callq	*%rax
 ffff80000010e7ed: eb 02                	jmp	0xffff80000010e7f1 <list_pop+0x21>
 ffff80000010e7ef: 31 db                	xorl	%ebx, %ebx
-; }
 ffff80000010e7f1: 48 89 d8             	movq	%rbx, %rax
 ffff80000010e7f4: 48 83 c4 08          	addq	$8, %rsp
 ffff80000010e7f8: 5b                   	popq	%rbx
@@ -7448,7 +6799,6 @@ ffff80000010e7fe: cc                   	int3
 ffff80000010e7ff: cc                   	int3
 
 ffff80000010e800 <vprintfmt>:
-; {
 ffff80000010e800: 55                   	pushq	%rbp
 ffff80000010e801: 48 89 e5             	movq	%rsp, %rbp
 ffff80000010e804: 41 57                	pushq	%r15
@@ -7460,7 +6810,6 @@ ffff80000010e80d: 48 83 ec 38          	subq	$56, %rsp
 ffff80000010e811: 49 89 d6             	movq	%rdx, %r14
 ffff80000010e814: 48 89 f3             	movq	%rsi, %rbx
 ffff80000010e817: 49 89 ff             	movq	%rdi, %r15
-; 	va_copy(ap, tmp_ap);
 ffff80000010e81a: 48 8b 41 10          	movq	16(%rcx), %rax
 ffff80000010e81e: 48 89 45 c0          	movq	%rax, -64(%rbp)
 ffff80000010e822: 48 8b 01             	movq	(%rcx), %rax
@@ -7470,7 +6819,6 @@ ffff80000010e82d: 48 89 45 b0          	movq	%rax, -80(%rbp)
 ffff80000010e831: 48 89 75 d0          	movq	%rsi, -48(%rbp)
 ffff80000010e835: 48 89 7d c8          	movq	%rdi, -56(%rbp)
 ffff80000010e839: eb 44                	jmp	0xffff80000010e87f <vprintfmt+0x7f>
-; 			num = getuint(&ap, lflag);
 ffff80000010e83b: 48 8d 7d b0          	leaq	-80(%rbp), %rdi
 ffff80000010e83f: 48 b8 b0 ed 10 00 00 80 ff ff	movabsq	$-140737487245904, %rax # imm = 0xFFFF80000010EDB0
 ffff80000010e849: ff d0                	callq	*%rax
@@ -7479,7 +6827,6 @@ ffff80000010e84e: 41 bf 10 00 00 00    	movl	$16, %r15d
 ffff80000010e854: 45 0f b6 cd          	movzbl	%r13b, %r9d
 ffff80000010e858: 48 8b 7d c8          	movq	-56(%rbp), %rdi
 ffff80000010e85c: 48 8b 75 d0          	movq	-48(%rbp), %rsi
-; 			printnum(putch, putdat, num, base, width, padc);
 ffff80000010e860: 4c 89 e2             	movq	%r12, %rdx
 ffff80000010e863: 44 89 f9             	movl	%r15d, %ecx
 ffff80000010e866: 49 89 ff             	movq	%rdi, %r15
@@ -7487,9 +6834,7 @@ ffff80000010e869: 41 89 d8             	movl	%ebx, %r8d
 ffff80000010e86c: 48 89 f3             	movq	%rsi, %rbx
 ffff80000010e86f: 48 b8 30 ee 10 00 00 80 ff ff	movabsq	$-140737487245776, %rax # imm = 0xFFFF80000010EE30
 ffff80000010e879: ff d0                	callq	*%rax
-; 			break;
 ffff80000010e87b: 49 83 c6 01          	addq	$1, %r14
-; 		while ((ch = *(unsigned char *) fmt++) != '%') {
 ffff80000010e87f: 41 0f b6 3e          	movzbl	(%r14), %edi
 ffff80000010e883: 49 83 c6 01          	addq	$1, %r14
 ffff80000010e887: 83 ff 25             	cmpl	$37, %edi
@@ -7507,14 +6852,12 @@ ffff80000010e8aa: 48 8b 45 c0          	movq	-64(%rbp), %rax
 ffff80000010e8ae: 41 bf ff ff ff ff    	movl	$4294967295, %r15d      # imm = 0xFFFFFFFF
 ffff80000010e8b4: c7 45 a8 00 00 00 00 	movl	$0, -88(%rbp)
 ffff80000010e8bb: 48 bf f0 02 11 00 00 80 ff ff	movabsq	$-140737487240464, %rdi # imm = 0xFFFF8000001102F0
-; 		switch (ch = *(unsigned char *) fmt++) {
 ffff80000010e8c5: 4d 8d 66 01          	leaq	1(%r14), %r12
 ffff80000010e8c9: eb 10                	jmp	0xffff80000010e8db <vprintfmt+0xdb>
 ffff80000010e8cb: 0f 1f 44 00 00       	nopl	(%rax,%rax)
 ffff80000010e8d0: 49 83 c6 01          	addq	$1, %r14
 ffff80000010e8d4: 49 83 c4 01          	addq	$1, %r12
 ffff80000010e8d8: 41 89 cd             	movl	%ecx, %r13d
-; 		switch (ch = *(unsigned char *) fmt++) {
 ffff80000010e8db: 41 0f b6 0e          	movzbl	(%r14), %ecx
 ffff80000010e8df: 8d 51 dd             	leal	-35(%rcx), %edx
 ffff80000010e8e2: 80 fa 55             	cmpb	$85, %dl
@@ -7528,25 +6871,19 @@ ffff80000010e8ff: 90                   	nop
 ffff80000010e900: 0f b6 c9             	movzbl	%cl, %ecx
 ffff80000010e903: 45 31 ff             	xorl	%r15d, %r15d
 ffff80000010e906: 66 2e 0f 1f 84 00 00 00 00 00	nopw	%cs:(%rax,%rax)
-; 				precision = precision * 10 + ch - '0';
 ffff80000010e910: 43 8d 14 bf          	leal	(%r15,%r15,4), %edx
 ffff80000010e914: 44 8d 3c 51          	leal	(%rcx,%rdx,2), %r15d
 ffff80000010e918: 41 83 c7 d0          	addl	$-48, %r15d
-; 				ch = *fmt;
 ffff80000010e91c: 41 0f be 4e 01       	movsbl	1(%r14), %ecx
-; 				precision = precision * 10 + ch - '0';
 ffff80000010e921: 49 83 c6 01          	addq	$1, %r14
-; 				if (ch < '0' || ch > '9')
 ffff80000010e925: 8d 51 c6             	leal	-58(%rcx), %edx
 ffff80000010e928: 80 fa f6             	cmpb	$-10, %dl
 ffff80000010e92b: 73 e3                	jae	0xffff80000010e910 <vprintfmt+0x110>
-; 			if (width < 0)
 ffff80000010e92d: 85 db                	testl	%ebx, %ebx
 ffff80000010e92f: 41 0f 48 df          	cmovsl	%r15d, %ebx
 ffff80000010e933: b9 ff ff ff ff       	movl	$4294967295, %ecx       # imm = 0xFFFFFFFF
 ffff80000010e938: 44 0f 48 f9          	cmovsl	%ecx, %r15d
 ffff80000010e93c: eb 87                	jmp	0xffff80000010e8c5 <vprintfmt+0xc5>
-; 			precision = va_arg(ap, int);
 ffff80000010e93e: 48 63 4d b0          	movslq	-80(%rbp), %rcx
 ffff80000010e942: 49 83 c6 01          	addq	$1, %r14
 ffff80000010e946: 48 83 f9 28          	cmpq	$40, %rcx
@@ -7557,35 +6894,28 @@ ffff80000010e952: 83 c1 08             	addl	$8, %ecx
 ffff80000010e955: 89 4d b0             	movl	%ecx, -80(%rbp)
 ffff80000010e958: 44 8b 3a             	movl	(%rdx), %r15d
 ffff80000010e95b: eb d0                	jmp	0xffff80000010e92d <vprintfmt+0x12d>
-; 		switch (ch = *(unsigned char *) fmt++) {
 ffff80000010e95d: 49 83 c6 01          	addq	$1, %r14
 ffff80000010e961: c7 45 a8 01 00 00 00 	movl	$1, -88(%rbp)
 ffff80000010e968: e9 58 ff ff ff       	jmp	0xffff80000010e8c5 <vprintfmt+0xc5>
-; 			if (width < 0)
 ffff80000010e96d: 85 db                	testl	%ebx, %ebx
 ffff80000010e96f: b9 00 00 00 00       	movl	$0, %ecx
 ffff80000010e974: 0f 48 d9             	cmovsl	%ecx, %ebx
 ffff80000010e977: eb 03                	jmp	0xffff80000010e97c <vprintfmt+0x17c>
-; 			lflag++;
 ffff80000010e979: 83 c6 01             	addl	$1, %esi
 ffff80000010e97c: 49 83 c6 01          	addq	$1, %r14
 ffff80000010e980: e9 40 ff ff ff       	jmp	0xffff80000010e8c5 <vprintfmt+0xc5>
-; 			precision = va_arg(ap, int);
 ffff80000010e985: 48 8b 4d b8          	movq	-72(%rbp), %rcx
 ffff80000010e989: 48 8d 51 08          	leaq	8(%rcx), %rdx
 ffff80000010e98d: 48 89 55 b8          	movq	%rdx, -72(%rbp)
 ffff80000010e991: 44 8b 39             	movl	(%rcx), %r15d
 ffff80000010e994: eb 97                	jmp	0xffff80000010e92d <vprintfmt+0x12d>
-; 			putch(ch, putdat);
 ffff80000010e996: bf 25 00 00 00       	movl	$37, %edi
 ffff80000010e99b: 48 8b 5d d0          	movq	-48(%rbp), %rbx
 ffff80000010e99f: 48 89 de             	movq	%rbx, %rsi
 ffff80000010e9a2: 4c 8b 7d c8          	movq	-56(%rbp), %r15
 ffff80000010e9a6: 41 ff d7             	callq	*%r15
-; 			break;
 ffff80000010e9a9: 49 83 c6 01          	addq	$1, %r14
 ffff80000010e9ad: e9 cd fe ff ff       	jmp	0xffff80000010e87f <vprintfmt+0x7f>
-; 			err = va_arg(ap, int);
 ffff80000010e9b2: 48 63 4d b0          	movslq	-80(%rbp), %rcx
 ffff80000010e9b6: 48 83 f9 28          	cmpq	$40, %rcx
 ffff80000010e9ba: 0f 87 3a 01 00 00    	ja	0xffff80000010eafa <vprintfmt+0x2fa>
@@ -7594,14 +6924,12 @@ ffff80000010e9c3: 48 03 45 c0          	addq	-64(%rbp), %rax
 ffff80000010e9c7: 83 c1 08             	addl	$8, %ecx
 ffff80000010e9ca: 89 4d b0             	movl	%ecx, -80(%rbp)
 ffff80000010e9cd: e9 34 01 00 00       	jmp	0xffff80000010eb06 <vprintfmt+0x306>
-; 			num = getuint(&ap, lflag);
 ffff80000010e9d2: 48 8d 7d b0          	leaq	-80(%rbp), %rdi
 ffff80000010e9d6: 48 b8 b0 ed 10 00 00 80 ff ff	movabsq	$-140737487245904, %rax # imm = 0xFFFF80000010EDB0
 ffff80000010e9e0: ff d0                	callq	*%rax
 ffff80000010e9e2: 49 89 c4             	movq	%rax, %r12
 ffff80000010e9e5: 41 bf 08 00 00 00    	movl	$8, %r15d
 ffff80000010e9eb: e9 64 fe ff ff       	jmp	0xffff80000010e854 <vprintfmt+0x54>
-; 			if ((p = va_arg(ap, char *)) == NULL)
 ffff80000010e9f0: 48 63 4d b0          	movslq	-80(%rbp), %rcx
 ffff80000010e9f4: 48 83 f9 28          	cmpq	$40, %rcx
 ffff80000010e9f8: 0f 87 55 01 00 00    	ja	0xffff80000010eb53 <vprintfmt+0x353>
@@ -7610,7 +6938,6 @@ ffff80000010ea01: 48 03 45 c0          	addq	-64(%rbp), %rax
 ffff80000010ea05: 83 c1 08             	addl	$8, %ecx
 ffff80000010ea08: 89 4d b0             	movl	%ecx, -80(%rbp)
 ffff80000010ea0b: e9 4f 01 00 00       	jmp	0xffff80000010eb5f <vprintfmt+0x35f>
-; 			putch('%', putdat);
 ffff80000010ea10: bf 25 00 00 00       	movl	$37, %edi
 ffff80000010ea15: 48 8b 5d d0          	movq	-48(%rbp), %rbx
 ffff80000010ea19: 48 89 de             	movq	%rbx, %rsi
@@ -7618,13 +6945,11 @@ ffff80000010ea1c: 4c 8b 7d c8          	movq	-56(%rbp), %r15
 ffff80000010ea20: 41 ff d7             	callq	*%r15
 ffff80000010ea23: 66 2e 0f 1f 84 00 00 00 00 00	nopw	%cs:(%rax,%rax)
 ffff80000010ea2d: 0f 1f 00             	nopl	(%rax)
-; 			for (fmt--; fmt[-1] != '%'; fmt--)
 ffff80000010ea30: 4d 8d 74 24 ff       	leaq	-1(%r12), %r14
 ffff80000010ea35: 41 80 7c 24 fe 25    	cmpb	$37, -2(%r12)
 ffff80000010ea3b: 4d 89 f4             	movq	%r14, %r12
 ffff80000010ea3e: 75 f0                	jne	0xffff80000010ea30 <vprintfmt+0x230>
 ffff80000010ea40: e9 3a fe ff ff       	jmp	0xffff80000010e87f <vprintfmt+0x7f>
-; 			putch(va_arg(ap, int), putdat);
 ffff80000010ea45: 48 63 4d b0          	movslq	-80(%rbp), %rcx
 ffff80000010ea49: 48 83 f9 28          	cmpq	$40, %rcx
 ffff80000010ea4d: 0f 87 07 02 00 00    	ja	0xffff80000010ec5a <vprintfmt+0x45a>
@@ -7633,33 +6958,26 @@ ffff80000010ea56: 48 03 45 c0          	addq	-64(%rbp), %rax
 ffff80000010ea5a: 83 c1 08             	addl	$8, %ecx
 ffff80000010ea5d: 89 4d b0             	movl	%ecx, -80(%rbp)
 ffff80000010ea60: e9 01 02 00 00       	jmp	0xffff80000010ec66 <vprintfmt+0x466>
-; 			num = getint(&ap, lflag);
 ffff80000010ea65: 48 8d 7d b0          	leaq	-80(%rbp), %rdi
 ffff80000010ea69: 48 b8 30 ed 10 00 00 80 ff ff	movabsq	$-140737487246032, %rax # imm = 0xFFFF80000010ED30
 ffff80000010ea73: ff d0                	callq	*%rax
 ffff80000010ea75: 49 89 c4             	movq	%rax, %r12
 ffff80000010ea78: 41 bf 0a 00 00 00    	movl	$10, %r15d
-; 			if ((long long) num < 0) {
 ffff80000010ea7e: 48 85 c0             	testq	%rax, %rax
 ffff80000010ea81: 0f 89 cd fd ff ff    	jns	0xffff80000010e854 <vprintfmt+0x54>
-; 				putch('-', putdat);
 ffff80000010ea87: bf 2d 00 00 00       	movl	$45, %edi
 ffff80000010ea8c: 48 8b 75 d0          	movq	-48(%rbp), %rsi
 ffff80000010ea90: ff 55 c8             	callq	*-56(%rbp)
-; 				num = -(long long) num;
 ffff80000010ea93: 49 f7 dc             	negq	%r12
 ffff80000010ea96: e9 b9 fd ff ff       	jmp	0xffff80000010e854 <vprintfmt+0x54>
-; 			putch('0', putdat);
 ffff80000010ea9b: bf 30 00 00 00       	movl	$48, %edi
 ffff80000010eaa0: 4c 8b 7d d0          	movq	-48(%rbp), %r15
 ffff80000010eaa4: 4c 89 fe             	movq	%r15, %rsi
 ffff80000010eaa7: 4c 8b 65 c8          	movq	-56(%rbp), %r12
 ffff80000010eaab: 41 ff d4             	callq	*%r12
-; 			putch('x', putdat);
 ffff80000010eaae: bf 78 00 00 00       	movl	$120, %edi
 ffff80000010eab3: 4c 89 fe             	movq	%r15, %rsi
 ffff80000010eab6: 41 ff d4             	callq	*%r12
-; 				(uintptr_t) va_arg(ap, void *);
 ffff80000010eab9: 48 63 4d b0          	movslq	-80(%rbp), %rcx
 ffff80000010eabd: 48 83 f9 28          	cmpq	$40, %rcx
 ffff80000010eac1: 0f 87 b2 01 00 00    	ja	0xffff80000010ec79 <vprintfmt+0x479>
@@ -7669,26 +6987,21 @@ ffff80000010eace: 83 c1 08             	addl	$8, %ecx
 ffff80000010ead1: 89 4d b0             	movl	%ecx, -80(%rbp)
 ffff80000010ead4: 4c 8b 20             	movq	(%rax), %r12
 ffff80000010ead7: e9 72 fd ff ff       	jmp	0xffff80000010e84e <vprintfmt+0x4e>
-; 			num = getuint(&ap, lflag);
 ffff80000010eadc: 48 8d 7d b0          	leaq	-80(%rbp), %rdi
 ffff80000010eae0: 48 b8 b0 ed 10 00 00 80 ff ff	movabsq	$-140737487245904, %rax # imm = 0xFFFF80000010EDB0
 ffff80000010eaea: ff d0                	callq	*%rax
 ffff80000010eaec: 49 89 c4             	movq	%rax, %r12
 ffff80000010eaef: 41 bf 0a 00 00 00    	movl	$10, %r15d
 ffff80000010eaf5: e9 5a fd ff ff       	jmp	0xffff80000010e854 <vprintfmt+0x54>
-; 			err = va_arg(ap, int);
 ffff80000010eafa: 48 8b 45 b8          	movq	-72(%rbp), %rax
 ffff80000010eafe: 48 8d 48 08          	leaq	8(%rax), %rcx
 ffff80000010eb02: 48 89 4d b8          	movq	%rcx, -72(%rbp)
 ffff80000010eb06: 48 8b 75 d0          	movq	-48(%rbp), %rsi
-; 			err = va_arg(ap, int);
 ffff80000010eb0a: 49 83 c6 01          	addq	$1, %r14
 ffff80000010eb0e: 8b 00                	movl	(%rax), %eax
-; 			if (err < 0)
 ffff80000010eb10: 89 c1                	movl	%eax, %ecx
 ffff80000010eb12: f7 d9                	negl	%ecx
 ffff80000010eb14: 0f 48 c8             	cmovsl	%eax, %ecx
-; 			if (err >= length_of(error_string) || (p = error_string[err]) == NULL)
 ffff80000010eb17: 83 f9 08             	cmpl	$8, %ecx
 ffff80000010eb1a: 4c 8b 7d c8          	movq	-56(%rbp), %r15
 ffff80000010eb1e: 77 0d                	ja	0xffff80000010eb2d <vprintfmt+0x32d>
@@ -7696,7 +7009,6 @@ ffff80000010eb20: 83 f9 03             	cmpl	$3, %ecx
 ffff80000010eb23: 74 08                	je	0xffff80000010eb2d <vprintfmt+0x32d>
 ffff80000010eb25: 85 c9                	testl	%ecx, %ecx
 ffff80000010eb27: 0f 85 60 01 00 00    	jne	0xffff80000010ec8d <vprintfmt+0x48d>
-; 				printfmt(putch, putdat, "error %d", err);
 ffff80000010eb2d: 4c 89 ff             	movq	%r15, %rdi
 ffff80000010eb30: 48 ba 03 0d 11 00 00 80 ff ff	movabsq	$-140737487237885, %rdx # imm = 0xFFFF800000110D03
 ffff80000010eb3a: 31 c0                	xorl	%eax, %eax
@@ -7705,7 +7017,6 @@ ffff80000010eb3f: 48 bb e0 ec 10 00 00 80 ff ff	movabsq	$-140737487246112, %rbx 
 ffff80000010eb49: ff d3                	callq	*%rbx
 ffff80000010eb4b: 4c 89 e3             	movq	%r12, %rbx
 ffff80000010eb4e: e9 2c fd ff ff       	jmp	0xffff80000010e87f <vprintfmt+0x7f>
-; 			if ((p = va_arg(ap, char *)) == NULL)
 ffff80000010eb53: 48 8b 45 b8          	movq	-72(%rbp), %rax
 ffff80000010eb57: 48 8d 48 08          	leaq	8(%rax), %rcx
 ffff80000010eb5b: 48 89 4d b8          	movq	%rcx, -72(%rbp)
@@ -7713,13 +7024,11 @@ ffff80000010eb5f: 4c 8b 20             	movq	(%rax), %r12
 ffff80000010eb62: 4d 85 e4             	testq	%r12, %r12
 ffff80000010eb65: 48 b8 e2 0e 11 00 00 80 ff ff	movabsq	$-140737487237406, %rax # imm = 0xFFFF800000110EE2
 ffff80000010eb6f: 4c 0f 44 e0          	cmoveq	%rax, %r12
-; 			if (width > 0 && padc != '-')
 ffff80000010eb73: 85 db                	testl	%ebx, %ebx
 ffff80000010eb75: 7e 50                	jle	0xffff80000010ebc7 <vprintfmt+0x3c7>
 ffff80000010eb77: 41 80 fd 2d          	cmpb	$45, %r13b
 ffff80000010eb7b: 74 4a                	je	0xffff80000010ebc7 <vprintfmt+0x3c7>
 ffff80000010eb7d: 44 88 6d ac          	movb	%r13b, -84(%rbp)
-; 				for (width -= strnlen(p, precision); width > 0; width--)
 ffff80000010eb81: 49 63 f7             	movslq	%r15d, %rsi
 ffff80000010eb84: 4c 89 e7             	movq	%r12, %rdi
 ffff80000010eb87: 48 b8 b0 f6 10 00 00 80 ff ff	movabsq	$-140737487243600, %rax # imm = 0xFFFF80000010F6B0
@@ -7729,23 +7038,19 @@ ffff80000010eb96: 41 29 c5             	subl	%eax, %r13d
 ffff80000010eb99: 7e 2f                	jle	0xffff80000010ebca <vprintfmt+0x3ca>
 ffff80000010eb9b: 0f b6 4d ac          	movzbl	-84(%rbp), %ecx
 ffff80000010eb9f: 89 4d ac             	movl	%ecx, -84(%rbp)
-; 				for (width -= strnlen(p, precision); width > 0; width--)
 ffff80000010eba2: 29 c3                	subl	%eax, %ebx
 ffff80000010eba4: 83 c3 01             	addl	$1, %ebx
 ffff80000010eba7: 4c 8b 6d c8          	movq	-56(%rbp), %r13
 ffff80000010ebab: 0f 1f 44 00 00       	nopl	(%rax,%rax)
 ffff80000010ebb0: 8b 7d ac             	movl	-84(%rbp), %edi
 ffff80000010ebb3: 48 8b 75 d0          	movq	-48(%rbp), %rsi
-; 					putch(padc, putdat);
 ffff80000010ebb7: 41 ff d5             	callq	*%r13
-; 				for (width -= strnlen(p, precision); width > 0; width--)
 ffff80000010ebba: 83 c3 ff             	addl	$-1, %ebx
 ffff80000010ebbd: 83 fb 01             	cmpl	$1, %ebx
 ffff80000010ebc0: 7f ee                	jg	0xffff80000010ebb0 <vprintfmt+0x3b0>
 ffff80000010ebc2: 45 31 ed             	xorl	%r13d, %r13d
 ffff80000010ebc5: eb 03                	jmp	0xffff80000010ebca <vprintfmt+0x3ca>
 ffff80000010ebc7: 41 89 dd             	movl	%ebx, %r13d
-; 			for (; (ch = *p++) != '\0' && (precision < 0 || --precision >= 0);
 ffff80000010ebca: 41 8a 04 24          	movb	(%r12), %al
 ffff80000010ebce: 84 c0                	testb	%al, %al
 ffff80000010ebd0: 74 49                	je	0xffff80000010ec1b <vprintfmt+0x41b>
@@ -7763,9 +7068,7 @@ ffff80000010ebf3: 85 db                	testl	%ebx, %ebx
 ffff80000010ebf5: 0f 44 f8             	cmovel	%eax, %edi
 ffff80000010ebf8: 48 8b 75 d0          	movq	-48(%rbp), %rsi
 ffff80000010ebfc: ff 55 c8             	callq	*-56(%rbp)
-; 					width--)
 ffff80000010ebff: 41 83 c5 ff          	addl	$-1, %r13d
-; 			for (; (ch = *p++) != '\0' && (precision < 0 || --precision >= 0);
 ffff80000010ec03: 41 0f b6 04 24       	movzbl	(%r12), %eax
 ffff80000010ec08: 49 83 c4 01          	addq	$1, %r12
 ffff80000010ec0c: 84 c0                	testb	%al, %al
@@ -7775,56 +7078,44 @@ ffff80000010ec13: 78 cb                	js	0xffff80000010ebe0 <vprintfmt+0x3e0>
 ffff80000010ec15: 41 83 ef 01          	subl	$1, %r15d
 ffff80000010ec19: 73 c5                	jae	0xffff80000010ebe0 <vprintfmt+0x3e0>
 ffff80000010ec1b: 49 83 c6 01          	addq	$1, %r14
-; 			for (; width > 0; width--)
 ffff80000010ec1f: 45 85 ed             	testl	%r13d, %r13d
 ffff80000010ec22: 4c 8b 7d c8          	movq	-56(%rbp), %r15
 ffff80000010ec26: 48 8b 5d d0          	movq	-48(%rbp), %rbx
-; 			for (; width > 0; width--)
 ffff80000010ec2a: 0f 8e 4f fc ff ff    	jle	0xffff80000010e87f <vprintfmt+0x7f>
-; 	while (1) {
 ffff80000010ec30: 41 83 c5 01          	addl	$1, %r13d
 ffff80000010ec34: 66 2e 0f 1f 84 00 00 00 00 00	nopw	%cs:(%rax,%rax)
 ffff80000010ec3e: 66 90                	nop
-; 				putch(' ', putdat);
 ffff80000010ec40: bf 20 00 00 00       	movl	$32, %edi
 ffff80000010ec45: 48 89 de             	movq	%rbx, %rsi
 ffff80000010ec48: 41 ff d7             	callq	*%r15
-; 			for (; width > 0; width--)
 ffff80000010ec4b: 41 83 c5 ff          	addl	$-1, %r13d
 ffff80000010ec4f: 41 83 fd 01          	cmpl	$1, %r13d
 ffff80000010ec53: 7f eb                	jg	0xffff80000010ec40 <vprintfmt+0x440>
 ffff80000010ec55: e9 25 fc ff ff       	jmp	0xffff80000010e87f <vprintfmt+0x7f>
-; 			putch(va_arg(ap, int), putdat);
 ffff80000010ec5a: 48 8b 45 b8          	movq	-72(%rbp), %rax
 ffff80000010ec5e: 48 8d 48 08          	leaq	8(%rax), %rcx
 ffff80000010ec62: 48 89 4d b8          	movq	%rcx, -72(%rbp)
 ffff80000010ec66: 48 8b 5d d0          	movq	-48(%rbp), %rbx
 ffff80000010ec6a: 4c 8b 7d c8          	movq	-56(%rbp), %r15
-; 			putch(va_arg(ap, int), putdat);
 ffff80000010ec6e: 49 83 c6 01          	addq	$1, %r14
 ffff80000010ec72: 8b 38                	movl	(%rax), %edi
 ffff80000010ec74: e9 1c fc ff ff       	jmp	0xffff80000010e895 <vprintfmt+0x95>
-; 				(uintptr_t) va_arg(ap, void *);
 ffff80000010ec79: 48 8b 45 b8          	movq	-72(%rbp), %rax
 ffff80000010ec7d: 48 8d 48 08          	leaq	8(%rax), %rcx
 ffff80000010ec81: 48 89 4d b8          	movq	%rcx, -72(%rbp)
 ffff80000010ec85: 4c 8b 20             	movq	(%rax), %r12
 ffff80000010ec88: e9 c1 fb ff ff       	jmp	0xffff80000010e84e <vprintfmt+0x4e>
-; 			if (err >= length_of(error_string) || (p = error_string[err]) == NULL)
 ffff80000010ec8d: 89 c8                	movl	%ecx, %eax
 ffff80000010ec8f: 48 b9 a0 05 11 00 00 80 ff ff	movabsq	$-140737487239776, %rcx # imm = 0xFFFF8000001105A0
 ffff80000010ec99: 48 8b 0c c1          	movq	(%rcx,%rax,8), %rcx
-; 				printfmt(putch, putdat, "%s", p);
 ffff80000010ec9d: 4c 89 ff             	movq	%r15, %rdi
 ffff80000010eca0: 48 ba 64 09 11 00 00 80 ff ff	movabsq	$-140737487238812, %rdx # imm = 0xFFFF800000110964
 ffff80000010ecaa: 31 c0                	xorl	%eax, %eax
 ffff80000010ecac: 49 89 f4             	movq	%rsi, %r12
-; 				printfmt(putch, putdat, "%s", p);
 ffff80000010ecaf: 48 bb e0 ec 10 00 00 80 ff ff	movabsq	$-140737487246112, %rbx # imm = 0xFFFF80000010ECE0
 ffff80000010ecb9: ff d3                	callq	*%rbx
 ffff80000010ecbb: 4c 89 e3             	movq	%r12, %rbx
 ffff80000010ecbe: e9 bc fb ff ff       	jmp	0xffff80000010e87f <vprintfmt+0x7f>
-; }
 ffff80000010ecc3: 48 83 c4 38          	addq	$56, %rsp
 ffff80000010ecc7: 5b                   	popq	%rbx
 ffff80000010ecc8: 41 5c                	popq	%r12
@@ -7837,7 +7128,6 @@ ffff80000010ecd2: 66 2e 0f 1f 84 00 00 00 00 00	nopw	%cs:(%rax,%rax)
 ffff80000010ecdc: 0f 1f 40 00          	nopl	(%rax)
 
 ffff80000010ece0 <printfmt>:
-; {
 ffff80000010ece0: 55                   	pushq	%rbp
 ffff80000010ece1: 48 89 e5             	movq	%rsp, %rbp
 ffff80000010ece4: 48 83 ec 50          	subq	$80, %rsp
@@ -7845,30 +7135,24 @@ ffff80000010ece8: 48 89 4d c8          	movq	%rcx, -56(%rbp)
 ffff80000010ecec: 4c 89 45 d0          	movq	%r8, -48(%rbp)
 ffff80000010ecf0: 4c 89 4d d8          	movq	%r9, -40(%rbp)
 ffff80000010ecf4: 48 8d 45 b0          	leaq	-80(%rbp), %rax
-; 	va_start(ap, fmt);
 ffff80000010ecf8: 48 89 45 f0          	movq	%rax, -16(%rbp)
 ffff80000010ecfc: 48 8d 45 10          	leaq	16(%rbp), %rax
 ffff80000010ed00: 48 89 45 e8          	movq	%rax, -24(%rbp)
 ffff80000010ed04: 48 b8 18 00 00 00 30 00 00 00	movabsq	$206158430232, %rax # imm = 0x3000000018
 ffff80000010ed0e: 48 89 45 e0          	movq	%rax, -32(%rbp)
-; 	vprintfmt(putch, putdat, fmt, ap);
 ffff80000010ed12: 48 b8 00 e8 10 00 00 80 ff ff	movabsq	$-140737487247360, %rax # imm = 0xFFFF80000010E800
 ffff80000010ed1c: 48 8d 4d e0          	leaq	-32(%rbp), %rcx
 ffff80000010ed20: ff d0                	callq	*%rax
-; }
 ffff80000010ed22: 48 83 c4 50          	addq	$80, %rsp
 ffff80000010ed26: 5d                   	popq	%rbp
 ffff80000010ed27: c3                   	retq
 ffff80000010ed28: 0f 1f 84 00 00 00 00 00      	nopl	(%rax,%rax)
 
 ffff80000010ed30 <getint>:
-; {
 ffff80000010ed30: 55                   	pushq	%rbp
 ffff80000010ed31: 48 89 e5             	movq	%rsp, %rbp
-; 	if (lflag >= 2)
 ffff80000010ed34: 83 fe 02             	cmpl	$2, %esi
 ffff80000010ed37: 7c 17                	jl	0xffff80000010ed50 <getint+0x20>
-; 		return va_arg(*ap, long long);
 ffff80000010ed39: 48 63 07             	movslq	(%rdi), %rax
 ffff80000010ed3c: 48 83 f8 28          	cmpq	$40, %rax
 ffff80000010ed40: 77 2b                	ja	0xffff80000010ed6d <getint+0x3d>
@@ -7878,30 +7162,24 @@ ffff80000010ed49: 83 c0 08             	addl	$8, %eax
 ffff80000010ed4c: 89 07                	movl	%eax, (%rdi)
 ffff80000010ed4e: eb 18                	jmp	0xffff80000010ed68 <getint+0x38>
 ffff80000010ed50: 48 63 07             	movslq	(%rdi), %rax
-; 	else if (lflag)
 ffff80000010ed53: 85 f6                	testl	%esi, %esi
 ffff80000010ed55: 74 27                	je	0xffff80000010ed7e <getint+0x4e>
 ffff80000010ed57: 83 f8 28             	cmpl	$40, %eax
-; 		return va_arg(*ap, long);
 ffff80000010ed5a: 77 11                	ja	0xffff80000010ed6d <getint+0x3d>
 ffff80000010ed5c: 48 8b 4f 10          	movq	16(%rdi), %rcx
-; 		return va_arg(*ap, long);
 ffff80000010ed60: 48 01 c1             	addq	%rax, %rcx
 ffff80000010ed63: 83 c0 08             	addl	$8, %eax
 ffff80000010ed66: 89 07                	movl	%eax, (%rdi)
 ffff80000010ed68: 48 8b 01             	movq	(%rcx), %rax
-; }
 ffff80000010ed6b: 5d                   	popq	%rbp
 ffff80000010ed6c: c3                   	retq
 ffff80000010ed6d: 48 8b 47 08          	movq	8(%rdi), %rax
 ffff80000010ed71: 48 8d 48 08          	leaq	8(%rax), %rcx
 ffff80000010ed75: 48 89 4f 08          	movq	%rcx, 8(%rdi)
 ffff80000010ed79: 48 8b 00             	movq	(%rax), %rax
-; }
 ffff80000010ed7c: 5d                   	popq	%rbp
 ffff80000010ed7d: c3                   	retq
 ffff80000010ed7e: 83 f8 28             	cmpl	$40, %eax
-; 		return va_arg(*ap, int);
 ffff80000010ed81: 77 0e                	ja	0xffff80000010ed91 <getint+0x61>
 ffff80000010ed83: 48 89 c1             	movq	%rax, %rcx
 ffff80000010ed86: 48 03 4f 10          	addq	16(%rdi), %rcx
@@ -7912,20 +7190,16 @@ ffff80000010ed91: 48 8b 4f 08          	movq	8(%rdi), %rcx
 ffff80000010ed95: 48 8d 41 08          	leaq	8(%rcx), %rax
 ffff80000010ed99: 48 89 47 08          	movq	%rax, 8(%rdi)
 ffff80000010ed9d: 48 63 01             	movslq	(%rcx), %rax
-; }
 ffff80000010eda0: 5d                   	popq	%rbp
 ffff80000010eda1: c3                   	retq
 ffff80000010eda2: 66 2e 0f 1f 84 00 00 00 00 00	nopw	%cs:(%rax,%rax)
 ffff80000010edac: 0f 1f 40 00          	nopl	(%rax)
 
 ffff80000010edb0 <getuint>:
-; {
 ffff80000010edb0: 55                   	pushq	%rbp
 ffff80000010edb1: 48 89 e5             	movq	%rsp, %rbp
-; 	if (lflag >= 2)
 ffff80000010edb4: 83 fe 02             	cmpl	$2, %esi
 ffff80000010edb7: 7c 17                	jl	0xffff80000010edd0 <getuint+0x20>
-; 		return va_arg(*ap, unsigned long long);
 ffff80000010edb9: 48 63 07             	movslq	(%rdi), %rax
 ffff80000010edbc: 48 83 f8 28          	cmpq	$40, %rax
 ffff80000010edc0: 77 2b                	ja	0xffff80000010eded <getuint+0x3d>
@@ -7935,30 +7209,24 @@ ffff80000010edc9: 83 c0 08             	addl	$8, %eax
 ffff80000010edcc: 89 07                	movl	%eax, (%rdi)
 ffff80000010edce: eb 18                	jmp	0xffff80000010ede8 <getuint+0x38>
 ffff80000010edd0: 48 63 07             	movslq	(%rdi), %rax
-; 	else if (lflag)
 ffff80000010edd3: 85 f6                	testl	%esi, %esi
 ffff80000010edd5: 74 27                	je	0xffff80000010edfe <getuint+0x4e>
 ffff80000010edd7: 83 f8 28             	cmpl	$40, %eax
-; 		return va_arg(*ap, unsigned long);
 ffff80000010edda: 77 11                	ja	0xffff80000010eded <getuint+0x3d>
 ffff80000010eddc: 48 8b 4f 10          	movq	16(%rdi), %rcx
-; 		return va_arg(*ap, unsigned long);
 ffff80000010ede0: 48 01 c1             	addq	%rax, %rcx
 ffff80000010ede3: 83 c0 08             	addl	$8, %eax
 ffff80000010ede6: 89 07                	movl	%eax, (%rdi)
 ffff80000010ede8: 48 8b 01             	movq	(%rcx), %rax
-; }
 ffff80000010edeb: 5d                   	popq	%rbp
 ffff80000010edec: c3                   	retq
 ffff80000010eded: 48 8b 47 08          	movq	8(%rdi), %rax
 ffff80000010edf1: 48 8d 48 08          	leaq	8(%rax), %rcx
 ffff80000010edf5: 48 89 4f 08          	movq	%rcx, 8(%rdi)
 ffff80000010edf9: 48 8b 00             	movq	(%rax), %rax
-; }
 ffff80000010edfc: 5d                   	popq	%rbp
 ffff80000010edfd: c3                   	retq
 ffff80000010edfe: 83 f8 28             	cmpl	$40, %eax
-; 		return va_arg(*ap, unsigned int);
 ffff80000010ee01: 77 0e                	ja	0xffff80000010ee11 <getuint+0x61>
 ffff80000010ee03: 48 89 c1             	movq	%rax, %rcx
 ffff80000010ee06: 48 03 4f 10          	addq	16(%rdi), %rcx
@@ -7969,14 +7237,12 @@ ffff80000010ee11: 48 8b 4f 08          	movq	8(%rdi), %rcx
 ffff80000010ee15: 48 8d 41 08          	leaq	8(%rcx), %rax
 ffff80000010ee19: 48 89 47 08          	movq	%rax, 8(%rdi)
 ffff80000010ee1d: 8b 01                	movl	(%rcx), %eax
-; }
 ffff80000010ee1f: 5d                   	popq	%rbp
 ffff80000010ee20: c3                   	retq
 ffff80000010ee21: 66 2e 0f 1f 84 00 00 00 00 00	nopw	%cs:(%rax,%rax)
 ffff80000010ee2b: 0f 1f 44 00 00       	nopl	(%rax,%rax)
 
 ffff80000010ee30 <printnum>:
-; {
 ffff80000010ee30: 55                   	pushq	%rbp
 ffff80000010ee31: 48 89 e5             	movq	%rsp, %rbp
 ffff80000010ee34: 41 57                	pushq	%r15
@@ -7989,27 +7255,22 @@ ffff80000010ee3e: 45 89 cd             	movl	%r9d, %r13d
 ffff80000010ee41: 44 89 c3             	movl	%r8d, %ebx
 ffff80000010ee44: 49 89 f6             	movq	%rsi, %r14
 ffff80000010ee47: 49 89 fc             	movq	%rdi, %r12
-; 	if (num >= base) {
 ffff80000010ee4a: 41 89 cf             	movl	%ecx, %r15d
 ffff80000010ee4d: 49 39 d7             	cmpq	%rdx, %r15
 ffff80000010ee50: 48 89 55 d0          	movq	%rdx, -48(%rbp)
 ffff80000010ee54: 76 1d                	jbe	0xffff80000010ee73 <printnum+0x43>
-; 		while (--width > 0)
 ffff80000010ee56: 83 fb 02             	cmpl	$2, %ebx
 ffff80000010ee59: 7c 3f                	jl	0xffff80000010ee9a <printnum+0x6a>
 ffff80000010ee5b: 83 c3 01             	addl	$1, %ebx
 ffff80000010ee5e: 66 90                	nop
-; 			putch(padc, putdat);
 ffff80000010ee60: 44 89 ef             	movl	%r13d, %edi
 ffff80000010ee63: 4c 89 f6             	movq	%r14, %rsi
 ffff80000010ee66: 41 ff d4             	callq	*%r12
-; 		while (--width > 0)
 ffff80000010ee69: 83 c3 ff             	addl	$-1, %ebx
 ffff80000010ee6c: 83 fb 02             	cmpl	$2, %ebx
 ffff80000010ee6f: 7f ef                	jg	0xffff80000010ee60 <printnum+0x30>
 ffff80000010ee71: eb 27                	jmp	0xffff80000010ee9a <printnum+0x6a>
 ffff80000010ee73: 48 89 d0             	movq	%rdx, %rax
-; 		printnum(putch, putdat, num / base, base, width - 1, padc);
 ffff80000010ee76: 31 d2                	xorl	%edx, %edx
 ffff80000010ee78: 49 f7 f7             	divq	%r15
 ffff80000010ee7b: 83 c3 ff             	addl	$-1, %ebx
@@ -8021,14 +7282,12 @@ ffff80000010ee91: 41 89 d8             	movl	%ebx, %r8d
 ffff80000010ee94: 45 89 e9             	movl	%r13d, %r9d
 ffff80000010ee97: 41 ff d2             	callq	*%r10
 ffff80000010ee9a: 48 8b 45 d0          	movq	-48(%rbp), %rax
-; 	putch("0123456789abcdef"[num % base], putdat);
 ffff80000010ee9e: 31 d2                	xorl	%edx, %edx
 ffff80000010eea0: 49 f7 f7             	divq	%r15
 ffff80000010eea3: 48 b8 0c 0d 11 00 00 80 ff ff	movabsq	$-140737487237876, %rax # imm = 0xFFFF800000110D0C
 ffff80000010eead: 0f be 3c 02          	movsbl	(%rdx,%rax), %edi
 ffff80000010eeb1: 4c 89 f6             	movq	%r14, %rsi
 ffff80000010eeb4: 41 ff d4             	callq	*%r12
-; }
 ffff80000010eeb7: 48 83 c4 08          	addq	$8, %rsp
 ffff80000010eebb: 5b                   	popq	%rbx
 ffff80000010eebc: 41 5c                	popq	%r12
@@ -8040,11 +7299,9 @@ ffff80000010eec5: c3                   	retq
 ffff80000010eec6: 66 2e 0f 1f 84 00 00 00 00 00	nopw	%cs:(%rax,%rax)
 
 ffff80000010eed0 <vsnprintf>:
-; {
 ffff80000010eed0: 55                   	pushq	%rbp
 ffff80000010eed1: 48 89 e5             	movq	%rsp, %rbp
 ffff80000010eed4: 48 83 ec 20          	subq	$32, %rsp
-; 	struct sprintbuf b = {buf, buf+n-1, 0};
 ffff80000010eed8: 48 89 7d e8          	movq	%rdi, -24(%rbp)
 ffff80000010eedc: 48 63 c6             	movslq	%esi, %rax
 ffff80000010eedf: 48 01 f8             	addq	%rdi, %rax
@@ -8052,48 +7309,37 @@ ffff80000010eee2: 48 83 c0 ff          	addq	$-1, %rax
 ffff80000010eee6: 48 89 45 f0          	movq	%rax, -16(%rbp)
 ffff80000010eeea: c7 45 f8 00 00 00 00 	movl	$0, -8(%rbp)
 ffff80000010eef1: b8 fb ff ff ff       	movl	$4294967291, %eax       # imm = 0xFFFFFFFB
-; 	if (buf == NULL || n < 1)
 ffff80000010eef6: 48 85 ff             	testq	%rdi, %rdi
 ffff80000010eef9: 74 28                	je	0xffff80000010ef23 <vsnprintf+0x53>
 ffff80000010eefb: 85 f6                	testl	%esi, %esi
 ffff80000010eefd: 7e 24                	jle	0xffff80000010ef23 <vsnprintf+0x53>
-; 	vprintfmt((void*)sprintputch, &b, fmt, ap);
 ffff80000010eeff: 48 bf 30 ef 10 00 00 80 ff ff	movabsq	$-140737487245520, %rdi # imm = 0xFFFF80000010EF30
 ffff80000010ef09: 48 b8 00 e8 10 00 00 80 ff ff	movabsq	$-140737487247360, %rax # imm = 0xFFFF80000010E800
 ffff80000010ef13: 48 8d 75 e8          	leaq	-24(%rbp), %rsi
 ffff80000010ef17: ff d0                	callq	*%rax
-; 	*b.buf = '\0';
 ffff80000010ef19: 48 8b 45 e8          	movq	-24(%rbp), %rax
 ffff80000010ef1d: c6 00 00             	movb	$0, (%rax)
-; 	return b.cnt;
 ffff80000010ef20: 8b 45 f8             	movl	-8(%rbp), %eax
-; }
 ffff80000010ef23: 48 83 c4 20          	addq	$32, %rsp
 ffff80000010ef27: 5d                   	popq	%rbp
 ffff80000010ef28: c3                   	retq
 ffff80000010ef29: 0f 1f 80 00 00 00 00 	nopl	(%rax)
 
 ffff80000010ef30 <sprintputch>:
-; {
 ffff80000010ef30: 55                   	pushq	%rbp
 ffff80000010ef31: 48 89 e5             	movq	%rsp, %rbp
-; 	b->cnt++;
 ffff80000010ef34: 83 46 10 01          	addl	$1, 16(%rsi)
-; 	if (b->buf < b->ebuf)
 ffff80000010ef38: 48 8b 06             	movq	(%rsi), %rax
 ffff80000010ef3b: 48 3b 46 08          	cmpq	8(%rsi), %rax
 ffff80000010ef3f: 73 0a                	jae	0xffff80000010ef4b <sprintputch+0x1b>
-; 		*b->buf++ = ch;
 ffff80000010ef41: 48 8d 48 01          	leaq	1(%rax), %rcx
 ffff80000010ef45: 48 89 0e             	movq	%rcx, (%rsi)
 ffff80000010ef48: 40 88 38             	movb	%dil, (%rax)
-; }
 ffff80000010ef4b: 5d                   	popq	%rbp
 ffff80000010ef4c: c3                   	retq
 ffff80000010ef4d: 0f 1f 00             	nopl	(%rax)
 
 ffff80000010ef50 <snprintf>:
-; {
 ffff80000010ef50: 55                   	pushq	%rbp
 ffff80000010ef51: 48 89 e5             	movq	%rsp, %rbp
 ffff80000010ef54: 48 83 ec 50          	subq	$80, %rsp
@@ -8101,17 +7347,14 @@ ffff80000010ef58: 48 89 4d c8          	movq	%rcx, -56(%rbp)
 ffff80000010ef5c: 4c 89 45 d0          	movq	%r8, -48(%rbp)
 ffff80000010ef60: 4c 89 4d d8          	movq	%r9, -40(%rbp)
 ffff80000010ef64: 48 8d 45 b0          	leaq	-80(%rbp), %rax
-; 	va_start(ap, fmt);
 ffff80000010ef68: 48 89 45 f0          	movq	%rax, -16(%rbp)
 ffff80000010ef6c: 48 8d 45 10          	leaq	16(%rbp), %rax
 ffff80000010ef70: 48 89 45 e8          	movq	%rax, -24(%rbp)
 ffff80000010ef74: 48 b8 18 00 00 00 30 00 00 00	movabsq	$206158430232, %rax # imm = 0x3000000018
 ffff80000010ef7e: 48 89 45 e0          	movq	%rax, -32(%rbp)
-; 	rc = vsnprintf(buf, n, fmt, ap);
 ffff80000010ef82: 48 b8 d0 ee 10 00 00 80 ff ff	movabsq	$-140737487245616, %rax # imm = 0xFFFF80000010EED0
 ffff80000010ef8c: 48 8d 4d e0          	leaq	-32(%rbp), %rcx
 ffff80000010ef90: ff d0                	callq	*%rax
-; 	return rc;
 ffff80000010ef92: 48 83 c4 50          	addq	$80, %rsp
 ffff80000010ef96: 5d                   	popq	%rbp
 ffff80000010ef97: c3                   	retq
@@ -8125,10 +7368,8 @@ ffff80000010ef9e: cc                   	int3
 ffff80000010ef9f: cc                   	int3
 
 ffff80000010efa0 <rb_first>:
-; {
 ffff80000010efa0: 55                   	pushq	%rbp
 ffff80000010efa1: 48 89 e5             	movq	%rsp, %rbp
-; 	return get_outermost(tree->root, RB_LEFT);
 ffff80000010efa4: 48 8b 3f             	movq	(%rdi), %rdi
 ffff80000010efa7: 48 b8 c0 ef 10 00 00 80 ff ff	movabsq	$-140737487245376, %rax # imm = 0xFFFF80000010EFC0
 ffff80000010efb1: 31 f6                	xorl	%esi, %esi
@@ -8138,34 +7379,27 @@ ffff80000010efb6: c3                   	retq
 ffff80000010efb7: 66 0f 1f 84 00 00 00 00 00   	nopw	(%rax,%rax)
 
 ffff80000010efc0 <get_outermost>:
-; {
 ffff80000010efc0: 55                   	pushq	%rbp
 ffff80000010efc1: 48 89 e5             	movq	%rsp, %rbp
-; 	if (!node) {
 ffff80000010efc4: 48 85 ff             	testq	%rdi, %rdi
 ffff80000010efc7: 74 16                	je	0xffff80000010efdf <get_outermost+0x1f>
 ffff80000010efc9: 89 f1                	movl	%esi, %ecx
 ffff80000010efcb: 0f 1f 44 00 00       	nopl	(%rax,%rax)
 ffff80000010efd0: 48 89 f8             	movq	%rdi, %rax
-; 	while (node->child[dir]) {
 ffff80000010efd3: 48 8b 7c cf 08       	movq	8(%rdi,%rcx,8), %rdi
 ffff80000010efd8: 48 85 ff             	testq	%rdi, %rdi
 ffff80000010efdb: 75 f3                	jne	0xffff80000010efd0 <get_outermost+0x10>
-; }
 ffff80000010efdd: 5d                   	popq	%rbp
 ffff80000010efde: c3                   	retq
 ffff80000010efdf: 31 c0                	xorl	%eax, %eax
-; }
 ffff80000010efe1: 5d                   	popq	%rbp
 ffff80000010efe2: c3                   	retq
 ffff80000010efe3: 66 2e 0f 1f 84 00 00 00 00 00	nopw	%cs:(%rax,%rax)
 ffff80000010efed: 0f 1f 00             	nopl	(%rax)
 
 ffff80000010eff0 <rb_last>:
-; {
 ffff80000010eff0: 55                   	pushq	%rbp
 ffff80000010eff1: 48 89 e5             	movq	%rsp, %rbp
-; 	return get_outermost(tree->root, RB_RIGHT);
 ffff80000010eff4: 48 8b 3f             	movq	(%rdi), %rdi
 ffff80000010eff7: 48 b8 c0 ef 10 00 00 80 ff ff	movabsq	$-140737487245376, %rax # imm = 0xFFFF80000010EFC0
 ffff80000010f001: be 01 00 00 00       	movl	$1, %esi
@@ -8175,10 +7409,8 @@ ffff80000010f009: c3                   	retq
 ffff80000010f00a: 66 0f 1f 44 00 00    	nopw	(%rax,%rax)
 
 ffff80000010f010 <rb_next>:
-; {
 ffff80000010f010: 55                   	pushq	%rbp
 ffff80000010f011: 48 89 e5             	movq	%rsp, %rbp
-; 	return get_closest(node, RB_RIGHT);
 ffff80000010f014: 48 b8 30 f0 10 00 00 80 ff ff	movabsq	$-140737487245264, %rax # imm = 0xFFFF80000010F030
 ffff80000010f01e: be 01 00 00 00       	movl	$1, %esi
 ffff80000010f023: ff d0                	callq	*%rax
@@ -8187,18 +7419,14 @@ ffff80000010f026: c3                   	retq
 ffff80000010f027: 66 0f 1f 84 00 00 00 00 00   	nopw	(%rax,%rax)
 
 ffff80000010f030 <get_closest>:
-; {
 ffff80000010f030: 55                   	pushq	%rbp
 ffff80000010f031: 48 89 e5             	movq	%rsp, %rbp
-; 	if (!node)
 ffff80000010f034: 48 85 ff             	testq	%rdi, %rdi
 ffff80000010f037: 74 3b                	je	0xffff80000010f074 <get_closest+0x44>
-; 	if (node->child[dir])
 ffff80000010f039: 89 f1                	movl	%esi, %ecx
 ffff80000010f03b: 48 8b 44 cf 08       	movq	8(%rdi,%rcx,8), %rax
 ffff80000010f040: 48 85 c0             	testq	%rax, %rax
 ffff80000010f043: 74 25                	je	0xffff80000010f06a <get_closest+0x3a>
-; 		return get_outermost(node->child[dir], !dir);
 ffff80000010f045: 31 c9                	xorl	%ecx, %ecx
 ffff80000010f047: 85 f6                	testl	%esi, %esi
 ffff80000010f049: 0f 94 c1             	sete	%cl
@@ -8206,31 +7434,25 @@ ffff80000010f04c: 48 ba c0 ef 10 00 00 80 ff ff	movabsq	$-140737487245376, %rdx 
 ffff80000010f056: 48 89 c7             	movq	%rax, %rdi
 ffff80000010f059: 89 ce                	movl	%ecx, %esi
 ffff80000010f05b: ff d2                	callq	*%rdx
-; }
 ffff80000010f05d: 5d                   	popq	%rbp
 ffff80000010f05e: c3                   	retq
 ffff80000010f05f: 90                   	nop
-; 	while ((parent = node->parent) && parent->child[dir] == node)
 ffff80000010f060: 48 39 7c c8 08       	cmpq	%rdi, 8(%rax,%rcx,8)
 ffff80000010f065: 48 89 c7             	movq	%rax, %rdi
 ffff80000010f068: 75 08                	jne	0xffff80000010f072 <get_closest+0x42>
 ffff80000010f06a: 48 8b 07             	movq	(%rdi), %rax
 ffff80000010f06d: 48 85 c0             	testq	%rax, %rax
 ffff80000010f070: 75 ee                	jne	0xffff80000010f060 <get_closest+0x30>
-; }
 ffff80000010f072: 5d                   	popq	%rbp
 ffff80000010f073: c3                   	retq
 ffff80000010f074: 31 c0                	xorl	%eax, %eax
-; }
 ffff80000010f076: 5d                   	popq	%rbp
 ffff80000010f077: c3                   	retq
 ffff80000010f078: 0f 1f 84 00 00 00 00 00      	nopl	(%rax,%rax)
 
 ffff80000010f080 <rb_prev>:
-; {
 ffff80000010f080: 55                   	pushq	%rbp
 ffff80000010f081: 48 89 e5             	movq	%rsp, %rbp
-; 	return get_closest(node, RB_LEFT);
 ffff80000010f084: 48 b8 30 f0 10 00 00 80 ff ff	movabsq	$-140737487245264, %rax # imm = 0xFFFF80000010F030
 ffff80000010f08e: 31 f6                	xorl	%esi, %esi
 ffff80000010f090: ff d0                	callq	*%rax
@@ -8240,9 +7462,7 @@ ffff80000010f094: 66 2e 0f 1f 84 00 00 00 00 00	nopw	%cs:(%rax,%rax)
 ffff80000010f09e: 66 90                	nop
 
 ffff80000010f0a0 <rb_balance>:
-; {
 ffff80000010f0a0: b8 ff ff ff ff       	movl	$4294967295, %eax       # imm = 0xFFFFFFFF
-; 	if (!tree || !node)
 ffff80000010f0a5: 48 85 ff             	testq	%rdi, %rdi
 ffff80000010f0a8: 0f 84 f0 00 00 00    	je	0xffff80000010f19e <rb_balance+0xfe>
 ffff80000010f0ae: 48 85 f6             	testq	%rsi, %rsi
@@ -8256,72 +7476,53 @@ ffff80000010f0c1: 41 54                	pushq	%r12
 ffff80000010f0c3: 53                   	pushq	%rbx
 ffff80000010f0c4: 50                   	pushq	%rax
 ffff80000010f0c5: 49 89 fe             	movq	%rdi, %r14
-; 	node->color = RB_RED;
 ffff80000010f0c8: c7 46 18 01 00 00 00 	movl	$1, 24(%rsi)
-; 	while ((parent = node->parent) && parent->color == RB_RED) {
 ffff80000010f0cf: 48 8b 1e             	movq	(%rsi), %rbx
 ffff80000010f0d2: 48 85 db             	testq	%rbx, %rbx
 ffff80000010f0d5: 0f 84 a9 00 00 00    	je	0xffff80000010f184 <rb_balance+0xe4>
 ffff80000010f0db: 49 bd a0 f1 10 00 00 80 ff ff	movabsq	$-140737487244896, %r13 # imm = 0xFFFF80000010F1A0
 ffff80000010f0e5: eb 2a                	jmp	0xffff80000010f111 <rb_balance+0x71>
 ffff80000010f0e7: 66 0f 1f 84 00 00 00 00 00   	nopw	(%rax,%rax)
-; 			parent->color = RB_BLACK;
 ffff80000010f0f0: c7 43 18 00 00 00 00 	movl	$0, 24(%rbx)
-; 			uncle->color = RB_BLACK;
 ffff80000010f0f7: c7 41 18 00 00 00 00 	movl	$0, 24(%rcx)
-; 			grandparent->color = RB_RED;
 ffff80000010f0fe: 41 c7 47 18 01 00 00 00      	movl	$1, 24(%r15)
-; 	while ((parent = node->parent) && parent->color == RB_RED) {
 ffff80000010f106: 49 8b 1f             	movq	(%r15), %rbx
 ffff80000010f109: 4c 89 fe             	movq	%r15, %rsi
-; 	while ((parent = node->parent) && parent->color == RB_RED) {
 ffff80000010f10c: 48 85 db             	testq	%rbx, %rbx
 ffff80000010f10f: 74 73                	je	0xffff80000010f184 <rb_balance+0xe4>
 ffff80000010f111: 83 7b 18 01          	cmpl	$1, 24(%rbx)
 ffff80000010f115: 75 6d                	jne	0xffff80000010f184 <rb_balance+0xe4>
-; 		grandparent = parent->parent;
 ffff80000010f117: 4c 8b 3b             	movq	(%rbx), %r15
-; 		dir = grandparent->child[RB_LEFT] == parent;
 ffff80000010f11a: 49 8b 47 08          	movq	8(%r15), %rax
 ffff80000010f11e: 45 31 e4             	xorl	%r12d, %r12d
 ffff80000010f121: 48 39 d8             	cmpq	%rbx, %rax
 ffff80000010f124: 41 0f 94 c4          	sete	%r12b
-; 		uncle = grandparent->child[dir];
 ffff80000010f128: 4b 8b 4c e7 08       	movq	8(%r15,%r12,8), %rcx
-; 		if (uncle && uncle->color == RB_RED) {
 ffff80000010f12d: 48 85 c9             	testq	%rcx, %rcx
 ffff80000010f130: 74 06                	je	0xffff80000010f138 <rb_balance+0x98>
 ffff80000010f132: 83 79 18 01          	cmpl	$1, 24(%rcx)
 ffff80000010f136: 74 b8                	je	0xffff80000010f0f0 <rb_balance+0x50>
-; 		if (parent->child[dir] == node) {
 ffff80000010f138: 4a 39 74 e3 08       	cmpq	%rsi, 8(%rbx,%r12,8)
 ffff80000010f13d: 74 11                	je	0xffff80000010f150 <rb_balance+0xb0>
 ffff80000010f13f: 48 89 d8             	movq	%rbx, %rax
 ffff80000010f142: 48 89 f3             	movq	%rsi, %rbx
 ffff80000010f145: eb 1d                	jmp	0xffff80000010f164 <rb_balance+0xc4>
 ffff80000010f147: 66 0f 1f 84 00 00 00 00 00   	nopw	(%rax,%rax)
-; 		dir = grandparent->child[RB_LEFT] == parent;
 ffff80000010f150: 31 d2                	xorl	%edx, %edx
 ffff80000010f152: 48 39 d8             	cmpq	%rbx, %rax
 ffff80000010f155: 0f 95 c2             	setne	%dl
-; 			rotate_node(tree, parent, !dir);
 ffff80000010f158: 4c 89 f7             	movq	%r14, %rdi
 ffff80000010f15b: 48 89 de             	movq	%rbx, %rsi
 ffff80000010f15e: 41 ff d5             	callq	*%r13
-; 			parent = node->parent;
 ffff80000010f161: 48 8b 03             	movq	(%rbx), %rax
-; 		parent->color = RB_BLACK;
 ffff80000010f164: c7 40 18 00 00 00 00 	movl	$0, 24(%rax)
-; 		grandparent->color = RB_RED;
 ffff80000010f16b: 41 c7 47 18 01 00 00 00      	movl	$1, 24(%r15)
-; 		rotate_node(tree, grandparent, dir);
 ffff80000010f173: 4c 89 f7             	movq	%r14, %rdi
 ffff80000010f176: 4c 89 fe             	movq	%r15, %rsi
 ffff80000010f179: 44 89 e2             	movl	%r12d, %edx
 ffff80000010f17c: 41 ff d5             	callq	*%r13
 ffff80000010f17f: 49 89 df             	movq	%rbx, %r15
 ffff80000010f182: eb 82                	jmp	0xffff80000010f106 <rb_balance+0x66>
-; 	tree->root->color = RB_BLACK;
 ffff80000010f184: 49 8b 06             	movq	(%r14), %rax
 ffff80000010f187: c7 40 18 00 00 00 00 	movl	$0, 24(%rax)
 ffff80000010f18e: 31 c0                	xorl	%eax, %eax
@@ -8332,54 +7533,41 @@ ffff80000010f197: 41 5d                	popq	%r13
 ffff80000010f199: 41 5e                	popq	%r14
 ffff80000010f19b: 41 5f                	popq	%r15
 ffff80000010f19d: 5d                   	popq	%rbp
-; }
 ffff80000010f19e: c3                   	retq
 ffff80000010f19f: 90                   	nop
 
 ffff80000010f1a0 <rotate_node>:
-; {
 ffff80000010f1a0: 55                   	pushq	%rbp
 ffff80000010f1a1: 48 89 e5             	movq	%rsp, %rbp
-; 	struct rb_node *parent = node->parent;
 ffff80000010f1a4: 4c 8b 06             	movq	(%rsi), %r8
-; 	struct rb_node *child = node->child[!dir];
 ffff80000010f1a7: 31 c9                	xorl	%ecx, %ecx
 ffff80000010f1a9: 85 d2                	testl	%edx, %edx
 ffff80000010f1ab: 0f 94 c1             	sete	%cl
 ffff80000010f1ae: 48 8b 44 ce 08       	movq	8(%rsi,%rcx,8), %rax
-; 	if ((node->child[!dir] = child->child[dir])) {
 ffff80000010f1b3: 41 89 d1             	movl	%edx, %r9d
 ffff80000010f1b6: 4a 8b 54 c8 08       	movq	8(%rax,%r9,8), %rdx
 ffff80000010f1bb: 48 89 54 ce 08       	movq	%rdx, 8(%rsi,%rcx,8)
 ffff80000010f1c0: 48 85 d2             	testq	%rdx, %rdx
 ffff80000010f1c3: 74 08                	je	0xffff80000010f1cd <rotate_node+0x2d>
-; 		child->child[dir]->parent = node;
 ffff80000010f1c5: 4a 8b 4c c8 08       	movq	8(%rax,%r9,8), %rcx
 ffff80000010f1ca: 48 89 31             	movq	%rsi, (%rcx)
-; 	child->child[dir] = node;
 ffff80000010f1cd: 4a 89 74 c8 08       	movq	%rsi, 8(%rax,%r9,8)
-; 	child->parent = parent;
 ffff80000010f1d2: 4c 89 00             	movq	%r8, (%rax)
-; 	if (parent) {
 ffff80000010f1d5: 4d 85 c0             	testq	%r8, %r8
 ffff80000010f1d8: 74 11                	je	0xffff80000010f1eb <rotate_node+0x4b>
-; 		parent->child[parent->child[RB_RIGHT] == node] = child;
 ffff80000010f1da: 31 c9                	xorl	%ecx, %ecx
 ffff80000010f1dc: 49 39 70 10          	cmpq	%rsi, 16(%r8)
 ffff80000010f1e0: 0f 94 c1             	sete	%cl
 ffff80000010f1e3: 49 8d 3c c8          	leaq	(%r8,%rcx,8), %rdi
 ffff80000010f1e7: 48 83 c7 08          	addq	$8, %rdi
 ffff80000010f1eb: 48 89 07             	movq	%rax, (%rdi)
-; 	node->parent = child;
 ffff80000010f1ee: 48 89 06             	movq	%rax, (%rsi)
-; }
 ffff80000010f1f1: 5d                   	popq	%rbp
 ffff80000010f1f2: c3                   	retq
 ffff80000010f1f3: 66 2e 0f 1f 84 00 00 00 00 00	nopw	%cs:(%rax,%rax)
 ffff80000010f1fd: 0f 1f 00             	nopl	(%rax)
 
 ffff80000010f200 <rb_remove>:
-; {
 ffff80000010f200: 55                   	pushq	%rbp
 ffff80000010f201: 48 89 e5             	movq	%rsp, %rbp
 ffff80000010f204: 41 57                	pushq	%r15
@@ -8389,41 +7577,31 @@ ffff80000010f20a: 41 54                	pushq	%r12
 ffff80000010f20c: 53                   	pushq	%rbx
 ffff80000010f20d: 50                   	pushq	%rax
 ffff80000010f20e: b8 ff ff ff ff       	movl	$4294967295, %eax       # imm = 0xFFFFFFFF
-; 	if (!tree || !node)
 ffff80000010f213: 48 85 ff             	testq	%rdi, %rdi
 ffff80000010f216: 0f 84 b9 01 00 00    	je	0xffff80000010f3d5 <rb_remove+0x1d5>
 ffff80000010f21c: 48 89 f3             	movq	%rsi, %rbx
-; 	if (!tree || !node)
 ffff80000010f21f: 48 85 f6             	testq	%rsi, %rsi
 ffff80000010f222: 0f 84 ad 01 00 00    	je	0xffff80000010f3d5 <rb_remove+0x1d5>
 ffff80000010f228: 49 89 ff             	movq	%rdi, %r15
-; 	child_dir = !node->child[RB_LEFT];
 ffff80000010f22b: 31 c0                	xorl	%eax, %eax
 ffff80000010f22d: 31 c9                	xorl	%ecx, %ecx
 ffff80000010f22f: 48 83 7b 08 00       	cmpq	$0, 8(%rbx)
 ffff80000010f234: 0f 95 c0             	setne	%al
 ffff80000010f237: 0f 94 c1             	sete	%cl
-; 	child = node->child[child_dir];
 ffff80000010f23a: 4c 8b 6c cb 08       	movq	8(%rbx,%rcx,8), %r13
-; 	if (!child && !other)
 ffff80000010f23f: 4c 8b 74 c3 08       	movq	8(%rbx,%rax,8), %r14
-; 	do_remove(tree, node);
 ffff80000010f244: 48 b8 f0 f3 10 00 00 80 ff ff	movabsq	$-140737487244304, %rax # imm = 0xFFFF80000010F3F0
 ffff80000010f24e: 48 89 de             	movq	%rbx, %rsi
 ffff80000010f251: ff d0                	callq	*%rax
 ffff80000010f253: 31 c0                	xorl	%eax, %eax
-; 	if (!child && !other)
 ffff80000010f255: 4d 09 ee             	orq	%r13, %r14
 ffff80000010f258: 0f 84 77 01 00 00    	je	0xffff80000010f3d5 <rb_remove+0x1d5>
-; 	if (node->color == RB_RED)
 ffff80000010f25e: 83 7b 18 01          	cmpl	$1, 24(%rbx)
 ffff80000010f262: 0f 84 6d 01 00 00    	je	0xffff80000010f3d5 <rb_remove+0x1d5>
-; 	if (node->color == RB_RED) {
 ffff80000010f268: 41 83 7d 18 01       	cmpl	$1, 24(%r13)
 ffff80000010f26d: 75 09                	jne	0xffff80000010f278 <rb_remove+0x78>
 ffff80000010f26f: 49 83 c5 18          	addq	$24, %r13
 ffff80000010f273: e9 51 01 00 00       	jmp	0xffff80000010f3c9 <rb_remove+0x1c9>
-; 	while (node->parent) {
 ffff80000010f278: 49 8b 75 00          	movq	(%r13), %rsi
 ffff80000010f27c: 48 85 f6             	testq	%rsi, %rsi
 ffff80000010f27f: 0f 84 39 01 00 00    	je	0xffff80000010f3be <rb_remove+0x1be>
@@ -8431,60 +7609,43 @@ ffff80000010f285: 48 b9 a0 f1 10 00 00 80 ff ff	movabsq	$-140737487244896, %rcx 
 ffff80000010f28f: eb 31                	jmp	0xffff80000010f2c2 <rb_remove+0xc2>
 ffff80000010f291: 66 2e 0f 1f 84 00 00 00 00 00	nopw	%cs:(%rax,%rax)
 ffff80000010f29b: 0f 1f 44 00 00       	nopl	(%rax,%rax)
-; 			sibling->color = RB_RED;
 ffff80000010f2a0: c7 40 18 01 00 00 00 	movl	$1, 24(%rax)
 ffff80000010f2a7: 48 b9 a0 f1 10 00 00 80 ff ff	movabsq	$-140737487244896, %rcx # imm = 0xFFFF80000010F1A0
 ffff80000010f2b1: 4d 8b 6d 00          	movq	(%r13), %r13
-; 	while (node->parent) {
 ffff80000010f2b5: 49 8b 75 00          	movq	(%r13), %rsi
 ffff80000010f2b9: 48 85 f6             	testq	%rsi, %rsi
 ffff80000010f2bc: 0f 84 fc 00 00 00    	je	0xffff80000010f3be <rb_remove+0x1be>
-; 		dir = node->parent->child[RB_LEFT] == node;
 ffff80000010f2c2: 4c 8b 76 08          	movq	8(%rsi), %r14
 ffff80000010f2c6: 31 db                	xorl	%ebx, %ebx
 ffff80000010f2c8: 4d 39 ee             	cmpq	%r13, %r14
 ffff80000010f2cb: 0f 94 c3             	sete	%bl
-; 		sibling = node->parent->child[dir];
 ffff80000010f2ce: 48 8b 44 de 08       	movq	8(%rsi,%rbx,8), %rax
-; 		if (!sibling) {
 ffff80000010f2d3: 48 85 c0             	testq	%rax, %rax
 ffff80000010f2d6: 0f 84 e2 00 00 00    	je	0xffff80000010f3be <rb_remove+0x1be>
-; 		if (sibling->color == RB_RED) {
 ffff80000010f2dc: 83 78 18 01          	cmpl	$1, 24(%rax)
 ffff80000010f2e0: 75 24                	jne	0xffff80000010f306 <rb_remove+0x106>
-; 		dir = node->parent->child[RB_LEFT] == node;
 ffff80000010f2e2: 31 d2                	xorl	%edx, %edx
 ffff80000010f2e4: 4d 39 ee             	cmpq	%r13, %r14
 ffff80000010f2e7: 0f 95 c2             	setne	%dl
-; 			node->parent->color = RB_RED;
 ffff80000010f2ea: c7 46 18 01 00 00 00 	movl	$1, 24(%rsi)
-; 			sibling->color = RB_BLACK;
 ffff80000010f2f1: c7 40 18 00 00 00 00 	movl	$0, 24(%rax)
-; 			rotate_node(tree, node->parent, !dir);
 ffff80000010f2f8: 4c 89 ff             	movq	%r15, %rdi
 ffff80000010f2fb: ff d1                	callq	*%rcx
-; 			sibling = node->parent->child[dir];
 ffff80000010f2fd: 49 8b 45 00          	movq	(%r13), %rax
 ffff80000010f301: 48 8b 44 d8 08       	movq	8(%rax,%rbx,8), %rax
-; 		dir = node->parent->child[RB_LEFT] == node;
 ffff80000010f306: 45 31 e4             	xorl	%r12d, %r12d
 ffff80000010f309: 4d 39 ee             	cmpq	%r13, %r14
 ffff80000010f30c: 41 0f 95 c4          	setne	%r12b
-; 		if ((!sibling->child[!dir] || sibling->child[!dir]->color ==
 ffff80000010f310: 4a 8b 4c e0 08       	movq	8(%rax,%r12,8), %rcx
 ffff80000010f315: 48 85 c9             	testq	%rcx, %rcx
 ffff80000010f318: 74 06                	je	0xffff80000010f320 <rb_remove+0x120>
 ffff80000010f31a: 83 79 18 00          	cmpl	$0, 24(%rcx)
-; 		    RB_BLACK) &&
 ffff80000010f31e: 75 18                	jne	0xffff80000010f338 <rb_remove+0x138>
-; 		    (!sibling->child[dir] || sibling->child[dir]->color ==
 ffff80000010f320: 48 8b 54 d8 08       	movq	8(%rax,%rbx,8), %rdx
 ffff80000010f325: 48 85 d2             	testq	%rdx, %rdx
 ffff80000010f328: 0f 84 72 ff ff ff    	je	0xffff80000010f2a0 <rb_remove+0xa0>
 ffff80000010f32e: 83 7a 18 00          	cmpl	$0, 24(%rdx)
-; 		if ((!sibling->child[!dir] || sibling->child[!dir]->color ==
 ffff80000010f332: 0f 84 68 ff ff ff    	je	0xffff80000010f2a0 <rb_remove+0xa0>
-; 		if (!sibling->child[dir] || sibling->child[dir]->color ==
 ffff80000010f338: 48 8b 54 d8 08       	movq	8(%rax,%rbx,8), %rdx
 ffff80000010f33d: 48 85 d2             	testq	%rdx, %rdx
 ffff80000010f340: 74 1e                	je	0xffff80000010f360 <rb_remove+0x160>
@@ -8494,45 +7655,34 @@ ffff80000010f348: 49 be a0 f1 10 00 00 80 ff ff	movabsq	$-140737487244896, %r14 
 ffff80000010f352: eb 39                	jmp	0xffff80000010f38d <rb_remove+0x18d>
 ffff80000010f354: 66 2e 0f 1f 84 00 00 00 00 00	nopw	%cs:(%rax,%rax)
 ffff80000010f35e: 66 90                	nop
-; 			sibling->color = RB_RED;
 ffff80000010f360: c7 40 18 01 00 00 00 	movl	$1, 24(%rax)
-; 			sibling->child[!dir]->color = RB_BLACK;
 ffff80000010f367: c7 41 18 00 00 00 00 	movl	$0, 24(%rcx)
-; 			rotate_node(tree, node->parent, dir);
 ffff80000010f36e: 49 8b 75 00          	movq	(%r13), %rsi
 ffff80000010f372: 4c 89 ff             	movq	%r15, %rdi
 ffff80000010f375: 89 da                	movl	%ebx, %edx
 ffff80000010f377: 49 be a0 f1 10 00 00 80 ff ff	movabsq	$-140737487244896, %r14 # imm = 0xFFFF80000010F1A0
 ffff80000010f381: 41 ff d6             	callq	*%r14
-; 			sibling = node->parent->child[dir];
 ffff80000010f384: 49 8b 45 00          	movq	(%r13), %rax
 ffff80000010f388: 48 8b 44 d8 08       	movq	8(%rax,%rbx,8), %rax
-; 		sibling->color = node->parent->color;
 ffff80000010f38d: 49 8b 75 00          	movq	(%r13), %rsi
 ffff80000010f391: 8b 4e 18             	movl	24(%rsi), %ecx
 ffff80000010f394: 89 48 18             	movl	%ecx, 24(%rax)
-; 		node->parent->color = RB_BLACK;
 ffff80000010f397: c7 46 18 00 00 00 00 	movl	$0, 24(%rsi)
-; 		sibling->child[dir]->color = RB_BLACK;
 ffff80000010f39e: 48 8b 44 d8 08       	movq	8(%rax,%rbx,8), %rax
 ffff80000010f3a3: c7 40 18 00 00 00 00 	movl	$0, 24(%rax)
-; 		rotate_node(tree, node->parent, !dir);
 ffff80000010f3aa: 4c 89 ff             	movq	%r15, %rdi
 ffff80000010f3ad: 44 89 e2             	movl	%r12d, %edx
 ffff80000010f3b0: 41 ff d6             	callq	*%r14
 ffff80000010f3b3: 4d 89 fd             	movq	%r15, %r13
 ffff80000010f3b6: 4c 89 f1             	movq	%r14, %rcx
 ffff80000010f3b9: e9 f3 fe ff ff       	jmp	0xffff80000010f2b1 <rb_remove+0xb1>
-; 	if (node)
 ffff80000010f3be: 4d 85 ed             	testq	%r13, %r13
 ffff80000010f3c1: 74 10                	je	0xffff80000010f3d3 <rb_remove+0x1d3>
-; 		node->color = RB_BLACK;
 ffff80000010f3c3: 49 83 c5 18          	addq	$24, %r13
 ffff80000010f3c7: 31 c0                	xorl	%eax, %eax
 ffff80000010f3c9: 41 c7 45 00 00 00 00 00      	movl	$0, (%r13)
 ffff80000010f3d1: eb 02                	jmp	0xffff80000010f3d5 <rb_remove+0x1d5>
 ffff80000010f3d3: 31 c0                	xorl	%eax, %eax
-; }
 ffff80000010f3d5: 48 83 c4 08          	addq	$8, %rsp
 ffff80000010f3d9: 5b                   	popq	%rbx
 ffff80000010f3da: 41 5c                	popq	%r12
@@ -8545,87 +7695,65 @@ ffff80000010f3e4: 66 2e 0f 1f 84 00 00 00 00 00	nopw	%cs:(%rax,%rax)
 ffff80000010f3ee: 66 90                	nop
 
 ffff80000010f3f0 <do_remove>:
-; {
 ffff80000010f3f0: 55                   	pushq	%rbp
 ffff80000010f3f1: 48 89 e5             	movq	%rsp, %rbp
 ffff80000010f3f4: 41 57                	pushq	%r15
 ffff80000010f3f6: 41 56                	pushq	%r14
 ffff80000010f3f8: 41 54                	pushq	%r12
 ffff80000010f3fa: 53                   	pushq	%rbx
-; 	if (!tree || !node)
 ffff80000010f3fb: 48 85 ff             	testq	%rdi, %rdi
 ffff80000010f3fe: 0f 84 b7 00 00 00    	je	0xffff80000010f4bb <do_remove+0xcb>
 ffff80000010f404: 48 89 f3             	movq	%rsi, %rbx
-; 	if (!tree || !node)
 ffff80000010f407: 48 85 f6             	testq	%rsi, %rsi
 ffff80000010f40a: 0f 84 ab 00 00 00    	je	0xffff80000010f4bb <do_remove+0xcb>
 ffff80000010f410: 49 89 fe             	movq	%rdi, %r14
-; 	parent = node->parent;
 ffff80000010f413: 4c 8b 23             	movq	(%rbx), %r12
-; 	if (node->child[RB_LEFT] && node->child[RB_RIGHT]) {
 ffff80000010f416: 48 8b 7b 08          	movq	8(%rbx), %rdi
 ffff80000010f41a: 48 85 ff             	testq	%rdi, %rdi
 ffff80000010f41d: 74 57                	je	0xffff80000010f476 <do_remove+0x86>
 ffff80000010f41f: 48 83 7b 10 00       	cmpq	$0, 16(%rbx)
 ffff80000010f424: 74 50                	je	0xffff80000010f476 <do_remove+0x86>
-; 		child = get_outermost(child, RB_RIGHT);
 ffff80000010f426: 48 b8 c0 ef 10 00 00 80 ff ff	movabsq	$-140737487245376, %rax # imm = 0xFFFF80000010EFC0
 ffff80000010f430: be 01 00 00 00       	movl	$1, %esi
 ffff80000010f435: ff d0                	callq	*%rax
 ffff80000010f437: 49 89 c7             	movq	%rax, %r15
-; 		do_remove(tree, child);
 ffff80000010f43a: 48 b8 f0 f3 10 00 00 80 ff ff	movabsq	$-140737487244304, %rax # imm = 0xFFFF80000010F3F0
 ffff80000010f444: 4c 89 f7             	movq	%r14, %rdi
 ffff80000010f447: 4c 89 fe             	movq	%r15, %rsi
 ffff80000010f44a: ff d0                	callq	*%rax
-; 		child->child[RB_LEFT] = node->child[RB_LEFT];
 ffff80000010f44c: 48 8b 43 08          	movq	8(%rbx), %rax
 ffff80000010f450: 49 89 47 08          	movq	%rax, 8(%r15)
-; 		if (node->child[RB_LEFT])
 ffff80000010f454: 48 8b 43 08          	movq	8(%rbx), %rax
 ffff80000010f458: 48 85 c0             	testq	%rax, %rax
 ffff80000010f45b: 74 03                	je	0xffff80000010f460 <do_remove+0x70>
-; 			node->child[RB_LEFT]->parent = child;
 ffff80000010f45d: 4c 89 38             	movq	%r15, (%rax)
-; 		child->child[RB_RIGHT] = node->child[RB_RIGHT];
 ffff80000010f460: 48 8b 43 10          	movq	16(%rbx), %rax
 ffff80000010f464: 49 89 47 10          	movq	%rax, 16(%r15)
-; 		if (node->child[RB_RIGHT])
 ffff80000010f468: 48 8b 43 10          	movq	16(%rbx), %rax
 ffff80000010f46c: 48 85 c0             	testq	%rax, %rax
 ffff80000010f46f: 74 12                	je	0xffff80000010f483 <do_remove+0x93>
-; 			node->child[RB_RIGHT]->parent = child;
 ffff80000010f471: 4c 89 38             	movq	%r15, (%rax)
 ffff80000010f474: eb 0d                	jmp	0xffff80000010f483 <do_remove+0x93>
-; 	if (node->child[RB_LEFT] && node->child[RB_RIGHT]) {
 ffff80000010f476: 31 c0                	xorl	%eax, %eax
 ffff80000010f478: 48 85 ff             	testq	%rdi, %rdi
 ffff80000010f47b: 0f 94 c0             	sete	%al
-; 		child = node->child[child_dir];
 ffff80000010f47e: 4c 8b 7c c3 08       	movq	8(%rbx,%rax,8), %r15
-; 	if (parent) {
 ffff80000010f483: 4d 85 e4             	testq	%r12, %r12
 ffff80000010f486: 74 12                	je	0xffff80000010f49a <do_remove+0xaa>
-; 		dir = parent->child[RB_RIGHT] == node;
 ffff80000010f488: 31 c0                	xorl	%eax, %eax
 ffff80000010f48a: 49 39 5c 24 10       	cmpq	%rbx, 16(%r12)
 ffff80000010f48f: 0f 94 c0             	sete	%al
-; 		parent->child[dir] = child;
 ffff80000010f492: 4d 8d 34 c4          	leaq	(%r12,%rax,8), %r14
 ffff80000010f496: 49 83 c6 08          	addq	$8, %r14
 ffff80000010f49a: 4d 89 3e             	movq	%r15, (%r14)
-; 	if (child)
 ffff80000010f49d: 4d 85 ff             	testq	%r15, %r15
 ffff80000010f4a0: 74 03                	je	0xffff80000010f4a5 <do_remove+0xb5>
-; 		child->parent = parent;
 ffff80000010f4a2: 4d 89 27             	movq	%r12, (%r15)
-; 	memset(node, 0, sizeof *node);
 ffff80000010f4a5: 48 b8 90 f8 10 00 00 80 ff ff	movabsq	$-140737487243120, %rax # imm = 0xFFFF80000010F890
 ffff80000010f4af: ba 20 00 00 00       	movl	$32, %edx
 ffff80000010f4b4: 48 89 df             	movq	%rbx, %rdi
 ffff80000010f4b7: 31 f6                	xorl	%esi, %esi
 ffff80000010f4b9: ff d0                	callq	*%rax
-; }
 ffff80000010f4bb: 5b                   	popq	%rbx
 ffff80000010f4bc: 41 5c                	popq	%r12
 ffff80000010f4be: 41 5e                	popq	%r14
@@ -8636,39 +7764,30 @@ ffff80000010f4c4: 66 2e 0f 1f 84 00 00 00 00 00	nopw	%cs:(%rax,%rax)
 ffff80000010f4ce: 66 90                	nop
 
 ffff80000010f4d0 <rb_replace>:
-; {
 ffff80000010f4d0: b8 ff ff ff ff       	movl	$4294967295, %eax       # imm = 0xFFFFFFFF
-; 	if (!node || !new_node)
 ffff80000010f4d5: 48 85 f6             	testq	%rsi, %rsi
 ffff80000010f4d8: 74 5e                	je	0xffff80000010f538 <rb_replace+0x68>
 ffff80000010f4da: 48 85 d2             	testq	%rdx, %rdx
 ffff80000010f4dd: 74 59                	je	0xffff80000010f538 <rb_replace+0x68>
 ffff80000010f4df: 55                   	pushq	%rbp
 ffff80000010f4e0: 48 89 e5             	movq	%rsp, %rbp
-; 	if (node->parent)
 ffff80000010f4e3: 48 8b 06             	movq	(%rsi), %rax
 ffff80000010f4e6: 48 85 c0             	testq	%rax, %rax
 ffff80000010f4e9: 74 11                	je	0xffff80000010f4fc <rb_replace+0x2c>
-; 		node->parent->child[node->parent->child[RB_RIGHT] == node] =
 ffff80000010f4eb: 31 c9                	xorl	%ecx, %ecx
 ffff80000010f4ed: 48 39 70 10          	cmpq	%rsi, 16(%rax)
 ffff80000010f4f1: 0f 94 c1             	sete	%cl
 ffff80000010f4f4: 48 8d 3c c8          	leaq	(%rax,%rcx,8), %rdi
 ffff80000010f4f8: 48 83 c7 08          	addq	$8, %rdi
 ffff80000010f4fc: 48 89 17             	movq	%rdx, (%rdi)
-; 	if (node->child[RB_LEFT])
 ffff80000010f4ff: 48 8b 46 08          	movq	8(%rsi), %rax
 ffff80000010f503: 48 85 c0             	testq	%rax, %rax
 ffff80000010f506: 74 03                	je	0xffff80000010f50b <rb_replace+0x3b>
-; 		node->child[RB_LEFT]->parent = new_node;
 ffff80000010f508: 48 89 10             	movq	%rdx, (%rax)
-; 	if (node->child[RB_RIGHT])
 ffff80000010f50b: 48 8b 46 10          	movq	16(%rsi), %rax
 ffff80000010f50f: 48 85 c0             	testq	%rax, %rax
 ffff80000010f512: 74 03                	je	0xffff80000010f517 <rb_replace+0x47>
-; 		node->child[RB_RIGHT]->parent = new_node;
 ffff80000010f514: 48 89 10             	movq	%rdx, (%rax)
-; 	*new_node = *node;
 ffff80000010f517: 48 8b 46 18          	movq	24(%rsi), %rax
 ffff80000010f51b: 48 89 42 18          	movq	%rax, 24(%rdx)
 ffff80000010f51f: 48 8b 46 10          	movq	16(%rsi), %rax
@@ -8679,7 +7798,6 @@ ffff80000010f52e: 48 89 4a 08          	movq	%rcx, 8(%rdx)
 ffff80000010f532: 48 89 02             	movq	%rax, (%rdx)
 ffff80000010f535: 31 c0                	xorl	%eax, %eax
 ffff80000010f537: 5d                   	popq	%rbp
-; }
 ffff80000010f538: c3                   	retq
 ffff80000010f539: cc                   	int3
 ffff80000010f53a: cc                   	int3
@@ -8690,7 +7808,6 @@ ffff80000010f53e: cc                   	int3
 ffff80000010f53f: cc                   	int3
 
 ffff80000010f540 <readline>:
-; {
 ffff80000010f540: 55                   	pushq	%rbp
 ffff80000010f541: 48 89 e5             	movq	%rsp, %rbp
 ffff80000010f544: 41 57                	pushq	%r15
@@ -8700,100 +7817,78 @@ ffff80000010f54a: 41 54                	pushq	%r12
 ffff80000010f54c: 53                   	pushq	%rbx
 ffff80000010f54d: 50                   	pushq	%rax
 ffff80000010f54e: 48 b9 c0 d3 10 00 00 80 ff ff	movabsq	$-140737487252544, %rcx # imm = 0xFFFF80000010D3C0
-; 	if (prompt != NULL)
 ffff80000010f558: 48 85 ff             	testq	%rdi, %rdi
 ffff80000010f55b: 74 11                	je	0xffff80000010f56e <readline+0x2e>
 ffff80000010f55d: 48 89 fe             	movq	%rdi, %rsi
-; 		cprintf("%s", prompt);
 ffff80000010f560: 48 bf 64 09 11 00 00 80 ff ff	movabsq	$-140737487238812, %rdi # imm = 0xFFFF800000110964
 ffff80000010f56a: 31 c0                	xorl	%eax, %eax
 ffff80000010f56c: ff d1                	callq	*%rcx
-; 	echoing = iscons(0);
 ffff80000010f56e: 48 b8 00 c5 10 00 00 80 ff ff	movabsq	$-140737487256320, %rax # imm = 0xFFFF80000010C500
 ffff80000010f578: 45 31 ed             	xorl	%r13d, %r13d
 ffff80000010f57b: 31 ff                	xorl	%edi, %edi
 ffff80000010f57d: ff d0                	callq	*%rax
 ffff80000010f57f: 41 89 c7             	movl	%eax, %r15d
-; 		c = getchar();
 ffff80000010f582: 49 bc e0 c4 10 00 00 80 ff ff	movabsq	$-140737487256352, %r12 # imm = 0xFFFF80000010C4E0
 ffff80000010f58c: 41 ff d4             	callq	*%r12
 ffff80000010f58f: 89 c3                	movl	%eax, %ebx
-; 		if (c < 0) {
 ffff80000010f591: 85 c0                	testl	%eax, %eax
 ffff80000010f593: 0f 88 b1 00 00 00    	js	0xffff80000010f64a <readline+0x10a>
 ffff80000010f599: 49 be f0 42 11 00 00 80 ff ff	movabsq	$-140737487224080, %r14 # imm = 0xFFFF8000001142F0
 ffff80000010f5a3: eb 1c                	jmp	0xffff80000010f5c1 <readline+0x81>
 ffff80000010f5a5: 66 2e 0f 1f 84 00 00 00 00 00	nopw	%cs:(%rax,%rax)
 ffff80000010f5af: 90                   	nop
-; 			i--;
 ffff80000010f5b0: 41 83 c5 ff          	addl	$-1, %r13d
-; 		c = getchar();
 ffff80000010f5b4: 41 ff d4             	callq	*%r12
 ffff80000010f5b7: 89 c3                	movl	%eax, %ebx
-; 		if (c < 0) {
 ffff80000010f5b9: 85 c0                	testl	%eax, %eax
 ffff80000010f5bb: 0f 88 89 00 00 00    	js	0xffff80000010f64a <readline+0x10a>
-; 		} else if ((c == '\b' || c == '\x7f') && i > 0) {
 ffff80000010f5c1: 83 fb 08             	cmpl	$8, %ebx
 ffff80000010f5c4: 0f 95 c0             	setne	%al
 ffff80000010f5c7: 83 fb 7f             	cmpl	$127, %ebx
 ffff80000010f5ca: 0f 95 c1             	setne	%cl
-; 		} else if ((c == '\b' || c == '\x7f') && i > 0) {
 ffff80000010f5cd: 84 c8                	testb	%cl, %al
 ffff80000010f5cf: 75 1f                	jne	0xffff80000010f5f0 <readline+0xb0>
 ffff80000010f5d1: 45 85 ed             	testl	%r13d, %r13d
 ffff80000010f5d4: 7e 1a                	jle	0xffff80000010f5f0 <readline+0xb0>
 ffff80000010f5d6: 45 85 ff             	testl	%r15d, %r15d
-; 			if (echoing)
 ffff80000010f5d9: 74 d5                	je	0xffff80000010f5b0 <readline+0x70>
-; 				cputchar('\b');
 ffff80000010f5db: bf 08 00 00 00       	movl	$8, %edi
 ffff80000010f5e0: 48 b8 80 c4 10 00 00 80 ff ff	movabsq	$-140737487256448, %rax # imm = 0xFFFF80000010C480
 ffff80000010f5ea: ff d0                	callq	*%rax
 ffff80000010f5ec: eb c2                	jmp	0xffff80000010f5b0 <readline+0x70>
 ffff80000010f5ee: 66 90                	nop
-; 		} else if (c >= ' ' && i < BUFLEN-1) {
 ffff80000010f5f0: 83 fb 20             	cmpl	$32, %ebx
 ffff80000010f5f3: 7c 2b                	jl	0xffff80000010f620 <readline+0xe0>
 ffff80000010f5f5: 41 81 fd fe 03 00 00 	cmpl	$1022, %r13d            # imm = 0x3FE
 ffff80000010f5fc: 7f 22                	jg	0xffff80000010f620 <readline+0xe0>
 ffff80000010f5fe: 45 85 ff             	testl	%r15d, %r15d
-; 			if (echoing)
 ffff80000010f601: 74 0e                	je	0xffff80000010f611 <readline+0xd1>
-; 				cputchar(c);
 ffff80000010f603: 89 df                	movl	%ebx, %edi
 ffff80000010f605: 48 b8 80 c4 10 00 00 80 ff ff	movabsq	$-140737487256448, %rax # imm = 0xFFFF80000010C480
 ffff80000010f60f: ff d0                	callq	*%rax
-; 			buf[i++] = c;
 ffff80000010f611: 49 63 c5             	movslq	%r13d, %rax
 ffff80000010f614: 41 83 c5 01          	addl	$1, %r13d
 ffff80000010f618: 42 88 1c 30          	movb	%bl, (%rax,%r14)
 ffff80000010f61c: eb 96                	jmp	0xffff80000010f5b4 <readline+0x74>
 ffff80000010f61e: 66 90                	nop
-; 		} else if (c == '\n' || c == '\r') {
 ffff80000010f620: 83 fb 0d             	cmpl	$13, %ebx
 ffff80000010f623: 74 05                	je	0xffff80000010f62a <readline+0xea>
 ffff80000010f625: 83 fb 0a             	cmpl	$10, %ebx
 ffff80000010f628: 75 8a                	jne	0xffff80000010f5b4 <readline+0x74>
-; 			if (echoing)
 ffff80000010f62a: 45 85 ff             	testl	%r15d, %r15d
 ffff80000010f62d: 74 11                	je	0xffff80000010f640 <readline+0x100>
-; 				cputchar('\n');
 ffff80000010f62f: bf 0a 00 00 00       	movl	$10, %edi
 ffff80000010f634: 48 b8 80 c4 10 00 00 80 ff ff	movabsq	$-140737487256448, %rax # imm = 0xFFFF80000010C480
 ffff80000010f63e: ff d0                	callq	*%rax
-; 			buf[i] = 0;
 ffff80000010f640: 49 63 c5             	movslq	%r13d, %rax
 ffff80000010f643: 42 c6 04 30 00       	movb	$0, (%rax,%r14)
 ffff80000010f648: eb 1d                	jmp	0xffff80000010f667 <readline+0x127>
-; 			cprintf("read error: %e\n", c);
 ffff80000010f64a: 48 bf e2 0b 11 00 00 80 ff ff	movabsq	$-140737487238174, %rdi # imm = 0xFFFF800000110BE2
 ffff80000010f654: 45 31 f6             	xorl	%r14d, %r14d
 ffff80000010f657: 89 de                	movl	%ebx, %esi
 ffff80000010f659: 31 c0                	xorl	%eax, %eax
 ffff80000010f65b: 48 b9 c0 d3 10 00 00 80 ff ff	movabsq	$-140737487252544, %rcx # imm = 0xFFFF80000010D3C0
 ffff80000010f665: ff d1                	callq	*%rcx
-; }
 ffff80000010f667: 4c 89 f0             	movq	%r14, %rax
 ffff80000010f66a: 48 83 c4 08          	addq	$8, %rsp
 ffff80000010f66e: 5b                   	popq	%rbx
@@ -8812,94 +7907,76 @@ ffff80000010f67e: cc                   	int3
 ffff80000010f67f: cc                   	int3
 
 ffff80000010f680 <strlen>:
-; {
 ffff80000010f680: 55                   	pushq	%rbp
 ffff80000010f681: 48 89 e5             	movq	%rsp, %rbp
-; 	for (n = 0; *s != '\0'; s++)
 ffff80000010f684: 80 3f 00             	cmpb	$0, (%rdi)
 ffff80000010f687: 74 14                	je	0xffff80000010f69d <strlen+0x1d>
 ffff80000010f689: 31 c0                	xorl	%eax, %eax
 ffff80000010f68b: 0f 1f 44 00 00       	nopl	(%rax,%rax)
-; 	for (n = 0; *s != '\0'; s++)
 ffff80000010f690: 80 7c 07 01 00       	cmpb	$0, 1(%rdi,%rax)
 ffff80000010f695: 48 8d 40 01          	leaq	1(%rax), %rax
 ffff80000010f699: 75 f5                	jne	0xffff80000010f690 <strlen+0x10>
-; 	return n;
 ffff80000010f69b: 5d                   	popq	%rbp
 ffff80000010f69c: c3                   	retq
 ffff80000010f69d: 31 c0                	xorl	%eax, %eax
-; 	return n;
 ffff80000010f69f: 5d                   	popq	%rbp
 ffff80000010f6a0: c3                   	retq
 ffff80000010f6a1: 66 2e 0f 1f 84 00 00 00 00 00	nopw	%cs:(%rax,%rax)
 ffff80000010f6ab: 0f 1f 44 00 00       	nopl	(%rax,%rax)
 
 ffff80000010f6b0 <strnlen>:
-; {
 ffff80000010f6b0: 55                   	pushq	%rbp
 ffff80000010f6b1: 48 89 e5             	movq	%rsp, %rbp
-; 	for (n = 0; size > 0 && *s != '\0'; s++, size--)
 ffff80000010f6b4: 48 85 f6             	testq	%rsi, %rsi
 ffff80000010f6b7: 74 18                	je	0xffff80000010f6d1 <strnlen+0x21>
 ffff80000010f6b9: 48 89 f0             	movq	%rsi, %rax
 ffff80000010f6bc: 31 c9                	xorl	%ecx, %ecx
 ffff80000010f6be: 66 90                	nop
-; 	for (n = 0; size > 0 && *s != '\0'; s++, size--)
 ffff80000010f6c0: 80 3c 0f 00          	cmpb	$0, (%rdi,%rcx)
 ffff80000010f6c4: 74 0f                	je	0xffff80000010f6d5 <strnlen+0x25>
 ffff80000010f6c6: 48 83 c1 01          	addq	$1, %rcx
 ffff80000010f6ca: 48 39 c8             	cmpq	%rcx, %rax
 ffff80000010f6cd: 75 f1                	jne	0xffff80000010f6c0 <strnlen+0x10>
-; 	return n;
 ffff80000010f6cf: 5d                   	popq	%rbp
 ffff80000010f6d0: c3                   	retq
 ffff80000010f6d1: 31 c0                	xorl	%eax, %eax
-; 	return n;
 ffff80000010f6d3: 5d                   	popq	%rbp
 ffff80000010f6d4: c3                   	retq
 ffff80000010f6d5: 89 c8                	movl	%ecx, %eax
-; 	return n;
 ffff80000010f6d7: 5d                   	popq	%rbp
 ffff80000010f6d8: c3                   	retq
 ffff80000010f6d9: 0f 1f 80 00 00 00 00 	nopl	(%rax)
 
 ffff80000010f6e0 <strcpy>:
-; {
 ffff80000010f6e0: 55                   	pushq	%rbp
 ffff80000010f6e1: 48 89 e5             	movq	%rsp, %rbp
 ffff80000010f6e4: 48 89 f8             	movq	%rdi, %rax
 ffff80000010f6e7: 31 c9                	xorl	%ecx, %ecx
 ffff80000010f6e9: 0f 1f 80 00 00 00 00 	nopl	(%rax)
-; 	while ((*dst++ = *src++) != '\0')
 ffff80000010f6f0: 0f b6 14 0e          	movzbl	(%rsi,%rcx), %edx
 ffff80000010f6f4: 88 14 08             	movb	%dl, (%rax,%rcx)
 ffff80000010f6f7: 48 83 c1 01          	addq	$1, %rcx
 ffff80000010f6fb: 84 d2                	testb	%dl, %dl
 ffff80000010f6fd: 75 f1                	jne	0xffff80000010f6f0 <strcpy+0x10>
-; 	return ret;
 ffff80000010f6ff: 5d                   	popq	%rbp
 ffff80000010f700: c3                   	retq
 ffff80000010f701: 66 2e 0f 1f 84 00 00 00 00 00	nopw	%cs:(%rax,%rax)
 ffff80000010f70b: 0f 1f 44 00 00       	nopl	(%rax,%rax)
 
 ffff80000010f710 <strcat>:
-; {
 ffff80000010f710: 55                   	pushq	%rbp
 ffff80000010f711: 48 89 e5             	movq	%rsp, %rbp
 ffff80000010f714: 41 56                	pushq	%r14
 ffff80000010f716: 53                   	pushq	%rbx
 ffff80000010f717: 49 89 f6             	movq	%rsi, %r14
 ffff80000010f71a: 48 89 fb             	movq	%rdi, %rbx
-; 	int len = strlen(dst);
 ffff80000010f71d: 48 b8 80 f6 10 00 00 80 ff ff	movabsq	$-140737487243648, %rax # imm = 0xFFFF80000010F680
 ffff80000010f727: ff d0                	callq	*%rax
-; 	strcpy(dst + len, src);
 ffff80000010f729: 48 63 f8             	movslq	%eax, %rdi
 ffff80000010f72c: 48 01 df             	addq	%rbx, %rdi
 ffff80000010f72f: 48 b8 e0 f6 10 00 00 80 ff ff	movabsq	$-140737487243552, %rax # imm = 0xFFFF80000010F6E0
 ffff80000010f739: 4c 89 f6             	movq	%r14, %rsi
 ffff80000010f73c: ff d0                	callq	*%rax
-; 	return dst;
 ffff80000010f73e: 48 89 d8             	movq	%rbx, %rax
 ffff80000010f741: 5b                   	popq	%rbx
 ffff80000010f742: 41 5e                	popq	%r14
@@ -8908,68 +7985,52 @@ ffff80000010f745: c3                   	retq
 ffff80000010f746: 66 2e 0f 1f 84 00 00 00 00 00	nopw	%cs:(%rax,%rax)
 
 ffff80000010f750 <strncpy>:
-; char *strncpy(char *dst, const char *src, size_t size) {
 ffff80000010f750: 55                   	pushq	%rbp
 ffff80000010f751: 48 89 e5             	movq	%rsp, %rbp
 ffff80000010f754: 48 89 f8             	movq	%rdi, %rax
-; 	for (i = 0; i < size; i++) {
 ffff80000010f757: 48 85 d2             	testq	%rdx, %rdx
 ffff80000010f75a: 74 1a                	je	0xffff80000010f776 <strncpy+0x26>
 ffff80000010f75c: 31 ff                	xorl	%edi, %edi
 ffff80000010f75e: 66 90                	nop
-; 		*dst++ = *src;
 ffff80000010f760: 0f b6 0e             	movzbl	(%rsi), %ecx
 ffff80000010f763: 88 0c 38             	movb	%cl, (%rax,%rdi)
-; 		if (*src != '\0')
 ffff80000010f766: 80 3e 01             	cmpb	$1, (%rsi)
 ffff80000010f769: 48 83 de ff          	sbbq	$-1, %rsi
-; 	for (i = 0; i < size; i++) {
 ffff80000010f76d: 48 83 c7 01          	addq	$1, %rdi
 ffff80000010f771: 48 39 fa             	cmpq	%rdi, %rdx
 ffff80000010f774: 75 ea                	jne	0xffff80000010f760 <strncpy+0x10>
-; 	return ret;
 ffff80000010f776: 5d                   	popq	%rbp
 ffff80000010f777: c3                   	retq
 ffff80000010f778: 0f 1f 84 00 00 00 00 00      	nopl	(%rax,%rax)
 
 ffff80000010f780 <strlcpy>:
-; {
 ffff80000010f780: 55                   	pushq	%rbp
 ffff80000010f781: 48 89 e5             	movq	%rsp, %rbp
 ffff80000010f784: 48 89 f8             	movq	%rdi, %rax
-; 	if (size > 0) {
 ffff80000010f787: 48 85 d2             	testq	%rdx, %rdx
 ffff80000010f78a: 74 2e                	je	0xffff80000010f7ba <strlcpy+0x3a>
 ffff80000010f78c: 48 89 f8             	movq	%rdi, %rax
-; 		while (--size > 0 && *src != '\0')
 ffff80000010f78f: 48 83 c2 ff          	addq	$-1, %rdx
 ffff80000010f793: 74 22                	je	0xffff80000010f7b7 <strlcpy+0x37>
 ffff80000010f795: 31 c0                	xorl	%eax, %eax
 ffff80000010f797: 66 0f 1f 84 00 00 00 00 00   	nopw	(%rax,%rax)
-; 		while (--size > 0 && *src != '\0')
 ffff80000010f7a0: 0f b6 0c 06          	movzbl	(%rsi,%rax), %ecx
 ffff80000010f7a4: 84 c9                	testb	%cl, %cl
 ffff80000010f7a6: 74 0c                	je	0xffff80000010f7b4 <strlcpy+0x34>
-; 			*dst++ = *src++;
 ffff80000010f7a8: 88 0c 07             	movb	%cl, (%rdi,%rax)
-; 		while (--size > 0 && *src != '\0')
 ffff80000010f7ab: 48 83 c0 01          	addq	$1, %rax
 ffff80000010f7af: 48 39 c2             	cmpq	%rax, %rdx
 ffff80000010f7b2: 75 ec                	jne	0xffff80000010f7a0 <strlcpy+0x20>
 ffff80000010f7b4: 48 01 f8             	addq	%rdi, %rax
-; 		*dst = '\0';
 ffff80000010f7b7: c6 00 00             	movb	$0, (%rax)
-; 	return dst - dst_in;
 ffff80000010f7ba: 48 29 f8             	subq	%rdi, %rax
 ffff80000010f7bd: 5d                   	popq	%rbp
 ffff80000010f7be: c3                   	retq
 ffff80000010f7bf: 90                   	nop
 
 ffff80000010f7c0 <strcmp>:
-; {
 ffff80000010f7c0: 55                   	pushq	%rbp
 ffff80000010f7c1: 48 89 e5             	movq	%rsp, %rbp
-; 	while (*p && *p == *q)
 ffff80000010f7c4: 8a 07                	movb	(%rdi), %al
 ffff80000010f7c6: 84 c0                	testb	%al, %al
 ffff80000010f7c8: 74 19                	je	0xffff80000010f7e3 <strcmp+0x23>
@@ -8977,14 +8038,11 @@ ffff80000010f7ca: 48 83 c7 01          	addq	$1, %rdi
 ffff80000010f7ce: 66 90                	nop
 ffff80000010f7d0: 3a 06                	cmpb	(%rsi), %al
 ffff80000010f7d2: 75 0f                	jne	0xffff80000010f7e3 <strcmp+0x23>
-; 		p++, q++;
 ffff80000010f7d4: 48 83 c6 01          	addq	$1, %rsi
-; 	while (*p && *p == *q)
 ffff80000010f7d8: 0f b6 07             	movzbl	(%rdi), %eax
 ffff80000010f7db: 48 83 c7 01          	addq	$1, %rdi
 ffff80000010f7df: 84 c0                	testb	%al, %al
 ffff80000010f7e1: 75 ed                	jne	0xffff80000010f7d0 <strcmp+0x10>
-; 	return (int) ((unsigned char) *p - (unsigned char) *q);
 ffff80000010f7e3: 0f b6 c0             	movzbl	%al, %eax
 ffff80000010f7e6: 0f b6 0e             	movzbl	(%rsi), %ecx
 ffff80000010f7e9: 29 c8                	subl	%ecx, %eax
@@ -8993,15 +8051,12 @@ ffff80000010f7ec: c3                   	retq
 ffff80000010f7ed: 0f 1f 00             	nopl	(%rax)
 
 ffff80000010f7f0 <strncmp>:
-; {
 ffff80000010f7f0: 55                   	pushq	%rbp
 ffff80000010f7f1: 48 89 e5             	movq	%rsp, %rbp
-; 	while (n > 0 && *p && *p == *q)
 ffff80000010f7f4: 48 85 d2             	testq	%rdx, %rdx
 ffff80000010f7f7: 74 1d                	je	0xffff80000010f816 <strncmp+0x26>
 ffff80000010f7f9: 31 c9                	xorl	%ecx, %ecx
 ffff80000010f7fb: 0f 1f 44 00 00       	nopl	(%rax,%rax)
-; 	while (n > 0 && *p && *p == *q)
 ffff80000010f800: 0f b6 04 0f          	movzbl	(%rdi,%rcx), %eax
 ffff80000010f804: 85 c0                	testl	%eax, %eax
 ffff80000010f806: 74 12                	je	0xffff80000010f81a <strncmp+0x2a>
@@ -9011,49 +8066,39 @@ ffff80000010f80d: 48 83 c1 01          	addq	$1, %rcx
 ffff80000010f811: 48 39 ca             	cmpq	%rcx, %rdx
 ffff80000010f814: 75 ea                	jne	0xffff80000010f800 <strncmp+0x10>
 ffff80000010f816: 31 c0                	xorl	%eax, %eax
-; }
 ffff80000010f818: 5d                   	popq	%rbp
 ffff80000010f819: c3                   	retq
-; 		return (int) ((unsigned char) *p - (unsigned char) *q);
 ffff80000010f81a: 0f b6 0c 0e          	movzbl	(%rsi,%rcx), %ecx
 ffff80000010f81e: 29 c8                	subl	%ecx, %eax
-; }
 ffff80000010f820: 5d                   	popq	%rbp
 ffff80000010f821: c3                   	retq
 ffff80000010f822: 66 2e 0f 1f 84 00 00 00 00 00	nopw	%cs:(%rax,%rax)
 ffff80000010f82c: 0f 1f 40 00          	nopl	(%rax)
 
 ffff80000010f830 <strchr>:
-; {
 ffff80000010f830: 55                   	pushq	%rbp
 ffff80000010f831: 48 89 e5             	movq	%rsp, %rbp
-; 	for (; *s; s++)
 ffff80000010f834: 8a 0f                	movb	(%rdi), %cl
 ffff80000010f836: 84 c9                	testb	%cl, %cl
 ffff80000010f838: 74 17                	je	0xffff80000010f851 <strchr+0x21>
 ffff80000010f83a: 48 89 f8             	movq	%rdi, %rax
 ffff80000010f83d: 0f 1f 00             	nopl	(%rax)
-; 		if (*s == c)
 ffff80000010f840: 40 38 f1             	cmpb	%sil, %cl
 ffff80000010f843: 74 0e                	je	0xffff80000010f853 <strchr+0x23>
-; 	for (; *s; s++)
 ffff80000010f845: 0f b6 48 01          	movzbl	1(%rax), %ecx
 ffff80000010f849: 48 83 c0 01          	addq	$1, %rax
 ffff80000010f84d: 84 c9                	testb	%cl, %cl
 ffff80000010f84f: 75 ef                	jne	0xffff80000010f840 <strchr+0x10>
 ffff80000010f851: 31 c0                	xorl	%eax, %eax
-; }
 ffff80000010f853: 5d                   	popq	%rbp
 ffff80000010f854: c3                   	retq
 ffff80000010f855: 66 2e 0f 1f 84 00 00 00 00 00	nopw	%cs:(%rax,%rax)
 ffff80000010f85f: 90                   	nop
 
 ffff80000010f860 <strfind>:
-; {
 ffff80000010f860: 55                   	pushq	%rbp
 ffff80000010f861: 48 89 e5             	movq	%rsp, %rbp
 ffff80000010f864: 48 89 f8             	movq	%rdi, %rax
-; 	for (; *s; s++)
 ffff80000010f867: 48 83 c0 ff          	addq	$-1, %rax
 ffff80000010f86b: 0f 1f 44 00 00       	nopl	(%rax,%rax)
 ffff80000010f870: 0f b6 48 01          	movzbl	1(%rax), %ecx
@@ -9062,33 +8107,26 @@ ffff80000010f878: 84 c9                	testb	%cl, %cl
 ffff80000010f87a: 74 05                	je	0xffff80000010f881 <strfind+0x21>
 ffff80000010f87c: 40 38 f1             	cmpb	%sil, %cl
 ffff80000010f87f: 75 ef                	jne	0xffff80000010f870 <strfind+0x10>
-; 	return (char *) s;
 ffff80000010f881: 5d                   	popq	%rbp
 ffff80000010f882: c3                   	retq
 ffff80000010f883: 66 2e 0f 1f 84 00 00 00 00 00	nopw	%cs:(%rax,%rax)
 ffff80000010f88d: 0f 1f 00             	nopl	(%rax)
 
 ffff80000010f890 <memset>:
-; {
 ffff80000010f890: 55                   	pushq	%rbp
 ffff80000010f891: 48 89 e5             	movq	%rsp, %rbp
-; 	if (n == 0)
 ffff80000010f894: 48 85 d2             	testq	%rdx, %rdx
 ffff80000010f897: 74 36                	je	0xffff80000010f8cf <memset+0x3f>
-; 	if ((uintptr_t)v%4 == 0 && n%4 == 0) {
 ffff80000010f899: 89 f8                	movl	%edi, %eax
 ffff80000010f89b: 09 d0                	orl	%edx, %eax
 ffff80000010f89d: a8 03                	testb	$3, %al
 ffff80000010f89f: 74 0a                	je	0xffff80000010f8ab <memset+0x1b>
-; 		asm volatile("cld; rep stosb\n"
 ffff80000010f8a1: 89 f0                	movl	%esi, %eax
 ffff80000010f8a3: 48 89 d1             	movq	%rdx, %rcx
 ffff80000010f8a6: fc                   	cld
 ffff80000010f8a7: f3 aa                	rep		stosb	%al, %es:(%rdi)
 ffff80000010f8a9: eb 24                	jmp	0xffff80000010f8cf <memset+0x3f>
-; 		c &= 0xFF;
 ffff80000010f8ab: 44 0f b6 c6          	movzbl	%sil, %r8d
-; 		c = (c<<24)|(c<<16)|(c<<8)|c;
 ffff80000010f8af: c1 e6 18             	shll	$24, %esi
 ffff80000010f8b2: 44 89 c1             	movl	%r8d, %ecx
 ffff80000010f8b5: c1 e1 10             	shll	$16, %ecx
@@ -9097,13 +8135,10 @@ ffff80000010f8ba: 44 89 c0             	movl	%r8d, %eax
 ffff80000010f8bd: c1 e0 08             	shll	$8, %eax
 ffff80000010f8c0: 09 c8                	orl	%ecx, %eax
 ffff80000010f8c2: 44 09 c0             	orl	%r8d, %eax
-; 			:: "D" (v), "a" (c), "c" (n/4)
 ffff80000010f8c5: 48 c1 ea 02          	shrq	$2, %rdx
-; 		asm volatile("cld; rep stosl\n"
 ffff80000010f8c9: 48 89 d1             	movq	%rdx, %rcx
 ffff80000010f8cc: fc                   	cld
 ffff80000010f8cd: f3 ab                	rep		stosl	%eax, %es:(%rdi)
-; }
 ffff80000010f8cf: 48 89 f8             	movq	%rdi, %rax
 ffff80000010f8d2: 5d                   	popq	%rbp
 ffff80000010f8d3: c3                   	retq
@@ -9111,90 +8146,68 @@ ffff80000010f8d4: 66 2e 0f 1f 84 00 00 00 00 00	nopw	%cs:(%rax,%rax)
 ffff80000010f8de: 66 90                	nop
 
 ffff80000010f8e0 <memmove>:
-; {
 ffff80000010f8e0: 55                   	pushq	%rbp
 ffff80000010f8e1: 48 89 e5             	movq	%rsp, %rbp
 ffff80000010f8e4: 48 89 d1             	movq	%rdx, %rcx
 ffff80000010f8e7: 48 89 f2             	movq	%rsi, %rdx
 ffff80000010f8ea: 48 89 f8             	movq	%rdi, %rax
-; 	if (s < d && s + n > d) {
 ffff80000010f8ed: 48 39 fe             	cmpq	%rdi, %rsi
 ffff80000010f8f0: 73 38                	jae	0xffff80000010f92a <memmove+0x4a>
 ffff80000010f8f2: 48 8d 34 0a          	leaq	(%rdx,%rcx), %rsi
 ffff80000010f8f6: 48 39 c6             	cmpq	%rax, %rsi
 ffff80000010f8f9: 76 2f                	jbe	0xffff80000010f92a <memmove+0x4a>
-; 		d += n;
 ffff80000010f8fb: 48 8d 3c 08          	leaq	(%rax,%rcx), %rdi
 ffff80000010f8ff: f6 c1 03             	testb	$3, %cl
-; 		if ((uintptr_t)s%4 == 0 && (uintptr_t)d%4 == 0 && n%4 == 0)
 ffff80000010f902: 75 4e                	jne	0xffff80000010f952 <memmove+0x72>
 ffff80000010f904: 89 f2                	movl	%esi, %edx
 ffff80000010f906: 83 e2 03             	andl	$3, %edx
-; 		if ((uintptr_t)s%4 == 0 && (uintptr_t)d%4 == 0 && n%4 == 0)
 ffff80000010f909: 48 85 d2             	testq	%rdx, %rdx
 ffff80000010f90c: 75 44                	jne	0xffff80000010f952 <memmove+0x72>
 ffff80000010f90e: 89 fa                	movl	%edi, %edx
 ffff80000010f910: 83 e2 03             	andl	$3, %edx
-; 		if ((uintptr_t)s%4 == 0 && (uintptr_t)d%4 == 0 && n%4 == 0)
 ffff80000010f913: 48 85 d2             	testq	%rdx, %rdx
 ffff80000010f916: 75 3a                	jne	0xffff80000010f952 <memmove+0x72>
-; 				:: "D" (d-4), "S" (s-4), "c" (n/4) : "cc", "memory");
 ffff80000010f918: 48 83 c7 fc          	addq	$-4, %rdi
 ffff80000010f91c: 48 83 c6 fc          	addq	$-4, %rsi
 ffff80000010f920: 48 c1 e9 02          	shrq	$2, %rcx
-; 			asm volatile("std; rep movsl\n"
 ffff80000010f924: fd                   	std
 ffff80000010f925: f3 a5                	rep		movsl	(%rsi), %es:(%rdi)
-; 		asm volatile("cld" ::: "cc");
 ffff80000010f927: fc                   	cld
-; 	return dst;
 ffff80000010f928: 5d                   	popq	%rbp
 ffff80000010f929: c3                   	retq
-; 		if ((uintptr_t)s%4 == 0 && (uintptr_t)d%4 == 0 && n%4 == 0)
 ffff80000010f92a: 89 d6                	movl	%edx, %esi
 ffff80000010f92c: 09 c6                	orl	%eax, %esi
 ffff80000010f92e: 89 cf                	movl	%ecx, %edi
 ffff80000010f930: 09 f7                	orl	%esi, %edi
 ffff80000010f932: 40 f6 c7 03          	testb	$3, %dil
 ffff80000010f936: 74 0b                	je	0xffff80000010f943 <memmove+0x63>
-; 			asm volatile("cld; rep movsb\n"
 ffff80000010f938: 48 89 c7             	movq	%rax, %rdi
 ffff80000010f93b: 48 89 d6             	movq	%rdx, %rsi
 ffff80000010f93e: fc                   	cld
 ffff80000010f93f: f3 a4                	rep		movsb	(%rsi), %es:(%rdi)
-; 	return dst;
 ffff80000010f941: 5d                   	popq	%rbp
 ffff80000010f942: c3                   	retq
-; 				:: "D" (d), "S" (s), "c" (n/4) : "cc", "memory");
 ffff80000010f943: 48 c1 e9 02          	shrq	$2, %rcx
-; 			asm volatile("cld; rep movsl\n"
 ffff80000010f947: 48 89 c7             	movq	%rax, %rdi
 ffff80000010f94a: 48 89 d6             	movq	%rdx, %rsi
 ffff80000010f94d: fc                   	cld
 ffff80000010f94e: f3 a5                	rep		movsl	(%rsi), %es:(%rdi)
-; 	return dst;
 ffff80000010f950: 5d                   	popq	%rbp
 ffff80000010f951: c3                   	retq
-; 				:: "D" (d-1), "S" (s-1), "c" (n) : "cc", "memory");
 ffff80000010f952: 48 83 c7 ff          	addq	$-1, %rdi
 ffff80000010f956: 48 83 c6 ff          	addq	$-1, %rsi
-; 			asm volatile("std; rep movsb\n"
 ffff80000010f95a: fd                   	std
 ffff80000010f95b: f3 a4                	rep		movsb	(%rsi), %es:(%rdi)
-; 		asm volatile("cld" ::: "cc");
 ffff80000010f95d: fc                   	cld
-; 	return dst;
 ffff80000010f95e: 5d                   	popq	%rbp
 ffff80000010f95f: c3                   	retq
 
 ffff80000010f960 <memcpy>:
-; {
 ffff80000010f960: 55                   	pushq	%rbp
 ffff80000010f961: 48 89 e5             	movq	%rsp, %rbp
 ffff80000010f964: 53                   	pushq	%rbx
 ffff80000010f965: 50                   	pushq	%rax
 ffff80000010f966: 48 89 fb             	movq	%rdi, %rbx
-; 	return memmove(dst, src, n);
 ffff80000010f969: 48 b8 e0 f8 10 00 00 80 ff ff	movabsq	$-140737487243040, %rax # imm = 0xFFFF80000010F8E0
 ffff80000010f973: ff d0                	callq	*%rax
 ffff80000010f975: 48 89 d8             	movq	%rbx, %rax
@@ -9205,94 +8218,72 @@ ffff80000010f97e: c3                   	retq
 ffff80000010f97f: 90                   	nop
 
 ffff80000010f980 <memcmp>:
-; {
 ffff80000010f980: 55                   	pushq	%rbp
 ffff80000010f981: 48 89 e5             	movq	%rsp, %rbp
-; 	while (n-- > 0) {
 ffff80000010f984: 48 85 d2             	testq	%rdx, %rdx
 ffff80000010f987: 74 1e                	je	0xffff80000010f9a7 <memcmp+0x27>
 ffff80000010f989: 31 c9                	xorl	%ecx, %ecx
 ffff80000010f98b: 0f 1f 44 00 00       	nopl	(%rax,%rax)
-; 		if (*s1 != *s2)
 ffff80000010f990: 0f b6 04 0f          	movzbl	(%rdi,%rcx), %eax
 ffff80000010f994: 44 0f b6 04 0e       	movzbl	(%rsi,%rcx), %r8d
 ffff80000010f999: 44 38 c0             	cmpb	%r8b, %al
 ffff80000010f99c: 75 0d                	jne	0xffff80000010f9ab <memcmp+0x2b>
-; 	while (n-- > 0) {
 ffff80000010f99e: 48 83 c1 01          	addq	$1, %rcx
 ffff80000010f9a2: 48 39 ca             	cmpq	%rcx, %rdx
 ffff80000010f9a5: 75 e9                	jne	0xffff80000010f990 <memcmp+0x10>
 ffff80000010f9a7: 31 c0                	xorl	%eax, %eax
-; }
 ffff80000010f9a9: 5d                   	popq	%rbp
 ffff80000010f9aa: c3                   	retq
-; 			return (int) *s1 - (int) *s2;
 ffff80000010f9ab: 44 29 c0             	subl	%r8d, %eax
-; }
 ffff80000010f9ae: 5d                   	popq	%rbp
 ffff80000010f9af: c3                   	retq
 
 ffff80000010f9b0 <memfind>:
-; {
 ffff80000010f9b0: 55                   	pushq	%rbp
 ffff80000010f9b1: 48 89 e5             	movq	%rsp, %rbp
 ffff80000010f9b4: 48 89 f8             	movq	%rdi, %rax
-; 	for (; s < ends; s++)
 ffff80000010f9b7: 48 85 d2             	testq	%rdx, %rdx
 ffff80000010f9ba: 7e 12                	jle	0xffff80000010f9ce <memfind+0x1e>
 ffff80000010f9bc: 48 01 c2             	addq	%rax, %rdx
 ffff80000010f9bf: 90                   	nop
-; 		if (*(const unsigned char *) s == (unsigned char) c)
 ffff80000010f9c0: 40 38 30             	cmpb	%sil, (%rax)
 ffff80000010f9c3: 74 09                	je	0xffff80000010f9ce <memfind+0x1e>
-; 	for (; s < ends; s++)
 ffff80000010f9c5: 48 83 c0 01          	addq	$1, %rax
 ffff80000010f9c9: 48 39 d0             	cmpq	%rdx, %rax
 ffff80000010f9cc: 72 f2                	jb	0xffff80000010f9c0 <memfind+0x10>
-; 	return (void *) s;
 ffff80000010f9ce: 5d                   	popq	%rbp
 ffff80000010f9cf: c3                   	retq
 
 ffff80000010f9d0 <strtol>:
-; {
 ffff80000010f9d0: 55                   	pushq	%rbp
 ffff80000010f9d1: 48 89 e5             	movq	%rsp, %rbp
 ffff80000010f9d4: 48 b8 e8 05 11 00 00 80 ff ff	movabsq	$-140737487239704, %rax # imm = 0xFFFF8000001105E8
 ffff80000010f9de: 66 90                	nop
-; 	while (*s == ' ' || *s == '\t')
 ffff80000010f9e0: 0f b6 0f             	movzbl	(%rdi), %ecx
 ffff80000010f9e3: 80 c1 f7             	addb	$-9, %cl
 ffff80000010f9e6: 80 f9 24             	cmpb	$36, %cl
 ffff80000010f9e9: 77 10                	ja	0xffff80000010f9fb <strtol+0x2b>
 ffff80000010f9eb: 0f b6 c9             	movzbl	%cl, %ecx
 ffff80000010f9ee: ff 24 c8             	jmpq	*(%rax,%rcx,8)
-; 		s++;
 ffff80000010f9f1: 48 83 c7 01          	addq	$1, %rdi
 ffff80000010f9f5: eb e9                	jmp	0xffff80000010f9e0 <strtol+0x10>
-; 		s++;
 ffff80000010f9f7: 48 83 c7 01          	addq	$1, %rdi
 ffff80000010f9fb: 41 b0 01             	movb	$1, %r8b
-; 	if ((base == 0 || base == 16) && (s[0] == '0' && s[1] == 'x'))
 ffff80000010f9fe: f7 c2 ef ff ff ff    	testl	$4294967279, %edx       # imm = 0xFFFFFFEF
 ffff80000010fa04: 75 27                	jne	0xffff80000010fa2d <strtol+0x5d>
 ffff80000010fa06: eb 0f                	jmp	0xffff80000010fa17 <strtol+0x47>
-; 		s++, neg = 1;
 ffff80000010fa08: 48 83 c7 01          	addq	$1, %rdi
 ffff80000010fa0c: 45 31 c0             	xorl	%r8d, %r8d
-; 	if ((base == 0 || base == 16) && (s[0] == '0' && s[1] == 'x'))
 ffff80000010fa0f: f7 c2 ef ff ff ff    	testl	$4294967279, %edx       # imm = 0xFFFFFFEF
 ffff80000010fa15: 75 16                	jne	0xffff80000010fa2d <strtol+0x5d>
 ffff80000010fa17: 80 3f 30             	cmpb	$48, (%rdi)
 ffff80000010fa1a: 75 11                	jne	0xffff80000010fa2d <strtol+0x5d>
 ffff80000010fa1c: 80 7f 01 78          	cmpb	$120, 1(%rdi)
 ffff80000010fa20: 75 0b                	jne	0xffff80000010fa2d <strtol+0x5d>
-; 		s += 2, base = 16;
 ffff80000010fa22: 48 83 c7 02          	addq	$2, %rdi
 ffff80000010fa26: ba 10 00 00 00       	movl	$16, %edx
 ffff80000010fa2b: eb 1a                	jmp	0xffff80000010fa47 <strtol+0x77>
-; 	if ((base == 0 || base == 16) && (s[0] == '0' && s[1] == 'x'))
 ffff80000010fa2d: 85 d2                	testl	%edx, %edx
-; 	else if (base == 0 && s[0] == '0')
 ffff80000010fa2f: 75 16                	jne	0xffff80000010fa47 <strtol+0x77>
 ffff80000010fa31: 31 c0                	xorl	%eax, %eax
 ffff80000010fa33: 31 c9                	xorl	%ecx, %ecx
@@ -9311,7 +8302,6 @@ ffff80000010fa52: 84 c0                	testb	%al, %al
 ffff80000010fa54: 75 1e                	jne	0xffff80000010fa74 <strtol+0xa4>
 ffff80000010fa56: eb 51                	jmp	0xffff80000010faa9 <strtol+0xd9>
 ffff80000010fa58: 0f 1f 84 00 00 00 00 00      	nopl	(%rax,%rax)
-; 		s++, val = (val * base) + dig;
 ffff80000010fa60: 48 83 c7 01          	addq	$1, %rdi
 ffff80000010fa64: 4d 0f af d1          	imulq	%r9, %r10
 ffff80000010fa68: 48 63 c1             	movslq	%ecx, %rax
@@ -9319,34 +8309,27 @@ ffff80000010fa6b: 49 01 c2             	addq	%rax, %r10
 ffff80000010fa6e: b0 01                	movb	$1, %al
 ffff80000010fa70: 84 c0                	testb	%al, %al
 ffff80000010fa72: 74 35                	je	0xffff80000010faa9 <strtol+0xd9>
-; 		if (*s >= '0' && *s <= '9')
 ffff80000010fa74: 44 0f be 1f          	movsbl	(%rdi), %r11d
 ffff80000010fa78: 41 8d 43 d0          	leal	-48(%r11), %eax
 ffff80000010fa7c: b9 d0 ff ff ff       	movl	$4294967248, %ecx       # imm = 0xFFFFFFD0
 ffff80000010fa81: 3c 0a                	cmpb	$10, %al
 ffff80000010fa83: 72 1b                	jb	0xffff80000010faa0 <strtol+0xd0>
-; 		else if (*s >= 'a' && *s <= 'z')
 ffff80000010fa85: 41 8d 43 9f          	leal	-97(%r11), %eax
 ffff80000010fa89: b9 a9 ff ff ff       	movl	$4294967209, %ecx       # imm = 0xFFFFFFA9
 ffff80000010fa8e: 3c 1a                	cmpb	$26, %al
 ffff80000010fa90: 72 0e                	jb	0xffff80000010faa0 <strtol+0xd0>
-; 		else if (*s >= 'A' && *s <= 'Z')
 ffff80000010fa92: 41 8d 43 bf          	leal	-65(%r11), %eax
 ffff80000010fa96: b9 c9 ff ff ff       	movl	$4294967241, %ecx       # imm = 0xFFFFFFC9
 ffff80000010fa9b: 3c 19                	cmpb	$25, %al
 ffff80000010fa9d: 77 b1                	ja	0xffff80000010fa50 <strtol+0x80>
 ffff80000010fa9f: 90                   	nop
 ffff80000010faa0: 44 01 d9             	addl	%r11d, %ecx
-; 		if (dig >= base)
 ffff80000010faa3: 39 d1                	cmpl	%edx, %ecx
 ffff80000010faa5: 7c b9                	jl	0xffff80000010fa60 <strtol+0x90>
 ffff80000010faa7: eb a7                	jmp	0xffff80000010fa50 <strtol+0x80>
-; 	if (endptr)
 ffff80000010faa9: 48 85 f6             	testq	%rsi, %rsi
 ffff80000010faac: 74 03                	je	0xffff80000010fab1 <strtol+0xe1>
-; 		*endptr = (char *) s;
 ffff80000010faae: 48 89 3e             	movq	%rdi, (%rsi)
-; 	return (neg ? -val : val);
 ffff80000010fab1: 4c 89 d0             	movq	%r10, %rax
 ffff80000010fab4: 48 f7 d8             	negq	%rax
 ffff80000010fab7: 45 84 c0             	testb	%r8b, %r8b
