@@ -71,7 +71,7 @@ void mem_init(struct boot_info *boot_info)
 	 */
 	page_init(boot_info);
 
-	panic("need to implement buddy allocator\n");
+	//panic("need to implement buddy allocator\n");
 
 	/* Perform the tests of lab 1. */
 	lab1_check_mem(boot_info);
@@ -127,7 +127,7 @@ void page_init(struct boot_info *boot_info)
 		if((entry->type & MMAP_FREE) == 0){
 			continue;
 		}
-		for(uint64_t i = entry->addr; i < entry->addr + entry->len; i += 4096){
+		for(uint64_t i = entry->addr; i < entry->addr + entry->len; i += PAGE_SIZE){
 			
 			if(i > BOOT_MAP_LIM){
 				break;

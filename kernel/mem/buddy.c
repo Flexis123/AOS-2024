@@ -125,7 +125,7 @@ struct page_info *buddy_merge(struct page_info *page)
 		if(buddy->pp_free){
 			//buddy free, we can merge them.
 
-			size_t merged_page_index = page_index & !(1 << order);
+			size_t merged_page_index = page_index & ~(1 << order);
 			struct page_info *merged_page = &pages[merged_page_index];
 			merged_page->pp_order++;
 			page = merged_page;
