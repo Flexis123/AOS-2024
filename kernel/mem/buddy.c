@@ -112,8 +112,30 @@ size_t count_total_free_pages(void)
  */
 struct page_info *buddy_merge(struct page_info *page)
 {
-	/* LAB 1: your code here. */
-	return NULL;
+	unsigned int order = page->pp_order;
+
+	while(order <= BUDDY_MAX_ORDER){
+		size_t page_index = (page - pages) / sizeof(struct page_info);
+		size_t buddy_index = page_index ^ (1 << order);
+
+		cprintf("current page index: %u, buddy index; %u\n", page_index, buddy_index);
+
+		struct page_info *buddy = &pages[buddy_index];
+
+		if(buddy->pp_free){
+			//buddy free, we can merge them.
+
+			size_t merged_page_index = page_index & !(1 << order);
+			struct page_info *merged_page = &pages[merged_page_index];
+			merged_page->pp_order++;
+			page = merged_page;
+			order++;
+		}
+		else{
+			break;
+		}
+	}
+	return page;
 }
 
 /* Given the order req_order, attempts to find a page of that order or a larger
@@ -159,7 +181,12 @@ struct page_info *page_alloc(int alloc_flags)
  */
 void page_free(struct page_info *pp)
 {
-	/* LAB 1: your code here. */
+	if(pp->pp_ref != 0){
+		panic("page_free called on page that is still in use");
+	}
+	pp->pp_free = true;
+	pp = buddy_merge(pp);
+	list_insert_before(&buddy_free_list[pp->pp_order], &pp->pp_node);
 }
 
 /*

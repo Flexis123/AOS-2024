@@ -100,11 +100,10 @@ void page_init(struct boot_info *boot_info)
 	 */
 
 	for (i = 0; i < npages; ++i) {
-		page = pages + i;
-
+		page = pages + (i * sizeof(struct page_info));
 		list_init(&page->pp_node);
-		page->pp_free = 0;
 		page->pp_ref = 0;
+		page->pp_free = false;
 		page->pp_order = 0;
 	}
 
@@ -123,12 +122,27 @@ void page_init(struct boot_info *boot_info)
 	 *  - boot_info->elf_hdr points to the ELF header.
 	 *  - Any address in [KERNEL_LMA, end) is part of the kernel.
 	 */
-
 	for (i = 0; i < boot_info->mmap_len; ++i, ++entry) {
-		/* LAB 1: your code here. */
-		if(entry->type != MMAP_FREE) continue;
 
-		cprintf("%d\n", (entry->addr % PAGE_SIZE) == 0);
+		if((entry->type & MMAP_FREE) == 0){
+			continue;
+		}
+		for(uint64_t i = entry->addr; i < entry->addr + entry->len; i += 4096){
+			
+			if(i > BOOT_MAP_LIM){
+				break;
+			}
+			if(i == 0){
+				continue;
+			}
+			if(i == boot_info->elf_hdr){
+				continue;
+			}
+			if(i >= KERNEL_LIM || i < end){
+				continue;
+			}
+			size_t page_index = i >> 12;
+			page_free(pages + page_index * sizeof(struct page_info));
+		}
 	}
 }
-
