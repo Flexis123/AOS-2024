@@ -60,6 +60,9 @@ void mem_init(struct boot_info *boot_info)
 	 * physical page, there is a corresponding struct page_info in this array.
 	 * 'npages' is the number of physical pages in memory.  Your code goes here.
 	 */
+	cprintf("npages: %lu\n", npages);
+	cprintf("bytes alloc: %lu\n", npages * sizeof *pages);
+	cprintf("size of page_info: %lu\n", sizeof(struct page_info));
 	pages = boot_alloc(npages * sizeof *pages);
 
 
@@ -124,11 +127,14 @@ void page_init(struct boot_info *boot_info)
 	 *  - Any address in [KERNEL_LMA, end) is part of the kernel.
 	 */
 
+	cprintf("elf header: %p\n", boot_info->elf_hdr);
 	for (i = 0; i < boot_info->mmap_len; ++i, ++entry) {
 		/* LAB 1: your code here. */
 		if(entry->type != MMAP_FREE) continue;
+	
+		cprintf("%p - %p\n", entry->addr, entry->addr + entry->len);
+		cprintf("entry->type: %d\n", entry->type);
 
-		cprintf("%d\n", (entry->addr % PAGE_SIZE) == 0);
 	}
 }
 
