@@ -74,7 +74,7 @@ void mem_init(struct boot_info *boot_info)
 	 */
 	page_init(boot_info);
 
-	panic("need to implement buddy allocator\n");
+	//panic("need to implement buddy allocator\n");
 
 	/* Perform the tests of lab 1. */
 	lab1_check_mem(boot_info);
@@ -103,11 +103,10 @@ void page_init(struct boot_info *boot_info)
 	 */
 
 	for (i = 0; i < npages; ++i) {
-		page = pages + i;
-
+		page = pages + (i * sizeof(struct page_info));
 		list_init(&page->pp_node);
-		page->pp_free = 0;
 		page->pp_ref = 0;
+		page->pp_free = false;
 		page->pp_order = 0;
 	}
 
@@ -126,15 +125,27 @@ void page_init(struct boot_info *boot_info)
 	 *  - boot_info->elf_hdr points to the ELF header.
 	 *  - Any address in [KERNEL_LMA, end) is part of the kernel.
 	 */
-
-	cprintf("elf header: %p\n", boot_info->elf_hdr);
 	for (i = 0; i < boot_info->mmap_len; ++i, ++entry) {
-		/* LAB 1: your code here. */
-		if(entry->type != MMAP_FREE) continue;
-	
-		cprintf("%p - %p\n", entry->addr, entry->addr + entry->len);
-		cprintf("entry->type: %d\n", entry->type);
 
+		if((entry->type & MMAP_FREE) == 0){
+			continue;
+		}
+		for(uint64_t i = entry->addr; i < entry->addr + entry->len; i += PAGE_SIZE){
+			
+			if(i > BOOT_MAP_LIM){
+				break;
+			}
+			if(i == 0){
+				continue;
+			}
+			if(i == boot_info->elf_hdr){
+				continue;
+			}
+			if(i >= KERNEL_LIM || i < end){
+				continue;
+			}
+			size_t page_index = i >> 12;
+			page_free(pages + page_index * sizeof(struct page_info));
+		}
 	}
 }
-
