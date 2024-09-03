@@ -60,9 +60,6 @@ void mem_init(struct boot_info *boot_info)
 	 * physical page, there is a corresponding struct page_info in this array.
 	 * 'npages' is the number of physical pages in memory.  Your code goes here.
 	 */
-	cprintf("npages: %lu\n", npages);
-	cprintf("bytes alloc: %lu\n", npages * sizeof *pages);
-	cprintf("size of page_info: %lu\n", sizeof(struct page_info));
 	pages = boot_alloc(npages * sizeof *pages);
 
 
@@ -103,7 +100,7 @@ void page_init(struct boot_info *boot_info)
 	 */
 
 	for (i = 0; i < npages; ++i) {
-		page = pages + (i * sizeof(struct page_info));
+		page = pages + i;
 		list_init(&page->pp_node);
 		page->pp_ref = 0;
 		page->pp_free = false;
@@ -130,22 +127,26 @@ void page_init(struct boot_info *boot_info)
 		if((entry->type & MMAP_FREE) == 0){
 			continue;
 		}
-		for(uint64_t i = entry->addr; i < entry->addr + entry->len; i += PAGE_SIZE){
+		for(physaddr_t i = entry->addr; i < ROUNDDOWN(entry->addr + entry->len, PAGE_SIZE); i += PAGE_SIZE){
 			
-			if(i > BOOT_MAP_LIM){
+			if(i + PAGE_SIZE > BOOT_MAP_LIM){
 				break;
 			}
 			if(i == 0){
 				continue;
 			}
-			if(i == boot_info->elf_hdr){
+			if(i == (physaddr_t)boot_info->elf_hdr){
 				continue;
 			}
-			if(i >= KERNEL_LIM || i < end){
+			if(i >= KERNEL_LMA && i < (uint64_t)end){
+				continue;
+			}
+			if(i == PAGE_ADDR(PADDR(boot_info))){
 				continue;
 			}
 			size_t page_index = i >> 12;
-			page_free(pages + page_index * sizeof(struct page_info));
+
+			page_free(pages + page_index);
 		}
 	}
 }

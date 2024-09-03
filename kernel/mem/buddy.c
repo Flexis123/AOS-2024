@@ -95,13 +95,14 @@ size_t count_total_free_pages(void)
 	assert(lhs->pp_order >= req_order);
 	
 	while(lhs->pp_order > req_order){
-		//find buddy
-		struct page_info* buddy = (struct page_info*) ((uintptr_t)lhs ^ (1 << lhs->pp_order));
+		physaddr_t page_addr = page2pa(lhs);
+		physaddr_t buddy_addr = page_addr ^ (1 << (lhs->pp_order + PAGE_TABLE_SHIFT -1));
+		struct page_info *buddy = pa2page(buddy_addr);
 		buddy->pp_order = lhs->pp_order - 1;
 		buddy->pp_free = 1;
 
 		lhs->pp_order--;
-		list_add(&buddy_free_list[lhs->pp_order], buddy);
+		list_add(&buddy_free_list[lhs->pp_order], &buddy->pp_node);
 	}
 	
 	return lhs;
@@ -127,26 +128,39 @@ struct page_info *buddy_merge(struct page_info *page)
 {
 	unsigned int order = page->pp_order;
 
-	while(order <= BUDDY_MAX_ORDER){
-		size_t page_index = (page - pages) / sizeof(struct page_info);
-		size_t buddy_index = page_index ^ (1 << order);
+	while(order < BUDDY_MAX_ORDER -1){
+		physaddr_t page_addr = page2pa(page);
+		physaddr_t buddy_addr = page_addr ^ (1 << (order + PAGE_TABLE_SHIFT));
+		struct page_info *buddy = pa2page(buddy_addr);
 
-		cprintf("current page index: %u, buddy index; %u\n", page_index, buddy_index);
-
-		struct page_info *buddy = &pages[buddy_index];
-
-		if(buddy->pp_free){
-			//buddy free, we can merge them.
-
-			size_t merged_page_index = page_index & ~(1 << order);
-			struct page_info *merged_page = &pages[merged_page_index];
-			merged_page->pp_order++;
-			page = merged_page;
-			order++;
-		}
-		else{
+		if(!buddy->pp_free){
 			break;
 		}
+		physaddr_t merged_page_addr = page_addr & ~(1 << (order + PAGE_TABLE_SHIFT));
+		struct page_info *merged_page = pa2page(merged_page_addr);
+		struct list *next = NULL;
+		struct list* entry = &page->pp_node;
+		page->pp_free = false;
+		buddy->pp_free = false;
+
+		int entries_removed = 0;
+		list_foreach_safe(&buddy_free_list[order], entry, next){
+			
+			if(entry == &page->pp_node || entry == &buddy->pp_node){
+				list_del(entry);
+				entries_removed++;
+
+				if(entries_removed == 2){
+					break;
+				}
+			}	
+		}
+		assert(entries_removed == 2);
+		order++;
+		merged_page->pp_order = order;
+		list_insert_before(&buddy_free_list[order], &merged_page->pp_node);
+		merged_page->pp_free = true;
+		page = merged_page;
 	}
 	return page;
 }
@@ -159,13 +173,16 @@ struct page_info *buddy_merge(struct page_info *page)
  * Returns a page of the requested order or NULL if no such page can be found.
  */
 struct page_info *buddy_find(size_t req_order)
-{
-	/* LAB 1: your code here. */
+{	
 	struct list* head;
 	struct page_info* page;
-	for(size_t ord = req_order; ord <= BUDDY_MAX_ORDER; ord++){
+	for(size_t ord = req_order; ord < BUDDY_MAX_ORDER; ord++){
 		head = &buddy_free_list[ord]; //TODO maybe change look at how linked list works
-		if(head->next != head) return buddy_split(container_of(head->next, struct page_info, pp_node), req_order);
+		if(!list_is_empty(head)) {
+			page = buddy_split(container_of(head->next, struct page_info, pp_node), req_order);
+			list_del(&page->pp_node);
+			return page;
+		}
 	}
 	return NULL;
 }
@@ -187,7 +204,6 @@ struct page_info *buddy_find(size_t req_order)
  */
 struct page_info *page_alloc(int alloc_flags)
 {
-	/* LAB 1: your code here. */
 	struct page_info* page;
 	if (alloc_flags & ALLOC_HUGE) page = buddy_find(9);
 	else page = buddy_find(0);
@@ -195,11 +211,9 @@ struct page_info *page_alloc(int alloc_flags)
 	//check for OOM
 	if(page) {
 		if(alloc_flags & ALLOC_ZERO) {
-			memset(page2pa(page), 0, 1 << (page->pp_order + PAGE_TABLE_SHIFT));
+			memset((void*)page2pa(page), 0, 1 << (page->pp_order + PAGE_TABLE_SHIFT));
 		}
-
 		page->pp_free = 0;
-		list_pop(&buddy_free_list[page->pp_order]);
 	}
 	return page;
 }
@@ -217,8 +231,8 @@ void page_free(struct page_info *pp)
 		panic("page_free called on page that is still in use");
 	}
 	pp->pp_free = true;
-	pp = buddy_merge(pp);
 	list_insert_before(&buddy_free_list[pp->pp_order], &pp->pp_node);
+	buddy_merge(pp);
 }
 
 /*
