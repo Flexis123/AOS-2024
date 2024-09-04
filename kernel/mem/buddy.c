@@ -205,8 +205,12 @@ struct page_info *buddy_find(size_t req_order)
 struct page_info *page_alloc(int alloc_flags)
 {
 	struct page_info* page;
+
+#ifdef BONUS_LAB1
 	if (alloc_flags & ALLOC_HUGE) page = buddy_find(9);
-	else page = buddy_find(0);
+	else 
+#endif 
+	page = buddy_find(0);
 
 	//check for OOM
 	if(page) {

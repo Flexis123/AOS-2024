@@ -7,7 +7,8 @@ iPXE (https://ipxe.org) 00:03.0 CA00 PCI2.10 PnP PMM+06FCAF60+06F0AF60 CA00
 Press Ctrl-B to configure iPXE (PCI 00:03.0)...                                                                               
 
 
-Booting from Hard Disk..
+Booting from Hard Disk...
+
 [LAB 1] check_free_list_avail() succeeded!
 [LAB 1] check_free_list_order() succeeded!
 [LAB 1] check_memory_layout() succeeded!
@@ -15,4 +16,4 @@ Booting from Hard Disk..
 [LAB 1] check_split_and_merge() succeeded!
 Welcome to the OpenLSD kernel monitor!
 Type 'help' for a list of commands.
-qemu-system-x86_64: terminating on signal 15 from pid 252809 (make)
+qemu-system-x86_64: terminating on signal 15 from pid 10451 (make)
