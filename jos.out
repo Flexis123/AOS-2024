@@ -16,4 +16,4 @@ Booting from Hard Disk...
 [LAB 1] check_split_and_merge() succeeded!
 Welcome to the OpenLSD kernel monitor!
 Type 'help' for a list of commands.
-qemu-system-x86_64: terminating on signal 15 from pid 10451 (make)
+qemu-system-x86_64: terminating on signal 15 from pid 19505 (make)

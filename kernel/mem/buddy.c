@@ -99,9 +99,16 @@ size_t count_total_free_pages(void)
 		physaddr_t buddy_addr = page_addr ^ (1 << (lhs->pp_order + PAGE_TABLE_SHIFT -1));
 		struct page_info *buddy = pa2page(buddy_addr);
 		buddy->pp_order = lhs->pp_order - 1;
-		buddy->pp_free = 1;
+		buddy->pp_free = true;
 
 		lhs->pp_order--;
+#ifdef BONUS_LAB1
+		struct list* entry;
+		list_foreach(&buddy_free_list[lhs->pp_order], entry){
+			assert(entry != &lhs->pp_node);
+		}
+#endif
+
 		list_add(&buddy_free_list[lhs->pp_order], &buddy->pp_node);
 	}
 	
@@ -158,6 +165,11 @@ struct page_info *buddy_merge(struct page_info *page)
 		assert(entries_removed == 2);
 		order++;
 		merged_page->pp_order = order;
+#ifdef BONUS_LAB1
+		list_foreach(&buddy_free_list[order], entry){
+			assert(entry != &merged_page->pp_node);
+		}
+#endif
 		list_insert_before(&buddy_free_list[order], &merged_page->pp_node);
 		merged_page->pp_free = true;
 		page = merged_page;
@@ -181,6 +193,14 @@ struct page_info *buddy_find(size_t req_order)
 		if(!list_is_empty(head)) {
 			page = buddy_split(container_of(head->next, struct page_info, pp_node), req_order);
 			list_del(&page->pp_node);
+			page->pp_free = false;
+
+#ifdef BONUS_LAB1
+			struct list* entry;
+			list_foreach(&buddy_free_list[page->pp_order], entry){
+				assert(entry != &page->pp_node);
+			}
+#endif
 			return page;
 		}
 	}
@@ -207,7 +227,7 @@ struct page_info *page_alloc(int alloc_flags)
 	struct page_info* page;
 
 #ifdef BONUS_LAB1
-	if (alloc_flags & ALLOC_HUGE) page = buddy_find(9);
+	if (alloc_flags & ALLOC_HUGE) page = buddy_find(BUDDY_2M_PAGE);
 	else 
 #endif 
 	page = buddy_find(0);
@@ -215,9 +235,8 @@ struct page_info *page_alloc(int alloc_flags)
 	//check for OOM
 	if(page) {
 		if(alloc_flags & ALLOC_ZERO) {
-			memset((void*)page2pa(page), 0, 1 << (page->pp_order + PAGE_TABLE_SHIFT));
+			memset(page2kva(page), 0, 1 << (page->pp_order + PAGE_TABLE_SHIFT));
 		}
-		page->pp_free = 0;
 	}
 	return page;
 }
@@ -234,6 +253,21 @@ void page_free(struct page_info *pp)
 	if(pp->pp_ref != 0){
 		panic("page_free called on page that is still in use");
 	}
+#ifdef BONUS_LAB1
+	if(pp->pp_free){
+		panic("page_free called on page that is already freed");
+	}
+	struct list *entry;
+
+	list_foreach(&buddy_free_list[pp->pp_order], entry){
+		assert(entry != &pp->pp_node);
+	}
+
+	physaddr_t page_addr = page2pa(pp);
+	if(page_addr == 0){
+		panic("page_free called on reserved page");
+	}
+#endif
 	pp->pp_free = true;
 	list_insert_before(&buddy_free_list[pp->pp_order], &pp->pp_node);
 	buddy_merge(pp);
