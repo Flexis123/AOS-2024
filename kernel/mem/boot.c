@@ -21,7 +21,7 @@
 
 void *boot_alloc(uint32_t n)
 {
-	/* Virtual address of the next byte of free memory. */
+	//* Virtual address of the next byte of free memory. */
 	static char *next_free;
 	char *result;
 
@@ -30,21 +30,21 @@ void *boot_alloc(uint32_t n)
 	 * end of the kernel's bss segment: the first virtual address that the
 	 * linker did not assign to any kernel code or global variables.
 	 */
-	extern char end[];
-	char* kdata_pages_start = ROUNDUP((char *)end, PAGE_SIZE);
-	if (!next_free) next_free = kdata_pages_start;
+	if (!next_free){
+		extern char end[];
+		next_free = ROUNDUP((char *)end, PAGE_SIZE);
+	}
     
 	if(n == 0) return next_free;
 
-	//check that we have enough pages left for the allocation if not we panic
-	//should probably use some bit shifting except divison for better efficiency
-	uint64_t pages = ROUNDUP(n, PAGE_SIZE) / PAGE_SIZE;
+	uint64_t n_paligned = ROUNDUP(n, PAGE_SIZE);
 
-	if((uint64_t)next_free + pages * PAGE_SIZE > (uint64_t)kdata_pages_start + npages * PAGE_SIZE){
+	//limit to boot map for now
+	if(((uintptr_t) next_free + n_paligned) > ((uintptr_t) KERNEL_VMA + BOOT_MAP_LIM)){
 		panic("OOM in boot loader");
 	}
 	result = next_free;
-	next_free += pages * PAGE_SIZE;
+	next_free += n_paligned;
 	
 	return result;
 }
