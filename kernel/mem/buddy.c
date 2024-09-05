@@ -96,7 +96,7 @@ size_t count_total_free_pages(void)
 	
 	while(lhs->pp_order > req_order){
 		physaddr_t page_addr = page2pa(lhs);
-		physaddr_t buddy_addr = page_addr ^ (1 << (lhs->pp_order + PAGE_TABLE_SHIFT -1));
+		physaddr_t buddy_addr = page_addr ^ (1 << (lhs->pp_order + PAGE_TABLE_SHIFT - 1));
 		struct page_info *buddy = pa2page(buddy_addr);
 		buddy->pp_order = lhs->pp_order - 1;
 		buddy->pp_free = true;
@@ -135,7 +135,7 @@ struct page_info *buddy_merge(struct page_info *page)
 {
 	unsigned int order = page->pp_order;
 
-	while(order < BUDDY_MAX_ORDER -1){
+	while(order < BUDDY_MAX_ORDER - 1){
 		physaddr_t page_addr = page2pa(page);
 		physaddr_t buddy_addr = page_addr ^ (1 << (order + PAGE_TABLE_SHIFT));
 		struct page_info *buddy = pa2page(buddy_addr);
@@ -189,18 +189,11 @@ struct page_info *buddy_find(size_t req_order)
 	struct list* head;
 	struct page_info* page;
 	for(size_t ord = req_order; ord < BUDDY_MAX_ORDER; ord++){
-		head = &buddy_free_list[ord]; //TODO maybe change look at how linked list works
+		head = &buddy_free_list[ord]; 
 		if(!list_is_empty(head)) {
 			page = buddy_split(container_of(head->next, struct page_info, pp_node), req_order);
 			list_del(&page->pp_node);
 			page->pp_free = false;
-
-#ifdef BONUS_LAB1
-			struct list* entry;
-			list_foreach(&buddy_free_list[page->pp_order], entry){
-				assert(entry != &page->pp_node);
-			}
-#endif
 			return page;
 		}
 	}
