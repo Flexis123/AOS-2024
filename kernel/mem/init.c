@@ -32,10 +32,8 @@ int pml4_setup(struct boot_info *boot_info)
 	 */
 
 	/* LAB 2: your code here. */
-
-	boot_map_kernel(kernel_pml4, (struct elf*)boot_info->elf_hdr);
 	
-
+	
 	/* Use the physical memory that 'bootstack' refers to as the kernel
 	 * stack. The kernel stack grows down from virtual address KSTACK_TOP.
 	 * Map 'bootstack' to [KSTACK_TOP - KSTACK_SIZE, KSTACK_TOP).

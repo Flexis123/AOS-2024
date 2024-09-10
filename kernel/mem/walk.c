@@ -9,10 +9,11 @@
 
 //TODO check order of arguments
 
+
 /* Given an address addr, this function returns the sign extended address. */
 static uintptr_t sign_extend(uintptr_t addr)
 {
-	return (addr < USER_LIM) ? addr : (0xffff000000000000ull | addr);
+	return (addr < USER_LIM) ? addr : (0xffff000000000000ull | addr); //TODO check edge case of USER_LIM
 }
 
 /* Given an addresss addr, this function returns the page boundary. */
@@ -43,20 +44,20 @@ static int __walk_range(struct page_table *ptbl, uintptr_t base, uintptr_t end, 
 	walkfn_t walkfn, int (*ptbl_index)(uintptr_t), uintptr_t (*ptbl_end)(uintptr_t), struct page_walker *walker){
 
 	physaddr_t* entry;
-	uintptr_t page_entry_base = base;
-	uintptr_t page_entry_end = ptbl_end(base);
+	uintptr_t page_entry_base = sign_extend(base);
+	uintptr_t page_entry_end = sign_extend(ptbl_end(base));
 
 	for(int i = ptbl_index(base); i <= ptbl_index(end); i++){
 		entry = ptbl->entries + i;
 
 		bool isPresent = *entry & PAGE_PRESENT;
 		BREAK_ON_ERR_WCALLBACK(ptbl_callback, ptbl_callback(entry, page_entry_base, page_entry_end, walker))
-		BREAK_ON_ERR_WCALLBACK(ptbl_unmap && isPresent, ptbl_unmap(entry, page_entry_base, page_entry_end, walker))
-		BREAK_ON_ERR_WCALLBACK(isPresent, walkfn((void*)PAGE_ADDR(*entry), page_entry_base, page_entry_end, walker))
 		BREAK_ON_ERR_WCALLBACK(walker->pt_hole_callback && !isPresent, walker->pt_hole_callback(page_entry_base, page_entry_end, walker))
+		BREAK_ON_ERR_WCALLBACK(isPresent, walkfn((void*)PAGE_ADDR(*entry), page_entry_base, page_entry_end, walker))
+		BREAK_ON_ERR_WCALLBACK(ptbl_unmap && isPresent, ptbl_unmap(entry, page_entry_base, page_entry_end, walker))
 
-		page_entry_base = page_entry_end + 1;
-		page_entry_end = ptbl_end(page_entry_base);
+		page_entry_base = sign_extend(page_entry_end + 1);
+		page_entry_end = sign_extend(ptbl_end(page_entry_base));
 	}
 
 	
@@ -102,8 +103,8 @@ static int pdir_walk_range(struct page_table *pdir, uintptr_t base,
 
 	//TODO find a way to integrate with WALK_RANGE
 	physaddr_t* entry;
-	uintptr_t page_entry_base = base;
-	uintptr_t page_entry_end = pdir_end(base);
+	uintptr_t page_entry_base = sign_extend(base);
+	uintptr_t page_entry_end = sign_extend(pdir_end(base));
 
 	for(int i = PAGE_DIR_INDEX(base); i <= PAGE_DIR_INDEX(end); i++){
 		entry = pdir->entries + i;
@@ -114,8 +115,8 @@ static int pdir_walk_range(struct page_table *pdir, uintptr_t base,
 		BREAK_ON_ERR_WCALLBACK(isPresent && !(*entry & PAGE_HUGE), ptbl_walk_range((void*)PAGE_ADDR(*entry), page_entry_base, page_entry_end, walker))
 		BREAK_ON_ERR_WCALLBACK(walker->pt_hole_callback && !isPresent, walker->pt_hole_callback(page_entry_base, page_entry_end, walker))
 
-		page_entry_base = page_entry_end + 1;
-		page_entry_end = pdir_end(page_entry_base);
+		page_entry_base = sign_extend(page_entry_end + 1);
+		page_entry_end = sign_extend(pdir_end(page_entry_base));
 	}
 
 	return 0;

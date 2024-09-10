@@ -3,6 +3,8 @@
 
 #include <kernel/mem.h>
 
+#define ENTRY_PA_MASK 0xFFF0000000000FFF
+
 struct boot_map_info {
 	struct page_table *pml4;
 	uint64_t flags;
@@ -19,6 +21,16 @@ static int boot_map_pte(physaddr_t *entry, uintptr_t base, uintptr_t end,
 	struct boot_map_info *info = walker->udata;
 
 	/* LAB 2: your code here. */
+
+	physaddr_t pa = info->pa << PAGE_TABLE_SHIFT;
+	*entry |= info->flags;
+
+	//clear bits 12 - 35 TO MAKE SPACE FOR pa
+	*entry &= ENTRY_PA_MASK;
+	//store pa at bits 12-35
+	*entry |= info->pa << PAGE_TABLE_SHIFT;
+
+	info->pa += PAGE_SIZE;
 	return 0;
 }
 
@@ -34,8 +46,42 @@ static int boot_map_pde(physaddr_t *entry, uintptr_t base, uintptr_t end,
 	struct boot_map_info *info = walker->udata;
 
 	/* LAB 2: your code here. */
-	
-	return 0;
+	int res = 0;
+	if(hpage_aligned(info->pa)){
+		*entry &= ENTRY_PA_MASK << 9;
+		*entry |= info->pa << PAGE_DIR_SHIFT;
+		info->pa += PAGE_HUGE;
+	}else if(*entry & PAGE_PRESENT){
+		res = ptbl_split(entry, base, end, walker);
+	}else{
+		res = ptbl_alloc(entry, base, end, walker);
+	}
+
+	return res;
+}
+
+static int claim_entry(physaddr_t *entry, uintptr_t base, uintptr_t end, struct page_walker *walker){
+	struct boot_map_info *info = walker->udata;
+
+	int res = 0;
+	if(!(*entry & PF_PRESENT)){
+		res = ptbl_alloc(entry, base, end, walker);
+	}else{
+		*entry |= info->flags;
+	}
+	return res;
+}
+
+static int boot_map_pdpte(physaddr_t *entry, uintptr_t base, uintptr_t end,
+    struct page_walker *walker)
+{
+	return claim_entry(entry, base, end, walker);
+}
+
+static int boot_map_pml4(physaddr_t *entry, uintptr_t base, uintptr_t end,
+    struct page_walker *walker)
+{
+	return claim_entry(entry, base, end, walker);
 }
 
 /*
@@ -61,6 +107,8 @@ void boot_map_region(struct page_table *pml4, void *va, size_t size,
 	struct page_walker walker = {
 		.pte_callback = boot_map_pte,
 		.pde_callback = boot_map_pde,
+		.pdpte_callback = boot_map_pdpte,
+		.pml4e_callback = boot_map_pml4, //CHECK IF ALREADY INITIALIZED TO NULL ALL FIELDS
 		/* LAB 2: your code here. */
 		.udata = &info,
 	};
@@ -84,19 +132,25 @@ void boot_map_kernel(struct page_table *pml4, struct elf *elf_hdr)
 {
 	struct elf_proghdr *prog_start =
 	    (struct elf_proghdr *)((char *)elf_hdr + elf_hdr->e_phoff);
-	uint64_t flags = 0;
+
+	//kernel vma = 0xFFFF800000000000
+	boot_map_region(pml4, KERNEL_VMA, BOOT_MAP_LIM, KERNEL_VMA, 0 | PF_PRESENT | PF_WRITE);
 
 	/* LAB 2: your code here. */
 	struct elf_proghdr *prog_hdr;
+	uint64_t flags = 0;
 	for(size_t i = 0; i < elf_hdr->e_phnum; i++){
 		prog_hdr = prog_start + i;
 
-		if(prog_hdr->p_va < KERNEL_VMA && prog_hdr->p_type != ELF_PROG_LOAD) continue;
+		if(prog_hdr->p_va < KERNEL_VMA) continue;
 
 		//setup flags
 		if(prog_hdr->p_flags & ELF_PROG_FLAG_WRITE) flags |= PF_WRITE;
-		if(!(prog_hdr->p_flags & ELF_PROG_FLAG_EXEC)) flags |= PAGE_NO_EXEC;
-		//if(!(prog_hdr->p_flags & ELF_PROG_FLAG_READ)) ;
+		if(!(prog_hdr->p_flags & ELF_PROG_FLAG_EXEC)) flags |= PAGE_NO_EXEC; //CHECK AGAIN IF THIS IS THE CORRECT WAY TO CHECK THE FLAGS
+		flags |= PF_PRESENT;
+		
+		boot_map_region(pml4, prog_hdr->p_va, prog_hdr->p_memsz, prog_hdr->p_pa, flags);
 
+		flags = 0;
 	}
 }
