@@ -85,5 +85,19 @@ static inline int hpage_aligned(uintptr_t p)
 {
 	return !(p & (HPAGE_SIZE - 1));
 }
+
+#define PHYS_ADD_MASK 0x8000000000000FFF
+
+static inline void set_entry_pa(physaddr_t *entry, physaddr_t pa){
+	*entry &= PHYS_ADD_MASK;
+	*entry |= pa << PAGE_TABLE_SHIFT;
+}
+
+static inline physaddr_t get_entry_pa(physaddr_t *entry){
+	return *entry & ~PHYS_ADD_MASK;
+}
+
+
+
 #endif /* !defined(__ASSEMBLER__) */
 

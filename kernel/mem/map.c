@@ -12,6 +12,21 @@ struct boot_map_info {
 	uintptr_t base, end;
 };
 
+static int claim_entry(physaddr_t *entry, uintptr_t base, uintptr_t end, struct page_walker *walker){
+	struct boot_map_info *info = walker->udata;
+
+	int res = 0;
+	if(!(*entry & PF_PRESENT)){
+		res = ptbl_alloc(entry, base, end, walker);
+	}else{
+		*entry |= info->flags;
+	}
+	
+	if(res > 0) set_entry_pa(entry, info->pa);
+
+	return res;
+}
+
 /* Stores the physical address and the appropriate permissions into the PTE and
  * increments the physical address to point to the next page.
  */
@@ -22,16 +37,9 @@ static int boot_map_pte(physaddr_t *entry, uintptr_t base, uintptr_t end,
 
 	/* LAB 2: your code here. */
 
-	physaddr_t pa = info->pa << PAGE_TABLE_SHIFT;
-	*entry |= info->flags;
-
-	//clear bits 12 - 35 TO MAKE SPACE FOR pa
-	*entry &= ENTRY_PA_MASK;
-	//store pa at bits 12-35
-	*entry |= info->pa << PAGE_TABLE_SHIFT;
-
-	info->pa += PAGE_SIZE;
-	return 0;
+	int res = claim_entry(entry, base, end, walker);
+	if(res > 0) info->pa, info->base += PAGE_SIZE;
+	return res;
 }
 
 /* Stores the physical address and the appropriate permissions into the PDE and
@@ -47,28 +55,20 @@ static int boot_map_pde(physaddr_t *entry, uintptr_t base, uintptr_t end,
 
 	/* LAB 2: your code here. */
 	int res = 0;
-	if(hpage_aligned(info->pa)){
-		*entry &= ENTRY_PA_MASK << 9;
-		*entry |= info->pa << PAGE_DIR_SHIFT;
-		info->pa += PAGE_HUGE;
+	//check if entry is present
+	if(hpage_aligned(info->pa) && (info->end - info->end) > HPAGE_SIZE){
+		if(!(*entry & PAGE_PRESENT) && ptbl_alloc(entry, base, end, walker) < 0) return -1;
+
+		set_entry_pa(entry, info->pa);
+		info->pa, info->base += PAGE_HUGE;
+		*entry |= info->flags;
+
 	}else if(*entry & PAGE_PRESENT){
 		res = ptbl_split(entry, base, end, walker);
 	}else{
 		res = ptbl_alloc(entry, base, end, walker);
 	}
 
-	return res;
-}
-
-static int claim_entry(physaddr_t *entry, uintptr_t base, uintptr_t end, struct page_walker *walker){
-	struct boot_map_info *info = walker->udata;
-
-	int res = 0;
-	if(!(*entry & PF_PRESENT)){
-		res = ptbl_alloc(entry, base, end, walker);
-	}else{
-		*entry |= info->flags;
-	}
 	return res;
 }
 
