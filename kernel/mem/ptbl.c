@@ -43,10 +43,10 @@ int ptbl_alloc(physaddr_t *entry, uintptr_t base, uintptr_t end,
 int ptbl_split(physaddr_t *entry, uintptr_t base, uintptr_t end,
     struct page_walker *walker)
 {
-	if(*entry & PAGE_PRESENT == 0){
+	if((*entry & PAGE_PRESENT) == 0){
 		return ptbl_alloc(entry, base, end, walker);
 	}
-	if(*entry & PAGE_HUGE == 0){
+	if((*entry & PAGE_HUGE) == 0){
 		return -1;
 	}
 	struct page_info *new_table = page_alloc(ALLOC_ZERO);
@@ -55,7 +55,7 @@ int ptbl_split(physaddr_t *entry, uintptr_t base, uintptr_t end,
 	
 	new_table->pp_ref++;
 	physaddr_t *new_table_entries = page2kva(new_table);
-	void *old_data = page2kva(PAGE_ADDR(*entry));
+	void *old_data = page2kva(pa2page(PAGE_ADDR(*entry)));
 
 	for(int i = 0; i < PAGE_TABLE_ENTRIES; i++){
 		struct page_info *new_page = page_alloc(ALLOC_ZERO);
@@ -96,12 +96,12 @@ int ptbl_merge(physaddr_t *entry, uintptr_t base, uintptr_t end,
 	physaddr_t table = PAGE_ADDR(*entry);
 	physaddr_t flags = *entry & PAGE_MASK;
 
-	if(flags ^ PAGE_PRESENT == 0) return 0;
+	if((flags ^ PAGE_PRESENT) == 0) return 0;
 
 	for(int i = 0; i < PAGE_TABLE_ENTRIES; i++){
 		physaddr_t table_entry = table + i;
 
-		if(table_entry & PAGE_MASK != flags) return 0;
+		if((table_entry & PAGE_MASK) != flags) return 0;
 	}
 	struct page_info *huge_page = page_alloc(ALLOC_HUGE);
 	if(huge_page == NULL) return -1;
@@ -110,8 +110,8 @@ int ptbl_merge(physaddr_t *entry, uintptr_t base, uintptr_t end,
 
 	for(int i = 0; i < PAGE_TABLE_ENTRIES; i++){
 		physaddr_t table_entry = table + i;
-		struct page_info *entry_page = pa2page(PAGE_ADDR(table_entry);
-		memcpy(page2kva(entry_page), huge_page_addr + i * PAGE_SIZE, PAGE_SIZE));
+		struct page_info *entry_page = pa2page(PAGE_ADDR(table_entry));
+		memcpy(page2kva(entry_page), huge_page_addr + i * PAGE_SIZE, PAGE_SIZE);
 		page_decref(entry_page);
 	}
 	struct page_info *table_page = pa2page(table);
@@ -129,7 +129,7 @@ int ptbl_merge(physaddr_t *entry, uintptr_t base, uintptr_t end,
 int ptbl_free(physaddr_t *entry, uintptr_t base, uintptr_t end,
     struct page_walker *walker)
 {
-	if(*entry & PAGE_PRESENT == 0) return 0;
+	if((*entry & PAGE_PRESENT) == 0) return 0;
 	physaddr_t table = PAGE_ADDR(*entry);
 
 	for(int i = 0; i < PAGE_TABLE_ENTRIES; i++){
