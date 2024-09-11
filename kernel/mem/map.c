@@ -137,7 +137,7 @@ void boot_map_kernel(struct page_table *pml4, struct elf *elf_hdr)
 
 	//kernel vma = 0xFFFF800000000000
 	//which pa to use for this? where does the kenrla start in physical mem?
-	boot_map_region(pml4, KERNEL_VMA, BOOT_MAP_LIM, PADDR(KERNEL_VMA), PAGE_KMASK);
+	boot_map_region(pml4, (void*) KERNEL_VMA, BOOT_MAP_LIM, PADDR((void*)KERNEL_VMA), PAGE_KMASK);
 
 	/* LAB 2: your code here. */
 	struct elf_proghdr *prog_hdr;
@@ -152,7 +152,7 @@ void boot_map_kernel(struct page_table *pml4, struct elf *elf_hdr)
 		if(!(prog_hdr->p_flags & ELF_PROG_FLAG_EXEC)) flags |= PAGE_NO_EXEC; //CHECK AGAIN IF THIS IS THE CORRECT WAY TO CHECK THE FLAGS
 		flags |= PF_PRESENT;
 		
-		boot_map_region(pml4, prog_hdr->p_va, prog_hdr->p_memsz, prog_hdr->p_pa, flags);
+		boot_map_region(pml4, (void*) prog_hdr->p_va, prog_hdr->p_memsz, prog_hdr->p_pa, flags);
 
 		flags = 0;
 	}

@@ -8,7 +8,7 @@ struct page_walker;
 typedef int (* map_pte_t)(physaddr_t *, uintptr_t, uintptr_t,
     struct page_walker *);
 
-typedef (* walkfn_t)(struct page_table*, void*, void*,
+typedef int (* walkfn_t)(struct page_table*, uintptr_t, uintptr_t,
 	struct page_walker*);
 
 struct page_walker {
