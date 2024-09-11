@@ -16,6 +16,8 @@ int lab2_do_check_ptbl_flags(physaddr_t *entry, uintptr_t base, uintptr_t end,
 
 	(void)walker;
 
+	if(*entry & PAGE_PRESENT) cprintf("entry present in va range %p - %p\n", base, end);
+
 	if (!(*entry & PAGE_PRESENT) || (*entry & PAGE_HUGE)) {
 		return 0;
 	}
@@ -240,8 +242,12 @@ void lab2_check_4k_paging(void)
 	physaddr_t *entry;
 	size_t nfree;
 
+	cprintf("attempting to count number of free pages in lab2 check paging\n");
+
 	/* Remember the amount of free pages. */
 	nfree = count_total_free_pages();
+
+	cprintf("counted total number of pages in lab2 check paging\n");
 
 	/* Allocate a 4K page. */
 	page = page_alloc(0);
@@ -250,11 +256,15 @@ void lab2_check_4k_paging(void)
 		panic("cannot allocate 4K page!");
 	}
 
+	cprintf("page allocated in lab2 check paging\n");
+
 	/* Insert the page. */
 	assert(page_insert(kernel_pml4, page, 0, PAGE_PRESENT) == 0);
 	assert(page->pp_ref == 1);
 	assert(!page->pp_free);
 	assert(kernel_pml4->entries[0] != 0);
+
+	cprintf("page mapped in lab2 check paging\n");
 
 	/* Look up the page. */
 	ret = page_lookup(kernel_pml4, 0, &entry);

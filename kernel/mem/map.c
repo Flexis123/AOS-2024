@@ -12,17 +12,26 @@ struct boot_map_info {
 	uintptr_t base, end;
 };
 
+
+//clears all flags and adds the new flags provided by 'flags' into 'entry'
+static void ovveride_flags(physaddr_t* entry, uint64_t flags){
+	*entry &= 0x7FFFFFFFFFFFF000; 
+	*entry |= flags;
+}
+
 static int claim_entry(physaddr_t *entry, uintptr_t base, uintptr_t end, struct page_walker *walker){
 	struct boot_map_info *info = walker->udata;
 
 	int res = 0;
-	if(!(*entry & PF_PRESENT)){
+	if(!(*entry & PAGE_PRESENT)) {
+		cprintf("attempting to do ptbl_alloc\n");
 		res = ptbl_alloc(entry, base, end, walker);
-	}else{
-		*entry |= info->flags;
 	}
 	
-	if(res > 0) set_entry_pa(entry, info->pa);
+	if(res >= 0) {
+		set_entry_pa(entry, info->pa);
+		ovveride_flags(entry, info->flags);
+	}
 
 	return res;
 }
@@ -57,19 +66,22 @@ static int boot_map_pde(physaddr_t *entry, uintptr_t base, uintptr_t end,
 	int res = 0;
 	//check if entry is present
 	if(hpage_aligned(info->pa) && (info->end - info->end) > HPAGE_SIZE){
-		if(!(*entry & PAGE_PRESENT) && ptbl_alloc(entry, base, end, walker) < 0) return -1;
-
 		set_entry_pa(entry, info->pa);
+		ovveride_flags(entry, info->flags);
 		info->pa, info->base += PAGE_HUGE;
 
-	}else if(*entry & PAGE_PRESENT){
-		res = ptbl_split(entry, base, end, walker);
 	}else{
-		res = ptbl_alloc(entry, base, end, walker);
-	}
+		if(*entry & PAGE_PRESENT){
+			res = ptbl_split(entry, base, end, walker);
+		}else{
+			res = ptbl_alloc(entry, base, end, walker);
+		}
 
-	*entry &= 0xFFFFFFFFFFFFF000; //CLEAR FLAGS //TODO MAYBE CHANGE
-	*entry |= info->flags;
+		if(res >= 0) {
+			set_entry_pa(entry, info->pa);
+			ovveride_flags(entry, info->flags);
+		}
+	}
 
 	return res;
 }
@@ -83,7 +95,10 @@ static int boot_map_pdpte(physaddr_t *entry, uintptr_t base, uintptr_t end,
 static int boot_map_pml4(physaddr_t *entry, uintptr_t base, uintptr_t end,
     struct page_walker *walker)
 {
+	struct boot_map_info *info = walker->udata;
+
 	return claim_entry(entry, base, end, walker);
+
 }
 
 /*
