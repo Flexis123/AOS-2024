@@ -1,19 +1,15 @@
 *** Now run 'make gdb'.
 ***
-c[?7l[2J[0mSeaBIOS (version 1.15.0-1)
+c[?7l[2J[0mSeaBIOS (version 1.16.3-debian-1.16.3-2)
 
 
-iPXE (https://ipxe.org) 00:03.0 CA00 PCI2.10 PnP PMM+07F8B4A0+07ECB4A0 CA00
+iPXE (https://ipxe.org) 00:03.0 CA00 PCI2.10 PnP PMM+06FCAF60+06F0AF60 CA00
 Press Ctrl-B to configure iPXE (PCI 00:03.0)...                                                                               
 
 
 Booting from Hard Disk...
 
-[LAB 1] check_free_list_avail() succeeded!
-[LAB 1] check_free_list_order() succeeded!
-[LAB 1] check_memory_layout() succeeded!
-[LAB 1] check_buddy_consistency() succeeded!
-[LAB 1] check_split_and_merge() succeeded!
-Welcome to the OpenLSD kernel monitor!
-Type 'help' for a list of commands.
-qemu-system-x86_64: terminating on signal 15 from pid 168633 (make)
+[LAB 2] check_ptbl_flags() succeeded!
+[LAB 2] check_wx() succeeded!
+[LAB 2] check_nx() succeeded!
+qemu-system-x86_64: terminating on signal 15 from pid 59472 (make)

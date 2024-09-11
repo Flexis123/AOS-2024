@@ -86,10 +86,10 @@ int page_insert(struct page_table *pml4, struct page_info *page, void *va,
 	if((flags & PAGE_PRESENT) == 0){
 		panic("page_insert called with present bit 0");
 	}
-	if(!page_aligned(va)){
+	if(!page_aligned((uintptr_t)va)){
 		panic("page_insert called with non-aligned virtual address");
 	}
-	if((flags & PAGE_HUGE) && !hpage_aligned(va)){
+	if((flags & PAGE_HUGE) && !hpage_aligned((uintptr_t)va)){
 		panic("page_insert called with huge page non-aligned virtual address");
 	}
 
@@ -98,7 +98,6 @@ int page_insert(struct page_table *pml4, struct page_info *page, void *va,
 	struct page_walker walker = {
 		.pte_callback = insert_pte,
 		.pde_callback = insert_pde,
-		.pt_hole_callback = ptbl_alloc,
 		.udata = &info, 
 	};
 	return walk_page_range(pml4, va, (void *)((uintptr_t)va + PAGE_SIZE),
