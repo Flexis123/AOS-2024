@@ -61,13 +61,15 @@ static int boot_map_pde(physaddr_t *entry, uintptr_t base, uintptr_t end,
 
 		set_entry_pa(entry, info->pa);
 		info->pa, info->base += PAGE_HUGE;
-		*entry |= info->flags;
 
 	}else if(*entry & PAGE_PRESENT){
 		res = ptbl_split(entry, base, end, walker);
 	}else{
 		res = ptbl_alloc(entry, base, end, walker);
 	}
+
+	*entry &= 0xFFFFFFFFFFFFF000; //CLEAR FLAGS //TODO MAYBE CHANGE
+	*entry |= info->flags;
 
 	return res;
 }
@@ -134,7 +136,8 @@ void boot_map_kernel(struct page_table *pml4, struct elf *elf_hdr)
 	    (struct elf_proghdr *)((char *)elf_hdr + elf_hdr->e_phoff);
 
 	//kernel vma = 0xFFFF800000000000
-	boot_map_region(pml4, KERNEL_VMA, BOOT_MAP_LIM, PADDR(KERNEL_VMA), 0 | PF_PRESENT | PF_WRITE);
+	//which pa to use for this? where does the kenrla start in physical mem?
+	boot_map_region(pml4, KERNEL_VMA, BOOT_MAP_LIM, PADDR(KERNEL_VMA), PAGE_KMASK);
 
 	/* LAB 2: your code here. */
 	struct elf_proghdr *prog_hdr;
@@ -145,7 +148,7 @@ void boot_map_kernel(struct page_table *pml4, struct elf *elf_hdr)
 		if(prog_hdr->p_va < KERNEL_VMA) continue;
 
 		//setup flags
-		if(prog_hdr->p_flags & ELF_PROG_FLAG_WRITE) flags |= PF_WRITE;
+		if(prog_hdr->p_flags & ELF_PROG_FLAG_WRITE) flags |= PAGE_WRITE;
 		if(!(prog_hdr->p_flags & ELF_PROG_FLAG_EXEC)) flags |= PAGE_NO_EXEC; //CHECK AGAIN IF THIS IS THE CORRECT WAY TO CHECK THE FLAGS
 		flags |= PF_PRESENT;
 		

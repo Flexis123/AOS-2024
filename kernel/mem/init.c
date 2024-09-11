@@ -45,7 +45,7 @@ int pml4_setup(struct boot_info *boot_info)
 	/* Map in the pages from the buddy allocator as RW-. */
 
 	/* LAB 2: your code here. */
-	for(size_t i = 0; i < npages; i++) buddy_map_chunk(kernel_pml4, i);
+	//map at kpgages all the pages from buddy
 
 	/* Migrate the struct page_info structs to the newly mapped area using
 	 * buddy_migrate().

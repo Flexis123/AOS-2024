@@ -18,6 +18,8 @@
         "streambuf": "c",
         "system_error": "c",
         "memory.h": "c",
-        "paging.h": "c"
+        "paging.h": "c",
+        "mem.h": "c",
+        "init.h": "c"
     }
 }

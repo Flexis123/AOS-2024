@@ -291,6 +291,8 @@ static void *update_ptr(void *p)
 	return (void *)((uintptr_t)p + KPAGES - (uintptr_t)pages);
 }
 
+
+//relocates next and previous pointers for free lst
 void buddy_migrate(void)
 {
 	struct page_info *page;
