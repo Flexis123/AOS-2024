@@ -139,9 +139,10 @@ void mem_init(struct boot_info *boot_info)
 	/* Check the paging functions. */
 	lab2_check_paging();
 
+	cprintf("starting page init ext\n");
 	/* Add the rest of the physical memory to the buddy allocator. */
 	page_init_ext(boot_info);
-
+	cprintf("page init ext complete\n");
 	/* Check the buddy allocator. */
 	lab2_check_buddy(boot_info);
 }
