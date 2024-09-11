@@ -27,29 +27,32 @@ int pml4_setup(struct boot_info *boot_info)
 
 	kernel_pml4 = page2kva(page);
 
+	uint64_t kflags = PAGE_PRESENT | PAGE_WRITE;
+
 	/* Map in the regions used by the kernel from the ELF header passed to
 	 * us through the boot info struct.
 	 */
 
 	/* LAB 2: your code here. */
-	
+	boot_map_kernel(kernel_pml4, (struct elf*) boot_info->elf_hdr);
 	
 	/* Use the physical memory that 'bootstack' refers to as the kernel
 	 * stack. The kernel stack grows down from virtual address KSTACK_TOP.
 	 * Map 'bootstack' to [KSTACK_TOP - KSTACK_SIZE, KSTACK_TOP).
 	 */
-
+	boot_map_region(kernel_pml4, KSTACK_TOP, KSTACK_SIZE, (physaddr_t) bootstack, kflags);
 
 	/* Map in the pages from the buddy allocator as RW-. */
 
 	/* LAB 2: your code here. */
+	for(size_t i = 0; i < npages; i++) buddy_map_chunk(kernel_pml4, i);
 
 	/* Migrate the struct page_info structs to the newly mapped area using
 	 * buddy_migrate().
 	 */
 
 	/* LAB 2: your code here. */
-	//buddy_migrate()
+	buddy_migrate();
 
 	return 0;
 }
@@ -121,11 +124,18 @@ void mem_init(struct boot_info *boot_info)
 	/* Enable the NX-bit. */
 	/* LAB 2: your code here. */
 
+	uint64_t efer = read_msr(MSR_EFER);
+	write_msr(MSR_EFER, efer | MSR_EFER_NXE);
+
 	/* Check the kernel PML4. */
 	lab2_check_pml4();
 
 	/* Load the kernel PML4. */
 	/* LAB 2: your code here. */
+
+	uint64_t cr3 = read_cr3();
+	set_entry_pa(&cr3, page2pa(kernel_pml4));
+	write_cr3(cr3);
 
 	/* Check the paging functions. */
 	lab2_check_paging();
@@ -228,6 +238,11 @@ void page_init_ext(struct boot_info *boot_info)
 	 *  4) Hand the page to the buddy allocator by calling page_free().
 	 */
 	for (i = 0; i < boot_info->mmap_len; ++i, ++entry) {
-		/* LAB 2: your code here. */
+		if(entry->type != MMAP_FREE) continue;
+
+		for(physaddr_t addr = entry->addr; addr <= entry->addr + entry->len; addr += PAGE_SIZE){
+			if(addr < BOOT_MAP_LIM) continue;
+			page_free(pa2page(addr));
+		}
 	}
 }

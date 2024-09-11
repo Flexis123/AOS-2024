@@ -90,7 +90,7 @@ static inline int hpage_aligned(uintptr_t p)
 
 static inline void set_entry_pa(physaddr_t *entry, physaddr_t pa){
 	*entry &= PHYS_ADD_MASK;
-	*entry |= pa << PAGE_TABLE_SHIFT;
+	*entry |= pa & (PAGE_SIZE - 1);
 }
 
 static inline physaddr_t get_entry_pa(physaddr_t *entry){

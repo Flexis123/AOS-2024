@@ -134,7 +134,7 @@ void boot_map_kernel(struct page_table *pml4, struct elf *elf_hdr)
 	    (struct elf_proghdr *)((char *)elf_hdr + elf_hdr->e_phoff);
 
 	//kernel vma = 0xFFFF800000000000
-	boot_map_region(pml4, KERNEL_VMA, BOOT_MAP_LIM, KERNEL_VMA, 0 | PF_PRESENT | PF_WRITE);
+	boot_map_region(pml4, KERNEL_VMA, BOOT_MAP_LIM, PADDR(KERNEL_VMA), 0 | PF_PRESENT | PF_WRITE);
 
 	/* LAB 2: your code here. */
 	struct elf_proghdr *prog_hdr;
