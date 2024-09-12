@@ -12,25 +12,17 @@ struct boot_map_info {
 	uintptr_t base, end;
 };
 
-
-//clears all flags and adds the new flags provided by 'flags' into 'entry'
-static void ovveride_flags(physaddr_t* entry, uint64_t flags){
-	*entry &= 0x7FFFFFFFFFFFF000; 
-	*entry |= flags;
-}
-
 static int claim_entry(physaddr_t *entry, uintptr_t base, uintptr_t end, struct page_walker *walker){
 	struct boot_map_info *info = walker->udata;
 
 	int res = 0;
 	if(!(*entry & PAGE_PRESENT)) {
-		cprintf("attempting to do ptbl_alloc\n");
 		res = ptbl_alloc(entry, base, end, walker);
 	}
 	
 	if(res >= 0) {
-		set_entry_pa(entry, info->pa);
-		ovveride_flags(entry, info->flags);
+		*entry ^= *entry;
+		*entry |= info->pa | info->flags;
 	}
 
 	return res;
@@ -47,7 +39,7 @@ static int boot_map_pte(physaddr_t *entry, uintptr_t base, uintptr_t end,
 	/* LAB 2: your code here. */
 
 	int res = claim_entry(entry, base, end, walker);
-	if(res > 0) info->pa, info->base += PAGE_SIZE;
+	if(res >= 0) info->pa, info->base += PAGE_SIZE;
 	return res;
 }
 
@@ -65,10 +57,10 @@ static int boot_map_pde(physaddr_t *entry, uintptr_t base, uintptr_t end,
 	/* LAB 2: your code here. */
 	int res = 0;
 	//check if entry is present
-	if(hpage_aligned(info->pa) && (info->end - info->end) > HPAGE_SIZE){
-		set_entry_pa(entry, info->pa);
-		ovveride_flags(entry, info->flags);
-		info->pa, info->base += PAGE_HUGE;
+	if(hpage_aligned(info->pa) && (info->end - info->base) > HPAGE_SIZE){
+		*entry ^= *entry;
+		*entry |= info->pa | info->flags | PAGE_HUGE;
+		info->pa, info->base += HPAGE_SIZE;
 
 	}else{
 		if(*entry & PAGE_PRESENT){
@@ -77,9 +69,10 @@ static int boot_map_pde(physaddr_t *entry, uintptr_t base, uintptr_t end,
 			res = ptbl_alloc(entry, base, end, walker);
 		}
 
+    
 		if(res >= 0) {
-			set_entry_pa(entry, info->pa);
-			ovveride_flags(entry, info->flags);
+			*entry ^= *entry;
+			*entry |= info->pa | info->flags;
 		}
 	}
 
@@ -152,6 +145,7 @@ void boot_map_kernel(struct page_table *pml4, struct elf *elf_hdr)
 
 	//kernel vma = 0xFFFF800000000000
 	//which pa to use for this? where does the kenrla start in physical mem?
+
 	boot_map_region(pml4, (void*) KERNEL_VMA, BOOT_MAP_LIM, PADDR((void*)KERNEL_VMA), PAGE_KMASK);
 
 	/* LAB 2: your code here. */
@@ -167,7 +161,7 @@ void boot_map_kernel(struct page_table *pml4, struct elf *elf_hdr)
 		if(!(prog_hdr->p_flags & ELF_PROG_FLAG_EXEC)) flags |= PAGE_NO_EXEC; //CHECK AGAIN IF THIS IS THE CORRECT WAY TO CHECK THE FLAGS
 		flags |= PF_PRESENT;
 		
-		boot_map_region(pml4, (void*) prog_hdr->p_va, prog_hdr->p_memsz, prog_hdr->p_pa, flags);
+		//boot_map_region(pml4, (void*) prog_hdr->p_va, prog_hdr->p_memsz, prog_hdr->p_pa, flags);
 
 		flags = 0;
 	}

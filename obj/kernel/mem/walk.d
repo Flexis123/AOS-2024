@@ -7,7 +7,7 @@ obj/kernel/mem/walk.o: kernel/mem/walk.c include/types.h \
   include/kernel/mem/init.h include/kernel/mem/insert.h \
   include/kernel/mem/lookup.h include/kernel/mem/map.h include/elf.h \
   include/kernel/mem/ptbl.h include/kernel/mem/remove.h \
-  include/kernel/mem/tlb.h include/kernel/mem/walk.h include/string.h
+  include/kernel/mem/tlb.h include/kernel/mem/walk.h
 
 include/types.h:
 
@@ -56,5 +56,3 @@ include/kernel/mem/remove.h:
 include/kernel/mem/tlb.h:
 
 include/kernel/mem/walk.h:
-
-include/string.h:

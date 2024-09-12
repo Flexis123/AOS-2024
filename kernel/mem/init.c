@@ -47,7 +47,9 @@ int pml4_setup(struct boot_info *boot_info)
 	/* LAB 2: your code here. */
 	//map all the occupied pages from the buddy allocator
 
-	boot_map_region(kernel_pml4, (void*) KPAGES, npages * sizeof(struct page_info*), PADDR((void*)KPAGES), kflags);
+	boot_map_region(kernel_pml4, (void*) KPAGES, npages * sizeof(struct page_info), PADDR(pages), kflags);
+
+	//todo map later the other regions of memory like process map etc.
 
 	/* Migrate the struct page_info structs to the newly mapped area using
 	 * buddy_migrate().
@@ -129,6 +131,9 @@ void mem_init(struct boot_info *boot_info)
 	uint64_t efer = read_msr(MSR_EFER);
 	write_msr(MSR_EFER, efer | MSR_EFER_NXE);
 
+	dump_page_tables(kernel_pml4, PAGE_PRESENT);
+
+	panic("debug panic");
 	/* Check the kernel PML4. */
 	lab2_check_pml4();
 
@@ -137,6 +142,7 @@ void mem_init(struct boot_info *boot_info)
 
 	cprintf("attempting to load pml4\n");
 	load_pml4((void*)page2pa((struct page_info*)kernel_pml4));
+	cprintf("loaded pml4 in cr3\n");
 
 	cprintf("loaded pml4");
 	/* Check the paging functions. */
