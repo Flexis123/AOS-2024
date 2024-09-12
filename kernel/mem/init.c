@@ -13,19 +13,21 @@ extern struct list buddy_free_list[];
 /* The kernel's initial PML4. */
 struct page_table *kernel_pml4;
 
+struct page_info *kernel_pml4_page;
+
 /* This function sets up the initial PML4 for the kernel. */
 int pml4_setup(struct boot_info *boot_info)
 {
 	struct page_info *page;
 
 	/* Allocate the kernel PML4. */
-	page = page_alloc(ALLOC_ZERO);
+	kernel_pml4_page = page_alloc(ALLOC_ZERO);
 
-	if (!page) {
+	if (!kernel_pml4_page) {
 		panic("unable to allocate the PML4!");
 	}
 
-	kernel_pml4 = page2kva(page);
+	kernel_pml4 = page2kva(kernel_pml4_page);
 
 	uint64_t kflags = PAGE_PRESENT | PAGE_WRITE | PAGE_NO_EXEC;
 
@@ -125,22 +127,13 @@ void mem_init(struct boot_info *boot_info)
 	/* Setup the initial PML4 for the kernel. */
 	pml4_setup(boot_info);
 
-
-	for(int i = 0; i < 512; i++){
-		physaddr_t entry = kernel_pml4->entries[i];
-
-		if(entry != 0){
-			cprintf("entry %d is: %p\n", i, entry);
-		}
-	}
-
 	/* Enable the NX-bit. */
 	/* LAB 2: your code here. */
 
 	uint64_t efer = read_msr(MSR_EFER);
 	write_msr(MSR_EFER, efer | MSR_EFER_NXE);
 
-	//dump_page_tables(kernel_pml4, PAGE_PRESENT);
+	dump_page_tables(kernel_pml4, PAGE_PRESENT);
 
 	//panic("debug panic");
 	/* Check the kernel PML4. */
@@ -150,7 +143,8 @@ void mem_init(struct boot_info *boot_info)
 	/* LAB 2: your code here. */
 
 	cprintf("attempting to load pml4\n");
-	load_pml4((void*)page2pa((struct page_info*)kernel_pml4));
+	cprintf("pml4 phys addr: %16p\n", PAGE_ADDR((uintptr_t)kernel_pml4));
+	load_pml4((void*) PAGE_ADDR((uintptr_t)kernel_pml4));
 	cprintf("loaded pml4 in cr3\n");
 
 	cprintf("loaded pml4");

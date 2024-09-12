@@ -19,6 +19,7 @@ static int boot_map_pte(physaddr_t *entry, uintptr_t base, uintptr_t end,
 	struct boot_map_info *info = walker->udata;
 	*entry = info->pa | info->flags;
 	info->pa += PAGE_SIZE;
+	info->base += PAGE_SIZE;
 	return 0;
 }
 
@@ -33,12 +34,17 @@ static int boot_map_pde(physaddr_t *entry, uintptr_t base, uintptr_t end,
 {
 	struct boot_map_info *info = walker->udata;
 
-	if(hpage_aligned((uintptr_t)info->pa) && (end - base) == HPAGE_SIZE){
+	if(hpage_aligned((uintptr_t)info->pa) && (info->end - info->base) + 1 >= HPAGE_SIZE){ //check for last 2mb page if  the second condition in and works
 		*entry = info->pa | info->flags | PAGE_HUGE;
 		info->pa += HPAGE_SIZE;
+		info->base += HPAGE_SIZE;
 		return 0;
 	}
-	return ptbl_split(entry, base, end, walker);
+
+	int res = 0;
+	if(*entry & PAGE_PRESENT) res = ptbl_split(entry, base, end, walker);
+	else res = ptbl_alloc(entry, base, end, walker);
+	return res;
 }
 
 /*
@@ -55,7 +61,7 @@ void boot_map_region(struct page_table *pml4, void *va, size_t size,
     physaddr_t pa, uint64_t flags)
 {
 
-	cprintf("mapping va: %p with size %p to pa: %p \n", va, size, pa);
+	//cprintf("mapping va: %p with size %p to pa: %p \n", va, size, pa);
 	/* LAB 2: your code here. */
 	struct boot_map_info info = {
 		.pa = pa,
@@ -70,7 +76,7 @@ void boot_map_region(struct page_table *pml4, void *va, size_t size,
 		.pdpte_callback = ptbl_alloc,
 		.udata = &info,
 	};
-	cprintf("add pages for size: %p\n", size);
+	//cprintf("add pages for size: %p\n", size);
 	walk_page_range(pml4, va, (void *)((uintptr_t)va + size), &walker);
 }
 
@@ -94,7 +100,7 @@ void boot_map_kernel(struct page_table *pml4, struct elf *elf_hdr)
 	//kernel vma = 0xFFFF800000000000
 	//which pa to use for this? where does the kenrla start in physical mem?
 
-	boot_map_region(pml4, (void*) KERNEL_VMA, BOOT_MAP_LIM, 0, PAGE_KMASK);
+	boot_map_region(pml4, (void*) KERNEL_VMA, BOOT_MAP_LIM, 0, PAGE_KMASK | PAGE_USER);
 
 	/* LAB 2: your code here. */
 	struct elf_proghdr *prog_hdr;
@@ -109,7 +115,7 @@ void boot_map_kernel(struct page_table *pml4, struct elf *elf_hdr)
 		if(!(prog_hdr->p_flags & ELF_PROG_FLAG_EXEC)) flags |= PAGE_NO_EXEC; //CHECK AGAIN IF THIS IS THE CORRECT WAY TO CHECK THE FLAGS
 		flags |= PF_PRESENT;
 		
-		boot_map_region(pml4, (void*) prog_hdr->p_va, prog_hdr->p_memsz, prog_hdr->p_pa, flags);
+		//boot_map_region(pml4, (void*) prog_hdr->p_va, prog_hdr->p_memsz, prog_hdr->p_pa, flags);
 
 		flags = 0;
 	}
