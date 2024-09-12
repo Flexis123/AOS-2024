@@ -104,8 +104,7 @@ int dump_page_tables(struct page_table *pml4, uint64_t mask)
 	struct dump_info info = {
 		.base = 0,
 		.flags = 0,
-		.mask = mask | PAGE_PRESENT | PAGE_WRITE | PAGE_NO_EXEC |
-		        PAGE_USER,
+		.mask = mask,
 	};
 	struct page_walker walker = {
 		.pte_callback = dump_pte,

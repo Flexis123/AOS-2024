@@ -21,7 +21,7 @@ static int boot_map_pte(physaddr_t *entry, uintptr_t base, uintptr_t end,
 	*entry = info->pa | info->flags;
 	//cprintf("map pte, base and end, size: %p: %p %p. pa: %p, kva entry: %p\n", base, end, end - base + 1, info->pa, entry);
 	info->pa += PAGE_SIZE;
-	
+
 	return 0;
 }
 
@@ -35,6 +35,7 @@ static int boot_map_pde(physaddr_t *entry, uintptr_t base, uintptr_t end,
     struct page_walker *walker)
 {
 	struct boot_map_info *info = walker->udata;
+
 	//cprintf("map pde, base and end, size: %p: %p %p, current entry: %p\n", base, end, end - base + 1, *entry);
 	if(hpage_aligned((uintptr_t)info->pa) && (end - base +1) == HPAGE_SIZE){
 		*entry = (info->pa | info->flags) | PAGE_HUGE;
@@ -44,6 +45,7 @@ static int boot_map_pde(physaddr_t *entry, uintptr_t base, uintptr_t end,
 	}
 	//cprintf("split the mf\n");
 	return ptbl_split(entry, base, end, walker);	
+
 }
 
 /*
@@ -60,7 +62,7 @@ void boot_map_region(struct page_table *pml4, void *va, size_t size,
     physaddr_t pa, uint64_t flags)
 {
 
-	
+
 	/* LAB 2: your code here. */
 	struct boot_map_info info = {
 		.pa = pa,
@@ -75,9 +77,7 @@ void boot_map_region(struct page_table *pml4, void *va, size_t size,
 		.pml4e_callback = ptbl_alloc,
 		.udata = &info,
 	};
-	cprintf("mapping va: %p with size %p to pa: %p base: %p, end %p \n", va, size, pa, info.base, info.end);
-	int ok = walk_page_range(pml4, va, (void *)((uintptr_t)va + size), &walker);
-	cprintf("done walking errorcode: %d, end pa: %p\n", ok, info.pa);
+	walk_page_range(pml4, va, (void *)((uintptr_t)va + size), &walker);
 }
 
 /* This function parses the program headers of the ELF header of the kernel
@@ -150,6 +150,7 @@ void boot_map_kernel(struct page_table *pml4, struct elf *elf_hdr)
 	//panic("debug");
 
 
+
 	/* LAB 2: your code here. */
 	struct elf_proghdr *prog_hdr;
 	uint64_t flags = 0;
@@ -162,9 +163,9 @@ void boot_map_kernel(struct page_table *pml4, struct elf *elf_hdr)
 		if(prog_hdr->p_flags & ELF_PROG_FLAG_WRITE) flags |= PAGE_WRITE;
 		if(!(prog_hdr->p_flags & ELF_PROG_FLAG_EXEC)) flags ;// |= PAGE_NO_EXEC; //CHECK AGAIN IF THIS IS THE CORRECT WAY TO CHECK THE FLAGS
 		flags |= PF_PRESENT;
-		cprintf("attempting to map from elf header");
+
 		boot_map_region(pml4, (void*) prog_hdr->p_va, prog_hdr->p_memsz, prog_hdr->p_pa, flags);
-		debug_print();
+
 
 		flags = 0;
 	}

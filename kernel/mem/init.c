@@ -12,62 +12,20 @@ extern struct list buddy_free_list[];
 
 /* The kernel's initial PML4. */
 struct page_table *kernel_pml4;
-
-void debug_print2(){
-	for(int i = 0; i < 512; i++){
-		physaddr_t entry = kernel_pml4->entries[i];
-
-		if(entry != 0){
-			cprintf("entry %d is: %p\n", i, entry);
-			
-			physaddr_t* pml3 = KADDR(PAGE_ADDR(entry));
-
-			for(int j = 0; j < 512; j++){
-
-				if(pml3[j] != 0){
-					cprintf("	entry2 %d is %p\n", j, pml3[j]);
-					physaddr_t* pml2 = KADDR(PAGE_ADDR(pml3[j]));
-					
-					for(int k = 0; k < 512; k++){
-						if(pml2[k] != 0 && !(pml2[k] & PAGE_HUGE)){
-								cprintf("		entry3 %d is %p\n", k, pml2[k]);
-
-								physaddr_t* pml1 = KADDR(PAGE_ADDR(pml2[k]));
-								for(int l = 0; l < 512; l++){
-
-									if(pml1[l] != 0){
-										cprintf("			entry4 %d is %p\n", l, pml1[l]);
-									}
-								}
-
-						}
-						if(pml2[k] != 0 && (pml2[k] & PAGE_HUGE)){
-							cprintf("		entry3 %d is HUGE %p\n", k, pml2[k]);
-						}
-					}
-				}
-			}
-
-
-
-		}
-	}
-}
-
-
+struct page_info *kernel_pml4_page;
 /* This function sets up the initial PML4 for the kernel. */
 int pml4_setup(struct boot_info *boot_info)
 {
 	struct page_info *page;
 
 	/* Allocate the kernel PML4. */
-	page = page_alloc(ALLOC_ZERO);
+	kernel_pml4_page = page_alloc(ALLOC_ZERO);
 
-	if (!page) {
+	if (!kernel_pml4_page) {
 		panic("unable to allocate the PML4!");
 	}
 
-	kernel_pml4 = page2kva(page);
+	kernel_pml4 = page2kva(kernel_pml4_page);
 
 	uint64_t kflags = PAGE_PRESENT;
 
@@ -89,7 +47,6 @@ int pml4_setup(struct boot_info *boot_info)
 	boot_map_region(kernel_pml4, (void*)(KSTACK_TOP - KSTACK_SIZE), KSTACK_SIZE, (physaddr_t) bootstack, kflags);
 
 
-	debug_print2();
 	/* Map in the pages from the buddy allocator as RW-. */
 	
 
@@ -106,9 +63,6 @@ int pml4_setup(struct boot_info *boot_info)
 	//panic("debug");
 	/* LAB 2: your code here. */
 	buddy_migrate();
-
-	debug_print2();
-
 	return 0;
 }
 
@@ -182,7 +136,7 @@ void mem_init(struct boot_info *boot_info)
 	uint64_t efer = read_msr(MSR_EFER);
 	write_msr(MSR_EFER, efer | MSR_EFER_NXE);
 
-	//dump_page_tables(kernel_pml4, PAGE_PRESENT);
+	dump_page_tables(kernel_pml4, PAGE_PRESENT);
 
 	//panic("debug panic");
 	/* Check the kernel PML4. */
@@ -191,11 +145,9 @@ void mem_init(struct boot_info *boot_info)
 	/* Load the kernel PML4. */
 	/* LAB 2: your code here. */
 
-	physaddr_t addr = page2pa((struct page_info *)kernel_pml4);
-	cprintf("addr: %p\n", addr);
 
-	cprintf("attempting to load pml4\n");
-	load_pml4((void*)(PADDR(kernel_pml4)));
+
+	cprintf("attempting to load pml4\n");load_pml4((void*)(PADDR(kernel_pml4)));
 	cprintf("loaded pml4 in cr3. pa: %p\n", PADDR(kernel_pml4));
 
 	cprintf("loaded pml4");

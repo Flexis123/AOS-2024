@@ -3,10 +3,15 @@
 
 #include <kernel/mem.h>
 
+#define RET_ON_ERR_WALKER_CALLBACK(guard, ret)  if(guard && ret < 0) return ret;
+
+//TODO check order of arguments
+
+
 /* Given an address addr, this function returns the sign extended address. */
 static uintptr_t sign_extend(uintptr_t addr)
 {
-	return (addr < USER_LIM) ? addr : (0xffff000000000000ull | addr);
+	return (addr < USER_LIM) ? addr : (0xffff000000000000ull | addr); //TODO check edge case of USER_LIM
 }
 
 /* Given an addresss addr, this function returns the page boundary. */
@@ -33,6 +38,9 @@ static uintptr_t pml4_end(uintptr_t addr)
 	return addr | (PDPT_SPAN - 1);
 }
 
+
+
+
 /* Walks over the page range from base to end iterating over the entries in the
  * given page table ptbl. The user may provide walker->pte_callback() that gets
  * called for every entry in the page table. In addition the user may provide
@@ -44,6 +52,9 @@ static uintptr_t pml4_end(uintptr_t addr)
  * Hint: the next page is at ptbl_end() + 1.
  * Hint: the loop condition is next < end.
  */
+
+static inline int pt_index(uintptr_t addr) {return PAGE_TABLE_INDEX(addr);}
+
 static int ptbl_walk_range(struct page_table *ptbl, uintptr_t base,
     uintptr_t end, struct page_walker *walker)
 {
@@ -96,9 +107,17 @@ static int ptbl_walk_range(struct page_table *ptbl, uintptr_t base,
  *
  * Hint: see ptbl_walk_range().
  */
+
+static inline int pd_index(uintptr_t addr) {return PAGE_DIR_INDEX(addr);}
+
+static inline int stop_walk_pdir(physaddr_t *entry, uintptr_t base, uintptr_t end, struct page_walker *walker){
+	return *entry & PAGE_HUGE;
+}
+
 static int pdir_walk_range(struct page_table *pdir, uintptr_t base,
     uintptr_t end, struct page_walker *walker)
 {
+
 	uintptr_t current = sign_extend(base);
 	uintptr_t next = sign_extend(pdir_end(base) + 1);
 
@@ -152,6 +171,9 @@ static int pdir_walk_range(struct page_table *pdir, uintptr_t base,
  *
  * Hint: see ptbl_walk_range().
  */
+
+static inline int pdpt_index(uintptr_t addr) {return PDPT_INDEX(addr);}
+
 static int pdpt_walk_range(struct page_table *pdpt, uintptr_t base,
     uintptr_t end, struct page_walker *walker)
 {
@@ -205,6 +227,9 @@ static int pdpt_walk_range(struct page_table *pdpt, uintptr_t base,
  *
  * Hint: see ptbl_walk_range().
  */
+
+static inline int pml4_index(uintptr_t addr){return PML4_INDEX(addr);}
+
 static int pml4_walk_range(struct page_table *pml4, uintptr_t base, uintptr_t end,
     struct page_walker *walker)
 {
