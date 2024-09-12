@@ -13,6 +13,48 @@ extern struct list buddy_free_list[];
 /* The kernel's initial PML4. */
 struct page_table *kernel_pml4;
 
+void debug_print2(){
+	for(int i = 0; i < 512; i++){
+		physaddr_t entry = kernel_pml4->entries[i];
+
+		if(entry != 0){
+			cprintf("entry %d is: %p\n", i, entry);
+			
+			physaddr_t* pml3 = KADDR(PAGE_ADDR(entry));
+
+			for(int j = 0; j < 512; j++){
+
+				if(pml3[j] != 0){
+					cprintf("	entry2 %d is %p\n", j, pml3[j]);
+					physaddr_t* pml2 = KADDR(PAGE_ADDR(pml3[j]));
+					
+					for(int k = 0; k < 512; k++){
+						if(pml2[k] != 0 && !(pml2[k] & PAGE_HUGE)){
+								cprintf("		entry3 %d is %p\n", k, pml2[k]);
+
+								physaddr_t* pml1 = KADDR(PAGE_ADDR(pml2[k]));
+								for(int l = 0; l < 512; l++){
+
+									if(pml1[l] != 0){
+										cprintf("			entry4 %d is %p\n", l, pml1[l]);
+									}
+								}
+
+						}
+						if(pml2[k] != 0 && (pml2[k] & PAGE_HUGE)){
+							cprintf("		entry3 %d is HUGE %p\n", k, pml2[k]);
+						}
+					}
+				}
+			}
+
+
+
+		}
+	}
+}
+
+
 /* This function sets up the initial PML4 for the kernel. */
 int pml4_setup(struct boot_info *boot_info)
 {
@@ -27,7 +69,7 @@ int pml4_setup(struct boot_info *boot_info)
 
 	kernel_pml4 = page2kva(page);
 
-	uint64_t kflags = PAGE_PRESENT | PAGE_WRITE | PAGE_NO_EXEC;
+	uint64_t kflags = PAGE_PRESENT;
 
 	/* Map in the regions used by the kernel from the ELF header passed to
 	 * us through the boot info struct.
@@ -36,27 +78,36 @@ int pml4_setup(struct boot_info *boot_info)
 	/* LAB 2: your code here. */
 	boot_map_kernel(kernel_pml4, (struct elf*) boot_info->elf_hdr);
 	
+	//debug_print2();
+
+	//dump_page_tables(kernel_pml4, 0);
+	//panic("end");
 	/* Use the physical memory that 'bootstack' refers to as the kernel
 	 * stack. The kernel stack grows down from virtual address KSTACK_TOP.
 	 * Map 'bootstack' to [KSTACK_TOP - KSTACK_SIZE, KSTACK_TOP).
 	 */
-	boot_map_region(kernel_pml4, (void*) KSTACK_TOP, KSTACK_SIZE, (physaddr_t) bootstack, kflags);
+	boot_map_region(kernel_pml4, (void*)(KSTACK_TOP - KSTACK_SIZE), KSTACK_SIZE, (physaddr_t) bootstack, kflags);
 
+
+	debug_print2();
 	/* Map in the pages from the buddy allocator as RW-. */
+	
 
 	/* LAB 2: your code here. */
 	//map all the occupied pages from the buddy allocator
 
 	boot_map_region(kernel_pml4, (void*) KPAGES, npages * sizeof(struct page_info), PADDR(pages), kflags);
-
+	//debug_print2();
 	//todo map later the other regions of memory like process map etc.
 
 	/* Migrate the struct page_info structs to the newly mapped area using
 	 * buddy_migrate().
 	 */
-
+	//panic("debug");
 	/* LAB 2: your code here. */
 	buddy_migrate();
+
+	debug_print2();
 
 	return 0;
 }
@@ -125,15 +176,6 @@ void mem_init(struct boot_info *boot_info)
 	/* Setup the initial PML4 for the kernel. */
 	pml4_setup(boot_info);
 
-
-	for(int i = 0; i < 512; i++){
-		physaddr_t entry = kernel_pml4->entries[i];
-
-		if(entry != 0){
-			cprintf("entry %d is: %p\n", i, entry);
-		}
-	}
-
 	/* Enable the NX-bit. */
 	/* LAB 2: your code here. */
 
@@ -149,9 +191,12 @@ void mem_init(struct boot_info *boot_info)
 	/* Load the kernel PML4. */
 	/* LAB 2: your code here. */
 
+	physaddr_t addr = page2pa((struct page_info *)kernel_pml4);
+	cprintf("addr: %p\n", addr);
+
 	cprintf("attempting to load pml4\n");
-	load_pml4((void*)page2pa((struct page_info*)kernel_pml4));
-	cprintf("loaded pml4 in cr3\n");
+	load_pml4((void*)(PADDR(kernel_pml4)));
+	cprintf("loaded pml4 in cr3. pa: %p\n", PADDR(kernel_pml4));
 
 	cprintf("loaded pml4");
 	/* Check the paging functions. */

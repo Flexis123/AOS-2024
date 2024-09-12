@@ -8,8 +8,92 @@ Press Ctrl-B to configure iPXE (PCI 00:03.0)...
 
 
 Booting from Hard Disk...
-
+mapping va: 0xffff800000000000 with size 0x800000 to pa: 0x0 base: 0xffff800000000000, end 0xffff8000007fffff 
+done walking errorcode: 0, end pa: 0x800000
+entry 256 is: 0x9007
+	     entry2 0 is 0x11007
+	     	     entry3 0 is HUGE 0x81
+	     	     entry3 1 is HUGE 0x200081
+	     	     entry3 2 is HUGE 0x400081
+	     	     entry3 3 is HUGE 0x600081
+mapping va: 0xfffffe7fffff8000 with size 0x8000 to pa: 0x101000 base: 0xfffffe7fffff8000, end 0xfffffe7fffffffff 
+done walking errorcode: 0, end pa: 0x109000
+entry 256 is: 0x9007
+	     entry2 0 is 0x11007
+	     	     entry3 0 is HUGE 0x81
+	     	     entry3 1 is HUGE 0x200081
+	     	     entry3 2 is HUGE 0x400081
+	     	     entry3 3 is HUGE 0x600081
+entry 508 is: 0x9e007
+	     entry2 511 is 0x12f007
+	     	     entry3 511 is 0x2007
+	     	     	     entry4 504 is 0x101001
+	     	     	     entry4 505 is 0x102001
+	     	     	     entry4 506 is 0x103001
+	     	     	     entry4 507 is 0x104001
+	     	     	     entry4 508 is 0x105001
+	     	     	     entry4 509 is 0x106001
+	     	     	     entry4 510 is 0x107001
+	     	     	     entry4 511 is 0x108001
+mapping va: 0xffffff8000000000 with size 0x10000 to pa: 0x11f000 base: 0xffffff8000000000, end 0xffffff800000ffff 
+done walking errorcode: 0, end pa: 0x12f000
+entry 256 is: 0x9007
+	     entry2 0 is 0x11007
+	     	     entry3 0 is HUGE 0x81
+	     	     entry3 1 is HUGE 0x200081
+	     	     entry3 2 is HUGE 0x400081
+	     	     entry3 3 is HUGE 0x600081
+entry 508 is: 0x9e007
+	     entry2 511 is 0x12f007
+	     	     entry3 511 is 0x2007
+	     	     	     entry4 504 is 0x101001
+	     	     	     entry4 505 is 0x102001
+	     	     	     entry4 506 is 0x103001
+	     	     	     entry4 507 is 0x104001
+	     	     	     entry4 508 is 0x105001
+	     	     	     entry4 509 is 0x106001
+	     	     	     entry4 510 is 0x107001
+	     	     	     entry4 511 is 0x108001
+entry 511 is: 0x3007
+	     entry2 0 is 0xa007
+	     	     entry3 0 is 0xb007
+	     	     	     entry4 0 is 0x11f001
+	     	     	     entry4 1 is 0x120001
+	     	     	     entry4 2 is 0x121001
+	     	     	     entry4 3 is 0x122001
+	     	     	     entry4 4 is 0x123001
+	     	     	     entry4 5 is 0x124001
+	     	     	     entry4 6 is 0x125001
+	     	     	     entry4 7 is 0x126001
+	     	     	     entry4 8 is 0x127001
+	     	     	     entry4 9 is 0x128001
+	     	     	     entry4 10 is 0x129001
+	     	     	     entry4 11 is 0x12a001
+	     	     	     entry4 12 is 0x12b001
+	     	     	     entry4 13 is 0x12c001
+	     	     	     entry4 14 is 0x12d001
+	     	     	     entry4 15 is 0x12e001
 [LAB 2] check_ptbl_flags() succeeded!
 [LAB 2] check_wx() succeeded!
 [LAB 2] check_nx() succeeded!
-qemu-system-x86_64: terminating on signal 15 from pid 59472 (make)
+addr: 0xffc0400000080000
+attempting to load pml4
+loaded pml4 in cr3. pa: 0x1000
+loaded pml4attempting to count number of free pages in lab2 check paging
+counted total number of pages in lab2 check paging
+page allocated in lab2 check paging
+page mapped in lab2 check paging
+page struct addr 0xffffff8000000240
+page struct addr 0xffffff80000013a0
+page struct addr 0xffffff8000001380
+page struct addr 0xffffff8000000260
+[LAB 2] check_4k_paging() succeeded!
+starting page init ext
+page init ext complete
+[LAB 2] check_free_list_order() succeeded!
+[LAB 2] check_memory_layout() succeeded!
+[LAB 2] check_buddy_consistency() succeeded!
+[LAB 2] check_vas() succeeded!
+Welcome to the OpenLSD kernel monitor!
+Type 'help' for a list of commands.
+qemu-system-x86_64: terminating on signal 15 from pid 127977 (make)

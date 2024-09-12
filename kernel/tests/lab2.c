@@ -16,8 +16,6 @@ int lab2_do_check_ptbl_flags(physaddr_t *entry, uintptr_t base, uintptr_t end,
 
 	(void)walker;
 
-	if(*entry & PAGE_PRESENT) cprintf("entry present in va range %p - %p\n", base, end);
-
 	if (!(*entry & PAGE_PRESENT) || (*entry & PAGE_HUGE)) {
 		return 0;
 	}

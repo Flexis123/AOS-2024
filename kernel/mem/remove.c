@@ -9,11 +9,12 @@ struct remove_info {
 };
 
 static void remove_page(physaddr_t *entry, struct remove_info *info){
-	struct page_info *page = pa2page(get_entry_pa(entry));
+	struct page_info *page = pa2page(PAGE_ADDR(*entry));
 	page_decref(page);
+	cprintf("page struct addr %p\n", page);
 
 	// only unmap when ref count is zero because 2 va's can point to the same page!
-	if(page->pp_free) *entry ^= PAGE_PRESENT;
+	*entry = 0;
 	tlb_invalidate(info->pml4, info->va); //but invalidate tlb as virtual adress points to nothing now!
 }
 
@@ -24,7 +25,7 @@ static int remove_pte(physaddr_t *entry, uintptr_t base, uintptr_t end,
     struct page_walker *walker)
 {
 	struct remove_info *info = walker->udata;
-	if(*entry & PAGE_PRESENT) remove_page(entry, info);
+	if(*entry & PAGE_PRESENT)remove_page(entry, info);
 	return 0;
 }
 
@@ -36,7 +37,7 @@ static int remove_pde(physaddr_t *entry, uintptr_t base, uintptr_t end,
 {
 	struct remove_info *info = walker->udata;
 
-	if(*entry & PAGE_PRESENT && *entry & PAGE_HUGE) remove_page(entry, info);
+	if((*entry & PAGE_PRESENT) && (*entry & PAGE_HUGE)) remove_page(entry, info);
 	return 0;
 }
 
@@ -51,7 +52,9 @@ void unmap_page_range(struct page_table *pml4, void *va, size_t size)
 	struct page_walker walker = {
 		.pte_callback = remove_pte,
 		.pde_callback = remove_pde,
-		/* LAB 2: your code here. */
+		.pde_unmap = remove_pte,
+		.pdpte_unmap = remove_pte,
+		.pml4e_unmap = remove_pte,
 		.udata = &info,
 	};
 

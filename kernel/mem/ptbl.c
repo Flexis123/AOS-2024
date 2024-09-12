@@ -16,10 +16,15 @@ int ptbl_alloc(physaddr_t *entry, uintptr_t base, uintptr_t end,
 	if(*entry & PAGE_PRESENT) return 0;
 	struct page_info *new_table = page_alloc(ALLOC_ZERO);
 
-	if(new_table == NULL) return -1;
+	if(new_table == NULL){
+		panic("unable to alloc new page");
+		return -1;
+	}
+	
 	new_table->pp_ref++;
 	physaddr_t table_addr = page2pa(new_table);
 	*entry = table_addr | PAGE_PRESENT | PAGE_WRITE | PAGE_USER;
+	//cprintf("new table allocated at base %p, entry: %p\n", base, *entry);
 	return 0;
 }
 
@@ -45,14 +50,21 @@ int ptbl_split(physaddr_t *entry, uintptr_t base, uintptr_t end,
 {
 
 	if((*entry & PAGE_PRESENT) == 0){
-		return ptbl_alloc(entry, base, end, walker);
+		
+		int ok = ptbl_alloc(entry, base, end, walker);
+		//cprintf("split at base %p, no page present yet. set entry to: %p", base, *entry);
+		return ok;
 	}
 	if((*entry & PAGE_HUGE) == 0){
+		panic("cannot split regular page, entry: %p", *entry);
 		return -1;
 	}
 	struct page_info *new_table = page_alloc(ALLOC_ZERO);
 
-	if(new_table == NULL) return -1;
+	if(new_table == NULL){
+		panic("unable to alloc new page");
+		return -1;
+	}
 	
 	new_table->pp_ref++;
 	physaddr_t *new_table_entries = page2kva(new_table);

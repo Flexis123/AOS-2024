@@ -16,9 +16,12 @@ struct boot_map_info {
 static int boot_map_pte(physaddr_t *entry, uintptr_t base, uintptr_t end,
     struct page_walker *walker)
 {
+	
 	struct boot_map_info *info = walker->udata;
 	*entry = info->pa | info->flags;
+	//cprintf("map pte, base and end, size: %p: %p %p. pa: %p, kva entry: %p\n", base, end, end - base + 1, info->pa, entry);
 	info->pa += PAGE_SIZE;
+	
 	return 0;
 }
 
@@ -32,13 +35,15 @@ static int boot_map_pde(physaddr_t *entry, uintptr_t base, uintptr_t end,
     struct page_walker *walker)
 {
 	struct boot_map_info *info = walker->udata;
-
-	if(hpage_aligned((uintptr_t)info->pa) && (end - base) == HPAGE_SIZE){
-		*entry = info->pa | info->flags | PAGE_HUGE;
+	//cprintf("map pde, base and end, size: %p: %p %p, current entry: %p\n", base, end, end - base + 1, *entry);
+	if(hpage_aligned((uintptr_t)info->pa) && (end - base +1) == HPAGE_SIZE){
+		*entry = (info->pa | info->flags) | PAGE_HUGE;
 		info->pa += HPAGE_SIZE;
+		//cprintf("direct map 2M page\n");
 		return 0;
 	}
-	return ptbl_split(entry, base, end, walker);
+	//cprintf("split the mf\n");
+	return ptbl_split(entry, base, end, walker);	
 }
 
 /*
@@ -55,7 +60,7 @@ void boot_map_region(struct page_table *pml4, void *va, size_t size,
     physaddr_t pa, uint64_t flags)
 {
 
-	cprintf("mapping va: %p with size %p to pa: %p \n", va, size, pa);
+	
 	/* LAB 2: your code here. */
 	struct boot_map_info info = {
 		.pa = pa,
@@ -66,12 +71,13 @@ void boot_map_region(struct page_table *pml4, void *va, size_t size,
 	struct page_walker walker = {
 		.pte_callback = boot_map_pte,
 		.pde_callback = boot_map_pde,
-		.pml4e_callback = ptbl_alloc,
 		.pdpte_callback = ptbl_alloc,
+		.pml4e_callback = ptbl_alloc,
 		.udata = &info,
 	};
-	cprintf("add pages for size: %p\n", size);
-	walk_page_range(pml4, va, (void *)((uintptr_t)va + size), &walker);
+	cprintf("mapping va: %p with size %p to pa: %p base: %p, end %p \n", va, size, pa, info.base, info.end);
+	int ok = walk_page_range(pml4, va, (void *)((uintptr_t)va + size), &walker);
+	cprintf("done walking errorcode: %d, end pa: %p\n", ok, info.pa);
 }
 
 /* This function parses the program headers of the ELF header of the kernel
@@ -86,6 +92,49 @@ void boot_map_region(struct page_table *pml4, void *va, size_t size,
  * Hint: this function calls boot_map_region().
  * Hint: this function ignores program headers below KERNEL_VMA (e.g. ".boot").
  */
+
+void debug_print(){
+	for(int i = 0; i < 512; i++){
+		physaddr_t entry = kernel_pml4->entries[i];
+
+		if(entry != 0){
+			cprintf("entry %d is: %p\n", i, entry);
+			
+			physaddr_t* pml3 = KADDR(PAGE_ADDR(entry));
+
+			for(int j = 0; j < 512; j++){
+
+				if(pml3[j] != 0){
+					cprintf("	entry2 %d is %p\n", j, pml3[j]);
+					physaddr_t* pml2 = KADDR(PAGE_ADDR(pml3[j]));
+					
+					for(int k = 0; k < 512; k++){
+						if(pml2[k] != 0 && !(pml2[k] & PAGE_HUGE)){
+								cprintf("		entry3 %d is %p\n", k, pml2[k]);
+
+								physaddr_t* pml1 = KADDR(PAGE_ADDR(pml2[k]));
+								for(int l = 0; l < 512; l++){
+
+									if(pml1[l] != 0){
+										cprintf("			entry4 %d is %p\n", l, pml1[k]);
+									}
+								}
+
+						}
+						if(pml2[k] != 0 && (pml2[k] & PAGE_HUGE)){
+							cprintf("		entry3 %d is HUGE %p\n", k, pml2[k]);
+						}
+					}
+				}
+			}
+
+
+
+		}
+	}
+}
+
+
 void boot_map_kernel(struct page_table *pml4, struct elf *elf_hdr)
 {
 	struct elf_proghdr *prog_start =
@@ -94,7 +143,12 @@ void boot_map_kernel(struct page_table *pml4, struct elf *elf_hdr)
 	//kernel vma = 0xFFFF800000000000
 	//which pa to use for this? where does the kenrla start in physical mem?
 
-	boot_map_region(pml4, (void*) KERNEL_VMA, BOOT_MAP_LIM, 0, PAGE_KMASK);
+	boot_map_region(pml4, (void*) KERNEL_VMA, BOOT_MAP_LIM, 0, PAGE_PRESENT);
+
+	debug_print();
+
+	//panic("debug");
+
 
 	/* LAB 2: your code here. */
 	struct elf_proghdr *prog_hdr;
@@ -102,14 +156,15 @@ void boot_map_kernel(struct page_table *pml4, struct elf *elf_hdr)
 	for(size_t i = 0; i < elf_hdr->e_phnum; i++){
 		prog_hdr = prog_start + i;
 
-		if(prog_hdr->p_va < KERNEL_VMA) continue;
+		if(prog_hdr->p_va < (KERNEL_VMA + BOOT_MAP_LIM)) continue;
 
 		//setup flags
 		if(prog_hdr->p_flags & ELF_PROG_FLAG_WRITE) flags |= PAGE_WRITE;
-		if(!(prog_hdr->p_flags & ELF_PROG_FLAG_EXEC)) flags |= PAGE_NO_EXEC; //CHECK AGAIN IF THIS IS THE CORRECT WAY TO CHECK THE FLAGS
+		if(!(prog_hdr->p_flags & ELF_PROG_FLAG_EXEC)) flags ;// |= PAGE_NO_EXEC; //CHECK AGAIN IF THIS IS THE CORRECT WAY TO CHECK THE FLAGS
 		flags |= PF_PRESENT;
-		
+		cprintf("attempting to map from elf header");
 		boot_map_region(pml4, (void*) prog_hdr->p_va, prog_hdr->p_memsz, prog_hdr->p_pa, flags);
+		debug_print();
 
 		flags = 0;
 	}
