@@ -125,15 +125,24 @@ void mem_init(struct boot_info *boot_info)
 	/* Setup the initial PML4 for the kernel. */
 	pml4_setup(boot_info);
 
+
+	for(int i = 0; i < 512; i++){
+		physaddr_t entry = kernel_pml4->entries[i];
+
+		if(entry != 0){
+			cprintf("entry %d is: %p\n", i, entry);
+		}
+	}
+
 	/* Enable the NX-bit. */
 	/* LAB 2: your code here. */
 
 	uint64_t efer = read_msr(MSR_EFER);
 	write_msr(MSR_EFER, efer | MSR_EFER_NXE);
 
-	dump_page_tables(kernel_pml4, PAGE_PRESENT);
+	//dump_page_tables(kernel_pml4, PAGE_PRESENT);
 
-	panic("debug panic");
+	//panic("debug panic");
 	/* Check the kernel PML4. */
 	lab2_check_pml4();
 
@@ -249,8 +258,12 @@ void page_init_ext(struct boot_info *boot_info)
 	for (i = 0; i < boot_info->mmap_len; ++i, ++entry) {
 		if(entry->type != MMAP_FREE) continue;
 
-		for(physaddr_t addr = entry->addr; addr <= entry->addr + entry->len; addr += PAGE_SIZE){
+		for(physaddr_t addr = entry->addr; addr < entry->addr + entry->len; addr += PAGE_SIZE){
 			if(addr < BOOT_MAP_LIM) continue;
+			
+			if(PAGE_INDEX(addr) >= npages){
+				buddy_map_chunk(kernel_pml4, PAGE_INDEX(addr));
+			}
 
 			struct page_info* page = pa2page(addr);
 
@@ -260,6 +273,7 @@ void page_init_ext(struct boot_info *boot_info)
 			page->pp_order = 0;
 
 			page_free(pa2page(addr));
+
 		}
 	}
 }

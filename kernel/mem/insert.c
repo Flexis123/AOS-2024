@@ -48,7 +48,9 @@ static int insert_pde(physaddr_t *entry, uintptr_t base, uintptr_t end,
 		tlb_invalidate(info->pml4, page2kva(page));
 	}
 	if((info->flags & PAGE_HUGE) == 0){
-		return ptbl_alloc(entry, base, end, walker);
+		int ok = ptbl_alloc(entry, base, end, walker);
+		*entry = PAGE_ADDR(*entry) | info->flags;
+		return ok;
 	}
 	info->page->pp_ref++;
 	*entry = page2pa(info->page) | info->flags;
@@ -98,7 +100,9 @@ int page_insert(struct page_table *pml4, struct page_info *page, void *va,
 	struct page_walker walker = {
 		.pte_callback = insert_pte,
 		.pde_callback = insert_pde,
-		.udata = &info, 
+		.pdpte_callback = ptbl_alloc,
+		.pml4e_callback = ptbl_alloc,
+		.udata = &info,
 	};
 	return walk_page_range(pml4, va, (void *)((uintptr_t)va + PAGE_SIZE),
 		&walker);

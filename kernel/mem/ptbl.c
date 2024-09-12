@@ -56,7 +56,7 @@ int ptbl_split(physaddr_t *entry, uintptr_t base, uintptr_t end,
 	
 	new_table->pp_ref++;
 	physaddr_t *new_table_entries = page2kva(new_table);
-	void *old_data = page2kva(pa2page(PAGE_ADDR(*entry)));
+	void *old_data = KADDR(PAGE_ADDR(*entry));
 
 	for(int i = 0; i < PAGE_TABLE_ENTRIES; i++){
 		struct page_info *new_page = page_alloc(ALLOC_ZERO);
