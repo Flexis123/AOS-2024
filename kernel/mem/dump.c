@@ -3,6 +3,51 @@
 
 #include <kernel/mem.h>
 
+
+void debug_print(){
+	cprintf("\n");
+	for(int i = 0; i < 512; i++){
+		physaddr_t entry = kernel_pml4->entries[i];
+
+		if(entry != 0){
+			cprintf("pml4 entry %d is: %p\n", i, entry);
+			
+			physaddr_t* pml3 = KADDR(PAGE_ADDR(entry));
+
+			for(int j = 0; j < 512; j++){
+
+				if(pml3[j] != 0){
+					cprintf("	pdpt entry %d is %p\n", j, pml3[j]);
+					physaddr_t* pml2 = KADDR(PAGE_ADDR(pml3[j]));
+					
+					for(int k = 0; k < 512; k++){
+						if(pml2[k] != 0 && !(pml2[k] & PAGE_HUGE)){
+								cprintf("		pd entry %d is %p\n", k, pml2[k]);
+
+								physaddr_t* pml1 = KADDR(PAGE_ADDR(pml2[k]));
+								for(int l = 0; l < 512; l++){
+
+									if(pml1[l] != 0){
+										cprintf("			pt entry %d is %p\n", l, pml1[l]);
+									}
+								}
+
+						}
+						if(pml2[k] != 0 && (pml2[k] & PAGE_HUGE)){
+							cprintf("		entry3 %d is HUGE %p\n", k, pml2[k]);
+						}
+					}
+				}
+			}
+
+
+
+		}
+	}
+	cprintf("\n");
+}
+
+
 struct dump_info {
 	uintptr_t base;
 	uintptr_t end;

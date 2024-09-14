@@ -11,11 +11,9 @@ struct remove_info {
 static void remove_page(physaddr_t *entry, struct remove_info *info){
 	struct page_info *page = pa2page(PAGE_ADDR(*entry));
 	page_decref(page);
-	cprintf("page struct addr %p\n", page);
-
-	// only unmap when ref count is zero because 2 va's can point to the same page!
+	
 	*entry = 0;
-	tlb_invalidate(info->pml4, info->va); //but invalidate tlb as virtual adress points to nothing now!
+	tlb_invalidate(info->pml4, info->va);
 }
 
 /* Removes the page if present by decrement the reference count, clearing the
@@ -37,7 +35,7 @@ static int remove_pde(physaddr_t *entry, uintptr_t base, uintptr_t end,
 {
 	struct remove_info *info = walker->udata;
 
-	if((*entry & PAGE_PRESENT) && (*entry & PAGE_HUGE)) remove_page(entry, info);
+	if((*entry & PAGE_PRESENT) && (*entry & PAGE_HUGE) && (end - base) + 1 >= HPAGE_SIZE) remove_page(entry, info);
 	return 0;
 }
 

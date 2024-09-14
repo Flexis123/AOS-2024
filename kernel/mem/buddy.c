@@ -9,6 +9,8 @@
 size_t npages;
 struct page_info *pages;
 
+#define BONUS_LAB1
+
 /*
  * List of free buddy chunks (often also referred to as buddy pages or simply
  * pages). Each order has a list containing all free buddy chunks of the
@@ -88,7 +90,7 @@ size_t count_total_free_pages(void)
  *
  * Returns a page of the requested order.
  */
- struct page_info *buddy_split(struct page_info *lhs, size_t req_order)
+struct page_info *buddy_split(struct page_info *lhs, size_t req_order)
 {
 	//get page adress
 	//flip order bit to get buddy
@@ -109,7 +111,8 @@ size_t count_total_free_pages(void)
 		}
 #endif
 
-		list_add(&buddy_free_list[lhs->pp_order], &buddy->pp_node);
+		list_insert_before(&buddy_free_list[lhs->pp_order], &buddy->pp_node);
+		cprintf("inserted an order %d pagein the free list\n", lhs->pp_order);
 	}
 	
 	return lhs;
@@ -191,8 +194,12 @@ struct page_info *buddy_find(size_t req_order)
 	for(size_t ord = req_order; ord < BUDDY_MAX_ORDER; ord++){
 		head = &buddy_free_list[ord]; 
 		if(!list_is_empty(head)) {
-			page = buddy_split(container_of(head->next, struct page_info, pp_node), req_order);
+			page = container_of(head->next, struct page_info, pp_node);
+			assert(page->pp_order == ord);
+			page = buddy_split(page, req_order);
+			cprintf("got page of order %d\n", ord);
 			list_del(&page->pp_node);
+
 			page->pp_free = false;
 			return page;
 		}
@@ -219,11 +226,9 @@ struct page_info *page_alloc(int alloc_flags)
 {
 	struct page_info* page;
 
-#ifdef BONUS_LAB1
+
 	if (alloc_flags & ALLOC_HUGE) page = buddy_find(BUDDY_2M_PAGE);
-	else 
-#endif 
-	page = buddy_find(0);
+	else page = buddy_find(0);
 
 	//check for OOM
 	if(page) {
@@ -262,7 +267,24 @@ void page_free(struct page_info *pp)
 	}
 #endif
 	pp->pp_free = true;
+
+	//struct list *entry;
+	int size = 0;
+	list_foreach(&buddy_free_list[pp->pp_order], entry){
+		size++;
+	}
+	//cprintf("Size of free list before insert in page free: %d\n", size);
+
 	list_insert_before(&buddy_free_list[pp->pp_order], &pp->pp_node);
+	//show_buddy_info();
+	size = 0;
+	list_foreach(&buddy_free_list[pp->pp_order], entry){
+		size++;
+	}
+
+	//cprintf("Size of free list after insert in page free: %d\n", size);
+	//show_buddy_info();
+
 	buddy_merge(pp);
 }
 

@@ -246,6 +246,8 @@ void lab2_check_4k_paging(void)
 	/* Remember the amount of free pages. */
 	nfree = count_total_free_pages();
 
+	cprintf("nfree: %lu\n", nfree);
+
 	cprintf("counted total number of pages in lab2 check paging\n");
 
 	/* Allocate a 4K page. */
@@ -254,8 +256,8 @@ void lab2_check_4k_paging(void)
 	if (!page) {
 		panic("cannot allocate 4K page!");
 	}
+	cprintf("free pages after alloc: %lu\n", count_total_free_pages());
 
-	cprintf("page allocated in lab2 check paging\n");
 
 	/* Insert the page. */
 	assert(page_insert(kernel_pml4, page, 0, PAGE_PRESENT) == 0);
@@ -263,7 +265,7 @@ void lab2_check_4k_paging(void)
 	assert(!page->pp_free);
 	assert(kernel_pml4->entries[0] != 0);
 
-	cprintf("page mapped in lab2 check paging\n");
+	cprintf("free pages after insert: %lu\n", count_total_free_pages());
 
 	/* Look up the page. */
 	ret = page_lookup(kernel_pml4, 0, &entry);
@@ -271,15 +273,25 @@ void lab2_check_4k_paging(void)
 	assert(PAGE_ADDR(*entry) == page2pa(page));
 	assert(ret == page);
 
+	cprintf("free pages after lookup: %lu\n", count_total_free_pages());
+
 	/* Remove the page. */
+	cprintf("removing page\n");
 	page_remove(kernel_pml4, 0);
+	cprintf("page removed\n");
+
+	cprintf("free pages after page_remove: %lu\n", count_total_free_pages());
+
 	assert(page->pp_free);
 	assert(!page_lookup(kernel_pml4, 0, NULL));
+
+	cprintf("free pages after lookup to check deletion: %lu\n", count_total_free_pages());
 
 	/* Check if the page tables have been cleaned up. */
 	assert(kernel_pml4->entries[0] == 0);
 
 	/* Check if we leaked memory. */
+
 	assert(nfree == count_total_free_pages());
 
 	cprintf("[LAB 2] check_4k_paging() succeeded!\n");
@@ -583,6 +595,8 @@ void lab2_check_paging(void)
 	lab2_check_transparent_2m_paging();
         **/
 }
+
+#define EXTENDED_CHECKS_LAB2
 
 void lab2_check_buddy(struct boot_info *boot_info)
 {

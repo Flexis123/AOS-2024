@@ -4,6 +4,8 @@
 
 #include <kernel/mem.h>
 
+extern struct list buddy_free_list[BUDDY_MAX_ORDER];
+
 /* Allocates a page table if none is present for the given entry.
  * If there is already something present in the PTE, then this function simply
  * returns. Otherwise, this function allocates a page using page_alloc(),
@@ -45,6 +47,9 @@ int ptbl_alloc(physaddr_t *entry, uintptr_t base, uintptr_t end,
  * Hint: this function calls ptbl_alloc(), page_alloc(), page2pa() and
  * page2kva().
  */
+
+
+
 int ptbl_split(physaddr_t *entry, uintptr_t base, uintptr_t end,
     struct page_walker *walker)
 {
@@ -56,8 +61,7 @@ int ptbl_split(physaddr_t *entry, uintptr_t base, uintptr_t end,
 		return ok;
 	}
 	if((*entry & PAGE_HUGE) == 0){
-		panic("cannot split regular page, entry: %p", *entry);
-		return -1;
+		return 1;
 	}
 	struct page_info *new_table = page_alloc(ALLOC_ZERO);
 
@@ -80,7 +84,7 @@ int ptbl_split(physaddr_t *entry, uintptr_t base, uintptr_t end,
 		memcpy(page2kva(new_page), old_data + i * PAGE_SIZE, PAGE_SIZE);
 	}
 	page_decref(pa2page(PAGE_ADDR(*entry)));
-	*entry = page2pa(new_table) | (*entry & PAGE_MASK & ~PAGE_HUGE);
+	*entry = page2pa(new_table) | PAGE_TABLE_ENTRY_PERMS;
   
 	return 0;
 }

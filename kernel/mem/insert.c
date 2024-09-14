@@ -25,6 +25,7 @@ static int insert_pte(physaddr_t *entry, uintptr_t base, uintptr_t end,
 		tlb_invalidate(info->pml4, page2kva(page));
 	}
 	info->page->pp_ref++;
+	assert(!info->page->pp_free);
 	*entry = page2pa(info->page) | info->flags;
 	return 0;
 }
@@ -53,6 +54,7 @@ static int insert_pde(physaddr_t *entry, uintptr_t base, uintptr_t end,
 		return ok;
 	}
 	info->page->pp_ref++;
+	assert(!info->page->pp_free);
 	*entry = page2pa(info->page) | info->flags;
 	return 0;
 }
