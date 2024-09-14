@@ -49,9 +49,9 @@ static int insert_pde(physaddr_t *entry, uintptr_t base, uintptr_t end,
 		tlb_invalidate(info->pml4, page2kva(page));
 	}
 	if((info->flags & PAGE_HUGE) == 0){
-		int ok = ptbl_alloc(entry, base, end, walker);
+		return ptbl_alloc(entry, base, end, walker);
 		*entry = PAGE_ADDR(*entry) | info->flags;
-		return ok;
+		//return ok;
 	}
 	info->page->pp_ref++;
 	assert(!info->page->pp_free);
@@ -88,15 +88,14 @@ int page_insert(struct page_table *pml4, struct page_info *page, void *va,
     uint64_t flags)
 {
 	if((flags & PAGE_PRESENT) == 0){
-		panic("page_insert called with present bit 0");
+		return -1;
 	}
 	if(!page_aligned((uintptr_t)va)){
-		panic("page_insert called with non-aligned virtual address");
+		return -1;
 	}
-	if((flags & PAGE_HUGE) && !hpage_aligned((uintptr_t)va)){
-		panic("page_insert called with huge page non-aligned virtual address");
+	if(((flags & PAGE_HUGE) || (page->pp_order == BUDDY_2M_PAGE)) && !hpage_aligned((uintptr_t)va)){
+		return -1;
 	}
-
 	struct insert_info info = {pml4, page, flags};
 
 	struct page_walker walker = {
@@ -106,6 +105,9 @@ int page_insert(struct page_table *pml4, struct page_info *page, void *va,
 		.pml4e_callback = ptbl_alloc,
 		.udata = &info,
 	};
-	return walk_page_range(pml4, va, (void *)((uintptr_t)va + PAGE_SIZE),
+	int ok = walk_page_range(pml4, va, (void *)((uintptr_t)va + PAGE_SIZE),
 		&walker);
+
+	tlb_invalidate(pml4, va);
+	return ok;
 }

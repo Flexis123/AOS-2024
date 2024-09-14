@@ -4,4 +4,3 @@
 #include <paging.h>
 
 int dump_page_tables(struct page_table *pml4, uint64_t mask);
-void debug_print();

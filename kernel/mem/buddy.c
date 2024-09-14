@@ -112,7 +112,6 @@ struct page_info *buddy_split(struct page_info *lhs, size_t req_order)
 #endif
 
 		list_insert_before(&buddy_free_list[lhs->pp_order], &buddy->pp_node);
-		cprintf("inserted an order %d pagein the free list\n", lhs->pp_order);
 	}
 	
 	return lhs;
@@ -192,12 +191,12 @@ struct page_info *buddy_find(size_t req_order)
 	struct list* head;
 	struct page_info* page;
 	for(size_t ord = req_order; ord < BUDDY_MAX_ORDER; ord++){
-		head = &buddy_free_list[ord]; 
+		head = &buddy_free_list[ord];
+
 		if(!list_is_empty(head)) {
 			page = container_of(head->next, struct page_info, pp_node);
 			assert(page->pp_order == ord);
 			page = buddy_split(page, req_order);
-			cprintf("got page of order %d\n", ord);
 			list_del(&page->pp_node);
 
 			page->pp_free = false;
@@ -236,6 +235,7 @@ struct page_info *page_alloc(int alloc_flags)
 			memset(page2kva(page), 0, 1 << (page->pp_order + PAGE_TABLE_SHIFT));
 		}
 	}
+	assert(page != NULL);
 	return page;
 }
 
@@ -273,17 +273,12 @@ void page_free(struct page_info *pp)
 	list_foreach(&buddy_free_list[pp->pp_order], entry){
 		size++;
 	}
-	//cprintf("Size of free list before insert in page free: %d\n", size);
 
 	list_insert_before(&buddy_free_list[pp->pp_order], &pp->pp_node);
-	//show_buddy_info();
 	size = 0;
 	list_foreach(&buddy_free_list[pp->pp_order], entry){
 		size++;
 	}
-
-	//cprintf("Size of free list after insert in page free: %d\n", size);
-	//show_buddy_info();
 
 	buddy_merge(pp);
 }
@@ -369,7 +364,6 @@ int buddy_map_chunk(struct page_table *pml4, size_t index)
 		page = base + i;
 		list_init(&page->pp_node);
 	}
-
 	npages = index + nblocks;
 
 	return 0;

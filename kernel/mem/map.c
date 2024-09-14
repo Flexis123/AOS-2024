@@ -35,14 +35,11 @@ static int boot_map_pde(physaddr_t *entry, uintptr_t base, uintptr_t end,
 {
 	struct boot_map_info *info = walker->udata;
 
-	//cprintf("map pde, base and end, size: %p: %p %p, current entry: %p\n", base, end, end - base + 1, *entry);
 	if(hpage_aligned((uintptr_t)info->pa) && (end - base +1) == HPAGE_SIZE){
 		*entry = info->pa | PAGE_PRESENT | PAGE_HUGE;
 		info->pa += HPAGE_SIZE;
-		//cprintf("direct map 2M page\n");
 		return 0;
 	}
-	//cprintf("split the mf\n");
 	return ptbl_split(entry, base, end, walker);	
 
 }
@@ -77,6 +74,10 @@ void boot_map_region(struct page_table *pml4, void *va, size_t size,
 		.udata = &info,
 	};
 	walk_page_range(pml4, va, (void *)((uintptr_t)va + size), &walker);
+
+	for(size_t i = 0; i < size; i+= PAGE_SIZE){
+		tlb_invalidate(pml4, va + i);
+	}
 }
 
 /* This function parses the program headers of the ELF header of the kernel
@@ -98,14 +99,8 @@ void boot_map_kernel(struct page_table *pml4, struct elf *elf_hdr)
 	struct elf_proghdr *prog_start =
 	    (struct elf_proghdr *)((char *)elf_hdr + elf_hdr->e_phoff);
 
-	//kernel vma = 0xFFFF800000000000
-	//which pa to use for this? where does the kenrla start in physical mem?
 
-	cprintf("ptbl before boot map region of KERNEL VMA\n");
-	//debug_print();
 	boot_map_region(pml4, (void*) KERNEL_VMA, BOOT_MAP_LIM, 0, PAGE_PRESENT | PAGE_WRITE | PAGE_NO_EXEC);
-	cprintf("ptbl after boot map region of KERNEL VMA\n");
-	//debug_print();
 
 
 	/* LAB 2: your code here. */
@@ -118,16 +113,10 @@ void boot_map_kernel(struct page_table *pml4, struct elf *elf_hdr)
 
 		//setup flags
 		if(prog_hdr->p_flags & ELF_PROG_FLAG_WRITE) flags |= PAGE_WRITE;
-		if(!(prog_hdr->p_flags & ELF_PROG_FLAG_EXEC)) flags |= PAGE_NO_EXEC; //CHECK AGAIN IF THIS IS THE CORRECT WAY TO CHECK THE FLAGS
+		if(!(prog_hdr->p_flags & ELF_PROG_FLAG_EXEC)) flags |= PAGE_NO_EXEC;
 		flags |= PAGE_PRESENT;
 
 
-		cprintf("prog_hdr with va range: %p - %p is going to be mapped at pa: %p\n", prog_hdr->p_va, prog_hdr->p_va + prog_hdr->p_memsz, prog_hdr->p_pa);
-		cprintf("flags: %p\n", flags);
-		//boot_map_region(pml4, (void*) prog_hdr->p_va, prog_hdr->p_memsz, prog_hdr->p_pa, flags);
-
 		flags = 0;
 	}
-
-	debug_print();
 }

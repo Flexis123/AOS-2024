@@ -36,43 +36,21 @@ int pml4_setup(struct boot_info *boot_info)
 	/* LAB 2: your code here. */
 	boot_map_kernel(kernel_pml4, (struct elf*) boot_info->elf_hdr);
 	
-
-	//dump_page_tables(kernel_pml4, 0);
-	//panic("end");
 	/* Use the physical memory that 'bootstack' refers to as the kernel
 	 * stack. The kernel stack grows down from virtual address KSTACK_TOP.
 	 * Map 'bootstack' to [KSTACK_TOP - KSTACK_SIZE, KSTACK_TOP).
 	 */
-	//cprintf("KSTACK_BOTTOM = %p\n", (void*)(KSTACK_TOP - KSTACK_SIZE));
-	//cprintf("KSTACK_TOP = %p\n", KSTACK_TOP);
 
-	//cprintf("ptbl before boot map region of KSTACK\n");
-	//debug_print();
 	boot_map_region(kernel_pml4, (void*)(KSTACK_TOP - KSTACK_SIZE), KSTACK_SIZE, (physaddr_t) bootstack, kflags);
-	//cprintf("ptbl after boot map region of KSTACK\n");
-	//debug_print();
 
 
 	/* Map in the pages from the buddy allocator as RW-. */
-	
-
-	/* LAB 2: your code here. */
-	//map all the occupied pages from the buddy allocator
-
-	//cprintf("ptbl before boot map region of KPAGES\n");
-	//debug_print();
 	boot_map_region(kernel_pml4, (void*) KPAGES, npages * sizeof(struct page_info), PADDR(pages), kflags);
-	//cprintf("ptbl after boot map region of KPAGES\n");
-	//debug_print();
-	//debug_print2();
-	//todo map later the other regions of memory like process map etc.
 
 
 	/* Migrate the struct page_info structs to the newly mapped area using
 	 * buddy_migrate().
 	 */
-	//panic("debug");
-	/* LAB 2: your code here. */
 	buddy_migrate();
 	return 0;
 }
@@ -258,32 +236,29 @@ void page_init_ext(struct boot_info *boot_info)
 	 *  3) If the physical address is below BOOT_MAP_LIM, ignore.
 	 *  4) Hand the page to the buddy allocator by calling page_free().
 	 */
-	size_t prev_npages = npages;
+	
 	for (i = 0; i < boot_info->mmap_len; ++i, ++entry) {
 		if(entry->type != MMAP_FREE) continue;
-
+		//TODO fix huge page info struct 786432  (huge page) 1536 not mapped in?
 		for(physaddr_t addr = entry->addr; addr < entry->addr + entry->len; addr += PAGE_SIZE){
 			if(addr < BOOT_MAP_LIM) continue;
-			
-			if(PAGE_INDEX(addr) >= npages){
-				size_t prev_npages = npages;
-				buddy_map_chunk(kernel_pml4, PAGE_INDEX(addr));
 
+			if(addr + entry->len < BOOT_MAP_LIM){
+				break;
 			}
+			size_t prev_npages = npages;
+			buddy_map_chunk(kernel_pml4, PAGE_INDEX(addr));
+			boot_map_region(kernel_pml4, page2kva(pa2page(addr)), HPAGE_SIZE, addr, PAGE_PRESENT | PAGE_WRITE | PAGE_NO_EXEC);
 
-			struct page_info* page = pa2page(addr);
+			for (size_t j = 0; j < 512; ++j) {
+				struct page_info* page = pa2page(addr + (j * PAGE_SIZE));
+				page->pp_order = 0;
+				page->pp_ref = 0;
 
-			list_init(&page->pp_node);
-			page->pp_ref = 0;
-			page->pp_free = false;
-			page->pp_order = 0;
-
-			page_free(pa2page(addr));
-
+				page_free(page);
+        }
+		assert(hpage_aligned(addr));
+		addr += HPAGE_SIZE - PAGE_SIZE;		
 		}
 	}
-
-	//after map the actual new pages
-	physaddr_t reg_pa = prev_npages * PAGE_SIZE;
-	boot_map_region(kernel_pml4, KADDR(reg_pa), (npages - prev_npages) * PAGE_SIZE, reg_pa,  PAGE_PRESENT);
 }

@@ -69,7 +69,6 @@ static int ptbl_walk_range(struct page_table *ptbl, uintptr_t base,
 	while(current < end){
 		
 		physaddr_t* entry = ptbl->entries + PAGE_TABLE_INDEX(current);
-		//cprintf("ptbl index: %d current: %p, base: %p, end %p, entry %p\n", PAGE_TABLE_INDEX(current), current, base, end, *entry);
 		assert(PAGE_TABLE_INDEX(current) < 512);
 		if(walker->pte_callback){
 			if(walker->pte_callback(entry, current, MIN(next -1, end), walker) < 0){
@@ -126,7 +125,6 @@ static int pdir_walk_range(struct page_table *pdir, uintptr_t base,
 	}
 	while(current < end){
 		physaddr_t* entry = pdir->entries + PAGE_DIR_INDEX(current);
-		//cprintf("pdir index: %d current: %p, base: %p, end %p, entry %p\n", PAGE_DIR_INDEX(current), current, base, end, *entry);
 		assert(PAGE_DIR_INDEX(current) < 512);
 
 
@@ -184,7 +182,6 @@ static int pdpt_walk_range(struct page_table *pdpt, uintptr_t base,
 		next = end;
 	}
 	while(current < end){
-		//cprintf("pdpt index: %d current: %p, base: %p, end %p\n", PDPT_INDEX(current), current, base, end);
 		physaddr_t* entry = pdpt->entries + PDPT_INDEX(current);
 		assert(PDPT_INDEX(current) < 512);
 		if(walker->pdpte_callback){
@@ -234,7 +231,6 @@ static int pml4_walk_range(struct page_table *pml4, uintptr_t base, uintptr_t en
     struct page_walker *walker)
 {
 
-	//cprintf("started walk, base: %p end: %p size;  %p\n", base, end, end - base + 1);
 	uintptr_t current = sign_extend(base);
 	uintptr_t next = sign_extend(pml4_end(base) + 1);
 
@@ -244,7 +240,6 @@ static int pml4_walk_range(struct page_table *pml4, uintptr_t base, uintptr_t en
 
 	while(current < end){
 		physaddr_t* entry = pml4->entries + PML4_INDEX(current);
-		//cprintf("pml4 index: %d current: %p, base: %p, end %p\n", PML4_INDEX(current), current, base, end);
 		assert(PML4_INDEX(current) < 512);
 
 		if(walker->pml4e_callback){
@@ -267,10 +262,8 @@ static int pml4_walk_range(struct page_table *pml4, uintptr_t base, uintptr_t en
 				return -1;
 			}
 		}
-		//cprintf("current before %p, next %p, end %p\n", current, next, end);
 		current = sign_extend(next);
 		next = sign_extend(pml4_end(next) + 1);
-		//cprintf("current after %p, next %p, end %p\n", current, next, end);
 
 		if(next < current){
 			current = end;
