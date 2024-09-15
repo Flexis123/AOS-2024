@@ -11,7 +11,6 @@ struct remove_info {
 static void remove_page(physaddr_t *entry, struct remove_info *info){
 	struct page_info *page = pa2page(PAGE_ADDR(*entry));
 	page_decref(page);
-	
 	*entry = 0;
 	tlb_invalidate(info->pml4, info->va);
 }
@@ -35,7 +34,39 @@ static int remove_pde(physaddr_t *entry, uintptr_t base, uintptr_t end,
 {
 	struct remove_info *info = walker->udata;
 
-	if((*entry & PAGE_PRESENT) && (*entry & PAGE_HUGE) && (end - base) + 1 >= HPAGE_SIZE) remove_page(entry, info);
+	if((*entry & PAGE_PRESENT) && (*entry & PAGE_HUGE)){
+
+		if((end - base) + 1 >= HPAGE_SIZE){
+			
+			struct page_info *page = pa2page(PAGE_ADDR(*entry));
+			remove_page(entry, info);
+			return 0;
+		}
+		else{
+			return ptbl_split(entry, base, end, walker);
+		}
+	}
+	return 0;
+}
+
+static int remove_table(physaddr_t *entry, uintptr_t base, uintptr_t end,
+    struct page_walker *walker)
+{
+	if(!(*entry & PAGE_PRESENT)){
+		return 0;
+	}
+
+	struct page_info* page = pa2page(PAGE_ADDR(*entry));
+	struct page_table* table = page2kva(page);
+
+	for(int i = 0; i < PAGE_TABLE_ENTRIES; i++){
+		
+		if(table->entries[i] != 0){
+			return 0;
+		}
+	}
+	*entry = 0;
+	page_decref(page);
 	return 0;
 }
 
@@ -50,15 +81,15 @@ void unmap_page_range(struct page_table *pml4, void *va, size_t size)
 	struct page_walker walker = {
 		.pte_callback = remove_pte,
 		.pde_callback = remove_pde,
-		.pde_unmap = remove_pte,
-		.pdpte_unmap = remove_pte,
-		.pml4e_unmap = remove_pte,
+		.pde_unmap = remove_table,
+		.pdpte_unmap = remove_table,
+		.pml4e_unmap = remove_table,
 		.udata = &info,
 	};
 
 	walk_page_range(pml4, va, va + size, &walker);
 
-	for(size_t i = 0; i < size; i+= PAGE_SIZE){
+	for(size_t i = 0; i < size; i += PAGE_SIZE){
 		tlb_invalidate(pml4, va + i);
 	}
 }
@@ -72,5 +103,16 @@ void unmap_user_pages(struct page_table *pml4)
 /* Unmaps the physical page at the virtual address va. */
 void page_remove(struct page_table *pml4, void *va)
 {
-	unmap_page_range(pml4, va, PAGE_SIZE);
+	struct page_info *page = page_lookup(pml4, va, NULL);
+
+	if(!page){
+		panic("no page for this va\n");
+		return;
+	}
+	if(page->pp_order == BUDDY_4K_PAGE){
+		unmap_page_range(pml4, va, PAGE_SIZE);
+	}
+	if(page->pp_order == BUDDY_2M_PAGE){
+		unmap_page_range(pml4, va, HPAGE_SIZE);
+	}	
 }

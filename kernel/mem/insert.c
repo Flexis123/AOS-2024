@@ -24,6 +24,9 @@ static int insert_pte(physaddr_t *entry, uintptr_t base, uintptr_t end,
 		page_decref(page);
 		tlb_invalidate(info->pml4, page2kva(page));
 	}
+	if(info->page->pp_order == BUDDY_2M_PAGE){
+		return 0;
+	}
 	info->page->pp_ref++;
 	assert(!info->page->pp_free);
 	*entry = page2pa(info->page) | info->flags;
@@ -46,12 +49,10 @@ static int insert_pde(physaddr_t *entry, uintptr_t base, uintptr_t end,
 	if(*entry & PAGE_HUGE){
 		struct page_info *page = pa2page(PAGE_ADDR(*entry));
 		page_decref(page);
-		tlb_invalidate(info->pml4, page2kva(page));
 	}
-	if((info->flags & PAGE_HUGE) == 0){
+	if((info->flags & PAGE_HUGE) == 0 && info->page->pp_order != BUDDY_2M_PAGE){
+		struct page_table *table = KADDR(PAGE_ADDR(*entry));
 		return ptbl_alloc(entry, base, end, walker);
-		*entry = PAGE_ADDR(*entry) | info->flags;
-		//return ok;
 	}
 	info->page->pp_ref++;
 	assert(!info->page->pp_free);
@@ -93,21 +94,34 @@ int page_insert(struct page_table *pml4, struct page_info *page, void *va,
 	if(!page_aligned((uintptr_t)va)){
 		return -1;
 	}
-	if(((flags & PAGE_HUGE) || (page->pp_order == BUDDY_2M_PAGE)) && !hpage_aligned((uintptr_t)va)){
-		return -1;
+	if((flags & PAGE_HUGE) || (page->pp_order == BUDDY_2M_PAGE)){
+
+		if(!hpage_aligned((uintptr_t)va)){
+			return -1;
+		}
+		else{
+			flags |= PAGE_HUGE;
+		}
 	}
 	struct insert_info info = {pml4, page, flags};
 
 	struct page_walker walker = {
 		.pte_callback = insert_pte,
 		.pde_callback = insert_pde,
+		.pde_unmap = ptbl_merge,
 		.pdpte_callback = ptbl_alloc,
 		.pml4e_callback = ptbl_alloc,
 		.udata = &info,
 	};
-	int ok = walk_page_range(pml4, va, (void *)((uintptr_t)va + PAGE_SIZE),
+	int ok;
+	if(flags & PAGE_HUGE){
+		ok = walk_page_range(pml4, va, (void *)((uintptr_t)va + HPAGE_SIZE),
 		&walker);
-
+	}
+	else{
+		ok = walk_page_range(pml4, va, (void *)((uintptr_t)va + PAGE_SIZE),
+		&walker);
+	}
 	tlb_invalidate(pml4, va);
 	return ok;
 }

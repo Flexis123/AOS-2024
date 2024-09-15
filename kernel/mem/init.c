@@ -254,6 +254,8 @@ void page_init_ext(struct boot_info *boot_info)
 			boot_map_region(kernel_pml4, page2kva(pa2page(addr)), HPAGE_SIZE, addr, PAGE_PRESENT | PAGE_WRITE | PAGE_NO_EXEC);
 
 			for(size_t j = 0; j < (HPAGE_SIZE / PAGE_SIZE); ++j){
+				//if(PAGE_INDEX(addr + (j * PAGE_SIZE)) >= npages) break;
+
 				struct page_info* page = pa2page(addr + (j * PAGE_SIZE));
 				page->pp_order = 0;
 				page->pp_ref = 0;

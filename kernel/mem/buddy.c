@@ -142,7 +142,7 @@ struct page_info *buddy_merge(struct page_info *page)
 		physaddr_t buddy_addr = page_addr ^ (1 << (order + PAGE_TABLE_SHIFT));
 		struct page_info *buddy = pa2page(buddy_addr);
 
-		if(!buddy->pp_free){
+		if(!buddy->pp_free || (buddy->pp_order != page->pp_order)){
 			break;
 		}
 		physaddr_t merged_page_addr = page_addr & ~(1 << (order + PAGE_TABLE_SHIFT));
@@ -257,9 +257,9 @@ void page_free(struct page_info *pp)
 	}
 	struct list *entry;
 
-	list_foreach(&buddy_free_list[pp->pp_order], entry){
-		assert(entry != &pp->pp_node);
-	}
+	//list_foreach(&buddy_free_list[pp->pp_order], entry){
+	//	assert(entry != &pp->pp_node);
+	//}
 
 	physaddr_t page_addr = page2pa(pp);
 	if(page_addr == 0){

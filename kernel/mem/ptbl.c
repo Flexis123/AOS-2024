@@ -53,10 +53,8 @@ int ptbl_split(physaddr_t *entry, uintptr_t base, uintptr_t end,
     struct page_walker *walker)
 {
 
-	if((*entry & PAGE_PRESENT) == 0){
-		
-		int ok = ptbl_alloc(entry, base, end, walker);
-		return ok;
+	if((*entry & PAGE_PRESENT) == 0){	
+		return ptbl_alloc(entry, base, end, walker);
 	}
 	if((*entry & PAGE_HUGE) == 0){
 		return 0;
@@ -80,6 +78,7 @@ int ptbl_split(physaddr_t *entry, uintptr_t base, uintptr_t end,
 		}
 		new_table_entries[i] = page2pa(new_page) | ((*entry & PAGE_MASK) & ~PAGE_HUGE);
 		memcpy(page2kva(new_page), old_data + i * PAGE_SIZE, PAGE_SIZE);
+		new_page->pp_ref++;
 	}
 	page_decref(pa2page(PAGE_ADDR(*entry)));
 	*entry = page2pa(new_table) | PAGE_TABLE_ENTRY_PERMS;
@@ -108,30 +107,30 @@ int ptbl_merge(physaddr_t *entry, uintptr_t base, uintptr_t end,
 	if(*entry & PAGE_HUGE){
 		return 0;
 	}
-	physaddr_t table = PAGE_ADDR(*entry);
-	physaddr_t flags = *entry & PAGE_MASK;
+	struct page_table *table = KADDR(PAGE_ADDR(*entry));
+	physaddr_t flags = table->entries[0] & PAGE_MASK;
 
-	if((flags ^ PAGE_PRESENT) == 0) return 0;
+	if(!(flags & PAGE_PRESENT)) return 0;
 
 	for(int i = 0; i < PAGE_TABLE_ENTRIES; i++){
-		physaddr_t table_entry = table + i;
-
-		if((table_entry & PAGE_MASK) != flags) return 0;
+		if((table->entries[i] & PAGE_MASK) != flags){
+			 return 0;
+		}
 	}
 	struct page_info *huge_page = page_alloc(ALLOC_HUGE);
-	if(huge_page == NULL) return -1;
-	
+	huge_page->pp_ref++;
+	if(!huge_page) {
+		return -1;
+	}
 	void* huge_page_addr = page2kva(huge_page);
 
 	for(int i = 0; i < PAGE_TABLE_ENTRIES; i++){
-		physaddr_t table_entry = table + i;
-		struct page_info *entry_page = pa2page(PAGE_ADDR(table_entry));
-		memcpy(page2kva(entry_page), huge_page_addr + i * PAGE_SIZE, PAGE_SIZE);
+		struct page_info *entry_page = pa2page(PAGE_ADDR(table->entries[i]));
+		memcpy(huge_page_addr + i * PAGE_SIZE, page2kva(entry_page), PAGE_SIZE);
 		page_decref(entry_page);
 	}
-	struct page_info *table_page = pa2page(table);
-	page_decref(table_page);
-	*entry = page2pa(huge_page) | flags;
+	page_decref(pa2page(PAGE_ADDR(*entry)));
+	*entry = page2pa(huge_page) | flags | PAGE_HUGE;
 	return 0;
 }
 

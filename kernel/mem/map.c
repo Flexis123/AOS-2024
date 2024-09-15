@@ -16,7 +16,7 @@ struct boot_map_info {
 static int boot_map_pte(physaddr_t *entry, uintptr_t base, uintptr_t end,
     struct page_walker *walker)
 {
-	
+
 	struct boot_map_info *info = walker->udata;
 	*entry = info->pa | info->flags;
 	info->pa += PAGE_SIZE;
@@ -40,7 +40,12 @@ static int boot_map_pde(physaddr_t *entry, uintptr_t base, uintptr_t end,
 		info->pa += HPAGE_SIZE;
 		return 0;
 	}
-	return ptbl_split(entry, base, end, walker);	
+	int ok = ptbl_split(entry, base, end, walker);
+
+	for(uintptr_t i = base; i < end; i += PAGE_SIZE){
+		tlb_invalidate(info->pml4, (void*)i);
+	}
+	return ok;
 
 }
 
