@@ -16,17 +16,11 @@ struct boot_map_info {
 static int boot_map_pte(physaddr_t *entry, uintptr_t base, uintptr_t end,
     struct page_walker *walker)
 {
-<<<<<<< HEAD
 
 	struct boot_map_info *info = walker->udata;
 	*entry = info->pa | info->flags;
 	info->pa += PAGE_SIZE;
 	
-=======
-	struct boot_map_info *info = walker->udata;
-
-	/* LAB 2: your code here. */
->>>>>>> aos/lab3
 	return 0;
 }
 
@@ -41,7 +35,6 @@ static int boot_map_pde(physaddr_t *entry, uintptr_t base, uintptr_t end,
 {
 	struct boot_map_info *info = walker->udata;
 
-<<<<<<< HEAD
 	if(hpage_aligned((uintptr_t)info->pa) && (end - base +1) == HPAGE_SIZE){
 		*entry = info->pa | PAGE_PRESENT | PAGE_HUGE;
 		info->pa += HPAGE_SIZE;
@@ -54,10 +47,6 @@ static int boot_map_pde(physaddr_t *entry, uintptr_t base, uintptr_t end,
 	}
 	return ok;
 
-=======
-	/* LAB 2: your code here. */
-	return 0;
->>>>>>> aos/lab3
 }
 
 /*
@@ -73,11 +62,6 @@ static int boot_map_pde(physaddr_t *entry, uintptr_t base, uintptr_t end,
 void boot_map_region(struct page_table *pml4, void *va, size_t size,
     physaddr_t pa, uint64_t flags)
 {
-<<<<<<< HEAD
-
-
-=======
->>>>>>> aos/lab3
 	/* LAB 2: your code here. */
 	struct boot_map_info info = {
 		.pa = pa,
@@ -88,7 +72,6 @@ void boot_map_region(struct page_table *pml4, void *va, size_t size,
 	struct page_walker walker = {
 		.pte_callback = boot_map_pte,
 		.pde_callback = boot_map_pde,
-<<<<<<< HEAD
 		.pdpte_callback = ptbl_alloc,
 		.pml4e_callback = ptbl_alloc,
 		.udata = &info,
@@ -98,13 +81,6 @@ void boot_map_region(struct page_table *pml4, void *va, size_t size,
 	for(size_t i = 0; i < size; i+= PAGE_SIZE){
 		tlb_invalidate(pml4, va + i);
 	}
-=======
-		/* LAB 2: your code here. */
-		.udata = &info,
-	};
-
-	walk_page_range(pml4, va, (void *)((uintptr_t)va + size), &walker);
->>>>>>> aos/lab3
 }
 
 /* This function parses the program headers of the ELF header of the kernel
@@ -119,7 +95,6 @@ void boot_map_region(struct page_table *pml4, void *va, size_t size,
  * Hint: this function calls boot_map_region().
  * Hint: this function ignores program headers below KERNEL_VMA (e.g. ".boot").
  */
-<<<<<<< HEAD
 
 
 void boot_map_kernel(struct page_table *pml4, struct elf *elf_hdr)
@@ -148,14 +123,3 @@ void boot_map_kernel(struct page_table *pml4, struct elf *elf_hdr)
 		flags = 0;
 	}
 }
-=======
-void boot_map_kernel(struct page_table *pml4, struct elf *elf_hdr)
-{
-	struct elf_proghdr *prog_hdr =
-	    (struct elf_proghdr *)((char *)elf_hdr + elf_hdr->e_phoff);
-	uint64_t flags;
-	size_t i;
-
-	/* LAB 2: your code here. */
-}
->>>>>>> aos/lab3
