@@ -8,9 +8,6 @@ struct page_walker;
 typedef int (* map_pte_t)(physaddr_t *, uintptr_t, uintptr_t,
     struct page_walker *);
 
-typedef int (* walkfn_t)(struct page_table*, uintptr_t, uintptr_t,
-	struct page_walker*);
-
 struct page_walker {
 	map_pte_t pte_callback, pde_callback, pdpte_callback, pml4e_callback;
 	map_pte_t pte_unmap, pde_unmap, pdpte_unmap, pml4e_unmap;

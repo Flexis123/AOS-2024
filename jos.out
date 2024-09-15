@@ -4,7 +4,8 @@
 
 
 iPXE (https://ipxe.org) 00:03.0 CA00 PCI2.10 PnP PMM+06FCAF60+06F0AF60 CA00
-Press Ctrl-B to configure iPXE (PCI 00:03.0)...                                                                               
+Press Ctrl-B to configure iPXE (PCI 00:03.0)...
+                                                                               
 
 
 Booting from Hard Disk...
@@ -21,3 +22,4 @@ kernel panic at kernel/tests/lab2.c:299: page insert called, inital ref: 0
 Welcome to the OpenLSD kernel monitor!
 Type 'help' for a list of commands.
 qemu-system-x86_64: terminating on signal 15 from pid 302936 (make)
+
