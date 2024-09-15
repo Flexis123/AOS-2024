@@ -41,11 +41,11 @@ int pml4_setup(struct boot_info *boot_info)
 	 * Map 'bootstack' to [KSTACK_TOP - KSTACK_SIZE, KSTACK_TOP).
 	 */
 
-	boot_map_region(kernel_pml4, (void*)(KSTACK_TOP - KSTACK_SIZE), KSTACK_SIZE, (physaddr_t) bootstack, kflags);
+	boot_map_region(kernel_pml4, (void*)(KSTACK_TOP - KSTACK_SIZE), KSTACK_SIZE, (physaddr_t) bootstack, PAGE_PRESENT | PAGE_WRITE | PAGE_NO_EXEC);
 
 
 	/* Map in the pages from the buddy allocator as RW-. */
-	boot_map_region(kernel_pml4, (void*) KPAGES, npages * sizeof(struct page_info), PADDR(pages), kflags);
+	boot_map_region(kernel_pml4, (void*) KPAGES, npages * sizeof(struct page_info), PADDR(pages), PAGE_PRESENT | PAGE_WRITE | PAGE_NO_EXEC);
 
 
 	/* Migrate the struct page_info structs to the newly mapped area using
@@ -247,18 +247,22 @@ void page_init_ext(struct boot_info *boot_info)
 				break;
 			}
 			size_t prev_npages = npages;
-			buddy_map_chunk(kernel_pml4, PAGE_INDEX(addr));
+			
+			while(PAGE_INDEX(addr) >= npages){
+				buddy_map_chunk(kernel_pml4, npages);
+			}
 			boot_map_region(kernel_pml4, page2kva(pa2page(addr)), HPAGE_SIZE, addr, PAGE_PRESENT | PAGE_WRITE | PAGE_NO_EXEC);
 
-			for (size_t j = 0; j < 512; ++j) {
+			for(size_t j = 0; j < (HPAGE_SIZE / PAGE_SIZE); ++j){
 				struct page_info* page = pa2page(addr + (j * PAGE_SIZE));
 				page->pp_order = 0;
 				page->pp_ref = 0;
-
 				page_free(page);
         }
 		assert(hpage_aligned(addr));
 		addr += HPAGE_SIZE - PAGE_SIZE;		
 		}
 	}
+	//linear mapping for all physical memory
+	boot_map_region(kernel_pml4, (void*)KERNEL_VMA, npages * PAGE_SIZE, 0, PAGE_PRESENT | PAGE_WRITE | PAGE_NO_EXEC);
 }

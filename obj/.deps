@@ -1,67 +1,15 @@
-include/assert.h:
-include/rbtree.h:
-obj/boot/compat.o: boot/compat.S include/x86/asm.h include/x86/gdt.h
-include/x86-64/paging.h:
-include/kernel/console.h:
-include/kbdreg.h:
-include/kernel/mem/insert.h:
-obj/kernel/string.o: lib/string.c include/string.h include/types.h \
-  include/x86-64/types.h
-include/kernel/mem/dump.h:
-obj/kernel/list.o: lib/list.c include/list.h include/types.h \
-  include/x86-64/types.h
-include/x86/asm.h:
-include/kernel/monitor.h:
-obj/boot/a20.o: boot/a20.S
-obj/boot/main.o: boot/main.c include/x86/asm.h include/x86/types.h \
-  include/boot.h include/elf.h
 include/kernel/mem/init.h:
-include/x86-64/idt.h:
-include/x86-64/types.h:
-include/kernel/pic.h:
-obj/kernel/printfmt.o: lib/printfmt.c include/types.h \
-  include/x86-64/types.h include/stdio.h include/stdarg.h \
-  include/string.h include/error.h
-include/boot.h:
-obj/kernel/printf.o: kernel/printf.c include/types.h \
-  include/x86-64/types.h include/stdio.h include/stdarg.h
-include/paging.h:
-include/x86/types.h:
-obj/kernel/boot.o: kernel/boot.S include/x86-64/asm.h \
-  include/x86-64/gdt.h include/x86-64/memory.h include/x86-64/paging.h
-include/types.h:
-include/pic.h:
-include/kernel/mem/remove.h:
-obj/kernel/console.o: kernel/console.c include/x86-64/asm.h \
-  include/x86-64/types.h include/kbdreg.h include/string.h \
-  include/types.h include/assert.h include/stdio.h include/stdarg.h \
-  include/kernel/console.h include/kernel/pic.h
-obj/kernel/readline.o: lib/readline.c include/stdio.h include/stdarg.h \
-  include/error.h
-include/stdarg.h:
-include/kernel/mem.h:
 include/kernel/mem/map.h:
-obj/kernel/rbtree.o: lib/rbtree.c include/string.h include/types.h \
-  include/x86-64/types.h include/rbtree.h
-include/kernel/mem/boot.h:
-include/x86-64/asm.h:
-include/list.h:
-obj/kernel/main.o: kernel/main.c include/kernel/console.h include/types.h \
-  include/x86-64/types.h include/kernel/mem.h include/kernel/mem/boot.h \
-  include/boot.h include/assert.h include/stdio.h include/stdarg.h \
-  include/paging.h include/list.h include/x86-64/paging.h \
-  include/x86-64/asm.h include/x86-64/memory.h \
-  include/kernel/mem/buddy.h include/kernel/mem/dump.h \
-  include/kernel/mem/init.h include/kernel/mem/insert.h \
-  include/kernel/mem/lookup.h include/kernel/mem/map.h include/elf.h \
-  include/kernel/mem/ptbl.h include/kernel/mem/remove.h \
-  include/kernel/mem/tlb.h include/kernel/mem/walk.h \
-  include/kernel/monitor.h include/string.h
-include/kernel/mem/tlb.h:
-include/kernel/mem/walk.h:
-include/string.h:
-include/kernel/mem/ptbl.h:
+include/x86/gdt.h:
+include/x86-64/idt.h:
 include/x86-64/memory.h:
+include/kernel/monitor.h:
+include/types.h:
+obj/kernel/pic.o: kernel/pic.c include/types.h include/x86-64/types.h \
+  include/pic.h include/x86-64/asm.h include/x86-64/idt.h
+include/rbtree.h:
+include/kernel/mem/buddy.h:
+include/stdio.h:
 obj/kernel/monitor.o: kernel/monitor.c include/stdio.h include/stdarg.h \
   include/string.h include/types.h include/x86-64/types.h \
   include/assert.h include/x86-64/asm.h include/kernel/console.h \
@@ -73,14 +21,66 @@ obj/kernel/monitor.o: kernel/monitor.c include/stdio.h include/stdarg.h \
   include/kernel/mem/lookup.h include/kernel/mem/map.h include/elf.h \
   include/kernel/mem/ptbl.h include/kernel/mem/remove.h \
   include/kernel/mem/tlb.h include/kernel/mem/walk.h
-include/x86/gdt.h:
-include/kernel/mem/buddy.h:
-obj/boot/boot1.o: boot/boot1.S include/boot.h
-include/elf.h:
+obj/kernel/string.o: lib/string.c include/string.h include/types.h \
+  include/x86-64/types.h
+include/assert.h:
+include/string.h:
+include/x86-64/asm.h:
 include/error.h:
-include/kernel/mem/lookup.h:
-obj/kernel/pic.o: kernel/pic.c include/types.h include/x86-64/types.h \
-  include/pic.h include/x86-64/asm.h include/x86-64/idt.h
-include/stdio.h:
-obj/boot/mmap.o: boot/mmap.S
+obj/kernel/list.o: lib/list.c include/list.h include/types.h \
+  include/x86-64/types.h
+obj/kernel/printf.o: kernel/printf.c include/types.h \
+  include/x86-64/types.h include/stdio.h include/stdarg.h
+include/stdarg.h:
+include/kernel/console.h:
+include/kernel/mem/walk.h:
+include/x86/asm.h:
+include/x86-64/types.h:
+obj/kernel/printfmt.o: lib/printfmt.c include/types.h \
+  include/x86-64/types.h include/stdio.h include/stdarg.h \
+  include/string.h include/error.h
+include/kernel/mem/tlb.h:
+include/pic.h:
+obj/boot/boot1.o: boot/boot1.S include/boot.h
+include/boot.h:
+include/elf.h:
+include/kernel/mem.h:
+obj/kernel/boot.o: kernel/boot.S include/x86-64/asm.h \
+  include/x86-64/gdt.h include/x86-64/memory.h include/x86-64/paging.h
+obj/kernel/rbtree.o: lib/rbtree.c include/string.h include/types.h \
+  include/x86-64/types.h include/rbtree.h
+obj/boot/compat.o: boot/compat.S include/x86/asm.h include/x86/gdt.h
 obj/boot/boot2.o: boot/boot2.S include/x86/asm.h include/x86/gdt.h
+include/x86/types.h:
+obj/boot/main.o: boot/main.c include/x86/asm.h include/x86/types.h \
+  include/boot.h include/elf.h
+include/list.h:
+include/kernel/mem/lookup.h:
+obj/boot/mmap.o: boot/mmap.S
+include/kernel/mem/remove.h:
+include/x86-64/paging.h:
+obj/boot/a20.o: boot/a20.S
+include/paging.h:
+include/kernel/mem/dump.h:
+include/kernel/mem/ptbl.h:
+obj/kernel/main.o: kernel/main.c include/kernel/console.h include/types.h \
+  include/x86-64/types.h include/kernel/mem.h include/kernel/mem/boot.h \
+  include/boot.h include/assert.h include/stdio.h include/stdarg.h \
+  include/paging.h include/list.h include/x86-64/paging.h \
+  include/x86-64/asm.h include/x86-64/memory.h \
+  include/kernel/mem/buddy.h include/kernel/mem/dump.h \
+  include/kernel/mem/init.h include/kernel/mem/insert.h \
+  include/kernel/mem/lookup.h include/kernel/mem/map.h include/elf.h \
+  include/kernel/mem/ptbl.h include/kernel/mem/remove.h \
+  include/kernel/mem/tlb.h include/kernel/mem/walk.h \
+  include/kernel/monitor.h include/string.h
+include/kernel/mem/insert.h:
+include/kernel/mem/boot.h:
+obj/kernel/readline.o: lib/readline.c include/stdio.h include/stdarg.h \
+  include/error.h
+include/kbdreg.h:
+include/kernel/pic.h:
+obj/kernel/console.o: kernel/console.c include/x86-64/asm.h \
+  include/x86-64/types.h include/kbdreg.h include/string.h \
+  include/types.h include/assert.h include/stdio.h include/stdarg.h \
+  include/kernel/console.h include/kernel/pic.h

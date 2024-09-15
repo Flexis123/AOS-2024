@@ -59,7 +59,7 @@ int ptbl_split(physaddr_t *entry, uintptr_t base, uintptr_t end,
 		return ok;
 	}
 	if((*entry & PAGE_HUGE) == 0){
-		panic("cannot split non huge page\n");
+		return 0;
 	}
 	struct page_info *new_table = page_alloc(ALLOC_ZERO);
 
@@ -78,7 +78,7 @@ int ptbl_split(physaddr_t *entry, uintptr_t base, uintptr_t end,
 		if(new_page == NULL){
 			return -1;
 		}
-		new_table_entries[i] = page2pa(new_page) | (*entry & PAGE_MASK & ~PAGE_HUGE);
+		new_table_entries[i] = page2pa(new_page) | ((*entry & PAGE_MASK) & ~PAGE_HUGE);
 		memcpy(page2kva(new_page), old_data + i * PAGE_SIZE, PAGE_SIZE);
 	}
 	page_decref(pa2page(PAGE_ADDR(*entry)));
