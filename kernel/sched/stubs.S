@@ -49,11 +49,39 @@ syscall64:
 
 .global iret64
 iret64:
-	/* LAB 3: your code here. */
 	/* Restore the register state. */
-
+	movq IF_R15(%rdi), 	%r15
+	movq IF_R14(%rdi),  %r14
+	movq IF_R13(%rdi),  %r13
+	movq IF_R12(%rdi),  %r12
+	movq IF_R11(%rdi),  %r11
+	movq IF_R10(%rdi),  %r10
+	movq IF_R9(%rdi),  	%r9
+	movq IF_R8(%rdi),  	%r8
+	movq IF_RSI(%rdi),  %rsi
+	movq IF_RBP(%rdi),  %rbp
+	movq IF_RBX(%rdi),  %rbx
+	movq IF_RDX(%rdi),  %rdx
+	movq IF_RCX(%rdi),  %rcx
+	
 	/* Return from the interrupt. */
-	addq $16, %rsp
+	//push the stack segment register, without changing %rsp
+	movq IF_SS(%rdi), 	%rax
+	movq %rax, (%rsp)
+	push IF_RSP(%rdi)
+	push IF_RFLAGS(%rdi)
+	push IF_CS(%rdi)
+	push IF_RIP(%rdi)
+
+	//restore the data- and extended segment registers
+	movq IF_DS(%rdi),  %rax
+	movq %rax,	%ds
+	movq %rax,  %es
+
+	//restore scratch
+	movq IF_RAX(%rdi), %rax
+	movq IF_RDI(%rdi), %rdi
+
 	iretq
 
 .global sysret64
