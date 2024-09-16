@@ -1,3 +1,0 @@
-echo + target remote localhost:26000\n
-target remote localhost:26000
-add-symbol-file obj/user/hello

@@ -199,7 +199,8 @@ void debug_print(struct page_table *pml4){
 				if(entry3 & PAGE_HUGE){
 					cprintf("		HUGE PAGE %d %p\n", k, entry3);
 					continue;
-				}
+				}		
+				cprintf("		entry3 %d %p\n", k, entry3);
 				for(int l = 0; l < PAGE_TABLE_ENTRIES; l++){
 					struct page_table *ptbl = KADDR(PAGE_ADDR(entry3));
 					physaddr_t entry4 = ptbl->entries[l];
@@ -211,6 +212,11 @@ void debug_print(struct page_table *pml4){
 		}
 	}
 }
+void debug_va_to_idx(uintptr_t va){
+	cprintf("va: %p is found at: pml4: %d pdpt: %d  pdir %d ptbl %d\n", va, PML4_INDEX(va) % 512, PDPT_INDEX(va) % 512, PAGE_DIR_INDEX(va) % 512, PAGE_INDEX(va) % 512);
+}
+
+
 static void task_load_elf(struct task *task, uint8_t *binary)
 {
 	/* Hints:
@@ -251,15 +257,16 @@ static void task_load_elf(struct task *task, uint8_t *binary)
 		if(ph->p_va == 0 || ph->p_memsz == 0){
 			continue;
 		}
+		cprintf("PROCESSING THIS elf ph thinhgy ");
+
 		assert(ph->p_offset != 0);
 		physaddr_t flags = PAGE_NO_EXEC | PAGE_PRESENT | PAGE_USER;
-		if(!(ph->p_flags & ELF_PROG_FLAG_READ))continue;
+		//if(!(ph->p_flags & ELF_PROG_FLAG_READ))continue;
 		if(ph->p_flags & ELF_PROG_FLAG_WRITE) flags |= PAGE_WRITE;
 		if(ph->p_flags & ELF_PROG_FLAG_EXEC){
 			flags &= ~(PAGE_NO_EXEC | PAGE_WRITE);
+			assert(!(flags & PAGE_NO_EXEC));
 		} 
-		
-		assert(flags & PAGE_USER);
 		
 		if(ph->p_va + ph->p_memsz >= KERNEL_VMA){
 			panic("elf section maps to kernel memory");
@@ -270,11 +277,14 @@ static void task_load_elf(struct task *task, uint8_t *binary)
 		populate_region(task->task_pml4, (void*)ph->p_va, ph->p_memsz, flags);
 
 		if(ph->p_filesz > 0){
-			memcpy((void*)ph->p_va, binary + ph->p_offset, ph->p_memsz);
+			assert(ph->p_filesz == ph->p_memsz);
+			memcpy((void*)ph->p_va, binary + ph->p_offset, ph->p_filesz);
 		}
 		else{
 			memset((void*)ph->p_va, 0, ph->p_memsz);
 		}
+		debug_print(task->task_pml4);
+		debug_va_to_idx(0x800020);
 	}
 	load_pml4((void*)PADDR(kernel_pml4));
 	/* LAB 3: your code here. */
@@ -284,7 +294,7 @@ static void task_load_elf(struct task *task, uint8_t *binary)
 	 */
 	populate_region(task->task_pml4, (void*)USTACK_TOP - PAGE_SIZE, PAGE_SIZE, PAGE_PRESENT | PAGE_WRITE | PAGE_USER | PAGE_NO_EXEC);
 	task->task_frame.rip = elf->e_entry;
-
+	
 	/* LAB 3: your code here. */
 }
 
@@ -424,7 +434,7 @@ void task_run(struct task *task)
 	assert(cur_task->task_frame.rip == 0x800020);
 	assert(cur_task->task_frame.rsp == USTACK_TOP);
 	assert(cur_task == task);
-
+	load_pml4((struct page_table*)PADDR(cur_task->task_pml4));
 	/*
 	cur_task->task_frame = (struct int_frame){
 		.ds = 99,

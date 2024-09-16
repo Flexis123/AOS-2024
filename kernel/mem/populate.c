@@ -35,6 +35,9 @@ static int populate_pde(physaddr_t *entry, uintptr_t base, uintptr_t end,
 		*entry = page2pa(page) | info->flags | PAGE_HUGE;
 		return 0;
 	}
+	if(*entry & PAGE_PRESENT){
+		return 0;
+	}
 	int ok = ptbl_alloc(entry, base, end, walker);
 
 	if(ok == 0){

@@ -66,12 +66,13 @@ iret64:
 	
 	/* Return from the interrupt. */
 	//push the stack segment register, without changing %rsp
+
 	movq IF_SS(%rdi), 	%rax
 	movq %rax, (%rsp)
-	push IF_RSP(%rdi)
-	push IF_RFLAGS(%rdi)
-	push IF_CS(%rdi)
-	push IF_RIP(%rdi)
+	pushq IF_RSP(%rdi)
+	pushq IF_RFLAGS(%rdi)
+	pushq IF_CS(%rdi)
+	pushq IF_RIP(%rdi)
 
 	//restore the data- and extended segment registers
 	movq IF_DS(%rdi),  %rax
