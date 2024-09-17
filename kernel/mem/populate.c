@@ -13,8 +13,12 @@ static int populate_pte(physaddr_t *entry, uintptr_t base, uintptr_t end,
 {
 	struct page_info *page;
 	struct populate_info *info = walker->udata;
+	page = page_alloc(ALLOC_ZERO);
 
-	/* LAB 3: your code here. */
+	if(!page)return -1;
+	page->pp_ref++;
+	cprintf("populate va: %p, flags: %p\n", base, info->flags);
+	*entry = page2pa(page) | info->flags;
 	return 0;
 }
 
@@ -24,8 +28,23 @@ static int populate_pde(physaddr_t *entry, uintptr_t base, uintptr_t end,
 	struct page_info *page;
 	struct populate_info *info = walker->udata;
 
-	/* LAB 3: your code here. */
-	return 0;
+	if(hpage_aligned(base) && (end - base) + 1 >= HPAGE_SIZE){
+		page = page_alloc(ALLOC_HUGE);
+		if(!page)return -1;
+		cprintf("populate huge page: %p, flags: %p\n", base, info->flags);
+		*entry = page2pa(page) | info->flags | PAGE_HUGE;
+		return 0;
+	}
+	if(*entry & PAGE_PRESENT){
+		return 0;
+	}
+	int ok = ptbl_alloc(entry, base, end, walker);
+
+	if(ok == 0){
+		cprintf("populate new ptable: %p, flags: %p\n", base, info->flags);
+		*entry = PAGE_ADDR(*entry) | info->flags;
+	}
+	return ok; 
 }
 
 /* Populates the region [va, va + size) with pages by allocating pages from the
@@ -43,9 +62,11 @@ void populate_region(struct page_table *pml4, void *va, size_t size,
 	struct page_walker walker = {
 		.pte_callback = populate_pte,
 		.pde_callback = populate_pde,
+		.pdpte_callback = ptbl_alloc,
+		.pml4e_callback = ptbl_alloc,
 		.udata = &info,
 	};
-
+	cprintf("populate va from: %p to %p with flags: %p\n", info.base, info.end, info.flags);
 	walk_page_range(pml4, va, (void *)((uintptr_t)va + size), &walker);
 }
 

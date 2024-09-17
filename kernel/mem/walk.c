@@ -51,10 +51,9 @@ static uintptr_t pml4_end(uintptr_t addr)
 static int ptbl_walk_range(struct page_table *ptbl, uintptr_t base,
     uintptr_t end, struct page_walker *walker)
 {
-	uintptr_t current = base;
-	uintptr_t next = ptbl_end(base) + 1;
-	assert(end - base <= PAGE_SIZE * PAGE_TABLE_ENTRIES);
-
+	uintptr_t current = sign_extend(base);
+	end = sign_extend(end);
+	uintptr_t next = sign_extend(ptbl_end(current) + 1);
 	if(next < current){
 		next = end;
 	}
@@ -78,9 +77,8 @@ static int ptbl_walk_range(struct page_table *ptbl, uintptr_t base,
 				return -1;
 			}
 		}
-		current = sign_extend(next);
-		next = sign_extend(ptbl_end(next) + 1);
-
+		current = next;
+		next = sign_extend(ptbl_end(next) +1);
 		if(next < current){
 			current = end;
 		}
@@ -105,7 +103,8 @@ static int pdir_walk_range(struct page_table *pdir, uintptr_t base,
 {
 
 	uintptr_t current = sign_extend(base);
-	uintptr_t next = sign_extend(pdir_end(base) + 1);
+	end = sign_extend(end);
+	uintptr_t next = sign_extend(pdir_end(current) + 1);
 
 	if(next < current){
 		next = end;
@@ -135,9 +134,8 @@ static int pdir_walk_range(struct page_table *pdir, uintptr_t base,
 				return -1;
 			}
 		}
-		current = sign_extend(next);
-		next = sign_extend(pdir_end(next) + 1);
-
+		current = next;
+		next = sign_extend(pdir_end(next) +1);
 		if(next < current){
 			current = end;
 		}
@@ -162,7 +160,8 @@ static int pdpt_walk_range(struct page_table *pdpt, uintptr_t base,
     uintptr_t end, struct page_walker *walker)
 {
 	uintptr_t current = sign_extend(base);
-	uintptr_t next = sign_extend(pdpt_end(base) + 1);
+	end = sign_extend(end);
+	uintptr_t next = sign_extend(pdpt_end(current) + 1);
 
 	if(next < current){
 		next = end;
@@ -190,9 +189,8 @@ static int pdpt_walk_range(struct page_table *pdpt, uintptr_t base,
 				return -1;
 			}
 		}
-		current = sign_extend(next);
-		next = sign_extend(pdpt_end(next) + 1);
-
+		current = next;
+		next = sign_extend(pdpt_end(next) +1);
 		if(next < current){
 			current = end;
 		}
@@ -216,7 +214,8 @@ static int pml4_walk_range(struct page_table *pml4, uintptr_t base, uintptr_t en
 {
 
 	uintptr_t current = sign_extend(base);
-	uintptr_t next = sign_extend(pml4_end(base) + 1);
+	end = sign_extend(end);
+	uintptr_t next = sign_extend(pml4_end(current) + 1);
 
 	if(next < current){
 		next = end;
@@ -246,9 +245,8 @@ static int pml4_walk_range(struct page_table *pml4, uintptr_t base, uintptr_t en
 				return -1;
 			}
 		}
-		current = sign_extend(next);
-		next = sign_extend(pml4_end(next) + 1);
-
+		current = next;
+		next = sign_extend(pml4_end(next) +1);
 		if(next < current){
 			current = end;
 		}

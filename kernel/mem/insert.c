@@ -51,7 +51,6 @@ static int insert_pde(physaddr_t *entry, uintptr_t base, uintptr_t end,
 		page_decref(page);
 	}
 	if((info->flags & PAGE_HUGE) == 0 && info->page->pp_order != BUDDY_2M_PAGE){
-		struct page_table *table = KADDR(PAGE_ADDR(*entry));
 		return ptbl_alloc(entry, base, end, walker);
 	}
 	info->page->pp_ref++;

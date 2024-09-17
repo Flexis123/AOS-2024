@@ -61,7 +61,13 @@ void task_init(void)
 	/* Allocate an array of pointers at PIDMAP_BASE to be able to map PIDs
 	 * to tasks.
 	 */
-	/* LAB 3: your code here. */
+	size_t ntask_pages = ROUNDUP(pid_max * sizeof(struct task *), PAGE_SIZE) / PAGE_SIZE;
+
+	for(size_t i = 0; i < ntask_pages; i++){
+		struct page_info *page = page_alloc(ALLOC_ZERO);
+		assert(page);
+		assert(page_insert(kernel_pml4, page, (void*)PIDMAP_BASE + i * PAGE_SIZE, PAGE_PRESENT | PAGE_WRITE | PAGE_NO_EXEC) == 0);
+	}
 }
 
 /* Sets up the virtual address space for the task. */
@@ -81,7 +87,14 @@ static int task_setup_vas(struct task *task)
 	/* Now set task->task_pml4 and initialize the page table.
 	 * Can you use kernel_pml4 as a template?
 	 */
+	struct page_table *user_pml4 = page2kva(page);
 
+	for(int i = PML4_INDEX(KERNEL_VMA); i < PAGE_TABLE_ENTRIES; i++){
+		user_pml4->entries[i] = kernel_pml4->entries[i];
+	}
+	task->task_pml4 = user_pml4;
+
+	
 	/* LAB 3: your code here. */
 	return 0;
 }
@@ -139,6 +152,7 @@ struct task *task_alloc(pid_t ppid)
 	cprintf("[PID %5u] New task with PID %u\n",
 	        cur_task ? cur_task->task_pid : 0, task->task_pid);
 
+	task->task_wait = NULL;
 	return task;
 }
 
@@ -160,6 +174,49 @@ struct task *task_alloc(pid_t ppid)
  *
  * Finally, this function maps one page for the program's initial stack.
  */
+void debug_print(struct page_table *pml4){
+
+	for(int i = 0; i < PAGE_TABLE_ENTRIES; i++){
+		physaddr_t entry = pml4->entries[i];
+
+		if(entry == 0)continue;
+
+		cprintf("entry: %d: %p\n", i, entry);
+
+		for(int j = 0; j < PAGE_TABLE_ENTRIES; j++){
+			struct page_table *pdpt = KADDR(PAGE_ADDR(entry));
+			physaddr_t entry2 = pdpt->entries[j];
+
+			if(entry2 == 0)continue;
+
+			cprintf("	entry2: %d %p\n", j, entry2);
+
+			for(int k = 0; k < PAGE_TABLE_ENTRIES; k++){
+				struct page_table *pdir = KADDR(PAGE_ADDR(entry2));
+				physaddr_t entry3 = pdir->entries[k];
+				if(entry3 == 0)continue;
+
+				if(entry3 & PAGE_HUGE){
+					cprintf("		HUGE PAGE %d %p\n", k, entry3);
+					continue;
+				}		
+				cprintf("		entry3 %d %p\n", k, entry3);
+				for(int l = 0; l < PAGE_TABLE_ENTRIES; l++){
+					struct page_table *ptbl = KADDR(PAGE_ADDR(entry3));
+					physaddr_t entry4 = ptbl->entries[l];
+
+					if(entry4 == 0)continue;
+					cprintf("			entry %d %p\n", l, entry4);
+				}
+			}
+		}
+	}
+}
+void debug_va_to_idx(uintptr_t va){
+	cprintf("va: %p is found at: pml4: %d pdpt: %d  pdir %d ptbl %d\n", va, PML4_INDEX(va) % 512, PDPT_INDEX(va) % 512, PAGE_DIR_INDEX(va) % 512, PAGE_INDEX(va) % 512);
+}
+
+
 static void task_load_elf(struct task *task, uint8_t *binary)
 {
 	/* Hints:
@@ -183,12 +240,61 @@ static void task_load_elf(struct task *task, uint8_t *binary)
 	 * make sure that the task starts executing there.
 	 */
 
+	struct elf *elf = (struct elf *)binary;
+	if (elf->e_magic != ELF_MAGIC) {
+		panic("binary has wrong magic number: got: %d, expected: %d", elf->e_magic, ELF_MAGIC);
+	}
+	struct elf_proghdr *prog_headers = (struct elf_proghdr *)(binary + elf->e_phoff);
+	assert(elf->e_phoff != 0);
+
+	load_pml4((struct page_table*)PADDR(task->task_pml4));
+
+	for(int i = 0; i < elf->e_phnum; i++){
+		struct elf_proghdr *ph = &prog_headers[i];
+		if(!(ph->p_type & ELF_PROG_LOAD)){
+			continue;
+		}
+		if(ph->p_va == 0 || ph->p_memsz == 0){
+			continue;
+		}
+		cprintf("PROCESSING THIS elf ph thinhgy ");
+
+		assert(ph->p_offset != 0);
+		physaddr_t flags = PAGE_NO_EXEC | PAGE_PRESENT | PAGE_USER;
+		//if(!(ph->p_flags & ELF_PROG_FLAG_READ))continue;
+		if(ph->p_flags & ELF_PROG_FLAG_WRITE) flags |= PAGE_WRITE;
+		if(ph->p_flags & ELF_PROG_FLAG_EXEC){
+			flags &= ~(PAGE_NO_EXEC | PAGE_WRITE);
+			assert(!(flags & PAGE_NO_EXEC));
+		} 
+		
+		if(ph->p_va + ph->p_memsz >= KERNEL_VMA){
+			panic("elf section maps to kernel memory");
+		}
+		if(ph->p_memsz < ph->p_filesz && ph->p_filesz > 0){
+			panic("not enough data in file to write to memory");
+		}
+		populate_region(task->task_pml4, (void*)ph->p_va, ph->p_memsz, flags);
+
+		if(ph->p_filesz > 0){
+			assert(ph->p_filesz == ph->p_memsz);
+			memcpy((void*)ph->p_va, binary + ph->p_offset, ph->p_filesz);
+		}
+		else{
+			memset((void*)ph->p_va, 0, ph->p_memsz);
+		}
+		debug_print(task->task_pml4);
+		debug_va_to_idx(0x800020);
+	}
+	load_pml4((void*)PADDR(kernel_pml4));
 	/* LAB 3: your code here. */
 
 	/* Now map one page for the program's initial stack at virtual address
 	 * USTACK_TOP - PAGE_SIZE.
 	 */
-
+	populate_region(task->task_pml4, (void*)USTACK_TOP - PAGE_SIZE, PAGE_SIZE, PAGE_PRESENT | PAGE_WRITE | PAGE_USER | PAGE_NO_EXEC);
+	task->task_frame.rip = elf->e_entry;
+	
 	/* LAB 3: your code here. */
 }
 
@@ -201,7 +307,15 @@ static void task_load_elf(struct task *task, uint8_t *binary)
  */
 void task_create(uint8_t *binary, enum task_type type)
 {
-	/* LAB 3: your code here. */
+	struct task* task = task_alloc(0);
+	
+	if(!task)return;
+	
+	task_load_elf(task, binary);
+	task->task_type = type;
+
+	if(type == TASK_TYPE_USER)nuser_tasks++;
+	task->task_ppid = 0;
 }
 
 /* Free the task and all of the memory that is used by it.
@@ -269,6 +383,8 @@ void task_pop_frame(struct int_frame *frame)
  */
 void task_run(struct task *task)
 {
+	assert(task);
+	assert(task->task_status == TASK_RUNNABLE);
 	/*
 	 * Step 1: If this is a context switch (a new task is running):
 	 *     1. Set the current task (if any) back to
@@ -287,8 +403,46 @@ void task_run(struct task *task)
 	 *  and make sure you have set the relevant parts of
 	 *  e->task_frame to sensible values.
 	 */
+	if(cur_task){
+		struct task * old_task = cur_task;
+		switch (cur_task->task_status)
+		{
+		case TASK_DYING:{
+			panic("what to do with dying task?");
+		}
+		case TASK_RUNNABLE:{
+			panic("runnable task running! forgot to set to running?");
+		}
+		case TASK_RUNNING:{
+			cur_task->task_status = TASK_RUNNABLE;
+			panic("todo save registers?");
+			break;
+		}
+		case TASK_NOT_RUNNABLE:{
+			panic("not runnable task just ran");
+		}		
+		default:
+			panic("unknown task state in task_run");
+			break;
+		}
+		
+	}
+	cur_task = task;
+	cur_task->task_status = TASK_RUNNING;
+	cur_task->task_runs++;
+	((struct page_table*)PADDR(cur_task->task_pml4));
+	assert(cur_task->task_frame.rip == 0x800020);
+	assert(cur_task->task_frame.rsp == USTACK_TOP);
+	assert(cur_task == task);
+	load_pml4((struct page_table*)PADDR(cur_task->task_pml4));
+	/*
+	cur_task->task_frame = (struct int_frame){
+		.ds = 99,
+		.r15 = 15, .r14 = 14, .r13=13, .r12=12, .r11=11, .r10=10, .r9=9, .r8=8,
+		.rdi = 98, .rsi=97, .rbp=96, .rbx=95, .rdx=94, .rcx=93, .rax=92,
+		.rip = 91, .cs= 90, .rflags=89, .rsp=87, .ss=86
+	};
+	*/
 
-	/* LAB 3: Your code here. */
-	panic("task_run() not yet implemented");
-
+	task_pop_frame(&cur_task->task_frame);
 }

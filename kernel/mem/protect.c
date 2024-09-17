@@ -16,8 +16,10 @@ static int protect_pte(physaddr_t *entry, uintptr_t base, uintptr_t end,
     struct page_walker *walker)
 {
 	struct protect_info *info = walker->udata;
+	if(*entry == 0) return 0;
 
-	/* LAB 3: your code here. */
+	*entry = (PAGE_ADDR(*entry) | info->flags);
+	tlb_invalidate(info->pml4, (void*)base);
 	return 0;
 }
 
@@ -31,8 +33,12 @@ static int protect_pde(physaddr_t *entry, uintptr_t base, uintptr_t end,
     struct page_walker *walker)
 {
 	struct protect_info *info = walker->udata;
+	if(*entry == 0) return 0;
 
-	/* LAB 3: your code here. */
+	if(*entry & PAGE_HUGE){
+		*entry = (PAGE_ADDR(*entry) | info->flags | PAGE_HUGE);
+		tlb_invalidate(info->pml4, (void*)base);
+	}
 	return 0;
 }
 
@@ -52,9 +58,10 @@ void protect_region(struct page_table *pml4, void *va, size_t size,
 	struct page_walker walker = {
 		.pte_callback = protect_pte,
 		.pde_callback = protect_pde,
+		.pdpte_callback = ptbl_alloc,
+		.pml4e_callback = ptbl_alloc,
 		.udata = &info,
 	};
-
 	walk_page_range(pml4, va, (void *)((uintptr_t)va + size), &walker);
 }
 
