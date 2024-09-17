@@ -3,11 +3,6 @@
 
 #include <kernel/mem.h>
 
-#define RET_ON_ERR_WALKER_CALLBACK(guard, ret)  if(guard && ret < 0) return ret;
-
-//TODO check order of arguments
-
-
 /* Given an address addr, this function returns the sign extended address. */
 static uintptr_t sign_extend(uintptr_t addr)
 {
@@ -52,8 +47,6 @@ static uintptr_t pml4_end(uintptr_t addr)
  * Hint: the next page is at ptbl_end() + 1.
  * Hint: the loop condition is next < end.
  */
-
-static inline int pt_index(uintptr_t addr) {return PAGE_TABLE_INDEX(addr);}
 
 static int ptbl_walk_range(struct page_table *ptbl, uintptr_t base,
     uintptr_t end, struct page_walker *walker)
@@ -106,12 +99,6 @@ static int ptbl_walk_range(struct page_table *ptbl, uintptr_t base,
  *
  * Hint: see ptbl_walk_range().
  */
-
-static inline int pd_index(uintptr_t addr) {return PAGE_DIR_INDEX(addr);}
-
-static inline int stop_walk_pdir(physaddr_t *entry, uintptr_t base, uintptr_t end, struct page_walker *walker){
-	return *entry & PAGE_HUGE;
-}
 
 static int pdir_walk_range(struct page_table *pdir, uintptr_t base,
     uintptr_t end, struct page_walker *walker)
@@ -170,7 +157,6 @@ static int pdir_walk_range(struct page_table *pdir, uintptr_t base,
  * Hint: see ptbl_walk_range().
  */
 
-static inline int pdpt_index(uintptr_t addr) {return PDPT_INDEX(addr);}
 
 static int pdpt_walk_range(struct page_table *pdpt, uintptr_t base,
     uintptr_t end, struct page_walker *walker)
@@ -224,8 +210,6 @@ static int pdpt_walk_range(struct page_table *pdpt, uintptr_t base,
  *
  * Hint: see ptbl_walk_range().
  */
-
-static inline int pml4_index(uintptr_t addr){return PML4_INDEX(addr);}
 
 static int pml4_walk_range(struct page_table *pml4, uintptr_t base, uintptr_t end,
     struct page_walker *walker)

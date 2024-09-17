@@ -11,28 +11,62 @@
 
 #include <kernel/sched/task.h>
 
-/* LAB 3: your code here. */
+#define __DEF_INT_HANDLER(int_no) \
+	void isr##int_no();
 
-static const char *int_names[256] = {
-	[INT_DIVIDE] = "Divide-by-Zero Error Exception (#DE)",
-	[INT_DEBUG] = "Debug (#DB)",
-	[INT_NMI] = "Non-Maskable Interrupt",
-	[INT_BREAK] = "Breakpoint (#BP)",
-	[INT_OVERFLOW] = "Overflow (#OF)",
-	[INT_BOUND] = "Bound Range (#BR)",
-	[INT_INVALID_OP] = "Invalid Opcode (#UD)",
-	[INT_DEVICE] = "Device Not Available (#NM)",
-	[INT_DOUBLE_FAULT] = "Double Fault (#DF)",
-	[INT_TSS] = "Invalid TSS (#TS)",
-	[INT_NO_SEG_PRESENT] = "Segment Not Present (#NP)",
-	[INT_SS] = "Stack (#SS)",
-	[INT_GPF] = "General Protection (#GP)",
-	[INT_PAGE_FAULT] = "Page Fault (#PF)",
-	[INT_FPU] = "x86 FPU Floating-Point (#MF)",
-	[INT_ALIGNMENT] = "Alignment Check (#AC)",
-	[INT_MCE] = "Machine Check (#MC)",
-	[INT_SIMD] = "SIMD Floating-Point (#XF)",
-	[INT_SECURITY] = "Security (#SX)",
+#define DEF_INT_HANDLER(int_no) __DEF_INT_HANDLER(int_no)
+
+DEF_INT_HANDLER(INT_DIVIDE)
+DEF_INT_HANDLER(INT_DEBUG)
+DEF_INT_HANDLER(INT_NMI)
+DEF_INT_HANDLER(INT_BREAK)
+DEF_INT_HANDLER(INT_OVERFLOW)
+DEF_INT_HANDLER(INT_BOUND)
+DEF_INT_HANDLER(INT_INVALID_OP)
+DEF_INT_HANDLER(INT_DEVICE)
+DEF_INT_HANDLER(INT_DOUBLE_FAULT)
+DEF_INT_HANDLER(INT_TSS)
+DEF_INT_HANDLER(INT_NO_SEG_PRESENT)
+DEF_INT_HANDLER(INT_SS)
+DEF_INT_HANDLER(INT_GPF)
+DEF_INT_HANDLER(INT_PAGE_FAULT)
+DEF_INT_HANDLER(INT_FPU)
+DEF_INT_HANDLER(INT_ALIGNMENT)
+DEF_INT_HANDLER(INT_MCE)
+DEF_INT_HANDLER(INT_SIMD)
+DEF_INT_HANDLER(INT_SECURITY)
+
+#define __INT_HANDLER(int_no) isr##int_no
+#define INT_HANDLER(int_no) __INT_HANDLER(int_no)
+
+struct int_info{
+	void (*handler)();
+	char* name;
+};
+
+#define INT_INFO(_int_no, _name) {INT_HANDLER(_int_no), _name}
+
+
+static const struct int_info int_infos[256] = {
+	[INT_DIVIDE] = INT_INFO(INT_DIVIDE,  "Divide-by-Zero Error Exception (#DE)"),
+	[INT_DEBUG] = INT_INFO(INT_DEBUG, "Debug (#DB)"),
+	[INT_NMI] = INT_INFO(INT_NMI, "Non-Maskable Interrupt"),
+	[INT_BREAK] = INT_INFO(INT_BREAK, "Breakpoint (#BP)"),
+	[INT_OVERFLOW] = INT_INFO(INT_OVERFLOW, "Overflow (#OF)"),
+	[INT_BOUND] = INT_INFO(INT_BOUND, "Bound Range (#BR)"),
+	[INT_INVALID_OP] = INT_INFO(INT_INVALID_OP, "Invalid Opcode (#UD)"),
+	[INT_DEVICE] = INT_INFO(INT_DEVICE, "Device Not Available (#NM)"),
+	[INT_DOUBLE_FAULT] = INT_INFO(INT_DOUBLE_FAULT, "Double Fault (#DF)"),
+	[INT_TSS] = INT_INFO(INT_TSS, "Invalid TSS (#TS)"),
+	[INT_NO_SEG_PRESENT] = INT_INFO(INT_NO_SEG_PRESENT, "Segment Not Present (#NP)"),
+	[INT_SS] = INT_INFO(INT_SS, "Stack (#SS)"),
+	[INT_GPF] = INT_INFO(INT_GPF, "General Protection (#GP)"),
+	[INT_PAGE_FAULT] = INT_INFO(INT_PAGE_FAULT, "Page Fault (#PF)"),
+	[INT_FPU] = INT_INFO(INT_FPU, "x86 FPU Floating-Point (#MF)"),
+	[INT_ALIGNMENT] = INT_INFO(INT_ALIGNMENT, "Alignment Check (#AC)"),
+	[INT_MCE] = INT_INFO(INT_MCE, "Machine Check (#MC)"),
+	[INT_SIMD] = INT_INFO(INT_SIMD, "SIMD Floating-Point (#XF)"),
+	[INT_SECURITY] = INT_INFO(INT_SECURITY, "Security (#SX)"),
 };
 
 static struct idt_entry entries[256];
@@ -43,10 +77,10 @@ static struct idtr idtr = {
 
 static const char *get_int_name(unsigned int_no)
 {
-	if (!int_names[int_no])
+	if (!int_infos[int_no].name)
 		return "Unknown Interrupt";
 
-	return int_names[int_no];
+	return int_infos[int_no].name;
 }
 
 void print_int_frame(struct int_frame *frame)
@@ -106,10 +140,22 @@ void print_int_frame(struct int_frame *frame)
 		frame->cs, frame->ds, frame->ss);
 }
 
+
 /* Set up the interrupt handlers. */
 void idt_init(void)
 {
 	/* LAB 3: your code here. */
+	struct idt_entry* entry;
+	unsigned int flags = 0;
+	struct int_info *inf;
+	for(int i = 0; i < 256; i++){
+		if((inf = int_infos + i)){ //debug here
+			entry = entries + i;
+
+			flags = IDT_PRESENT | IDT_PRIVL(0) | IDT_TRAP_GATE32; //TODO  see what flags we need to set
+			set_idt_entry(entry, inf->handler, flags, GDT_KCODE); 
+		}
+	}
 	load_idt(&idtr);
 }
 
@@ -122,6 +168,17 @@ void int_dispatch(struct int_frame *frame)
 	 */
 	switch (frame->int_no) {
 		/* LAB 3: your code here. */
+
+	/*
+	case INT_BREAK:
+		monitor(frame);
+		break;
+
+	case INT_PAGE_FAULT:
+		page_fault_handler(frame);
+		break;
+		*/
+	
 	default: break;
 	}
 

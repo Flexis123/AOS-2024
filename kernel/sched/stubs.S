@@ -21,12 +21,52 @@ isr\int_no:
 	jmp isr_common_stub
 .endm
 
+ISR_NOERRCODE INT_DIVIDE
+ISR_NOERRCODE INT_DEBUG
+ISR_NOERRCODE INT_NMI
+ISR_NOERRCODE INT_BREAK
+ISR_NOERRCODE INT_OVERFLOW
+ISR_NOERRCODE INT_BOUND
+ISR_NOERRCODE INT_INVALID_OP
+ISR_NOERRCODE INT_DEVICE
+ISR_ERRCODE   INT_DOUBLE_FAULT
+ISR_ERRCODE   INT_TSS
+ISR_ERRCODE	  INT_NO_SEG_PRESENT
+ISR_ERRCODE   INT_SS
+ISR_ERRCODE   INT_GPF
+ISR_ERRCODE   INT_PAGE_FAULT
+ISR_NOERRCODE INT_FPU
+ISR_ERRCODE   INT_ALIGNMENT
+ISR_NOERRCODE INT_MCE
+ISR_NOERRCODE INT_SIMD
+ISR_NOERRCODE INT_SECURITY
+
+/*TODO change last handler def if need if we implement bonus (I think this is for bonus)*/
+
 /* LAB 3: your code here. */
 
 isr_common_stub:
-	/* LAB 3: your code here. */
-	/* Save the register state on the stack. */
-	/* Recover the segments. */
+	/*push all registers to build int frame*/
+	pushq %rax
+	pushq %rcx
+	pushq %rdx
+	pushq %rbx
+	pushq %rbp
+	pushq %rsi
+	pushq %rdi
+	pushq %r8
+	pushq %r9
+	pushq %r10
+	pushq %r11
+	pushq %r12
+	pushq %r13
+	pushq %r14
+	pushq %r15
+	pushq %ds
+
+	/*change selectors to kernel*/
+	movq GDT_KCODE, %es
+	movq GDT_KDATA, %ds
 
 	/* Jump to the generic interrupt handler. */
 	movq %rsp, %rdi
