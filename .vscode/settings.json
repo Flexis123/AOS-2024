@@ -21,6 +21,11 @@
         "paging.h": "c",
         "mem.h": "c",
         "init.h": "c",
-        "typeinfo": "c"
+        "typeinfo": "c",
+        "sched.h": "c",
+        "syscall.h": "c",
+        "task.h": "c",
+        "idt.h": "c",
+        "gdt.h": "c"
     }
 }

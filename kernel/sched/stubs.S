@@ -40,6 +40,7 @@ ISR_ERRCODE   INT_ALIGNMENT
 ISR_NOERRCODE INT_MCE
 ISR_NOERRCODE INT_SIMD
 ISR_NOERRCODE INT_SECURITY
+ISR_NOERRCODE INT_SYSCALL
 
 /*TODO change last handler def if need if we implement bonus (I think this is for bonus)*/
 
@@ -62,11 +63,16 @@ isr_common_stub:
 	pushq %r13
 	pushq %r14
 	pushq %r15
-	pushq %ds
+
+	movq %ds, %rax
+	pushq %rax
 
 	/*change selectors to kernel*/
-	movq GDT_KCODE, %es
-	movq GDT_KDATA, %ds
+	movq $GDT_KDATA, %rax
+	movq %rax, %es
+	movq %rax, %ds
+
+	xor %rax, %rax
 
 	/* Jump to the generic interrupt handler. */
 	movq %rsp, %rdi

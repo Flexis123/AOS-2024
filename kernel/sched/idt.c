@@ -10,6 +10,7 @@
 #include <kernel/sched/syscall.h>
 
 #include <kernel/sched/task.h>
+#include <kernel/mem/insert.h>
 
 #define __DEF_INT_HANDLER(int_no) \
 	void isr##int_no();
@@ -35,6 +36,7 @@ DEF_INT_HANDLER(INT_ALIGNMENT)
 DEF_INT_HANDLER(INT_MCE)
 DEF_INT_HANDLER(INT_SIMD)
 DEF_INT_HANDLER(INT_SECURITY)
+DEF_INT_HANDLER(INT_SYSCALL)
 
 #define __INT_HANDLER(int_no) isr##int_no
 #define INT_HANDLER(int_no) __INT_HANDLER(int_no)
@@ -67,6 +69,7 @@ static const struct int_info int_infos[256] = {
 	[INT_MCE] = INT_INFO(INT_MCE, "Machine Check (#MC)"),
 	[INT_SIMD] = INT_INFO(INT_SIMD, "SIMD Floating-Point (#XF)"),
 	[INT_SECURITY] = INT_INFO(INT_SECURITY, "Security (#SX)"),
+	//[INT_SYSCALL] = INT_INFO(INT_SYSCALL, "Sys call")
 };
 
 static struct idt_entry entries[256];
@@ -147,13 +150,14 @@ void idt_init(void)
 	/* LAB 3: your code here. */
 	struct idt_entry* entry;
 	unsigned int flags = 0;
-	struct int_info *inf;
+	struct int_info inf;
 	for(int i = 0; i < 256; i++){
-		if((inf = int_infos + i)){ //debug here
+		inf = int_infos[i];
+		if(inf.handler){ //checl that this check will actually skip empty spots
 			entry = entries + i;
 
-			flags = IDT_PRESENT | IDT_PRIVL(0) | IDT_TRAP_GATE32; //TODO  see what flags we need to set
-			set_idt_entry(entry, inf->handler, flags, GDT_KCODE); 
+			flags = IDT_PRESENT | IDT_PRIVL(0) | IDT_TRAP_GATE32; //TODO see what flags we need to set
+			set_idt_entry(entry, inf.handler, flags, GDT_KCODE); 
 		}
 	}
 	load_idt(&idtr);
@@ -169,17 +173,21 @@ void int_dispatch(struct int_frame *frame)
 	switch (frame->int_no) {
 		/* LAB 3: your code here. */
 
-	/*
-	case INT_BREAK:
-		monitor(frame);
-		break;
+		case INT_BREAK:
+			monitor(frame);
+			break;
 
-	case INT_PAGE_FAULT:
-		page_fault_handler(frame);
-		break;
-		*/
+		case INT_PAGE_FAULT:
+			page_fault_handler(frame);
+			break;
+
+		case INT_SYSCALL:
+			cprintf("doing syscall\n");
+			frame->rax = syscall(frame->rax, frame->rdx, frame->rcx, 
+									frame->rbx, frame->rdi, frame->rsi, 0);
+			break;
 	
-	default: break;
+		default: break;
 	}
 
 	/* Unexpected trap: The user process or the kernel has a bug. */
@@ -234,10 +242,19 @@ void page_fault_handler(struct int_frame *frame)
 	fault_va = (void *)read_cr2();
 
 	/* Handle kernel-mode page faults. */
+	if(!(frame->err_code & PAGE_USER)){
+		print_int_frame(frame);
+		panic("Page fault originated from the kernel");
+	}
+
 	/* LAB 3: your code here. */
 	/* We have already handled kernel-mode exceptions, so if we get here, the
 	 * page fault has happened in user mode.
 	 */
+
+	if(!(frame->err_code & PAGE_PRESENT)){
+		// LAB 4?
+	}
 
 	/* Destroy the task that caused the fault. */
 	cprintf("[PID %5u] user fault va %p ip %p\n",

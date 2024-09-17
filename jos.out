@@ -3,10 +3,10 @@
 ***
 *** Now run 'make gdb'.
 ***
-c[?7l[2J[0mSeaBIOS (version 1.16.3-debian-1.16.3-2)
+c[?7l[2J[0mSeaBIOS (version 1.15.0-1)
 
 
-iPXE (https://ipxe.org) 00:03.0 CA00 PCI2.10 PnP PMM+06FCAF60+06F0AF60 CA00
+iPXE (https://ipxe.org) 00:03.0 CA00 PCI2.10 PnP PMM+07F8B4A0+07ECB4A0 CA00
 Press Ctrl-B to configure iPXE (PCI 00:03.0)...                                                                               
 
 
@@ -24,106 +24,39 @@ Booting from Hard Disk...
 [LAB 2] check_memory_layout() succeeded!
 [LAB 2] check_buddy_consistency() succeeded!
 [LAB 2] check_vas() succeeded!
-c[?7l[2J[0mSeaBIOS (version 1.16.3-debian-1.16.3-2)
-
-
-iPXE (https://ipxe.org) 00:03.0 CA00 PCI2.10 PnP PMM+06FCAF60+06F0AF60 CA00
-Press Ctrl-B to configure iPXE (PCI 00:03.0)...                                                                               
-
-
-Booting from Hard Disk...
-
-[LAB 2] check_ptbl_flags() succeeded!
-[LAB 2] check_wx() succeeded!
-[LAB 2] check_nx() succeeded!
-[LAB 2] check_4k_paging() succeeded!
-[LAB 2] check_free_list_order() succeeded!
-[LAB 2] check_memory_layout() succeeded!
-[LAB 2] check_buddy_consistency() succeeded!
-[LAB 2] check_vas() succeeded!
-[LAB 2] check_free_list_order() succeeded!
-[LAB 2] check_memory_layout() succeeded!
-[LAB 2] check_buddy_consistency() succeeded!
-[LAB 2] check_vas() succeeded!
-c[?7l[2J[0mSeaBIOS (version 1.16.3-debian-1.16.3-2)
-
-
-iPXE (https://ipxe.org) 00:03.0 CA00 PCI2.10 PnP PMM+06FCAF60+06F0AF60 CA00
-Press Ctrl-B to configure iPXE (PCI 00:03.0)...                                                                               
-
-
-Booting from Hard Disk...
-
-[LAB 2] check_ptbl_flags() succeeded!
-[LAB 2] check_wx() succeeded!
-[LAB 2] check_nx() succeeded!
-[LAB 2] check_4k_paging() succeeded!
-[LAB 2] check_free_list_order() succeeded!
-[LAB 2] check_memory_layout() succeeded!
-[LAB 2] check_buddy_consistency() succeeded!
-[LAB 2] check_vas() succeeded!
-[LAB 2] check_free_list_order() succeeded!
-[LAB 2] check_memory_layout() succeeded!
-[LAB 2] check_buddy_consistency() succeeded!
-[LAB 2] check_vas() succeeded!
-c[?7l[2J[0mSeaBIOS (version 1.16.3-debian-1.16.3-2)
-
-
-iPXE (https://ipxe.org) 00:03.0 CA00 PCI2.10 PnP PMM+06FCAF60+06F0AF60 CA00
-Press Ctrl-B to configure iPXE (PCI 00:03.0)...                                                                               
-
-
-Booting from Hard Disk...
-
-[LAB 2] check_ptbl_flags() succeeded!
-[LAB 2] check_wx() succeeded!
-[LAB 2] check_nx() succeeded!
-[LAB 2] check_4k_paging() succeeded!
-[LAB 2] check_free_list_order() succeeded!
-[LAB 2] check_memory_layout() succeeded!
-[LAB 2] check_buddy_consistency() succeeded!
-[LAB 2] check_vas() succeeded!
-[LAB 2] check_free_list_order() succeeded!
-[LAB 2] check_memory_layout() succeeded!
-[LAB 2] check_buddy_consistency() succeeded!
-[LAB 2] check_vas() succeeded!
-c[?7l[2J[0mSeaBIOS (version 1.16.3-debian-1.16.3-2)
-
-
-iPXE (https://ipxe.org) 00:03.0 CA00 PCI2.10 PnP PMM+06FCAF60+06F0AF60 CA00
-Press Ctrl-B to configure iPXE (PCI 00:03.0)...                                                                               
-
-
-Booting from Hard Disk...
-
-[LAB 2] check_ptbl_flags() succeeded!
-[LAB 2] check_wx() succeeded!
-[LAB 2] check_nx() succeeded!
-[LAB 2] check_4k_paging() succeeded!
-[LAB 2] check_free_list_order() succeeded!
-[LAB 2] check_memory_layout() succeeded!
-[LAB 2] check_buddy_consistency() succeeded!
-[LAB 2] check_vas() succeeded!
-[LAB 2] check_free_list_order() succeeded!
-[LAB 2] check_memory_layout() succeeded!
-[LAB 2] check_buddy_consistency() succeeded!
-[LAB 2] check_vas() succeeded!
-c[?7l[2J[0mSeaBIOS (version 1.16.3-debian-1.16.3-2)
-
-
-iPXE (https://ipxe.org) 00:03.0 CA00 PCI2.10 PnP PMM+06FCAF60+06F0AF60 CA00
-Press Ctrl-B to configure iPXE (PCI 00:03.0)...                                                                               
-
-
-Booting from Hard Disk...
-
-[LAB 2] check_ptbl_flags() succeeded!
-[LAB 2] check_wx() succeeded!
-[LAB 2] check_nx() succeeded!
-[LAB 2] check_4k_paging() succeeded!
-[LAB 2] check_free_list_order() succeeded!
-[LAB 2] check_memory_layout() succeeded!
-[LAB 2] check_buddy_consistency() succeeded!
-[LAB 2] check_vas() succeeded!
-[LAB 2] check_free_list_order() succeeded!
+[PID     0] New task with PID 1
+PROCESSING THIS elf ph thinhgy populate va from: 0x800000 to 0x801fff with flags: 0x5
+populate new ptable: 0x800000, flags: 0x5
+populate va: 0x800000, flags: 0x5
+populate va: 0x801000, flags: 0x5
+va: 0x800020 is found at: pml4: 0 pdpt: 0  pdir 4 ptbl 0
+PROCESSING THIS elf ph thinhgy populate va from: 0x802000 to 0x802fff with flags: 0x8000000000000005
+populate va: 0x802000, flags: 0x8000000000000005
+va: 0x800020 is found at: pml4: 0 pdpt: 0  pdir 4 ptbl 0
+PROCESSING THIS elf ph thinhgy populate va from: 0x803000 to 0x803fff with flags: 0x8000000000000007
+populate va: 0x803000, flags: 0x8000000000000007
+va: 0x800020 is found at: pml4: 0 pdpt: 0  pdir 4 ptbl 0
+PROCESSING THIS elf ph thinhgy populate va from: 0x804000 to 0x804fff with flags: 0x8000000000000007
+populate va: 0x804000, flags: 0x8000000000000007
+va: 0x800020 is found at: pml4: 0 pdpt: 0  pdir 4 ptbl 0
+PROCESSING THIS elf ph thinhgy populate va from: 0x200000 to 0x200fff with flags: 0x8000000000000007
+populate new ptable: 0x200000, flags: 0x8000000000000007
+populate va: 0x200000, flags: 0x8000000000000007
+va: 0x800020 is found at: pml4: 0 pdpt: 0  pdir 4 ptbl 0
+populate va from: 0x7fffffffd000 to 0x7fffffffdfff with flags: 0x8000000000000007
+populate new ptable: 0x7fffffffd000, flags: 0x8000000000000007
+populate va: 0x7fffffffd000, flags: 0x8000000000000007
+[LAB 3] check_us() succeeded!
+[LAB 3] check_wx() succeeded!
+[LAB 3] check_null() succeeded!
+Incoming INT frame at 0xfffffe7fffffff48
+INT frame at 0xffff80000028f168
+ INT 13: General Protection (#GP)
+ ERR 0x0000000000000802
+ RAX 0x0000000000000000 RCX 0x0000000000000000 RDX 0x0000000000000000 RBX 0x0000000000000000
+ RSP 0x00007fffffffdf40 RBP 0x0000000000000000 RSI 0x0000000000000000 RDI 0x0000000000000003
+ R8  0x0000000000000000 R9  0x0000000000000000 R10 0x0000000000000000 R11 0x0000000000000000
+ R12 0x0000000000000000 R13 0x0000000000000000 R14 0x0000000000000000 R15 0x0000000000000000
+ RIP 0x0000000000800272 RFL 0x0000000000000006
+ CS  0x0023             DS  0x001b             SS  0x001b
 qemu-system-x86_64: terminating on signal 2

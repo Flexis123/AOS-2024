@@ -69,12 +69,29 @@ int64_t syscall(uint64_t syscallno, uint64_t a1, uint64_t a2, uint64_t a3,
 	 * Return any appropriate return value.
 	 */
 	/* LAB 3: your code here. */
-	panic("syscall not implemented");
+	int64_t ret = 0;
 
 	switch (syscallno) {
- 	default:
-		return -ENOSYS;
+		case SYS_cgetc:
+			ret = sys_cgetc();
+			break;
+
+		case SYS_cputs:
+			sys_cputs((void*) a1, a2);
+			break;
+
+		case SYS_getpid:
+			ret = sys_getpid();
+			break;
+
+		case SYS_kill:
+			ret = sys_kill(a1);
+			break;
+
+		default:
+			ret = -ENOSYS;
 	}
+	return ret;
 }
 
 void syscall_handler(uint64_t syscallno, uint64_t a1, uint64_t a2, uint64_t a3,

@@ -283,7 +283,7 @@ static void task_load_elf(struct task *task, uint8_t *binary)
 		else{
 			memset((void*)ph->p_va, 0, ph->p_memsz);
 		}
-		debug_print(task->task_pml4);
+		//debug_print(task->task_pml4);
 		debug_va_to_idx(0x800020);
 	}
 	load_pml4((void*)PADDR(kernel_pml4));
