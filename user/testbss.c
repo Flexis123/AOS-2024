@@ -9,7 +9,7 @@ int main(int argc, char **argv)
 {
 	int i;
 
-	//printf("Making sure bss works right...\n");
+	printf("Making sure bss works right...\n");
 
 	for (i = 0; i < ARRAY_SIZE; ++i) {
 		if (big_array[i] != 0) {

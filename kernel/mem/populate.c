@@ -38,13 +38,7 @@ static int populate_pde(physaddr_t *entry, uintptr_t base, uintptr_t end,
 	if(*entry & PAGE_PRESENT){
 		return 0;
 	}
-	int ok = ptbl_alloc(entry, base, end, walker);
-
-	if(ok == 0){
-		//cprintf("populate new ptable: %p, flags: %p\n", base, info->flags);
-		*entry = PAGE_ADDR(*entry) | info->flags;
-	}
-	return ok; 
+	return ptbl_alloc(entry, base, end, walker);
 }
 
 /* Populates the region [va, va + size) with pages by allocating pages from the

@@ -277,10 +277,11 @@ static void task_load_elf(struct task *task, uint8_t *binary)
 		}
 
 		if(ph->p_va == 0x804000) {
-			debug_print(task->task_pml4);
+
 			cprintf("va: %p, pml4: %d, pdpt: %d, pd: %d, pt: %d\n", ph->p_va, PML4_INDEX(ph->p_va), PDPT_INDEX(ph->p_va), PAGE_DIR_INDEX(ph->p_va), PAGE_TABLE_INDEX(ph->p_va));
 			assert(!page_lookup(task->task_pml4, (void*) 0x804000, NULL));
 		}
+
 		populate_region(task->task_pml4, (void*)ph->p_va, ph->p_memsz, flags);
 
 		if(ph->p_filesz > 0){
@@ -290,7 +291,7 @@ static void task_load_elf(struct task *task, uint8_t *binary)
 		else{
 			memset((void*)ph->p_va, 0, ph->p_memsz);
 		}
-		//debug_print(task->task_pml4);
+		
 	}
 	load_pml4((void*)PADDR(kernel_pml4));
 	/* LAB 3: your code here. */
