@@ -69,7 +69,7 @@ static const struct int_info int_infos[256] = {
 	[INT_MCE] = INT_INFO(INT_MCE, "Machine Check (#MC)"),
 	[INT_SIMD] = INT_INFO(INT_SIMD, "SIMD Floating-Point (#XF)"),
 	[INT_SECURITY] = INT_INFO(INT_SECURITY, "Security (#SX)"),
-	//[INT_SYSCALL] = INT_INFO(INT_SYSCALL, "Sys call")
+	[INT_SYSCALL] = INT_INFO(INT_SYSCALL, "Sys call")
 };
 
 static struct idt_entry entries[256];
@@ -156,7 +156,19 @@ void idt_init(void)
 		if(inf.handler){ //checl that this check will actually skip empty spots
 			entry = entries + i;
 
-			flags = IDT_PRESENT | IDT_PRIVL(0) | IDT_TRAP_GATE32; //TODO see what flags we need to set
+			flags = IDT_PRESENT | IDT_INT_GATE32; //TODO see what flags we need to set
+
+			switch (i)
+			{
+			case INT_SYSCALL:
+			case INT_BREAK:
+				flags |= IDT_PRIVL(3);
+				break;
+			
+			default:
+				flags |= IDT_PRIVL(0);
+				break;
+			}
 			set_idt_entry(entry, inf.handler, flags, GDT_KCODE); 
 		}
 	}
@@ -174,18 +186,16 @@ void int_dispatch(struct int_frame *frame)
 		/* LAB 3: your code here. */
 
 		case INT_BREAK:
-			monitor(frame);
-			break;
+			return monitor(frame);
 
 		case INT_PAGE_FAULT:
-			page_fault_handler(frame);
-			break;
+			return page_fault_handler(frame);
 
 		case INT_SYSCALL:
 			cprintf("doing syscall\n");
-			frame->rax = syscall(frame->rax, frame->rdx, frame->rcx, 
-									frame->rbx, frame->rdi, frame->rsi, 0);
-			break;
+			print_int_frame(frame);
+			frame->rax = syscall(frame->rdi, frame->rsi, frame->rdx, frame->rcx, frame->r8, frame->r9, frame->rax);
+			return iret64(frame);
 	
 		default: break;
 	}
@@ -232,11 +242,16 @@ void int_handler(struct int_frame *frame)
 	task_run(cur_task);
 }
 
+#include "kernel/mem.h"
+
+
+
 void page_fault_handler(struct int_frame *frame)
 {
 	void *fault_va;
 	unsigned perm = 0;
 	int ret;
+
 
 	/* Read the CR2 register to find the faulting address. */
 	fault_va = (void *)read_cr2();
@@ -246,6 +261,39 @@ void page_fault_handler(struct int_frame *frame)
 		print_int_frame(frame);
 		panic("Page fault originated from the kernel");
 	}
+
+	cprintf("fault_va: %p\n", fault_va);
+	/*
+	uintptr_t va = (uintptr_t) fault_va;
+	physaddr_t* entry = cur_task->task_pml4->entries + PML4_INDEX(va);
+	assert(*entry & PAGE_PRESENT);
+	assert(*entry & PAGE_WRITE);
+	assert(*entry & PAGE_USER);
+	struct page_table* pdpt = KADDR(PAGE_ADDR(*entry));
+
+	entry = pdpt->entries + PDPT_INDEX(va);
+	assert(*entry & PAGE_PRESENT);
+	assert(*entry & PAGE_WRITE);
+	assert(*entry & PAGE_USER);
+	struct page_table* pd = KADDR(PAGE_ADDR(*entry));
+
+	entry = pd->entries + PAGE_DIR_INDEX(va);
+	cprintf("huge page: %d\n", *entry & PAGE_HUGE);
+	assert(*entry & PAGE_PRESENT);
+	assert(*entry & PAGE_WRITE);
+	assert(*entry & PAGE_USER);
+	struct page_table* pt = KADDR(PAGE_ADDR(*entry));
+
+	if(!(*entry & PAGE_HUGE)){
+		entry = pt->entries + PAGE_TABLE_INDEX(va);
+		assert(*entry & PAGE_PRESENT);
+		assert(*entry & PAGE_WRITE);
+		assert(*entry & PAGE_USER);
+	}
+
+	cprintf("entry flags: %p\n", *entry & PAGE_MASK);
+	*/
+
 
 	/* LAB 3: your code here. */
 	/* We have already handled kernel-mode exceptions, so if we get here, the

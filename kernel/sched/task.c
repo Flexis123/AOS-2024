@@ -94,6 +94,8 @@ static int task_setup_vas(struct task *task)
 	}
 	task->task_pml4 = user_pml4;
 
+	assert(!page_lookup(task->task_pml4, (void*) 0x804000, NULL));
+
 	
 	/* LAB 3: your code here. */
 	return 0;
@@ -257,7 +259,6 @@ static void task_load_elf(struct task *task, uint8_t *binary)
 		if(ph->p_va == 0 || ph->p_memsz == 0){
 			continue;
 		}
-		cprintf("PROCESSING THIS elf ph thinhgy ");
 
 		assert(ph->p_offset != 0);
 		physaddr_t flags = PAGE_NO_EXEC | PAGE_PRESENT | PAGE_USER;
@@ -274,6 +275,12 @@ static void task_load_elf(struct task *task, uint8_t *binary)
 		if(ph->p_memsz < ph->p_filesz && ph->p_filesz > 0){
 			panic("not enough data in file to write to memory");
 		}
+
+		if(ph->p_va == 0x804000) {
+			debug_print(task->task_pml4);
+			cprintf("va: %p, pml4: %d, pdpt: %d, pd: %d, pt: %d\n", ph->p_va, PML4_INDEX(ph->p_va), PDPT_INDEX(ph->p_va), PAGE_DIR_INDEX(ph->p_va), PAGE_TABLE_INDEX(ph->p_va));
+			assert(!page_lookup(task->task_pml4, (void*) 0x804000, NULL));
+		}
 		populate_region(task->task_pml4, (void*)ph->p_va, ph->p_memsz, flags);
 
 		if(ph->p_filesz > 0){
@@ -284,7 +291,6 @@ static void task_load_elf(struct task *task, uint8_t *binary)
 			memset((void*)ph->p_va, 0, ph->p_memsz);
 		}
 		//debug_print(task->task_pml4);
-		debug_va_to_idx(0x800020);
 	}
 	load_pml4((void*)PADDR(kernel_pml4));
 	/* LAB 3: your code here. */

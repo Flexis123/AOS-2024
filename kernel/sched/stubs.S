@@ -72,8 +72,6 @@ isr_common_stub:
 	movq %rax, %es
 	movq %rax, %ds
 
-	xor %rax, %rax
-
 	/* Jump to the generic interrupt handler. */
 	movq %rsp, %rdi
 	jmp int_handler

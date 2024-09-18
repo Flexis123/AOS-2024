@@ -46,7 +46,7 @@ Disassembly of section .text:
   800057: 48 89 75 f0                  	movq	%rsi, -16(%rbp)
 ;         asm("mov    $0x1, %rax\n\t"
   80005b: 48 c7 c0 01 00 00 00         	movq	$1, %rax
-  800062: 48 c7 c1 05 00 00 00         	movq	$5, %rcx
+  800062: 48 c7 c1 00 00 00 00         	movq	$0, %rcx
   800069: 99                           	cltd
   80006a: 48 f7 f9                     	idivq	%rcx
 ; }

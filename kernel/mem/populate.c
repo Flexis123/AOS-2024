@@ -17,7 +17,7 @@ static int populate_pte(physaddr_t *entry, uintptr_t base, uintptr_t end,
 
 	if(!page)return -1;
 	page->pp_ref++;
-	cprintf("populate va: %p, flags: %p\n", base, info->flags);
+	//cprintf("populate va: %p, flags: %p\n", base, info->flags);
 	*entry = page2pa(page) | info->flags;
 	return 0;
 }
@@ -31,7 +31,7 @@ static int populate_pde(physaddr_t *entry, uintptr_t base, uintptr_t end,
 	if(hpage_aligned(base) && (end - base) + 1 >= HPAGE_SIZE){
 		page = page_alloc(ALLOC_HUGE);
 		if(!page)return -1;
-		cprintf("populate huge page: %p, flags: %p\n", base, info->flags);
+		//cprintf("populate huge page: %p, flags: %p\n", base, info->flags);
 		*entry = page2pa(page) | info->flags | PAGE_HUGE;
 		return 0;
 	}
@@ -41,7 +41,7 @@ static int populate_pde(physaddr_t *entry, uintptr_t base, uintptr_t end,
 	int ok = ptbl_alloc(entry, base, end, walker);
 
 	if(ok == 0){
-		cprintf("populate new ptable: %p, flags: %p\n", base, info->flags);
+		//cprintf("populate new ptable: %p, flags: %p\n", base, info->flags);
 		*entry = PAGE_ADDR(*entry) | info->flags;
 	}
 	return ok; 
@@ -66,7 +66,6 @@ void populate_region(struct page_table *pml4, void *va, size_t size,
 		.pml4e_callback = ptbl_alloc,
 		.udata = &info,
 	};
-	cprintf("populate va from: %p to %p with flags: %p\n", info.base, info.end, info.flags);
+	//cprintf("populate va from: %p to %p with flags: %p\n", info.base, info.end, info.flags);
 	walk_page_range(pml4, va, (void *)((uintptr_t)va + size), &walker);
 }
-

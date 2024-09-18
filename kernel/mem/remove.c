@@ -88,10 +88,6 @@ void unmap_page_range(struct page_table *pml4, void *va, size_t size)
 	};
 
 	walk_page_range(pml4, va, va + size, &walker);
-
-	for(size_t i = 0; i < size; i += PAGE_SIZE){
-		tlb_invalidate(pml4, va + i);
-	}
 }
 
 /* Unmaps all user pages. */

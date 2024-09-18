@@ -26,6 +26,12 @@
         "syscall.h": "c",
         "task.h": "c",
         "idt.h": "c",
-        "gdt.h": "c"
+        "gdt.h": "c",
+        "dump.h": "c",
+        "insert.h": "c",
+        "kmem.h": "c",
+        "lookup.h": "c",
+        "map.h": "c",
+        "buddy.h": "c"
     }
 }
