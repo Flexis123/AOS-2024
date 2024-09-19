@@ -194,9 +194,11 @@ Disassembly of section .text:
   800158: 55                           	pushq	%rbp
 ; 	movq 0x10(%rsp), %rbp
   800159: 48 8b 6c 24 10               	movq	16(%rsp), %rbp
-; 	int $INT_SYSCALL
-  80015e: cd 80                        	int	$128
+; 	movq %rcx, %r10
+  80015e: 49 89 ca                     	movq	%rcx, %r10
+; 	syscall
+  800161: 0f 05                        	syscall
 ; 	popq %rbp
-  800160: 5d                           	popq	%rbp
+  800163: 5d                           	popq	%rbp
 ; 	retq
-  800161: c3                           	retq
+  800164: c3                           	retq

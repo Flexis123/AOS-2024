@@ -16,7 +16,7 @@
 #define FLAGS_IF      (1 << 9)
 #define FLAGS_DF      (1 << 10)
 #define FLAGS_OF      (1 << 11)
-#define FLAGS_IOPL(x) (((x & 0x3) << 12)
+#define FLAGS_IOPL(x) ((x & 0x3) << 12)
 #define FLAGS_NT      (1 << 14)
 #define FLAGS_RF      (1 << 16)
 #define FLAGS_VM      (1 << 17)

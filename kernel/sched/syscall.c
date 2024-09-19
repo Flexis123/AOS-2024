@@ -13,7 +13,17 @@ extern void syscall64(void);
 
 void syscall_init(void)
 {
-	/* LAB 3: your code here. */
+	//where do we setup trhe KERNEL_GS_BASE?
+	write_msr(MSR_LSTAR, (uintptr_t) syscall64);
+	cprintf("MSR_LSTAR = %p\n", read_msr(MSR_LSTAR));
+	write_msr(MSR_STAR, ((uint64_t)GDT_KCODE << 32) | ((uint64_t)GDT_UCODE << 48));
+	cprintf("MSR_STAR = %p\n", read_msr(MSR_STAR));
+	write_msr(MSR_SFMASK, ((0 & 0x3) << 12) | FLAGS_TF | FLAGS_IF | FLAGS_AC | FLAGS_NT);
+	cprintf("MSR_SFMASK = %p\n", read_msr(MSR_SFMASK));
+
+	uint64_t msr_efer = read_msr(MSR_EFER);
+	write_msr(MSR_EFER, msr_efer | MSR_EFER_SCE);
+	cprintf("MSR_EFER = %p\n", read_msr(MSR_EFER));
 }
 
 /*
