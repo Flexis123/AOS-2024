@@ -22,7 +22,10 @@ static int remove_pte(physaddr_t *entry, uintptr_t base, uintptr_t end,
     struct page_walker *walker)
 {
 	struct remove_info *info = walker->udata;
-	if(*entry & PAGE_PRESENT)remove_page(entry, info);
+	if(*entry & PAGE_PRESENT){
+		remove_page(entry, info);
+		*entry = 0;
+	}
 	return 0;
 }
 
@@ -81,9 +84,9 @@ void unmap_page_range(struct page_table *pml4, void *va, size_t size)
 	struct page_walker walker = {
 		.pte_callback = remove_pte,
 		.pde_callback = remove_pde,
-		.pde_unmap = remove_table,
-		.pdpte_unmap = remove_table,
-		.pml4e_unmap = remove_table,
+		.pde_unmap = ptbl_free,
+		.pdpte_unmap = ptbl_free,
+		.pml4e_unmap = ptbl_free,
 		.udata = &info,
 	};
 
