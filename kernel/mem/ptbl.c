@@ -145,13 +145,15 @@ int ptbl_free(physaddr_t *entry, uintptr_t base, uintptr_t end,
 {
 	if((*entry & PAGE_PRESENT) == 0) return 0;
 	physaddr_t table = PAGE_ADDR(*entry);
+	struct page_info *table_page = pa2page(table);
+	struct page_table *page_table = page2kva(table_page);
 
 	for(int i = 0; i < PAGE_TABLE_ENTRIES; i++){
-		physaddr_t table_entry = table + i;
+		physaddr_t table_entry = page_table->entries[i];
 		
 		if(table_entry & PAGE_PRESENT) return 0;
 	}
-	struct page_info *table_page = pa2page(table);
 	page_decref(table_page);
+	*entry = 0;
 	return 0;
 }

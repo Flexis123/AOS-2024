@@ -13,6 +13,46 @@ extern struct list buddy_free_list[];
 /* The kernel's initial PML4. */
 struct page_table *kernel_pml4;
 struct page_info *kernel_pml4_page;
+
+static void debug_print(struct page_table *pml4){
+
+	for(int i = 0; i < PAGE_TABLE_ENTRIES; i++){
+		physaddr_t entry = pml4->entries[i];
+
+		if(entry == 0)continue;
+
+		cprintf("entry: %d: %p\n", i, entry);
+
+		for(int j = 0; j < PAGE_TABLE_ENTRIES; j++){
+			struct page_table *pdpt = KADDR(PAGE_ADDR(entry));
+			physaddr_t entry2 = pdpt->entries[j];
+
+			if(entry2 == 0)continue;
+
+			cprintf("	entry2: %d %p\n", j, entry2);
+
+			for(int k = 0; k < PAGE_TABLE_ENTRIES; k++){
+				struct page_table *pdir = KADDR(PAGE_ADDR(entry2));
+				physaddr_t entry3 = pdir->entries[k];
+				if(entry3 == 0)continue;
+
+				if(entry3 & PAGE_HUGE){
+					cprintf("		HUGE PAGE %d %p\n", k, entry3);
+					continue;
+				}		
+				cprintf("		entry3 %d %p\n", k, entry3);
+				for(int l = 0; l < PAGE_TABLE_ENTRIES; l++){
+					struct page_table *ptbl = KADDR(PAGE_ADDR(entry3));
+					physaddr_t entry4 = ptbl->entries[l];
+
+					if(entry4 == 0)continue;
+					cprintf("			entry %d %p\n", l, entry4);
+				}
+			}
+		}
+	}
+}
+
 /* This function sets up the initial PML4 for the kernel. */
 int pml4_setup(struct boot_info *boot_info)
 {
@@ -35,6 +75,7 @@ int pml4_setup(struct boot_info *boot_info)
 
 	/* LAB 2: your code here. */
 	boot_map_kernel(kernel_pml4, (struct elf*) boot_info->elf_hdr);
+	debug_print(kernel_pml4);
 	
 	/* Use the physical memory that 'bootstack' refers to as the kernel
 	 * stack. The kernel stack grows down from virtual address KSTACK_TOP.
@@ -66,6 +107,10 @@ int pml4_setup(struct boot_info *boot_info)
  * From USER_TOP to USER_LIM, the user is allowed to read but not write.
  * Above USER_LIM, the user cannot read or write.
  */
+
+
+
+
 void mem_init(struct boot_info *boot_info)
 {
 	struct mmap_entry *entry;
@@ -133,7 +178,7 @@ void mem_init(struct boot_info *boot_info)
 
 	/* Load the kernel PML4. */
 	/* LAB 2: your code here. */
-
+	debug_print(kernel_pml4);
 	load_pml4((void*)(PADDR(kernel_pml4)));
 
 	/* Check the paging functions. */

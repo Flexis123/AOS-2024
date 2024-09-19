@@ -179,7 +179,7 @@ static int pdpt_walk_range(struct page_table *pdpt, uintptr_t base,
 				return -1;
 			}
 		}
-		if((*entry & PAGE_PRESENT) && !(*entry & PAGE_HUGE)){
+		if((*entry & PAGE_PRESENT) && !(*entry & PAGE_GLOBAL)){
 			if(pdir_walk_range(KADDR(PAGE_ADDR(*entry)), current, MIN(next -1, end), walker) < 0){
 				return -1;
 			}
@@ -235,7 +235,7 @@ static int pml4_walk_range(struct page_table *pml4, uintptr_t base, uintptr_t en
 				return -1;
 			}
 		}
-		if((*entry & PAGE_PRESENT) && !(*entry & PAGE_GLOBAL)){
+		if((*entry & PAGE_PRESENT)){
 			if(pdpt_walk_range(KADDR(PAGE_ADDR(*entry)), current, MIN(next -1, end), walker) < 0){
 				return -1;
 			}
