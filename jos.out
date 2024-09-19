@@ -3,10 +3,10 @@
 ***
 *** Now run 'make gdb'.
 ***
-c[?7l[2J[0mSeaBIOS (version 1.16.3-debian-1.16.3-2)
+c[?7l[2J[0mSeaBIOS (version 1.15.0-1)
 
 
-iPXE (https://ipxe.org) 00:03.0 CA00 PCI2.10 PnP PMM+06FCAF60+06F0AF60 CA00
+iPXE (https://ipxe.org) 00:03.0 CA00 PCI2.10 PnP PMM+07F8B4A0+07ECB4A0 CA00
 Press Ctrl-B to configure iPXE (PCI 00:03.0)...                                                                               
 
 
@@ -25,27 +25,23 @@ Booting from Hard Disk...
 [LAB 2] check_buddy_consistency() succeeded!
 [LAB 2] check_vas() succeeded!
 [PID     0] New task with PID 1
-populate region from: va 0x800020 to (included:) 0x8019bc applying flasg: 0x5
-populate region from: va 0x802000 to (included:) 0x80226b applying flasg: 0x8000000000000005
-populate region from: va 0x803000 to (included:) 0x803007 applying flasg: 0x8000000000000007
-populate region from: va 0x200000 to (included:) 0x200067 applying flasg: 0x8000000000000007
 [LAB 3] check_us() succeeded!
 [LAB 3] check_wx() succeeded!
 [LAB 3] check_null() succeeded!
 Incoming INT frame at 0xfffffe7fffffff48
 doing syscall
-INT frame at 0xffff80000028f168
+INT frame at 0xffff800000261168
  INT 128: Sys call
  ERR 0x0000000000000000
- RAX 0x0000000000000000 RCX 0x0000000000000000 RDX 0x0000000000000064 RBX 0x0000000000000000
- RSP 0x00007fffffffdf30 RBP 0x0000000000000000 RSI 0xffff800000100000 RDI 0x0000000000000000
+ RAX 0x00007fffffffe000 RCX 0x0000000000000000 RDX 0x0000000000000064 RBX 0x0000000000000000
+ RSP 0x00007fffffffdfa0 RBP 0x0000000000000000 RSI 0xffff800000100000 RDI 0x0000000000000000
  R8  0x0000000000000000 R9  0x0000000000000000 R10 0x0000000000000000 R11 0x0000000000000000
  R12 0x0000000000000000 R13 0x0000000000000000 R14 0x0000000000000000 R15 0x0000000000000000
- RIP 0x0000000000800274 RFL 0x0000000000000002
+ RIP 0x0000000000800160 RFL 0x0000000000000046
  CS  0x0023             DS  0x001b             SS  0x001b
 [PID     1] Access violation for va 0xffff800000100000
 [PID     1] Freed task with PID 1
 Destroyed the only task - nothing more to do!
 Welcome to the OpenLSD kernel monitor!
 Type 'help' for a list of commands.
-qemu-system-x86_64: terminating on signal 15 from pid 281885 (make)
+qemu-system-x86_64: terminating on signal 15 from pid 42611 (make)
