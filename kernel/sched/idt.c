@@ -192,9 +192,8 @@ void int_dispatch(struct int_frame *frame)
 			return page_fault_handler(frame);
 
 		case INT_SYSCALL:
-			cprintf("doing syscall\n");
 			print_int_frame(frame);
-			frame->rax = syscall(frame->rdi, frame->rsi, frame->rdx, frame->rcx, frame->r8, frame->r9, frame->rax);
+			frame->rax = syscall(frame->rdi, frame->rsi, frame->rdx, frame->rcx, frame->r8, frame->r9, frame->rbp);
 			return iret64(frame);
 	
 		default: break;
@@ -242,10 +241,6 @@ void int_handler(struct int_frame *frame)
 	task_run(cur_task);
 }
 
-#include "kernel/mem.h"
-
-
-
 void page_fault_handler(struct int_frame *frame)
 {
 	void *fault_va;
@@ -261,38 +256,6 @@ void page_fault_handler(struct int_frame *frame)
 		print_int_frame(frame);
 		panic("Page fault originated from the kernel");
 	}
-
-	cprintf("fault_va: %p\n", fault_va);
-	/*
-	uintptr_t va = (uintptr_t) fault_va;
-	physaddr_t* entry = cur_task->task_pml4->entries + PML4_INDEX(va);
-	assert(*entry & PAGE_PRESENT);
-	assert(*entry & PAGE_WRITE);
-	assert(*entry & PAGE_USER);
-	struct page_table* pdpt = KADDR(PAGE_ADDR(*entry));
-
-	entry = pdpt->entries + PDPT_INDEX(va);
-	assert(*entry & PAGE_PRESENT);
-	assert(*entry & PAGE_WRITE);
-	assert(*entry & PAGE_USER);
-	struct page_table* pd = KADDR(PAGE_ADDR(*entry));
-
-	entry = pd->entries + PAGE_DIR_INDEX(va);
-	cprintf("huge page: %d\n", *entry & PAGE_HUGE);
-	assert(*entry & PAGE_PRESENT);
-	assert(*entry & PAGE_WRITE);
-	assert(*entry & PAGE_USER);
-	struct page_table* pt = KADDR(PAGE_ADDR(*entry));
-
-	if(!(*entry & PAGE_HUGE)){
-		entry = pt->entries + PAGE_TABLE_INDEX(va);
-		assert(*entry & PAGE_PRESENT);
-		assert(*entry & PAGE_WRITE);
-		assert(*entry & PAGE_USER);
-	}
-
-	cprintf("entry flags: %p\n", *entry & PAGE_MASK);
-	*/
 
 
 	/* LAB 3: your code here. */

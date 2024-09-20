@@ -42,9 +42,6 @@ ISR_NOERRCODE INT_SIMD
 ISR_NOERRCODE INT_SECURITY
 ISR_NOERRCODE INT_SYSCALL
 
-/*TODO change last handler def if need if we implement bonus (I think this is for bonus)*/
-
-/* LAB 3: your code here. */
 
 isr_common_stub:
 	/*push all registers to build int frame*/
@@ -76,14 +73,39 @@ isr_common_stub:
 	movq %rsp, %rdi
 	jmp int_handler
 
+
+
 .global syscall64
 syscall64:
 	/* LAB 3: your bonus code here. */
 	/* Store the userspace stack pointer in the per-cpu struct. */
-
+	swapgs
+	movq %rsp, %gs:CPU_TSS_RSP3
 	/* Load the kernel stack pointer from the per-cpu struct. */
+	movq %gs:CPU_TSS_RSP0, %rsp
 
 	/* Store the register state into the per-cpu struct. */
+	movq  %gs:CPU_TASK, %rax
+
+	movq %r15, IF_R15(%rax)
+	movq %r14, IF_R14(%rax)
+	movq %r13, IF_R13(%rax)
+	movq %r12, IF_R12(%rax)
+	movq %r11, IF_R11(%rax)
+	movq %r10, IF_R10(%rax)
+	movq %r9, IF_R9(%rax)
+	movq %r8, IF_R8(%rax)
+	movq %rdi, IF_RDI(%rax)
+	movq %rsi, IF_RSI(%rax)
+	movq %rbp, IF_RBP(%rax)
+	movq %rbx, IF_RBX(%rax)
+	movq %rdx, IF_RDX(%rax)
+	movq %rcx, IF_RCX(%rax)
+	movq $INT_SYSCALL, IF_INO(%rax) //probaly dont need this
+	movq $0, IF_ERR(%rax) //probaly dont need this
+
+	movq %gs:CPU_TSS_RSP3, %r15
+	movq %r15, IF_RSP(%rax) 
 
 	/* Jump to the system call handler. */
 	movq %r10, %rcx
@@ -134,4 +156,5 @@ sysret64:
 	/* LAB 3: your bonus code here. */
 	/* Recover the register state. */
 	/* Return from the system call. */
+	swapgs
 	sysretq
