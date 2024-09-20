@@ -8,7 +8,9 @@ void foo()
 
 int main()
 {
-    foo();
-    foo();
+    int i = 0x1;
+    i = i << 9;
+
+    printf("%d\n", i);
     return 0;
 }

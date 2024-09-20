@@ -18,6 +18,20 @@
         "streambuf": "c",
         "system_error": "c",
         "memory.h": "c",
-        "paging.h": "c"
+        "paging.h": "c",
+        "mem.h": "c",
+        "init.h": "c",
+        "typeinfo": "c",
+        "sched.h": "c",
+        "syscall.h": "c",
+        "task.h": "c",
+        "idt.h": "c",
+        "gdt.h": "c",
+        "dump.h": "c",
+        "insert.h": "c",
+        "kmem.h": "c",
+        "lookup.h": "c",
+        "map.h": "c",
+        "buddy.h": "c"
     }
 }

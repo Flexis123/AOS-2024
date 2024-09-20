@@ -9,6 +9,8 @@
 size_t npages;
 struct page_info *pages;
 
+#define BONUS_LAB1
+
 /*
  * List of free buddy chunks (often also referred to as buddy pages or simply
  * pages). Each order has a list containing all free buddy chunks of the
@@ -88,10 +90,31 @@ size_t count_total_free_pages(void)
  *
  * Returns a page of the requested order.
  */
- struct page_info *buddy_split(struct page_info *lhs, size_t req_order)
+struct page_info *buddy_split(struct page_info *lhs, size_t req_order)
 {
-	/* LAB 1: your code here. */
-	return NULL;
+	//get page adress
+	//flip order bit to get buddy
+	assert(lhs->pp_order >= req_order);
+	
+	while(lhs->pp_order > req_order){
+		physaddr_t page_addr = page2pa(lhs);
+		physaddr_t buddy_addr = page_addr ^ (1 << (lhs->pp_order + PAGE_TABLE_SHIFT - 1));
+		struct page_info *buddy = pa2page(buddy_addr);
+		buddy->pp_order = lhs->pp_order - 1;
+		buddy->pp_free = true;
+
+		lhs->pp_order--;
+#ifdef BONUS_LAB1
+		struct list* entry;
+		list_foreach(&buddy_free_list[lhs->pp_order], entry){
+			assert(entry != &lhs->pp_node);
+		}
+#endif
+
+		list_insert_before(&buddy_free_list[lhs->pp_order], &buddy->pp_node);
+	}
+	
+	return lhs;
 }
 
 /* Merges the buddy of the page with the page if the buddy is free to form
@@ -114,26 +137,44 @@ struct page_info *buddy_merge(struct page_info *page)
 {
 	unsigned int order = page->pp_order;
 
-	while(order <= BUDDY_MAX_ORDER){
-		size_t page_index = (page - pages) / sizeof(struct page_info);
-		size_t buddy_index = page_index ^ (1 << order);
+	while(order < BUDDY_MAX_ORDER - 1){
+		physaddr_t page_addr = page2pa(page);
+		physaddr_t buddy_addr = page_addr ^ (1 << (order + PAGE_TABLE_SHIFT));
+		struct page_info *buddy = pa2page(buddy_addr);
 
-		cprintf("current page index: %u, buddy index; %u\n", page_index, buddy_index);
-
-		struct page_info *buddy = &pages[buddy_index];
-
-		if(buddy->pp_free){
-			//buddy free, we can merge them.
-
-			size_t merged_page_index = page_index & ~(1 << order);
-			struct page_info *merged_page = &pages[merged_page_index];
-			merged_page->pp_order++;
-			page = merged_page;
-			order++;
-		}
-		else{
+		if(!buddy->pp_free || (buddy->pp_order != page->pp_order)){
 			break;
 		}
+		physaddr_t merged_page_addr = page_addr & ~(1 << (order + PAGE_TABLE_SHIFT));
+		struct page_info *merged_page = pa2page(merged_page_addr);
+		struct list *next = NULL;
+		struct list* entry = &page->pp_node;
+		page->pp_free = false;
+		buddy->pp_free = false;
+
+		int entries_removed = 0;
+		list_foreach_safe(&buddy_free_list[order], entry, next){
+			
+			if(entry == &page->pp_node || entry == &buddy->pp_node){
+				list_del(entry);
+				entries_removed++;
+
+				if(entries_removed == 2){
+					break;
+				}
+			}	
+		}
+		assert(entries_removed == 2);
+		order++;
+		merged_page->pp_order = order;
+#ifdef BONUS_LAB1
+		list_foreach(&buddy_free_list[order], entry){
+			assert(entry != &merged_page->pp_node);
+		}
+#endif
+		list_insert_before(&buddy_free_list[order], &merged_page->pp_node);
+		merged_page->pp_free = true;
+		page = merged_page;
 	}
 	return page;
 }
@@ -146,8 +187,22 @@ struct page_info *buddy_merge(struct page_info *page)
  * Returns a page of the requested order or NULL if no such page can be found.
  */
 struct page_info *buddy_find(size_t req_order)
-{
-	/* LAB 1: your code here. */
+{	
+	struct list* head;
+	struct page_info* page;
+	for(size_t ord = req_order; ord < BUDDY_MAX_ORDER; ord++){
+		head = &buddy_free_list[ord];
+
+		if(!list_is_empty(head)) {
+			page = container_of(head->next, struct page_info, pp_node);
+			assert(page->pp_order == ord);
+			page = buddy_split(page, req_order);
+			list_del(&page->pp_node);
+
+			page->pp_free = false;
+			return page;
+		}
+	}
 	return NULL;
 }
 
@@ -168,8 +223,20 @@ struct page_info *buddy_find(size_t req_order)
  */
 struct page_info *page_alloc(int alloc_flags)
 {
-	/* LAB 1: your code here. */
-	return NULL;
+	struct page_info* page;
+
+
+	if (alloc_flags & ALLOC_HUGE) page = buddy_find(BUDDY_2M_PAGE);
+	else page = buddy_find(0);
+
+	//check for OOM
+	if(page) {
+		if(alloc_flags & ALLOC_ZERO) {
+			memset(page2kva(page), 0, 1 << (page->pp_order + PAGE_TABLE_SHIFT));
+		}
+	}
+	assert(page != NULL);
+	return page;
 }
 
 /*
@@ -184,9 +251,36 @@ void page_free(struct page_info *pp)
 	if(pp->pp_ref != 0){
 		panic("page_free called on page that is still in use");
 	}
+#ifdef BONUS_LAB1
+	if(pp->pp_free){
+		panic("page_free called on page that is already freed");
+	}
+	struct list *entry;
+
+	//list_foreach(&buddy_free_list[pp->pp_order], entry){
+	//	assert(entry != &pp->pp_node);
+	//}
+
+	physaddr_t page_addr = page2pa(pp);
+	if(page_addr == 0){
+		panic("page_free called on reserved page");
+	}
+#endif
 	pp->pp_free = true;
-	pp = buddy_merge(pp);
+
+	//struct list *entry;
+	int size = 0;
+	list_foreach(&buddy_free_list[pp->pp_order], entry){
+		size++;
+	}
+
 	list_insert_before(&buddy_free_list[pp->pp_order], &pp->pp_node);
+	size = 0;
+	list_foreach(&buddy_free_list[pp->pp_order], entry){
+		size++;
+	}
+
+	buddy_merge(pp);
 }
 
 /*
@@ -200,3 +294,77 @@ void page_decref(struct page_info *pp)
 	}
 }
 
+static int in_page_range(void *p)
+{
+	return ((uintptr_t)pages <= (uintptr_t)p &&
+	        (uintptr_t)p < (uintptr_t)(pages + npages));
+}
+
+static void *update_ptr(void *p)
+{
+	if (!in_page_range(p))
+		return p;
+
+	return (void *)((uintptr_t)p + KPAGES - (uintptr_t)pages);
+}
+
+
+//relocates next and previous pointers for free lst
+void buddy_migrate(void)
+{
+	struct page_info *page;
+	struct list *node;
+	size_t i;
+
+	for (i = 0; i < npages; ++i) {
+		page = pages + i;
+		node = &page->pp_node;
+
+		node->next = update_ptr(node->next);
+		node->prev = update_ptr(node->prev);
+	}
+
+	for (i = 0; i < BUDDY_MAX_ORDER; ++i) {
+		node = buddy_free_list + i;
+
+		node->next = update_ptr(node->next);
+		node->prev = update_ptr(node->prev);
+	}
+
+	pages = (struct page_info *)KPAGES;
+}
+
+int buddy_map_chunk(struct page_table *pml4, size_t index)
+{
+	struct page_info *page, *base;
+	void *end;
+	size_t nblocks = (1 << (12 + BUDDY_MAX_ORDER - 1)) / PAGE_SIZE;
+	size_t nalloc = ROUNDUP(nblocks * sizeof *page, PAGE_SIZE) / PAGE_SIZE;
+	size_t i;
+
+	index = ROUNDDOWN(index, nblocks);
+	base = pages + index;
+
+	for (i = 0; i < nalloc; ++i) {
+		page = page_alloc(ALLOC_ZERO);
+
+		if (!page) {
+			return -1;
+		}
+
+		++page->pp_ref;
+
+		if (page_insert(pml4, page, (char *)base + i * PAGE_SIZE,
+		    PAGE_PRESENT | PAGE_WRITE | PAGE_NO_EXEC) < 0) {
+			return -1;
+		}
+	}
+
+	for (i = 0; i < nblocks; ++i) {
+		page = base + i;
+		list_init(&page->pp_node);
+	}
+	npages = index + nblocks;
+
+	return 0;
+}

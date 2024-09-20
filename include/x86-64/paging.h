@@ -47,7 +47,9 @@
 #define PML4_INDEX(x)       (((x) >> PML4_SHIFT) & PML4_MASK)
 
 #define PAGE_MASK (0xFFFF000000000FFF)
-#define PAGE_UMASK (PAGE_PRESENT | PAGE_WRITE | PAGE_NO_EXEC | PAGE_USER)
+#define PAGE_KMASK (PAGE_PRESENT | PAGE_WRITE | PAGE_NO_EXEC)
+#define PAGE_UMASK (PAGE_KMASK | PAGE_USER)
+#define PAGE_TABLE_ENTRY_PERMS PAGE_PRESENT | PAGE_WRITE | PAGE_USER
 #define PAGE_ADDR(x) ((x) & ~PAGE_MASK)
 
 #define PF_PRESENT  (1 << 0)
@@ -85,5 +87,19 @@ static inline int hpage_aligned(uintptr_t p)
 {
 	return !(p & (HPAGE_SIZE - 1));
 }
+
+#define PHYS_ADD_MASK 0x8000000000000FFF
+
+static inline void set_entry_pa(physaddr_t *entry, physaddr_t pa){
+	*entry &= PHYS_ADD_MASK;
+	*entry |= pa & (PAGE_SIZE - 1);
+}
+
+static inline physaddr_t get_entry_pa(physaddr_t *entry){
+	return *entry & ~PHYS_ADD_MASK;
+}
+
+
+
 #endif /* !defined(__ASSEMBLER__) */
 
