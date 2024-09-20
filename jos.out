@@ -3,10 +3,10 @@
 ***
 *** Now run 'make gdb'.
 ***
-c[?7l[2J[0mSeaBIOS (version 1.16.3-debian-1.16.3-2)
+c[?7l[2J[0mSeaBIOS (version 1.15.0-1)
 
 
-iPXE (https://ipxe.org) 00:03.0 CA00 PCI2.10 PnP PMM+06FCAF60+06F0AF60 CA00
+iPXE (https://ipxe.org) 00:03.0 CA00 PCI2.10 PnP PMM+07F8B4A0+07ECB4A0 CA00
 Press Ctrl-B to configure iPXE (PCI 00:03.0)...                                                                               
 
 
@@ -77,20 +77,9 @@ va: 0xffff800000170240 is found at: pml4: 256 pdpt: 0  pdir 0 ptbl 368
 [LAB 3] check_us() succeeded!
 [LAB 3] check_wx() succeeded!
 [LAB 3] check_null() succeeded!
-Incoming INT frame at 0xfffffe7fffffff48
-doing syscall
-INT frame at 0xffff800000262168
- INT 128: Sys call
- ERR 0x0000000000000000
- RAX 0x00007fffffffe000 RCX 0x0000000000000000 RDX 0x0000000000000064 RBX 0x0000000000000000
- RSP 0x00007fffffffdfa0 RBP 0x0000000000000000 RSI 0xffff800000100000 RDI 0x0000000000000000
- R8  0x0000000000000000 R9  0x0000000000000000 R10 0x0000000000000000 R11 0x0000000000000000
- R12 0x0000000000000000 R13 0x0000000000000000 R14 0x0000000000000000 R15 0x0000000000000000
- RIP 0x0000000000800160 RFL 0x0000000000000046
- CS  0x0023             DS  0x001b             SS  0x001b
 [PID     1] Access violation for va 0xffff800000100000
 [PID     1] Freed task with PID 1
 Destroyed the only task - nothing more to do!
 Welcome to the OpenLSD kernel monitor!
 Type 'help' for a list of commands.
-qemu-system-x86_64: terminating on signal 15 from pid 26189 (make)
+qemu-system-x86_64: terminating on signal 15 from pid 298299 (make)

@@ -385,7 +385,10 @@ void task_pop_frame(struct int_frame *frame)
 void task_run(struct task *task)
 {
 	assert(task);
-	assert(task->task_status == TASK_RUNNABLE);
+	//do we need the assert below?
+	//like what if the task is laready running?
+	//we should just do nothing and return?
+	//assert(task->task_status == TASK_RUNNABLE); 
 	/*
 	 * Step 1: If this is a context switch (a new task is running):
 	 *     1. Set the current task (if any) back to
@@ -404,7 +407,7 @@ void task_run(struct task *task)
 	 *  and make sure you have set the relevant parts of
 	 *  e->task_frame to sensible values.
 	 */
-	if(cur_task){
+	if(cur_task && cur_task != task){
 		struct task * old_task = cur_task;
 		switch (cur_task->task_status)
 		{
@@ -431,19 +434,7 @@ void task_run(struct task *task)
 	cur_task = task;
 	cur_task->task_status = TASK_RUNNING;
 	cur_task->task_runs++;
-	((struct page_table*)PADDR(cur_task->task_pml4));
-	assert(cur_task->task_frame.rip == 0x800020);
-	assert(cur_task->task_frame.rsp == USTACK_TOP);
-	assert(cur_task == task);
 	load_pml4((struct page_table*)PADDR(cur_task->task_pml4));
-	/*
-	cur_task->task_frame = (struct int_frame){
-		.ds = 99,
-		.r15 = 15, .r14 = 14, .r13=13, .r12=12, .r11=11, .r10=10, .r9=9, .r8=8,
-		.rdi = 98, .rsi=97, .rbp=96, .rbx=95, .rdx=94, .rcx=93, .rax=92,
-		.rip = 91, .cs= 90, .rflags=89, .rsp=87, .ss=86
-	};
-	*/
 
 	task_pop_frame(&cur_task->task_frame);
 }
