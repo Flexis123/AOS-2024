@@ -60,6 +60,7 @@ int ptbl_split(physaddr_t *entry, uintptr_t base, uintptr_t end,
 		return 0;
 	}
 	struct page_info *new_table = page_alloc(ALLOC_ZERO);
+	struct page_info *old_page = pa2page(PAGE_ADDR(*entry));
 
 	if(new_table == NULL){
 		panic("unable to alloc new page");
@@ -68,7 +69,7 @@ int ptbl_split(physaddr_t *entry, uintptr_t base, uintptr_t end,
 	
 	new_table->pp_ref++;
 	physaddr_t *new_table_entries = page2kva(new_table);
-	void *old_data = KADDR(PAGE_ADDR(*entry));
+	void *old_data = page2kva(old_page);
 
 	for(int i = 0; i < PAGE_TABLE_ENTRIES; i++){
 		struct page_info *new_page = page_alloc(ALLOC_ZERO);
@@ -80,7 +81,8 @@ int ptbl_split(physaddr_t *entry, uintptr_t base, uintptr_t end,
 		memcpy(page2kva(new_page), old_data + i * PAGE_SIZE, PAGE_SIZE);
 		new_page->pp_ref++;
 	}
-	page_decref(pa2page(PAGE_ADDR(*entry)));
+	page_decref(old_page);
+	old_page->pp_order = 0;
 	*entry = page2pa(new_table) | PAGE_TABLE_ENTRY_PERMS;
   
 	return 0;

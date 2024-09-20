@@ -12,12 +12,16 @@ Press Ctrl-B to configure iPXE (PCI 00:03.0)...
 
 Booting from Hard Disk...
 
-entry: 256: 0x9007
-	     entry2: 0 0x11007
-	     	     HUGE PAGE 0 0x81
-	     	     HUGE PAGE 1 0x200081
-	     	     HUGE PAGE 2 0x400081
-	     	     HUGE PAGE 3 0x600081
+map kernel, no exec
+executing boot map region from va 0xffff800000000000 to 0xffff8000007fffff, flags: 0x8000000000000003
+exec flag enabled!
+map region at va 0xffff80000010c000 to 0xffff800000117fff with flags; 0x1
+map region at va 0xffff800000118000 to 0xffff80000011efff with flags; 0x8000000000000001
+map region at va 0xffff80000011f000 to 0xffff800000171fff with flags; 0x8000000000000003
+init stack, no exec
+executing boot map region from va 0xfffffe7fffff8000 to 0xfffffe7fffffffff, flags: 0x8000000000000003
+map buddy pages as rw
+executing boot map region from va 0xffffff8000000000 to 0xffffff800000ffff, flags: 0x8000000000000003
 [LAB 2] check_ptbl_flags() succeeded!
 [LAB 2] check_wx() succeeded!
 [LAB 2] check_nx() succeeded!
@@ -57,6 +61,9 @@ entry: 511: 0xa007
 	     	     	     entry 13 0x800000000017f003
 	     	     	     entry 14 0x8000000000180003
 	     	     	     entry 15 0x8000000000181003
+  0xffff800000000000 - 0xffff8000007fffff [r-x- 2M]
+  0xfffffe7fffff8000 - 0xfffffe7fffffffff [rwx- 4K]
+va: 0xffff800000170240 is found at: pml4: 256 pdpt: 0  pdir 0 ptbl 368
 [LAB 2] check_4k_paging() succeeded!
 [LAB 2] check_free_list_order() succeeded!
 [LAB 2] check_memory_layout() succeeded!
@@ -86,4 +93,4 @@ INT frame at 0xffff800000262168
 Destroyed the only task - nothing more to do!
 Welcome to the OpenLSD kernel monitor!
 Type 'help' for a list of commands.
-qemu-system-x86_64: terminating on signal 15 from pid 189736 (make)
+qemu-system-x86_64: terminating on signal 15 from pid 26189 (make)

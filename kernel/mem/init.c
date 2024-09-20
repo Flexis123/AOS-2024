@@ -75,17 +75,17 @@ int pml4_setup(struct boot_info *boot_info)
 
 	/* LAB 2: your code here. */
 	boot_map_kernel(kernel_pml4, (struct elf*) boot_info->elf_hdr);
-	debug_print(kernel_pml4);
-	
+
 	/* Use the physical memory that 'bootstack' refers to as the kernel
 	 * stack. The kernel stack grows down from virtual address KSTACK_TOP.
 	 * Map 'bootstack' to [KSTACK_TOP - KSTACK_SIZE, KSTACK_TOP).
 	 */
-
+	cprintf("init stack, no exec\n");
 	boot_map_region(kernel_pml4, (void*)(KSTACK_TOP - KSTACK_SIZE), KSTACK_SIZE, (physaddr_t) bootstack, PAGE_PRESENT | PAGE_WRITE | PAGE_NO_EXEC);
 
 
 	/* Map in the pages from the buddy allocator as RW-. */
+	cprintf("map buddy pages as rw\n");
 	boot_map_region(kernel_pml4, (void*) KPAGES, npages * sizeof(struct page_info), PADDR(pages), PAGE_PRESENT | PAGE_WRITE | PAGE_NO_EXEC);
 
 
@@ -109,7 +109,9 @@ int pml4_setup(struct boot_info *boot_info)
  */
 
 
-
+void debug_va_to_idx2(uintptr_t va){
+	cprintf("va: %p is found at: pml4: %d pdpt: %d  pdir %d ptbl %d\n", va, PML4_INDEX(va) % 512, PDPT_INDEX(va) % 512, PAGE_DIR_INDEX(va) % 512, PAGE_INDEX(va) % 512);
+}
 
 void mem_init(struct boot_info *boot_info)
 {
@@ -172,15 +174,18 @@ void mem_init(struct boot_info *boot_info)
 
 	
 
-	//panic("debug panic");
+	
 	/* Check the kernel PML4. */
 	lab2_check_pml4();
 
 	/* Load the kernel PML4. */
 	/* LAB 2: your code here. */
 	debug_print(kernel_pml4);
+	dump_page_tables(kernel_pml4, PAGE_PRESENT | PAGE_WRITE | PAGE_HUGE);
+	debug_va_to_idx2(0xffff800000170240);
+	//panic("debug panic");
 	load_pml4((void*)(PADDR(kernel_pml4)));
-
+	//va: 0xffff800000170240 is found at: pml4: 256 pdpt: 0  pdir 0 ptbl 368
 	/* Check the paging functions. */
 	lab2_check_paging();
 
@@ -288,7 +293,7 @@ void page_init_ext(struct boot_info *boot_info)
 	
 	for (i = 0; i < boot_info->mmap_len; ++i, ++entry) {
 		if(entry->type != MMAP_FREE) continue;
-		//TODO fix huge page info struct 786432  (huge page) 1536 not mapped in?
+
 		for(physaddr_t addr = entry->addr; addr < entry->addr + entry->len; addr += PAGE_SIZE){
 			if(addr < BOOT_MAP_LIM) continue;
 
@@ -300,7 +305,7 @@ void page_init_ext(struct boot_info *boot_info)
 			while(PAGE_INDEX(addr) >= npages){
 				buddy_map_chunk(kernel_pml4, npages);
 			}
-			boot_map_region(kernel_pml4, page2kva(pa2page(addr)), HPAGE_SIZE, addr, PAGE_PRESENT | PAGE_WRITE | PAGE_NO_EXEC);
+			//boot_map_region(kernel_pml4, page2kva(pa2page(addr)), HPAGE_SIZE, addr, PAGE_PRESENT | PAGE_WRITE | PAGE_NO_EXEC);
 
 			for(size_t j = 0; j < (HPAGE_SIZE / PAGE_SIZE); ++j){
 				//if(PAGE_INDEX(addr + (j * PAGE_SIZE)) >= npages) break;
@@ -314,6 +319,4 @@ void page_init_ext(struct boot_info *boot_info)
 		addr += HPAGE_SIZE - PAGE_SIZE;		
 		}
 	}
-	//linear mapping for all physical memory
-	boot_map_region(kernel_pml4, (void*)KERNEL_VMA, npages * PAGE_SIZE, 0, PAGE_PRESENT | PAGE_WRITE | PAGE_NO_EXEC);
 }

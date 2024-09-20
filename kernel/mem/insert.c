@@ -29,7 +29,7 @@ static int insert_pte(physaddr_t *entry, uintptr_t base, uintptr_t end,
 	}
 	info->page->pp_ref++;
 	assert(!info->page->pp_free);
-	*entry = page2pa(info->page) | info->flags;
+	*entry = page2pa(info->page) | info->flags | PAGE_PRESENT;
 	return 0;
 }
 
@@ -55,7 +55,7 @@ static int insert_pde(physaddr_t *entry, uintptr_t base, uintptr_t end,
 	}
 	info->page->pp_ref++;
 	assert(!info->page->pp_free);
-	*entry = page2pa(info->page) | info->flags;
+	*entry = page2pa(info->page) | info->flags | PAGE_HUGE | PAGE_PRESENT;
 	return 0;
 }
 
@@ -91,6 +91,9 @@ int page_insert(struct page_table *pml4, struct page_info *page, void *va,
 		return -1;
 	}
 	if(!page_aligned((uintptr_t)va)){
+		return -1;
+	}
+	if(page == NULL || pml4 == NULL){
 		return -1;
 	}
 	if((flags & PAGE_HUGE) || (page->pp_order == BUDDY_2M_PAGE)){
