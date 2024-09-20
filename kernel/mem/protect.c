@@ -48,7 +48,6 @@ static int protect_pde(physaddr_t *entry, uintptr_t base, uintptr_t end,
 void protect_region(struct page_table *pml4, void *va, size_t size,
     uint64_t flags)
 {
-	/* LAB 3: your code here. */
 	struct protect_info info = {
 		.pml4 = pml4,
 		.flags = flags,

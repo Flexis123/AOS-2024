@@ -101,8 +101,8 @@ syscall64:
 	movq %rbx, IF_RBX(%rax)
 	movq %rdx, IF_RDX(%rax)
 	movq %rcx, IF_RCX(%rax)
-	movq $INT_SYSCALL, IF_INO(%rax) //probaly dont need this
-	movq $0, IF_ERR(%rax) //probaly dont need this
+	movq $INT_SYSCALL, IF_INO(%rax)
+	movq $0, IF_ERR(%rax)
 	
 	movq %gs:CPU_TSS_RSP3, %r15
 	movq %r15, IF_RSP(%rax) 
@@ -153,7 +153,6 @@ iret64:
 
 .global sysret64
 sysret64:
-	/* LAB 3: your bonus code here. */
 	/* Recover the register state. */
 
 	movq IF_R15(%rdi), 	%r15
@@ -170,10 +169,10 @@ sysret64:
 	movq IF_RDX(%rdi),  %rdx
 	movq IF_RCX(%rdi),  %rcx
 	movq IF_RSP(%rdi),  %rsp
-	movq IF_RAX(%rdi),  %rax
+	movq IF_DS(%rdi),   %rax
+	movq %rax, %ds
 
-	//should ds be restored??
-	//maybe
+	movq IF_RAX(%rdi),  %rax
 
 	/* Return from the system call. */
 	swapgs

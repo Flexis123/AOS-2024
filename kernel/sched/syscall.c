@@ -21,7 +21,7 @@ void syscall_init(void)
 	uint64_t msr_efer = read_msr(MSR_EFER);
 	write_msr(MSR_EFER, msr_efer | MSR_EFER_SCE);
 
-	write_msr(MSR_KERNEL_GS_BASE,  (uintptr_t) this_cpu); //this may need chaning in lab 5 or just disable syscalls
+	write_msr(MSR_KERNEL_GS_BASE, (uintptr_t) this_cpu); //this may need chaning in lab 5 or just disable syscalls
 }
 
 /*
@@ -33,7 +33,6 @@ static void sys_cputs(const char *s, size_t len)
 {
 	/* Check that the user has permission to read memory [s, s+len).
 	 * Destroy the environment if not. */
-	/* LAB 3: your code here. */
 	assert_user_mem(cur_task, (void*)s, len, (int) PAGE_NO_EXEC);
 	/* Print the string supplied by the user. */
 	cprintf("%.*s", len, s);
@@ -77,7 +76,6 @@ int64_t syscall(uint64_t syscallno, uint64_t a1, uint64_t a2, uint64_t a3,
 	 * Call the function corresponding to the 'syscallno' parameter.
 	 * Return any appropriate return value.
 	 */
-	/* LAB 3: your code here. */
 	int64_t ret = 0;
 
 	switch (syscallno) {

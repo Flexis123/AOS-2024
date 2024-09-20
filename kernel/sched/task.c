@@ -244,7 +244,7 @@ static void task_load_elf(struct task *task, uint8_t *binary)
 
 	struct elf *elf = (struct elf *)binary;
 	if (elf->e_magic != ELF_MAGIC) {
-		panic("binary has wrong magic number: got: %d, expected: %d", elf->e_magic, ELF_MAGIC);
+		panic("binary has wrong magic number. got: %d, expected: %d", elf->e_magic, ELF_MAGIC);
 	}
 	struct elf_proghdr *prog_headers = (struct elf_proghdr *)(binary + elf->e_phoff);
 	assert(elf->e_phoff != 0);
@@ -261,23 +261,20 @@ static void task_load_elf(struct task *task, uint8_t *binary)
 		}
 
 		assert(ph->p_offset != 0);
-		physaddr_t flags = PAGE_NO_EXEC | PAGE_PRESENT | PAGE_USER;
-		//if(!(ph->p_flags & ELF_PROG_FLAG_READ))continue;
-		if(ph->p_flags & ELF_PROG_FLAG_WRITE) flags |= PAGE_WRITE;
-		if(ph->p_flags & ELF_PROG_FLAG_EXEC){
-			flags &= ~(PAGE_NO_EXEC | PAGE_WRITE);
-			assert(!(flags & PAGE_NO_EXEC));
+		physaddr_t flags = PAGE_PRESENT | PAGE_USER;
+		if(ph->p_flags & ELF_PROG_FLAG_WRITE) flags |= PAGE_WRITE | PAGE_NO_EXEC;
+
+		if(!(ph->p_flags & ELF_PROG_FLAG_EXEC)){
+			flags |= PAGE_NO_EXEC;
 		} 
-		
 		if(ph->p_va + ph->p_memsz >= KERNEL_VMA){
 			panic("elf section maps to kernel memory");
 		}
 		if(ph->p_memsz < ph->p_filesz && ph->p_filesz > 0){
 			panic("not enough data in file to write to memory");
 		}
-
 		populate_region(task->task_pml4, (void*)ph->p_va, ph->p_memsz, flags);
-
+		protect_region(task->task_pml4, (void*)ph->p_va, ph->p_memsz, flags);
 		if(ph->p_filesz > 0){
 			assert(ph->p_filesz == ph->p_memsz);
 			memcpy((void*)ph->p_va, binary + ph->p_offset, ph->p_filesz);
@@ -288,15 +285,13 @@ static void task_load_elf(struct task *task, uint8_t *binary)
 		
 	}
 	load_pml4((void*)PADDR(kernel_pml4));
-	/* LAB 3: your code here. */
 
 	/* Now map one page for the program's initial stack at virtual address
 	 * USTACK_TOP - PAGE_SIZE.
 	 */
 	populate_region(task->task_pml4, (void*)USTACK_TOP - PAGE_SIZE, PAGE_SIZE, PAGE_PRESENT | PAGE_WRITE | PAGE_USER | PAGE_NO_EXEC);
+	protect_region(task->task_pml4, (void*)USTACK_TOP - PAGE_SIZE, PAGE_SIZE, PAGE_PRESENT | PAGE_WRITE | PAGE_USER | PAGE_NO_EXEC);
 	task->task_frame.rip = elf->e_entry;
-	
-	/* LAB 3: your code here. */
 }
 
 /* Allocates a new task with task_alloc(), loads the named ELF binary using
@@ -385,10 +380,6 @@ void task_pop_frame(struct int_frame *frame)
 void task_run(struct task *task)
 {
 	assert(task);
-	//do we need the assert below?
-	//like what if the task is laready running?
-	//we should just do nothing and return?
-	//assert(task->task_status == TASK_RUNNABLE); 
 	/*
 	 * Step 1: If this is a context switch (a new task is running):
 	 *     1. Set the current task (if any) back to
@@ -412,7 +403,7 @@ void task_run(struct task *task)
 		switch (cur_task->task_status)
 		{
 		case TASK_DYING:{
-			panic("what to do with dying task?");
+			task_destroy(cur_task);
 		}
 		case TASK_RUNNABLE:{
 			panic("runnable task running! forgot to set to running?");
@@ -428,13 +419,11 @@ void task_run(struct task *task)
 		default:
 			panic("unknown task state in task_run");
 			break;
-		}
-		
+		}	
 	}
 	cur_task = task;
 	cur_task->task_status = TASK_RUNNING;
 	cur_task->task_runs++;
 	load_pml4((struct page_table*)PADDR(cur_task->task_pml4));
-
 	task_pop_frame(&cur_task->task_frame);
 }

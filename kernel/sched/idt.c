@@ -147,16 +147,20 @@ void print_int_frame(struct int_frame *frame)
 /* Set up the interrupt handlers. */
 void idt_init(void)
 {
-	/* LAB 3: your code here. */
 	struct idt_entry* entry;
 	unsigned int flags = 0;
 	struct int_info inf;
 	for(int i = 0; i < 256; i++){
 		inf = int_infos[i];
-		if(inf.handler){ //checl that this check will actually skip empty spots
+		if(inf.handler){
 			entry = entries + i;
-
-			flags = IDT_PRESENT | IDT_INT_GATE32; //TODO see what flags we need to set
+			
+			if(i == INT_DEBUG || i == INT_BREAK || i == INT_OVERFLOW){
+				flags = IDT_PRESENT | IDT_TRAP_GATE32;
+			}
+			else{
+				flags = IDT_PRESENT | IDT_INT_GATE32;
+			}
 
 			switch (i)
 			{
@@ -183,7 +187,6 @@ void int_dispatch(struct int_frame *frame)
 	 *  - Dispatch system calls to syscall().
 	 */
 	switch (frame->int_no) {
-		/* LAB 3: your code here. */
 
 		case INT_BREAK:
 			return monitor(frame);
