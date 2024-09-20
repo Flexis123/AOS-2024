@@ -3,10 +3,10 @@
 ***
 *** Now run 'make gdb'.
 ***
-c[?7l[2J[0mSeaBIOS (version 1.16.3-debian-1.16.3-2)
+c[?7l[2J[0mSeaBIOS (version 1.15.0-1)
 
 
-iPXE (https://ipxe.org) 00:03.0 CA00 PCI2.10 PnP PMM+06FCAF60+06F0AF60 CA00
+iPXE (https://ipxe.org) 00:03.0 CA00 PCI2.10 PnP PMM+07F8B4A0+07ECB4A0 CA00
 Press Ctrl-B to configure iPXE (PCI 00:03.0)...                                                                               
 
 
@@ -73,11 +73,13 @@ va: 0xffff800000170240 is found at: pml4: 256 pdpt: 0  pdir 0 ptbl 368
 [LAB 2] check_memory_layout() succeeded!
 [LAB 2] check_buddy_consistency() succeeded!
 [LAB 2] check_vas() succeeded!
-kernel panic at kernel/mem/buddy.c:238: assertion failed: page != NULL
+[PID     0] New task with PID 1
+[LAB 3] check_us() succeeded!
+[LAB 3] check_wx() succeeded!
+[LAB 3] check_null() succeeded!
+[PID     1] Access violation for va 0xffff800000100000
+[PID     1] Freed task with PID 1
+Destroyed the only task - nothing more to do!
 Welcome to the OpenLSD kernel monitor!
 Type 'help' for a list of commands.
-<<<<<<< HEAD
-qemu-system-x86_64: terminating on signal 15 from pid 145570 (make)
-=======
-qemu-system-x86_64: terminating on signal 15 from pid 315929 (make)
->>>>>>> alexis_lab2
+qemu-system-x86_64: terminating on signal 15 from pid 322335 (make)

@@ -18,8 +18,9 @@ static int protect_pte(physaddr_t *entry, uintptr_t base, uintptr_t end,
 	struct protect_info *info = walker->udata;
 	if(*entry == 0) return 0;
 
+	physaddr_t entry_prev_val = *entry;
 	*entry = (PAGE_ADDR(*entry) | info->flags);
-	tlb_invalidate(info->pml4, (void*)base);
+	if(*entry != entry_prev_val)tlb_invalidate(info->pml4, (void*)base);
 	return 0;
 }
 
@@ -36,8 +37,9 @@ static int protect_pde(physaddr_t *entry, uintptr_t base, uintptr_t end,
 	if(*entry == 0) return 0;
 
 	if(*entry & PAGE_HUGE){
+		physaddr_t entry_prev_val = *entry;
 		*entry = (PAGE_ADDR(*entry) | info->flags | PAGE_HUGE);
-		tlb_invalidate(info->pml4, (void*)base);
+		if(*entry != entry_prev_val) tlb_invalidate(info->pml4, (void*)base);
 	}
 	return 0;
 }

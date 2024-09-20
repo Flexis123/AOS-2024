@@ -269,7 +269,7 @@ static void task_load_elf(struct task *task, uint8_t *binary)
 			panic("not enough data in file to write to memory");
 		}
 		populate_region(task->task_pml4, (void*)ph->p_va, ph->p_memsz, flags);
-		protect_region(task->task_pml4, (void*)ph->p_va, ph->p_memsz, flags);
+		//protect_region(task->task_pml4, (void*)ph->p_va, ph->p_memsz, flags);
 		if(ph->p_filesz > 0){
 			assert(ph->p_filesz == ph->p_memsz);
 			memcpy((void*)ph->p_va, binary + ph->p_offset, ph->p_filesz);
@@ -285,7 +285,7 @@ static void task_load_elf(struct task *task, uint8_t *binary)
 	 * USTACK_TOP - PAGE_SIZE.
 	 */
 	populate_region(task->task_pml4, (void*)USTACK_TOP - PAGE_SIZE, PAGE_SIZE, PAGE_PRESENT | PAGE_WRITE | PAGE_USER | PAGE_NO_EXEC);
-	protect_region(task->task_pml4, (void*)USTACK_TOP - PAGE_SIZE, PAGE_SIZE, PAGE_PRESENT | PAGE_WRITE | PAGE_USER | PAGE_NO_EXEC);
+	//protect_region(task->task_pml4, (void*)USTACK_TOP - PAGE_SIZE, PAGE_SIZE, PAGE_PRESENT | PAGE_WRITE | PAGE_USER | PAGE_NO_EXEC);
 	task->task_frame.rip = elf->e_entry;
 }
 
@@ -401,7 +401,7 @@ void task_run(struct task *task)
 			switch (cur_task->task_status)
 			{
 			case TASK_DYING:{
-				panic("what to do with dying task?");
+				task_destroy(cur_task);
 				break;
 			}
 			case TASK_RUNNABLE:{

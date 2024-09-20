@@ -155,17 +155,25 @@ void idt_init(void)
 		if(inf.handler){
 			entry = entries + i;
 			
-			if(i == INT_DEBUG || i == INT_BREAK || i == INT_OVERFLOW){
-				flags = IDT_PRESENT | IDT_TRAP_GATE32;
-			}
-			else{
-				flags = IDT_PRESENT | IDT_INT_GATE32;
+			flags = IDT_PRESENT;
+			switch (i)
+			{
+			case INT_DEBUG:
+			case INT_BREAK:
+			case INT_OVERFLOW:
+				flags |= IDT_TRAP_GATE32;
+				break;
+			
+			default:
+				flags |= IDT_INT_GATE32;
+				break;
 			}
 
 			switch (i)
 			{
 			case INT_SYSCALL:
 			case INT_BREAK:
+			case INT_OVERFLOW:
 				flags |= IDT_PRIVL(3);
 				break;
 			
