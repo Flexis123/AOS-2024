@@ -73,13 +73,11 @@ va: 0xffff800000170240 is found at: pml4: 256 pdpt: 0  pdir 0 ptbl 368
 [LAB 2] check_memory_layout() succeeded!
 [LAB 2] check_buddy_consistency() succeeded!
 [LAB 2] check_vas() succeeded!
-[PID     0] New task with PID 1
-[LAB 3] check_us() succeeded!
-[LAB 3] check_wx() succeeded!
-[LAB 3] check_null() succeeded!
-[PID     1] Access violation for va 0xffff800000100000
-[PID     1] Freed task with PID 1
-Destroyed the only task - nothing more to do!
+kernel panic at kernel/mem/buddy.c:238: assertion failed: page != NULL
 Welcome to the OpenLSD kernel monitor!
 Type 'help' for a list of commands.
+<<<<<<< HEAD
 qemu-system-x86_64: terminating on signal 15 from pid 145570 (make)
+=======
+qemu-system-x86_64: terminating on signal 15 from pid 315929 (make)
+>>>>>>> alexis_lab2

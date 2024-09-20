@@ -1,0 +1,79 @@
++ ld obj/kernel/kernel
++ mk obj/kernel/kernel.img
+***
+*** Now run 'make gdb'.
+***
+c[?7l[2J[0mSeaBIOS (version 1.15.0-1)
+
+
+iPXE (https://ipxe.org) 00:03.0 CA00 PCI2.10 PnP PMM+07F8B4A0+07ECB4A0 CA00
+Press Ctrl-B to configure iPXE (PCI 00:03.0)...                                                                               
+
+
+Booting from Hard Disk...
+
+map kernel, no exec
+executing boot map region from va 0xffff800000000000 to 0xffff8000007fffff, flags: 0x8000000000000003
+exec flag enabled!
+map region at va 0xffff80000010c000 to 0xffff800000117fff with flags; 0x1
+map region at va 0xffff800000118000 to 0xffff80000011efff with flags; 0x8000000000000001
+map region at va 0xffff80000011f000 to 0xffff800000171fff with flags; 0x8000000000000003
+init stack, no exec
+executing boot map region from va 0xfffffe7fffff8000 to 0xfffffe7fffffffff, flags: 0x8000000000000003
+map buddy pages as rw
+executing boot map region from va 0xffffff8000000000 to 0xffffff800000ffff, flags: 0x8000000000000003
+[LAB 2] check_ptbl_flags() succeeded!
+[LAB 2] check_wx() succeeded!
+[LAB 2] check_nx() succeeded!
+entry: 256: 0x9007
+	     entry2: 0 0x11007
+	     	     HUGE PAGE 0 0x81
+	     	     HUGE PAGE 1 0x200081
+	     	     HUGE PAGE 2 0x400081
+	     	     HUGE PAGE 3 0x600081
+entry: 508: 0x9e007
+	     entry2: 511 0x2007
+	     	     entry3 511 0x3007
+	     	     	     entry 504 0x8000000000101003
+	     	     	     entry 505 0x8000000000102003
+	     	     	     entry 506 0x8000000000103003
+	     	     	     entry 507 0x8000000000104003
+	     	     	     entry 508 0x8000000000105003
+	     	     	     entry 509 0x8000000000106003
+	     	     	     entry 510 0x8000000000107003
+	     	     	     entry 511 0x8000000000108003
+entry: 511: 0xa007
+	     entry2: 0 0xb007
+	     	     entry3 0 0x12007
+	     	     	     entry 0 0x8000000000172003
+	     	     	     entry 1 0x8000000000173003
+	     	     	     entry 2 0x8000000000174003
+	     	     	     entry 3 0x8000000000175003
+	     	     	     entry 4 0x8000000000176003
+	     	     	     entry 5 0x8000000000177003
+	     	     	     entry 6 0x8000000000178003
+	     	     	     entry 7 0x8000000000179003
+	     	     	     entry 8 0x800000000017a003
+	     	     	     entry 9 0x800000000017b003
+	     	     	     entry 10 0x800000000017c003
+	     	     	     entry 11 0x800000000017d003
+	     	     	     entry 12 0x800000000017e003
+	     	     	     entry 13 0x800000000017f003
+	     	     	     entry 14 0x8000000000180003
+	     	     	     entry 15 0x8000000000181003
+  0xffff800000000000 - 0xffff8000007fffff [r-x- 2M]
+  0xfffffe7fffff8000 - 0xfffffe7fffffffff [rwx- 4K]
+va: 0xffff800000170240 is found at: pml4: 256 pdpt: 0  pdir 0 ptbl 368
+[LAB 2] check_4k_paging() succeeded!
+[LAB 2] check_free_list_order() succeeded!
+[LAB 2] check_memory_layout() succeeded!
+[LAB 2] check_buddy_consistency() succeeded!
+[LAB 2] check_vas() succeeded!
+[LAB 2] check_free_list_order() succeeded!
+[LAB 2] check_memory_layout() succeeded!
+[LAB 2] check_buddy_consistency() succeeded!
+[LAB 2] check_vas() succeeded!
+kernel panic at kernel/mem/buddy.c:238: assertion failed: page != NULL
+Welcome to the OpenLSD kernel monitor!
+Type 'help' for a list of commands.
+qemu-system-x86_64: terminating on signal 15 from pid 314565 (make)

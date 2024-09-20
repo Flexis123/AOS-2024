@@ -61,13 +61,8 @@ void task_init(void)
 	/* Allocate an array of pointers at PIDMAP_BASE to be able to map PIDs
 	 * to tasks.
 	 */
-	size_t ntask_pages = ROUNDUP(pid_max * sizeof(struct task *), PAGE_SIZE) / PAGE_SIZE;
-
-	for(size_t i = 0; i < ntask_pages; i++){
-		struct page_info *page = page_alloc(ALLOC_ZERO);
-		assert(page);
-		assert(page_insert(kernel_pml4, page, (void*)PIDMAP_BASE + i * PAGE_SIZE, PAGE_PRESENT | PAGE_WRITE | PAGE_NO_EXEC) == 0);
-	}
+	populate_region(kernel_pml4, (void*) PIDMAP_BASE, ROUNDUP(pid_max * sizeof(struct task *), PAGE_SIZE), 
+						PAGE_PRESENT | PAGE_WRITE | PAGE_NO_EXEC);
 }
 
 /* Sets up the virtual address space for the task. */
@@ -398,32 +393,39 @@ void task_run(struct task *task)
 	 *  and make sure you have set the relevant parts of
 	 *  e->task_frame to sensible values.
 	 */
-	if(cur_task && cur_task != task){
+	if(cur_task != task){
+		assert(task->task_status == TASK_RUNNABLE);
 		struct task * old_task = cur_task;
-		switch (cur_task->task_status)
-		{
-		case TASK_DYING:{
-			task_destroy(cur_task);
+		
+		if(cur_task){
+			switch (cur_task->task_status)
+			{
+			case TASK_DYING:{
+				panic("what to do with dying task?");
+				break;
+			}
+			case TASK_RUNNABLE:{
+				panic("runnable task running! forgot to set to running?");
+				break;
+			}
+			case TASK_RUNNING:{
+				cur_task->task_status = TASK_RUNNABLE;
+				break;
+			}
+			case TASK_NOT_RUNNABLE:{
+				panic("cant get here in lab3");
+			}		
+			default:
+				panic("unknown task state in task_run");
+				break;
+			}
 		}
-		case TASK_RUNNABLE:{
-			panic("runnable task running! forgot to set to running?");
-		}
-		case TASK_RUNNING:{
-			cur_task->task_status = TASK_RUNNABLE;
-			panic("todo save registers?");
-			break;
-		}
-		case TASK_NOT_RUNNABLE:{
-			panic("not runnable task just ran");
-		}		
-		default:
-			panic("unknown task state in task_run");
-			break;
-		}	
+
+		cur_task = task;
+		cur_task->task_status = TASK_RUNNING;
+		cur_task->task_runs++;
+		load_pml4((struct page_table*)PADDR(cur_task->task_pml4));
 	}
-	cur_task = task;
-	cur_task->task_status = TASK_RUNNING;
-	cur_task->task_runs++;
-	load_pml4((struct page_table*)PADDR(cur_task->task_pml4));
+
 	task_pop_frame(&cur_task->task_frame);
 }
