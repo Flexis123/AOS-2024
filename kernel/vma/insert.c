@@ -98,6 +98,31 @@ struct vma *add_anonymous_vma(struct task *task, char *name, void *addr,
 struct vma *add_vma(struct task *task, char *name, void *addr, size_t size,
 	int flags)
 {
-	/* LAB 4: your code here. */
+	struct vma *result = add_anonymous_vma(task, name, addr, size, flags);
+
+	if(result){
+		return result;
+	}
+
+	for(void* base = addr; base - size < base; base -= size){
+		struct vma *vma = find_vma(NULL, NULL, &task->task_rb, base);
+
+		if(!vma){
+			return NULL;
+		}
+		if(base + size < vma->vm_base && base < vma->vm_base){
+			return add_anonymous_vma(task, name, addr, size, flags);
+		}
+	}
+	for(void* base = KERNEL_LIM - size; base - size < base && base - size >= addr; base -= size){
+		struct vma *vma = find_vma(NULL, NULL, &task->task_rb, base);
+
+		if(!vma){
+			return NULL;
+		}
+		if(base + size < vma->vm_base && base < vma->vm_base){
+			return add_anonymous_vma(task, name, addr, size, flags);
+		}
+	}
 	return NULL;
 }
