@@ -9,8 +9,27 @@
  */
 struct vma *split_vma(struct task *task, struct vma *lhs, void *addr)
 {
-	/* LAB 4: your code here. */
-	return NULL;
+	if(!task || !lhs){
+		return NULL;
+	}
+	if(addr > lhs->vm_end || addr <= lhs->vm_base){
+		return NULL;
+	}
+	size_t new_lhs_size = addr - lhs->vm_base;
+	size_t new_rhs_size = lhs->vm_end - addr + 1;
+
+	struct vma* new_vma = NULL;
+
+	if(lhs->vm_src != 0 && lhs->vm_len > new_lhs_size){
+		new_vma = add_executable_vma(task, lhs->vm_name, addr, new_rhs_size, lhs->vm_flags, lhs->vm_src + new_lhs_size, lhs->vm_len - new_lhs_size);
+	}
+	else{
+		new_vma = add_anonymous_vma(task, lhs->vm_name, addr, new_rhs_size, lhs->vm_flags);
+	}
+	if(new_vma){
+		lhs->vm_end = addr -1;
+	}
+	return new_vma;
 }
 
 /* Given a task and a VMA, this function first splits the VMA into a left-hand
@@ -21,7 +40,11 @@ struct vma *split_vma(struct task *task, struct vma *lhs, void *addr)
  */
 struct vma *split_vmas(struct task *task, struct vma *vma, void *base, size_t size)
 {
-	/* LAB 4: your code here. */
-	return vma;
+	struct vma *mid_and_rhs = split_vma(task, vma, base);
+
+	if(mid_and_rhs){
+		split_vma(task, mid_and_rhs, mid_and_rhs->vm_base + size);
+	}
+	return (mid_and_rhs)? mid_and_rhs : vma;
 }
 

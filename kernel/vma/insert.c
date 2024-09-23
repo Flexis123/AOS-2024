@@ -114,7 +114,7 @@ struct vma *add_vma(struct task *task, char *name, void *addr, size_t size,
 			return add_anonymous_vma(task, name, addr, size, flags);
 		}
 	}
-	for(void* base = KERNEL_LIM - size; base - size < base && base - size >= addr; base -= size){
+	for(void* base = (void *)(KERNEL_LIM - size); base - size < base && base - size >= addr; base -= size){
 		struct vma *vma = find_vma(NULL, NULL, &task->task_rb, base);
 
 		if(!vma){
