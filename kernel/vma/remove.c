@@ -20,6 +20,18 @@ void remove_vma(struct task *task, struct vma *vma)
 void free_vmas(struct task *task)
 {
 	/* LAB 4: your code here. */
+	struct list* vm_entry;
+	struct list *next;
+	struct vma* vma;
+	list_foreach_safe(&task->task_mmap, vm_entry, next){
+		vma = container_of(vm_entry, struct vma, vm_mmap);
+
+		//unmap all memory used by vma
+		remove_vma_range(task, vma->vm_base, vma->vm_len);
+
+		remove_vma(task, vma);
+		kfree(vma);
+	}
 }
 
 /* Splits the VMA into the address range [base, base + size) and removes the
@@ -29,6 +41,9 @@ int do_remove_vma(struct task *task, void *base, size_t size, struct vma *vma,
 	void *udata)
 {
 	/* LAB 4: your code here. */
+
+	remove_vma(task, vma);
+	kfree(vma);
 	return 0;
 }
 

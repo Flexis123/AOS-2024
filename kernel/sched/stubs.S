@@ -91,7 +91,6 @@ syscall64:
 	movq %r14, IF_R14(%rax)
 	movq %r13, IF_R13(%rax)
 	movq %r12, IF_R12(%rax)
-	movq %r11, IF_R11(%rax)
 	movq %r10, IF_R10(%rax)
 	movq %r9, IF_R9(%rax)
 	movq %r8, IF_R8(%rax)
@@ -102,10 +101,7 @@ syscall64:
 	movq %rdx, IF_RDX(%rax)
 	movq %rcx, IF_RCX(%rax)
 	movq $INT_SYSCALL, IF_INO(%rax)
-	movq $0, IF_ERR(%rax)
 	
-	movq %gs:CPU_TSS_RSP3, %r15
-	movq %r15, IF_RSP(%rax) 
 
 	/* Jump to the system call handler. */
 	movq %r10, %rcx
@@ -159,7 +155,6 @@ sysret64:
 	movq IF_R14(%rdi),  %r14
 	movq IF_R13(%rdi),  %r13
 	movq IF_R12(%rdi),  %r12
-	movq IF_R11(%rdi),  %r11
 	movq IF_R10(%rdi),  %r10
 	movq IF_R9(%rdi),  	%r9
 	movq IF_R8(%rdi),  	%r8
@@ -168,7 +163,8 @@ sysret64:
 	movq IF_RBX(%rdi),  %rbx
 	movq IF_RDX(%rdi),  %rdx
 	movq IF_RCX(%rdi),  %rcx
-	movq IF_RSP(%rdi),  %rsp
+	movq %gs:CPU_TSS_RSP3, %rax
+	movq %rax, %rsp
 	movq IF_DS(%rdi),   %rax
 	movq %rax, %ds
 

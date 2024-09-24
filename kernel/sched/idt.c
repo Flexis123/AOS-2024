@@ -11,6 +11,7 @@
 
 #include <kernel/sched/task.h>
 #include <kernel/mem/insert.h>
+#include <vma/pfault.h>
 
 #define __DEF_INT_HANDLER(int_no) \
 	void isr##int_no();
@@ -258,7 +259,6 @@ void page_fault_handler(struct int_frame *frame)
 	unsigned perm = 0;
 	int ret;
 
-
 	/* Read the CR2 register to find the faulting address. */
 	fault_va = (void *)read_cr2();
 
@@ -268,19 +268,13 @@ void page_fault_handler(struct int_frame *frame)
 		panic("Page fault originated from the kernel");
 	}
 
-
-	/* LAB 3: your code here. */
-	/* We have already handled kernel-mode exceptions, so if we get here, the
-	 * page fault has happened in user mode.
-	 */
-
-	if(!(frame->err_code & PAGE_PRESENT)){
-		// LAB 4?
-	}
-
 	/* Destroy the task that caused the fault. */
 	cprintf("[PID %5u] user fault va %p ip %p\n",
 		cur_task->task_pid, fault_va, frame->rip);
 	print_int_frame(frame);
-	task_destroy(cur_task);
+
+	if(task_page_fault_handler(cur_task, fault_va, frame->err_code) < 0){
+		cprintf("[PID %5u] user fault is invalid!\n");
+		task_destroy(cur_task);
+	}
 }

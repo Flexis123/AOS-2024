@@ -7,6 +7,8 @@
 #include <kernel/monitor.h>
 #include <kernel/mem.h>
 #include <kernel/sched.h>
+#include <vma/remove.h>
+#include <vma/insert.h>
 
 pid_t pid_max = 1 << 16;
 struct task **tasks = (struct task **)PIDMAP_BASE;
@@ -256,26 +258,28 @@ static void task_load_elf(struct task *task, uint8_t *binary)
 		}
 
 		assert(ph->p_offset != 0);
-		physaddr_t flags = PAGE_PRESENT | PAGE_USER;
-		if(ph->p_flags & ELF_PROG_FLAG_WRITE) flags |= PAGE_WRITE | PAGE_NO_EXEC;
-
-		if(!(ph->p_flags & ELF_PROG_FLAG_EXEC)){
-			flags |= PAGE_NO_EXEC;
-		} 
+		physaddr_t flags = 0;
+		if(ph->p_flags & ELF_PROG_FLAG_WRITE) flags |= VM_WRITE;
+		if(ph->p_flags & ELF_PROG_FLAG_EXEC) flags |= VM_EXEC;
+		if(ph->p_flags & ELF_PROG_FLAG_READ) flags |= VM_READ;
+		
 		if(ph->p_va + ph->p_memsz >= KERNEL_VMA){
 			panic("elf section maps to kernel memory");
 		}
 		if(ph->p_memsz < ph->p_filesz && ph->p_filesz > 0){
 			panic("not enough data in file to write to memory");
 		}
-		populate_region(task->task_pml4, (void*)ph->p_va, ph->p_memsz, flags);
+
+		//populate_region(task->task_pml4, (void*)ph->p_va, ph->p_memsz, flags);
 		//protect_region(task->task_pml4, (void*)ph->p_va, ph->p_memsz, flags);
 		if(ph->p_filesz > 0){
 			assert(ph->p_filesz == ph->p_memsz);
-			memcpy((void*)ph->p_va, binary + ph->p_offset, ph->p_filesz);
+			//memcpy((void*)ph->p_va, binary + ph->p_offset, ph->p_filesz);
+			add_executable_vma(task, "task elf header", (void*)ph->p_va, ph->p_memsz, flags, binary + ph->p_offset, 0);
 		}
 		else{
-			memset((void*)ph->p_va, 0, ph->p_memsz);
+			//memset((void*)ph->p_va, 0, ph->p_memsz);
+			add_anonymous_vma(task, "empty task elf header?!", (void*)ph->p_va, ph->p_memsz, flags);
 		}
 		
 	}
@@ -284,7 +288,8 @@ static void task_load_elf(struct task *task, uint8_t *binary)
 	/* Now map one page for the program's initial stack at virtual address
 	 * USTACK_TOP - PAGE_SIZE.
 	 */
-	populate_region(task->task_pml4, (void*)USTACK_TOP - PAGE_SIZE, PAGE_SIZE, PAGE_PRESENT | PAGE_WRITE | PAGE_USER | PAGE_NO_EXEC);
+	add_anonymous_vma(task, "user stack", (void*)USTACK_TOP, 2 * PAGE_SIZE, PAGE_PRESENT | PAGE_WRITE | PAGE_USER | PAGE_NO_EXEC);
+	//populate_region(task->task_pml4, (void*)USTACK_TOP - PAGE_SIZE, PAGE_SIZE, PAGE_PRESENT | PAGE_WRITE | PAGE_USER | PAGE_NO_EXEC);
 	//protect_region(task->task_pml4, (void*)USTACK_TOP - PAGE_SIZE, PAGE_SIZE, PAGE_PRESENT | PAGE_WRITE | PAGE_USER | PAGE_NO_EXEC);
 	task->task_frame.rip = elf->e_entry;
 }
@@ -326,6 +331,8 @@ void task_free(struct task *task)
 
 	/* Unmap the user pages. */
 	unmap_user_pages(task->task_pml4);
+
+	free_vmas(task);
 
 	/* Note the task's demise. */
 	cprintf("[PID %5u] Freed task with PID %u\n",

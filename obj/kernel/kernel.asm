@@ -4798,7 +4798,7 @@ ffff80000010c84c: ff d0                	callq	*%rax
 ffff80000010c84e: 48 b8 60 52 11 00 00 80 ff ff	movabsq	$-140737487220128, %rax # imm = 0xFFFF800000115260
 ffff80000010c858: ff d0                	callq	*%rax
 ; 	syscall_init();
-ffff80000010c85a: 48 b8 00 58 11 00 00 80 ff ff	movabsq	$-140737487218688, %rax # imm = 0xFFFF800000115800
+ffff80000010c85a: 48 b8 e0 57 11 00 00 80 ff ff	movabsq	$-140737487218720, %rax # imm = 0xFFFF8000001157E0
 ffff80000010c864: ff d0                	callq	*%rax
 ; 	mem_init(boot_info);
 ffff80000010c866: 48 b8 10 e4 10 00 00 80 ff ff	movabsq	$-140737487248368, %rax # imm = 0xFFFF80000010E410
@@ -4808,15 +4808,15 @@ ffff80000010c873: ff d0                	callq	*%rax
 ffff80000010c875: 48 b8 70 45 11 00 00 80 ff ff	movabsq	$-140737487223440, %rax # imm = 0xFFFF800000114570
 ffff80000010c87f: ff d0                	callq	*%rax
 ; 	task_init();
-ffff80000010c881: 48 b8 20 5b 11 00 00 80 ff ff	movabsq	$-140737487217888, %rax # imm = 0xFFFF800000115B20
+ffff80000010c881: 48 b8 00 5b 11 00 00 80 ff ff	movabsq	$-140737487217920, %rax # imm = 0xFFFF800000115B00
 ffff80000010c88b: ff d0                	callq	*%rax
 ; 	TASK_CREATE(TEST, TASK_TYPE_USER);
 ffff80000010c88d: 48 bf b0 a0 12 00 00 80 ff ff	movabsq	$-140737487134544, %rdi # imm = 0xFFFF80000012A0B0
-ffff80000010c897: 48 b8 20 60 11 00 00 80 ff ff	movabsq	$-140737487216608, %rax # imm = 0xFFFF800000116020
+ffff80000010c897: 48 b8 00 60 11 00 00 80 ff ff	movabsq	$-140737487216640, %rax # imm = 0xFFFF800000116000
 ffff80000010c8a1: 31 f6                	xorl	%esi, %esi
 ffff80000010c8a3: ff d0                	callq	*%rax
 ; 	struct task *task = pid2task(1, 0);
-ffff80000010c8a5: 48 b8 b0 5a 11 00 00 80 ff ff	movabsq	$-140737487218000, %rax # imm = 0xFFFF800000115AB0
+ffff80000010c8a5: 48 b8 90 5a 11 00 00 80 ff ff	movabsq	$-140737487218032, %rax # imm = 0xFFFF800000115A90
 ffff80000010c8af: bf 01 00 00 00       	movl	$1, %edi
 ffff80000010c8b4: 31 f6                	xorl	%esi, %esi
 ffff80000010c8b6: ff d0                	callq	*%rax
@@ -4826,10 +4826,10 @@ ffff80000010c8bb: 74 2c                	je	0xffff80000010c8e9 <kmain+0xf9>
 ffff80000010c8bd: 48 89 c3             	movq	%rax, %rbx
 ; 	lab3_check_vas(task->task_pml4);
 ffff80000010c8c0: 48 8b b8 d8 00 00 00 	movq	216(%rax), %rdi
-ffff80000010c8c7: 48 b8 00 72 11 00 00 80 ff ff	movabsq	$-140737487212032, %rax # imm = 0xFFFF800000117200
+ffff80000010c8c7: 48 b8 e0 71 11 00 00 80 ff ff	movabsq	$-140737487212064, %rax # imm = 0xFFFF8000001171E0
 ffff80000010c8d1: ff d0                	callq	*%rax
 ; 	task_run(task);
-ffff80000010c8d3: 48 b8 50 65 11 00 00 80 ff ff	movabsq	$-140737487215280, %rax # imm = 0xFFFF800000116550
+ffff80000010c8d3: 48 b8 30 65 11 00 00 80 ff ff	movabsq	$-140737487215312, %rax # imm = 0xFFFF800000116530
 ffff80000010c8dd: 48 89 df             	movq	%rbx, %rdi
 ffff80000010c8e0: ff d0                	callq	*%rax
 ; }
@@ -5016,7 +5016,7 @@ ffff80000010cb22: 31 c0                	xorl	%eax, %eax
 ffff80000010cb24: 41 ff d4             	callq	*%r12
 ; 	cprintf("  etext  %016p (virt)  %016p (phys)\n", etext, etext - KERNEL_VMA);
 ffff80000010cb27: 48 bf d7 a1 11 00 00 80 ff ff	movabsq	$-140737487199785, %rdi # imm = 0xFFFF80000011A1D7
-ffff80000010cb31: 48 be 3a 72 11 00 00 80 ff ff	movabsq	$-140737487211974, %rsi # imm = 0xFFFF80000011723A
+ffff80000010cb31: 48 be 1a 72 11 00 00 80 ff ff	movabsq	$-140737487212006, %rsi # imm = 0xFFFF80000011721A
 ffff80000010cb3b: 4a 8d 14 3e          	leaq	(%rsi,%r15), %rdx
 ffff80000010cb3f: 31 c0                	xorl	%eax, %eax
 ffff80000010cb41: 41 ff d4             	callq	*%r12
@@ -15919,7 +15919,7 @@ ffff800000114f55: 48 b9 b0 d4 10 00 00 80 ff ff	movabsq	$-140737487252304, %rcx 
 ffff800000114f5f: 31 c0                	xorl	%eax, %eax
 ffff800000114f61: ff d1                	callq	*%rcx
 ; 		task_destroy(task);
-ffff800000114f63: 48 b8 b0 64 11 00 00 80 ff ff	movabsq	$-140737487215440, %rax # imm = 0xFFFF8000001164B0
+ffff800000114f63: 48 b8 90 64 11 00 00 80 ff ff	movabsq	$-140737487215472, %rax # imm = 0xFFFF800000116490
 ffff800000114f6d: 48 89 df             	movq	%rbx, %rdi
 ffff800000114f70: ff d0                	callq	*%rax
 ; }
@@ -16315,11 +16315,11 @@ ffff8000001153a5: 4c 8b 4b 38          	movq	56(%rbx), %r9
 ffff8000001153a9: 4c 8b 43 40          	movq	64(%rbx), %r8
 ffff8000001153ad: 48 8b 43 58          	movq	88(%rbx), %rax
 ffff8000001153b1: 48 89 04 24          	movq	%rax, (%rsp)
-ffff8000001153b5: 48 b8 c0 58 11 00 00 80 ff ff	movabsq	$-140737487218496, %rax # imm = 0xFFFF8000001158C0
+ffff8000001153b5: 48 b8 a0 58 11 00 00 80 ff ff	movabsq	$-140737487218528, %rax # imm = 0xFFFF8000001158A0
 ffff8000001153bf: ff d0                	callq	*%rax
 ffff8000001153c1: 48 89 43 78          	movq	%rax, 120(%rbx)
 ; 			return iret64(frame);
-ffff8000001153c5: 48 b8 3c 57 11 00 00 80 ff ff	movabsq	$-140737487218884, %rax # imm = 0xFFFF80000011573C
+ffff8000001153c5: 48 b8 1d 57 11 00 00 80 ff ff	movabsq	$-140737487218915, %rax # imm = 0xFFFF80000011571D
 ffff8000001153cf: 48 89 df             	movq	%rbx, %rdi
 ffff8000001153d2: eb 43                	jmp	0xffff800000115417 <int_dispatch+0xc7>
 ; 			return page_fault_handler(frame);
@@ -16337,7 +16337,7 @@ ffff8000001153fa: 74 24                	je	0xffff800000115420 <int_dispatch+0xd0
 ffff8000001153fc: 48 b8 08 f3 11 00 00 80 ff ff	movabsq	$-140737487179000, %rax # imm = 0xFFFF80000011F308
 ffff800000115406: 48 8b 00             	movq	(%rax), %rax
 ffff800000115409: 48 8b 78 08          	movq	8(%rax), %rdi
-ffff80000011540d: 48 b8 b0 64 11 00 00 80 ff ff	movabsq	$-140737487215440, %rax # imm = 0xFFFF8000001164B0
+ffff80000011540d: 48 b8 90 64 11 00 00 80 ff ff	movabsq	$-140737487215472, %rax # imm = 0xFFFF800000116490
 ffff800000115417: ff d0                	callq	*%rax
 ; }
 ffff800000115419: 48 83 c4 08          	addq	$8, %rsp
@@ -16385,7 +16385,7 @@ ffff8000001154b6: ff d0                	callq	*%rax
 ; 	task_destroy(cur_task);
 ffff8000001154b8: 49 8b 06             	movq	(%r14), %rax
 ffff8000001154bb: 48 8b 78 08          	movq	8(%rax), %rdi
-ffff8000001154bf: 48 b8 b0 64 11 00 00 80 ff ff	movabsq	$-140737487215440, %rax # imm = 0xFFFF8000001164B0
+ffff8000001154bf: 48 b8 90 64 11 00 00 80 ff ff	movabsq	$-140737487215472, %rax # imm = 0xFFFF800000116490
 ffff8000001154c9: ff d0                	callq	*%rax
 ; }
 ffff8000001154cb: 5b                   	popq	%rbx
@@ -16451,7 +16451,7 @@ ffff800000115593: ff d0                	callq	*%rax
 ; 	task_run(cur_task);
 ffff800000115595: 49 8b 06             	movq	(%r14), %rax
 ffff800000115598: 48 8b 78 08          	movq	8(%rax), %rdi
-ffff80000011559c: 48 b8 50 65 11 00 00 80 ff ff	movabsq	$-140737487215280, %rax # imm = 0xFFFF800000116550
+ffff80000011559c: 48 b8 30 65 11 00 00 80 ff ff	movabsq	$-140737487215312, %rax # imm = 0xFFFF800000116530
 ffff8000001155a6: ff d0                	callq	*%rax
 ; }
 ffff8000001155a8: 5b                   	popq	%rbx
@@ -16663,2046 +16663,2036 @@ ffff8000001156d7: 4c 89 70 10          	movq	%r14, 16(%rax)
 ffff8000001156db: 4c 89 68 18          	movq	%r13, 24(%rax)
 ; 	movq %r12, IF_R12(%rax)
 ffff8000001156df: 4c 89 60 20          	movq	%r12, 32(%rax)
-; 	movq %r11, IF_R11(%rax)
-ffff8000001156e3: 4c 89 58 28          	movq	%r11, 40(%rax)
 ; 	movq %r10, IF_R10(%rax)
-ffff8000001156e7: 4c 89 50 30          	movq	%r10, 48(%rax)
+ffff8000001156e3: 4c 89 50 30          	movq	%r10, 48(%rax)
 ; 	movq %r9, IF_R9(%rax)
-ffff8000001156eb: 4c 89 48 38          	movq	%r9, 56(%rax)
+ffff8000001156e7: 4c 89 48 38          	movq	%r9, 56(%rax)
 ; 	movq %r8, IF_R8(%rax)
-ffff8000001156ef: 4c 89 40 40          	movq	%r8, 64(%rax)
+ffff8000001156eb: 4c 89 40 40          	movq	%r8, 64(%rax)
 ; 	movq %rdi, IF_RDI(%rax)
-ffff8000001156f3: 48 89 78 48          	movq	%rdi, 72(%rax)
+ffff8000001156ef: 48 89 78 48          	movq	%rdi, 72(%rax)
 ; 	movq %rsi, IF_RSI(%rax)
-ffff8000001156f7: 48 89 70 50          	movq	%rsi, 80(%rax)
+ffff8000001156f3: 48 89 70 50          	movq	%rsi, 80(%rax)
 ; 	movq %rbp, IF_RBP(%rax)
-ffff8000001156fb: 48 89 68 58          	movq	%rbp, 88(%rax)
+ffff8000001156f7: 48 89 68 58          	movq	%rbp, 88(%rax)
 ; 	movq %rbx, IF_RBX(%rax)
-ffff8000001156ff: 48 89 58 60          	movq	%rbx, 96(%rax)
+ffff8000001156fb: 48 89 58 60          	movq	%rbx, 96(%rax)
 ; 	movq %rdx, IF_RDX(%rax)
-ffff800000115703: 48 89 50 68          	movq	%rdx, 104(%rax)
+ffff8000001156ff: 48 89 50 68          	movq	%rdx, 104(%rax)
 ; 	movq %rcx, IF_RCX(%rax)
-ffff800000115707: 48 89 48 70          	movq	%rcx, 112(%rax)
+ffff800000115703: 48 89 48 70          	movq	%rcx, 112(%rax)
 ; 	movq $INT_SYSCALL, IF_INO(%rax)
-ffff80000011570b: 48 c7 80 80 00 00 00 80 00 00 00     	movq	$128, 128(%rax)
-; 	movq $0, IF_ERR(%rax)
-ffff800000115716: 48 c7 80 88 00 00 00 00 00 00 00     	movq	$0, 136(%rax)
-; 	movq %gs:CPU_TSS_RSP3, %r15
-ffff800000115721: 65 4c 8b 3c 25 2c 00 00 00   	movq	%gs:44, %r15
-; 	movq %r15, IF_RSP(%rax) 
-ffff80000011572a: 4c 89 b8 a8 00 00 00 	movq	%r15, 168(%rax)
+ffff800000115707: 48 c7 80 80 00 00 00 80 00 00 00     	movq	$128, 128(%rax)
 ; 	movq %r10, %rcx
-ffff800000115731: 4c 89 d1             	movq	%r10, %rcx
+ffff800000115712: 4c 89 d1             	movq	%r10, %rcx
 ; 	pushq %rbp
-ffff800000115734: 55                   	pushq	%rbp
+ffff800000115715: 55                   	pushq	%rbp
 ; 	pushq $0
-ffff800000115735: 6a 00                	pushq	$0
+ffff800000115716: 6a 00                	pushq	$0
 ; 	jmp syscall_handler
-ffff800000115737: e9 f4 02 00 00       	jmp	0xffff800000115a30 <syscall_handler>
+ffff800000115718: e9 f3 02 00 00       	jmp	0xffff800000115a10 <syscall_handler>
 
-ffff80000011573c <iret64>:
+ffff80000011571d <iret64>:
 ; 	movq IF_R15(%rdi), 	%r15
-ffff80000011573c: 4c 8b 7f 08          	movq	8(%rdi), %r15
+ffff80000011571d: 4c 8b 7f 08          	movq	8(%rdi), %r15
 ; 	movq IF_R14(%rdi),  %r14
-ffff800000115740: 4c 8b 77 10          	movq	16(%rdi), %r14
+ffff800000115721: 4c 8b 77 10          	movq	16(%rdi), %r14
 ; 	movq IF_R13(%rdi),  %r13
-ffff800000115744: 4c 8b 6f 18          	movq	24(%rdi), %r13
+ffff800000115725: 4c 8b 6f 18          	movq	24(%rdi), %r13
 ; 	movq IF_R12(%rdi),  %r12
-ffff800000115748: 4c 8b 67 20          	movq	32(%rdi), %r12
+ffff800000115729: 4c 8b 67 20          	movq	32(%rdi), %r12
 ; 	movq IF_R11(%rdi),  %r11
-ffff80000011574c: 4c 8b 5f 28          	movq	40(%rdi), %r11
+ffff80000011572d: 4c 8b 5f 28          	movq	40(%rdi), %r11
 ; 	movq IF_R10(%rdi),  %r10
-ffff800000115750: 4c 8b 57 30          	movq	48(%rdi), %r10
+ffff800000115731: 4c 8b 57 30          	movq	48(%rdi), %r10
 ; 	movq IF_R9(%rdi),  	%r9
-ffff800000115754: 4c 8b 4f 38          	movq	56(%rdi), %r9
+ffff800000115735: 4c 8b 4f 38          	movq	56(%rdi), %r9
 ; 	movq IF_R8(%rdi),  	%r8
-ffff800000115758: 4c 8b 47 40          	movq	64(%rdi), %r8
+ffff800000115739: 4c 8b 47 40          	movq	64(%rdi), %r8
 ; 	movq IF_RSI(%rdi),  %rsi
-ffff80000011575c: 48 8b 77 50          	movq	80(%rdi), %rsi
+ffff80000011573d: 48 8b 77 50          	movq	80(%rdi), %rsi
 ; 	movq IF_RBP(%rdi),  %rbp
-ffff800000115760: 48 8b 6f 58          	movq	88(%rdi), %rbp
+ffff800000115741: 48 8b 6f 58          	movq	88(%rdi), %rbp
 ; 	movq IF_RBX(%rdi),  %rbx
-ffff800000115764: 48 8b 5f 60          	movq	96(%rdi), %rbx
+ffff800000115745: 48 8b 5f 60          	movq	96(%rdi), %rbx
 ; 	movq IF_RDX(%rdi),  %rdx
-ffff800000115768: 48 8b 57 68          	movq	104(%rdi), %rdx
+ffff800000115749: 48 8b 57 68          	movq	104(%rdi), %rdx
 ; 	movq IF_RCX(%rdi),  %rcx
-ffff80000011576c: 48 8b 4f 70          	movq	112(%rdi), %rcx
+ffff80000011574d: 48 8b 4f 70          	movq	112(%rdi), %rcx
 ; 	movq IF_SS(%rdi), 	%rax
-ffff800000115770: 48 8b 87 b0 00 00 00 	movq	176(%rdi), %rax
+ffff800000115751: 48 8b 87 b0 00 00 00 	movq	176(%rdi), %rax
 ; 	movq %rax, (%rsp)
-ffff800000115777: 48 89 04 24          	movq	%rax, (%rsp)
+ffff800000115758: 48 89 04 24          	movq	%rax, (%rsp)
 ; 	pushq IF_RSP(%rdi)
-ffff80000011577b: ff b7 a8 00 00 00    	pushq	168(%rdi)
+ffff80000011575c: ff b7 a8 00 00 00    	pushq	168(%rdi)
 ; 	pushq IF_RFLAGS(%rdi)
-ffff800000115781: ff b7 a0 00 00 00    	pushq	160(%rdi)
+ffff800000115762: ff b7 a0 00 00 00    	pushq	160(%rdi)
 ; 	pushq IF_CS(%rdi)
-ffff800000115787: ff b7 98 00 00 00    	pushq	152(%rdi)
+ffff800000115768: ff b7 98 00 00 00    	pushq	152(%rdi)
 ; 	pushq IF_RIP(%rdi)
-ffff80000011578d: ff b7 90 00 00 00    	pushq	144(%rdi)
+ffff80000011576e: ff b7 90 00 00 00    	pushq	144(%rdi)
 ; 	movq IF_DS(%rdi),  %rax
-ffff800000115793: 48 8b 07             	movq	(%rdi), %rax
+ffff800000115774: 48 8b 07             	movq	(%rdi), %rax
 ; 	movq %rax,	%ds
-ffff800000115796: 48 8e d8             	movq	%rax, %ds
+ffff800000115777: 48 8e d8             	movq	%rax, %ds
 ; 	movq %rax,  %es
-ffff800000115799: 48 8e c0             	movq	%rax, %es
+ffff80000011577a: 48 8e c0             	movq	%rax, %es
 ; 	movq IF_RAX(%rdi), %rax
-ffff80000011579c: 48 8b 47 78          	movq	120(%rdi), %rax
+ffff80000011577d: 48 8b 47 78          	movq	120(%rdi), %rax
 ; 	movq IF_RDI(%rdi), %rdi
-ffff8000001157a0: 48 8b 7f 48          	movq	72(%rdi), %rdi
+ffff800000115781: 48 8b 7f 48          	movq	72(%rdi), %rdi
 ; 	iretq
-ffff8000001157a4: 48 cf                	iretq
+ffff800000115785: 48 cf                	iretq
 
-ffff8000001157a6 <sysret64>:
+ffff800000115787 <sysret64>:
 ; 	movq IF_R15(%rdi), 	%r15
-ffff8000001157a6: 4c 8b 7f 08          	movq	8(%rdi), %r15
+ffff800000115787: 4c 8b 7f 08          	movq	8(%rdi), %r15
 ; 	movq IF_R14(%rdi),  %r14
-ffff8000001157aa: 4c 8b 77 10          	movq	16(%rdi), %r14
+ffff80000011578b: 4c 8b 77 10          	movq	16(%rdi), %r14
 ; 	movq IF_R13(%rdi),  %r13
-ffff8000001157ae: 4c 8b 6f 18          	movq	24(%rdi), %r13
+ffff80000011578f: 4c 8b 6f 18          	movq	24(%rdi), %r13
 ; 	movq IF_R12(%rdi),  %r12
-ffff8000001157b2: 4c 8b 67 20          	movq	32(%rdi), %r12
-; 	movq IF_R11(%rdi),  %r11
-ffff8000001157b6: 4c 8b 5f 28          	movq	40(%rdi), %r11
+ffff800000115793: 4c 8b 67 20          	movq	32(%rdi), %r12
 ; 	movq IF_R10(%rdi),  %r10
-ffff8000001157ba: 4c 8b 57 30          	movq	48(%rdi), %r10
+ffff800000115797: 4c 8b 57 30          	movq	48(%rdi), %r10
 ; 	movq IF_R9(%rdi),  	%r9
-ffff8000001157be: 4c 8b 4f 38          	movq	56(%rdi), %r9
+ffff80000011579b: 4c 8b 4f 38          	movq	56(%rdi), %r9
 ; 	movq IF_R8(%rdi),  	%r8
-ffff8000001157c2: 4c 8b 47 40          	movq	64(%rdi), %r8
+ffff80000011579f: 4c 8b 47 40          	movq	64(%rdi), %r8
 ; 	movq IF_RSI(%rdi),  %rsi
-ffff8000001157c6: 48 8b 77 50          	movq	80(%rdi), %rsi
+ffff8000001157a3: 48 8b 77 50          	movq	80(%rdi), %rsi
 ; 	movq IF_RBP(%rdi),  %rbp
-ffff8000001157ca: 48 8b 6f 58          	movq	88(%rdi), %rbp
+ffff8000001157a7: 48 8b 6f 58          	movq	88(%rdi), %rbp
 ; 	movq IF_RBX(%rdi),  %rbx
-ffff8000001157ce: 48 8b 5f 60          	movq	96(%rdi), %rbx
+ffff8000001157ab: 48 8b 5f 60          	movq	96(%rdi), %rbx
 ; 	movq IF_RDX(%rdi),  %rdx
-ffff8000001157d2: 48 8b 57 68          	movq	104(%rdi), %rdx
+ffff8000001157af: 48 8b 57 68          	movq	104(%rdi), %rdx
 ; 	movq IF_RCX(%rdi),  %rcx
-ffff8000001157d6: 48 8b 4f 70          	movq	112(%rdi), %rcx
-; 	movq IF_RSP(%rdi),  %rsp
-ffff8000001157da: 48 8b a7 a8 00 00 00 	movq	168(%rdi), %rsp
+ffff8000001157b3: 48 8b 4f 70          	movq	112(%rdi), %rcx
+; 	movq %gs:CPU_TSS_RSP3, %rax
+ffff8000001157b7: 65 48 8b 04 25 2c 00 00 00   	movq	%gs:44, %rax
+; 	movq %rax, %rsp
+ffff8000001157c0: 48 89 c4             	movq	%rax, %rsp
 ; 	movq IF_DS(%rdi),   %rax
-ffff8000001157e1: 48 8b 07             	movq	(%rdi), %rax
+ffff8000001157c3: 48 8b 07             	movq	(%rdi), %rax
 ; 	movq %rax, %ds
-ffff8000001157e4: 48 8e d8             	movq	%rax, %ds
+ffff8000001157c6: 48 8e d8             	movq	%rax, %ds
 ; 	movq IF_RAX(%rdi),  %rax
-ffff8000001157e7: 48 8b 47 78          	movq	120(%rdi), %rax
+ffff8000001157c9: 48 8b 47 78          	movq	120(%rdi), %rax
 ; 	swapgs
-ffff8000001157eb: 0f 01 f8             	swapgs
+ffff8000001157cd: 0f 01 f8             	swapgs
 ; 	sysretq
-ffff8000001157ee: 48 0f 07             	sysretq
-ffff8000001157f1: cc                   	int3
-ffff8000001157f2: cc                   	int3
-ffff8000001157f3: cc                   	int3
-ffff8000001157f4: cc                   	int3
-ffff8000001157f5: cc                   	int3
-ffff8000001157f6: cc                   	int3
-ffff8000001157f7: cc                   	int3
-ffff8000001157f8: cc                   	int3
-ffff8000001157f9: cc                   	int3
-ffff8000001157fa: cc                   	int3
-ffff8000001157fb: cc                   	int3
-ffff8000001157fc: cc                   	int3
-ffff8000001157fd: cc                   	int3
-ffff8000001157fe: cc                   	int3
-ffff8000001157ff: cc                   	int3
+ffff8000001157d0: 48 0f 07             	sysretq
+ffff8000001157d3: cc                   	int3
+ffff8000001157d4: cc                   	int3
+ffff8000001157d5: cc                   	int3
+ffff8000001157d6: cc                   	int3
+ffff8000001157d7: cc                   	int3
+ffff8000001157d8: cc                   	int3
+ffff8000001157d9: cc                   	int3
+ffff8000001157da: cc                   	int3
+ffff8000001157db: cc                   	int3
+ffff8000001157dc: cc                   	int3
+ffff8000001157dd: cc                   	int3
+ffff8000001157de: cc                   	int3
+ffff8000001157df: cc                   	int3
 
-ffff800000115800 <syscall_init>:
+ffff8000001157e0 <syscall_init>:
 ; {
-ffff800000115800: 55                   	pushq	%rbp
-ffff800000115801: 48 89 e5             	movq	%rsp, %rbp
-ffff800000115804: 53                   	pushq	%rbx
-ffff800000115805: 50                   	pushq	%rax
+ffff8000001157e0: 55                   	pushq	%rbp
+ffff8000001157e1: 48 89 e5             	movq	%rsp, %rbp
+ffff8000001157e4: 53                   	pushq	%rbx
+ffff8000001157e5: 50                   	pushq	%rax
 ; 	write_msr(MSR_LSTAR, (uintptr_t) syscall64);
-ffff800000115806: 48 be b5 56 11 00 00 80 ff ff	movabsq	$-140737487219019, %rsi # imm = 0xFFFF8000001156B5
-ffff800000115810: 48 bb 80 58 11 00 00 80 ff ff	movabsq	$-140737487218560, %rbx # imm = 0xFFFF800000115880
-ffff80000011581a: bf 82 00 00 c0       	movl	$3221225602, %edi       # imm = 0xC0000082
-ffff80000011581f: ff d3                	callq	*%rbx
-ffff800000115821: 48 be 00 00 00 00 08 00 20 00	movabsq	$9007233614479360, %rsi # imm = 0x20000800000000
+ffff8000001157e6: 48 be b5 56 11 00 00 80 ff ff	movabsq	$-140737487219019, %rsi # imm = 0xFFFF8000001156B5
+ffff8000001157f0: 48 bb 60 58 11 00 00 80 ff ff	movabsq	$-140737487218592, %rbx # imm = 0xFFFF800000115860
+ffff8000001157fa: bf 82 00 00 c0       	movl	$3221225602, %edi       # imm = 0xC0000082
+ffff8000001157ff: ff d3                	callq	*%rbx
+ffff800000115801: 48 be 00 00 00 00 08 00 20 00	movabsq	$9007233614479360, %rsi # imm = 0x20000800000000
 ; 	write_msr(MSR_STAR, ((uint64_t)GDT_KCODE << 32) | ((uint64_t)GDT_UCODE << 48));
-ffff80000011582b: bf 81 00 00 c0       	movl	$3221225601, %edi       # imm = 0xC0000081
-ffff800000115830: ff d3                	callq	*%rbx
+ffff80000011580b: bf 81 00 00 c0       	movl	$3221225601, %edi       # imm = 0xC0000081
+ffff800000115810: ff d3                	callq	*%rbx
 ; 	write_msr(MSR_SFMASK, ((0 & 0x3) << 12) | FLAGS_TF | FLAGS_IF | FLAGS_AC | FLAGS_NT);
-ffff800000115832: be 00 43 04 00       	movl	$279296, %esi           # imm = 0x44300
-ffff800000115837: bf 84 00 00 c0       	movl	$3221225604, %edi       # imm = 0xC0000084
-ffff80000011583c: ff d3                	callq	*%rbx
+ffff800000115812: be 00 43 04 00       	movl	$279296, %esi           # imm = 0x44300
+ffff800000115817: bf 84 00 00 c0       	movl	$3221225604, %edi       # imm = 0xC0000084
+ffff80000011581c: ff d3                	callq	*%rbx
 ; 	uint64_t msr_efer = read_msr(MSR_EFER);
-ffff80000011583e: 48 b8 a0 58 11 00 00 80 ff ff	movabsq	$-140737487218528, %rax # imm = 0xFFFF8000001158A0
-ffff800000115848: ff d0                	callq	*%rax
+ffff80000011581e: 48 b8 80 58 11 00 00 80 ff ff	movabsq	$-140737487218560, %rax # imm = 0xFFFF800000115880
+ffff800000115828: ff d0                	callq	*%rax
 ; 	write_msr(MSR_EFER, msr_efer | MSR_EFER_SCE);
-ffff80000011584a: 48 83 c8 01          	orq	$1, %rax
-ffff80000011584e: bf 80 00 00 c0       	movl	$3221225600, %edi       # imm = 0xC0000080
-ffff800000115853: 48 89 c6             	movq	%rax, %rsi
-ffff800000115856: ff d3                	callq	*%rbx
+ffff80000011582a: 48 83 c8 01          	orq	$1, %rax
+ffff80000011582e: bf 80 00 00 c0       	movl	$3221225600, %edi       # imm = 0xC0000080
+ffff800000115833: 48 89 c6             	movq	%rax, %rsi
+ffff800000115836: ff d3                	callq	*%rbx
 ; 	write_msr(MSR_KERNEL_GS_BASE, (uintptr_t) this_cpu); //this may need chaning in lab 5 or just disable syscalls
-ffff800000115858: 48 b8 08 f3 11 00 00 80 ff ff	movabsq	$-140737487179000, %rax # imm = 0xFFFF80000011F308
-ffff800000115862: 48 8b 30             	movq	(%rax), %rsi
-ffff800000115865: bf 02 01 00 c0       	movl	$3221225730, %edi       # imm = 0xC0000102
-ffff80000011586a: ff d3                	callq	*%rbx
+ffff800000115838: 48 b8 08 f3 11 00 00 80 ff ff	movabsq	$-140737487179000, %rax # imm = 0xFFFF80000011F308
+ffff800000115842: 48 8b 30             	movq	(%rax), %rsi
+ffff800000115845: bf 02 01 00 c0       	movl	$3221225730, %edi       # imm = 0xC0000102
+ffff80000011584a: ff d3                	callq	*%rbx
 ; }
-ffff80000011586c: 48 83 c4 08          	addq	$8, %rsp
-ffff800000115870: 5b                   	popq	%rbx
-ffff800000115871: 5d                   	popq	%rbp
-ffff800000115872: c3                   	retq
-ffff800000115873: 66 2e 0f 1f 84 00 00 00 00 00	nopw	%cs:(%rax,%rax)
-ffff80000011587d: 0f 1f 00             	nopl	(%rax)
+ffff80000011584c: 48 83 c4 08          	addq	$8, %rsp
+ffff800000115850: 5b                   	popq	%rbx
+ffff800000115851: 5d                   	popq	%rbp
+ffff800000115852: c3                   	retq
+ffff800000115853: 66 2e 0f 1f 84 00 00 00 00 00	nopw	%cs:(%rax,%rax)
+ffff80000011585d: 0f 1f 00             	nopl	(%rax)
 
-ffff800000115880 <write_msr>:
+ffff800000115860 <write_msr>:
+; {
+ffff800000115860: 55                   	pushq	%rbp
+ffff800000115861: 48 89 e5             	movq	%rsp, %rbp
+ffff800000115864: 48 89 f0             	movq	%rsi, %rax
+ffff800000115867: 89 f9                	movl	%edi, %ecx
+; 		"d" ((uint32_t)((val >> 32) & 0xFFFFFFFF)));
+ffff800000115869: 48 89 f2             	movq	%rsi, %rdx
+ffff80000011586c: 48 c1 ea 20          	shrq	$32, %rdx
+; 	asm volatile(
+ffff800000115870: 0f 30                	wrmsr
+; }
+ffff800000115872: 5d                   	popq	%rbp
+ffff800000115873: c3                   	retq
+ffff800000115874: 66 2e 0f 1f 84 00 00 00 00 00	nopw	%cs:(%rax,%rax)
+ffff80000011587e: 66 90                	nop
+
+ffff800000115880 <read_msr>:
 ; {
 ffff800000115880: 55                   	pushq	%rbp
 ffff800000115881: 48 89 e5             	movq	%rsp, %rbp
-ffff800000115884: 48 89 f0             	movq	%rsi, %rax
-ffff800000115887: 89 f9                	movl	%edi, %ecx
-; 		"d" ((uint32_t)((val >> 32) & 0xFFFFFFFF)));
-ffff800000115889: 48 89 f2             	movq	%rsi, %rdx
-ffff80000011588c: 48 c1 ea 20          	shrq	$32, %rdx
 ; 	asm volatile(
-ffff800000115890: 0f 30                	wrmsr
-; }
-ffff800000115892: 5d                   	popq	%rbp
-ffff800000115893: c3                   	retq
-ffff800000115894: 66 2e 0f 1f 84 00 00 00 00 00	nopw	%cs:(%rax,%rax)
-ffff80000011589e: 66 90                	nop
+ffff800000115884: b9 80 00 00 c0       	movl	$3221225600, %ecx       # imm = 0xC0000080
+ffff800000115889: 0f 32                	rdmsr
+; 	return (uint64_t)hi << 32 | (uint64_t)lo;
+ffff80000011588b: 48 c1 e2 20          	shlq	$32, %rdx
+ffff80000011588f: 89 c0                	movl	%eax, %eax
+ffff800000115891: 48 09 d0             	orq	%rdx, %rax
+ffff800000115894: 5d                   	popq	%rbp
+ffff800000115895: c3                   	retq
+ffff800000115896: 66 2e 0f 1f 84 00 00 00 00 00	nopw	%cs:(%rax,%rax)
 
-ffff8000001158a0 <read_msr>:
+ffff8000001158a0 <syscall>:
 ; {
 ffff8000001158a0: 55                   	pushq	%rbp
 ffff8000001158a1: 48 89 e5             	movq	%rsp, %rbp
-; 	asm volatile(
-ffff8000001158a4: b9 80 00 00 c0       	movl	$3221225600, %ecx       # imm = 0xC0000080
-ffff8000001158a9: 0f 32                	rdmsr
-; 	return (uint64_t)hi << 32 | (uint64_t)lo;
-ffff8000001158ab: 48 c1 e2 20          	shlq	$32, %rdx
-ffff8000001158af: 89 c0                	movl	%eax, %eax
-ffff8000001158b1: 48 09 d0             	orq	%rdx, %rax
-ffff8000001158b4: 5d                   	popq	%rbp
-ffff8000001158b5: c3                   	retq
-ffff8000001158b6: 66 2e 0f 1f 84 00 00 00 00 00	nopw	%cs:(%rax,%rax)
-
-ffff8000001158c0 <syscall>:
-; {
-ffff8000001158c0: 55                   	pushq	%rbp
-ffff8000001158c1: 48 89 e5             	movq	%rsp, %rbp
 ; 	switch (syscallno) {
-ffff8000001158c4: 48 83 ff 03          	cmpq	$3, %rdi
-ffff8000001158c8: 77 23                	ja	0xffff8000001158ed <syscall+0x2d>
-ffff8000001158ca: 48 b8 70 98 11 00 00 80 ff ff	movabsq	$-140737487202192, %rax # imm = 0xFFFF800000119870
-ffff8000001158d4: ff 24 f8             	jmpq	*(%rax,%rdi,8)
+ffff8000001158a4: 48 83 ff 03          	cmpq	$3, %rdi
+ffff8000001158a8: 77 23                	ja	0xffff8000001158cd <syscall+0x2d>
+ffff8000001158aa: 48 b8 70 98 11 00 00 80 ff ff	movabsq	$-140737487202192, %rax # imm = 0xFFFF800000119870
+ffff8000001158b4: ff 24 f8             	jmpq	*(%rax,%rdi,8)
 ; 			sys_cputs((void*) a1, a2);
-ffff8000001158d7: 48 b8 50 59 11 00 00 80 ff ff	movabsq	$-140737487218352, %rax # imm = 0xFFFF800000115950
-ffff8000001158e1: 48 89 f7             	movq	%rsi, %rdi
-ffff8000001158e4: 48 89 d6             	movq	%rdx, %rsi
-ffff8000001158e7: ff d0                	callq	*%rax
-ffff8000001158e9: 31 c0                	xorl	%eax, %eax
+ffff8000001158b7: 48 b8 30 59 11 00 00 80 ff ff	movabsq	$-140737487218384, %rax # imm = 0xFFFF800000115930
+ffff8000001158c1: 48 89 f7             	movq	%rsi, %rdi
+ffff8000001158c4: 48 89 d6             	movq	%rdx, %rsi
+ffff8000001158c7: ff d0                	callq	*%rax
+ffff8000001158c9: 31 c0                	xorl	%eax, %eax
 ; 	return ret;
-ffff8000001158eb: 5d                   	popq	%rbp
-ffff8000001158ec: c3                   	retq
-ffff8000001158ed: 48 c7 c0 f9 ff ff ff 	movq	$-7, %rax
+ffff8000001158cb: 5d                   	popq	%rbp
+ffff8000001158cc: c3                   	retq
+ffff8000001158cd: 48 c7 c0 f9 ff ff ff 	movq	$-7, %rax
 ; 	return ret;
-ffff8000001158f4: 5d                   	popq	%rbp
-ffff8000001158f5: c3                   	retq
+ffff8000001158d4: 5d                   	popq	%rbp
+ffff8000001158d5: c3                   	retq
 ; 			ret = sys_cgetc();
-ffff8000001158f6: 48 b8 30 59 11 00 00 80 ff ff	movabsq	$-140737487218384, %rax # imm = 0xFFFF800000115930
-ffff800000115900: ff d0                	callq	*%rax
-ffff800000115902: eb 1c                	jmp	0xffff800000115920 <syscall+0x60>
+ffff8000001158d6: 48 b8 10 59 11 00 00 80 ff ff	movabsq	$-140737487218416, %rax # imm = 0xFFFF800000115910
+ffff8000001158e0: ff d0                	callq	*%rax
+ffff8000001158e2: eb 1c                	jmp	0xffff800000115900 <syscall+0x60>
 ; 			ret = sys_getpid();
-ffff800000115904: 48 b8 b0 59 11 00 00 80 ff ff	movabsq	$-140737487218256, %rax # imm = 0xFFFF8000001159B0
-ffff80000011590e: ff d0                	callq	*%rax
-ffff800000115910: eb 0e                	jmp	0xffff800000115920 <syscall+0x60>
+ffff8000001158e4: 48 b8 90 59 11 00 00 80 ff ff	movabsq	$-140737487218288, %rax # imm = 0xFFFF800000115990
+ffff8000001158ee: ff d0                	callq	*%rax
+ffff8000001158f0: eb 0e                	jmp	0xffff800000115900 <syscall+0x60>
 ; 			ret = sys_kill(a1);
-ffff800000115912: 48 b8 d0 59 11 00 00 80 ff ff	movabsq	$-140737487218224, %rax # imm = 0xFFFF8000001159D0
-ffff80000011591c: 89 f7                	movl	%esi, %edi
-ffff80000011591e: ff d0                	callq	*%rax
-ffff800000115920: 48 98                	cltq
+ffff8000001158f2: 48 b8 b0 59 11 00 00 80 ff ff	movabsq	$-140737487218256, %rax # imm = 0xFFFF8000001159B0
+ffff8000001158fc: 89 f7                	movl	%esi, %edi
+ffff8000001158fe: ff d0                	callq	*%rax
+ffff800000115900: 48 98                	cltq
 ; 	return ret;
-ffff800000115922: 5d                   	popq	%rbp
-ffff800000115923: c3                   	retq
-ffff800000115924: 66 2e 0f 1f 84 00 00 00 00 00	nopw	%cs:(%rax,%rax)
-ffff80000011592e: 66 90                	nop
+ffff800000115902: 5d                   	popq	%rbp
+ffff800000115903: c3                   	retq
+ffff800000115904: 66 2e 0f 1f 84 00 00 00 00 00	nopw	%cs:(%rax,%rax)
+ffff80000011590e: 66 90                	nop
 
-ffff800000115930 <sys_cgetc>:
+ffff800000115910 <sys_cgetc>:
+; {
+ffff800000115910: 55                   	pushq	%rbp
+ffff800000115911: 48 89 e5             	movq	%rsp, %rbp
+; 	return cons_getc();
+ffff800000115914: 48 b8 30 c2 10 00 00 80 ff ff	movabsq	$-140737487257040, %rax # imm = 0xFFFF80000010C230
+ffff80000011591e: ff d0                	callq	*%rax
+ffff800000115920: 5d                   	popq	%rbp
+ffff800000115921: c3                   	retq
+ffff800000115922: 66 2e 0f 1f 84 00 00 00 00 00	nopw	%cs:(%rax,%rax)
+ffff80000011592c: 0f 1f 40 00          	nopl	(%rax)
+
+ffff800000115930 <sys_cputs>:
 ; {
 ffff800000115930: 55                   	pushq	%rbp
 ffff800000115931: 48 89 e5             	movq	%rsp, %rbp
-; 	return cons_getc();
-ffff800000115934: 48 b8 30 c2 10 00 00 80 ff ff	movabsq	$-140737487257040, %rax # imm = 0xFFFF80000010C230
-ffff80000011593e: ff d0                	callq	*%rax
-ffff800000115940: 5d                   	popq	%rbp
-ffff800000115941: c3                   	retq
-ffff800000115942: 66 2e 0f 1f 84 00 00 00 00 00	nopw	%cs:(%rax,%rax)
-ffff80000011594c: 0f 1f 40 00          	nopl	(%rax)
-
-ffff800000115950 <sys_cputs>:
-; {
-ffff800000115950: 55                   	pushq	%rbp
-ffff800000115951: 48 89 e5             	movq	%rsp, %rbp
-ffff800000115954: 41 56                	pushq	%r14
-ffff800000115956: 53                   	pushq	%rbx
-ffff800000115957: 48 89 f3             	movq	%rsi, %rbx
-ffff80000011595a: 49 89 fe             	movq	%rdi, %r14
+ffff800000115934: 41 56                	pushq	%r14
+ffff800000115936: 53                   	pushq	%rbx
+ffff800000115937: 48 89 f3             	movq	%rsi, %rbx
+ffff80000011593a: 49 89 fe             	movq	%rdi, %r14
 ; 	assert_user_mem(cur_task, (void*)s, len, 0);
-ffff80000011595d: 48 b8 08 f3 11 00 00 80 ff ff	movabsq	$-140737487179000, %rax # imm = 0xFFFF80000011F308
-ffff800000115967: 48 8b 00             	movq	(%rax), %rax
-ffff80000011596a: 48 8b 78 08          	movq	8(%rax), %rdi
-ffff80000011596e: 48 b8 10 4f 11 00 00 80 ff ff	movabsq	$-140737487220976, %rax # imm = 0xFFFF800000114F10
-ffff800000115978: 4c 89 f6             	movq	%r14, %rsi
-ffff80000011597b: 48 89 da             	movq	%rbx, %rdx
-ffff80000011597e: 31 c9                	xorl	%ecx, %ecx
-ffff800000115980: ff d0                	callq	*%rax
+ffff80000011593d: 48 b8 08 f3 11 00 00 80 ff ff	movabsq	$-140737487179000, %rax # imm = 0xFFFF80000011F308
+ffff800000115947: 48 8b 00             	movq	(%rax), %rax
+ffff80000011594a: 48 8b 78 08          	movq	8(%rax), %rdi
+ffff80000011594e: 48 b8 10 4f 11 00 00 80 ff ff	movabsq	$-140737487220976, %rax # imm = 0xFFFF800000114F10
+ffff800000115958: 4c 89 f6             	movq	%r14, %rsi
+ffff80000011595b: 48 89 da             	movq	%rbx, %rdx
+ffff80000011595e: 31 c9                	xorl	%ecx, %ecx
+ffff800000115960: ff d0                	callq	*%rax
 ; 	cprintf("%.*s", len, s);
-ffff800000115982: 48 bf e7 9b 11 00 00 80 ff ff	movabsq	$-140737487201305, %rdi # imm = 0xFFFF800000119BE7
-ffff80000011598c: 48 b9 b0 d4 10 00 00 80 ff ff	movabsq	$-140737487252304, %rcx # imm = 0xFFFF80000010D4B0
-ffff800000115996: 48 89 de             	movq	%rbx, %rsi
-ffff800000115999: 4c 89 f2             	movq	%r14, %rdx
-ffff80000011599c: 31 c0                	xorl	%eax, %eax
-ffff80000011599e: ff d1                	callq	*%rcx
+ffff800000115962: 48 bf e7 9b 11 00 00 80 ff ff	movabsq	$-140737487201305, %rdi # imm = 0xFFFF800000119BE7
+ffff80000011596c: 48 b9 b0 d4 10 00 00 80 ff ff	movabsq	$-140737487252304, %rcx # imm = 0xFFFF80000010D4B0
+ffff800000115976: 48 89 de             	movq	%rbx, %rsi
+ffff800000115979: 4c 89 f2             	movq	%r14, %rdx
+ffff80000011597c: 31 c0                	xorl	%eax, %eax
+ffff80000011597e: ff d1                	callq	*%rcx
 ; }
-ffff8000001159a0: 5b                   	popq	%rbx
-ffff8000001159a1: 41 5e                	popq	%r14
-ffff8000001159a3: 5d                   	popq	%rbp
-ffff8000001159a4: c3                   	retq
-ffff8000001159a5: 66 2e 0f 1f 84 00 00 00 00 00	nopw	%cs:(%rax,%rax)
-ffff8000001159af: 90                   	nop
+ffff800000115980: 5b                   	popq	%rbx
+ffff800000115981: 41 5e                	popq	%r14
+ffff800000115983: 5d                   	popq	%rbp
+ffff800000115984: c3                   	retq
+ffff800000115985: 66 2e 0f 1f 84 00 00 00 00 00	nopw	%cs:(%rax,%rax)
+ffff80000011598f: 90                   	nop
 
-ffff8000001159b0 <sys_getpid>:
+ffff800000115990 <sys_getpid>:
+; {
+ffff800000115990: 55                   	pushq	%rbp
+ffff800000115991: 48 89 e5             	movq	%rsp, %rbp
+; 	return cur_task->task_pid;
+ffff800000115994: 48 b8 08 f3 11 00 00 80 ff ff	movabsq	$-140737487179000, %rax # imm = 0xFFFF80000011F308
+ffff80000011599e: 48 8b 00             	movq	(%rax), %rax
+ffff8000001159a1: 48 8b 40 08          	movq	8(%rax), %rax
+ffff8000001159a5: 8b 80 c0 00 00 00    	movl	192(%rax), %eax
+ffff8000001159ab: 5d                   	popq	%rbp
+ffff8000001159ac: c3                   	retq
+ffff8000001159ad: 0f 1f 00             	nopl	(%rax)
+
+ffff8000001159b0 <sys_kill>:
 ; {
 ffff8000001159b0: 55                   	pushq	%rbp
 ffff8000001159b1: 48 89 e5             	movq	%rsp, %rbp
-; 	return cur_task->task_pid;
-ffff8000001159b4: 48 b8 08 f3 11 00 00 80 ff ff	movabsq	$-140737487179000, %rax # imm = 0xFFFF80000011F308
-ffff8000001159be: 48 8b 00             	movq	(%rax), %rax
-ffff8000001159c1: 48 8b 40 08          	movq	8(%rax), %rax
-ffff8000001159c5: 8b 80 c0 00 00 00    	movl	192(%rax), %eax
-ffff8000001159cb: 5d                   	popq	%rbp
-ffff8000001159cc: c3                   	retq
-ffff8000001159cd: 0f 1f 00             	nopl	(%rax)
-
-ffff8000001159d0 <sys_kill>:
-; {
-ffff8000001159d0: 55                   	pushq	%rbp
-ffff8000001159d1: 48 89 e5             	movq	%rsp, %rbp
-ffff8000001159d4: 41 56                	pushq	%r14
-ffff8000001159d6: 53                   	pushq	%rbx
+ffff8000001159b4: 41 56                	pushq	%r14
+ffff8000001159b6: 53                   	pushq	%rbx
 ; 	task = pid2task(pid, 1);
-ffff8000001159d7: 48 b8 b0 5a 11 00 00 80 ff ff	movabsq	$-140737487218000, %rax # imm = 0xFFFF800000115AB0
-ffff8000001159e1: be 01 00 00 00       	movl	$1, %esi
-ffff8000001159e6: ff d0                	callq	*%rax
+ffff8000001159b7: 48 b8 90 5a 11 00 00 80 ff ff	movabsq	$-140737487218032, %rax # imm = 0xFFFF800000115A90
+ffff8000001159c1: be 01 00 00 00       	movl	$1, %esi
+ffff8000001159c6: ff d0                	callq	*%rax
 ; 	if (!task) {
-ffff8000001159e8: 48 85 c0             	testq	%rax, %rax
-ffff8000001159eb: 74 2f                	je	0xffff800000115a1c <sys_kill+0x4c>
-ffff8000001159ed: 48 89 c3             	movq	%rax, %rbx
+ffff8000001159c8: 48 85 c0             	testq	%rax, %rax
+ffff8000001159cb: 74 2f                	je	0xffff8000001159fc <sys_kill+0x4c>
+ffff8000001159cd: 48 89 c3             	movq	%rax, %rbx
 ; 	cprintf("[PID %5u] Exiting gracefully\n");
-ffff8000001159f0: 48 bf 7e a9 11 00 00 80 ff ff	movabsq	$-140737487197826, %rdi # imm = 0xFFFF80000011A97E
-ffff8000001159fa: 48 b9 b0 d4 10 00 00 80 ff ff	movabsq	$-140737487252304, %rcx # imm = 0xFFFF80000010D4B0
-ffff800000115a04: 45 31 f6             	xorl	%r14d, %r14d
-ffff800000115a07: 31 c0                	xorl	%eax, %eax
-ffff800000115a09: ff d1                	callq	*%rcx
+ffff8000001159d0: 48 bf 7e a9 11 00 00 80 ff ff	movabsq	$-140737487197826, %rdi # imm = 0xFFFF80000011A97E
+ffff8000001159da: 48 b9 b0 d4 10 00 00 80 ff ff	movabsq	$-140737487252304, %rcx # imm = 0xFFFF80000010D4B0
+ffff8000001159e4: 45 31 f6             	xorl	%r14d, %r14d
+ffff8000001159e7: 31 c0                	xorl	%eax, %eax
+ffff8000001159e9: ff d1                	callq	*%rcx
 ; 	task_destroy(task);
-ffff800000115a0b: 48 b8 b0 64 11 00 00 80 ff ff	movabsq	$-140737487215440, %rax # imm = 0xFFFF8000001164B0
-ffff800000115a15: 48 89 df             	movq	%rbx, %rdi
-ffff800000115a18: ff d0                	callq	*%rax
-ffff800000115a1a: eb 06                	jmp	0xffff800000115a22 <sys_kill+0x52>
-ffff800000115a1c: 41 be ff ff ff ff    	movl	$4294967295, %r14d      # imm = 0xFFFFFFFF
+ffff8000001159eb: 48 b8 90 64 11 00 00 80 ff ff	movabsq	$-140737487215472, %rax # imm = 0xFFFF800000116490
+ffff8000001159f5: 48 89 df             	movq	%rbx, %rdi
+ffff8000001159f8: ff d0                	callq	*%rax
+ffff8000001159fa: eb 06                	jmp	0xffff800000115a02 <sys_kill+0x52>
+ffff8000001159fc: 41 be ff ff ff ff    	movl	$4294967295, %r14d      # imm = 0xFFFFFFFF
 ; }
-ffff800000115a22: 44 89 f0             	movl	%r14d, %eax
-ffff800000115a25: 5b                   	popq	%rbx
-ffff800000115a26: 41 5e                	popq	%r14
-ffff800000115a28: 5d                   	popq	%rbp
-ffff800000115a29: c3                   	retq
-ffff800000115a2a: 66 0f 1f 44 00 00    	nopw	(%rax,%rax)
+ffff800000115a02: 44 89 f0             	movl	%r14d, %eax
+ffff800000115a05: 5b                   	popq	%rbx
+ffff800000115a06: 41 5e                	popq	%r14
+ffff800000115a08: 5d                   	popq	%rbp
+ffff800000115a09: c3                   	retq
+ffff800000115a0a: 66 0f 1f 44 00 00    	nopw	(%rax,%rax)
 
-ffff800000115a30 <syscall_handler>:
+ffff800000115a10 <syscall_handler>:
 ; {
-ffff800000115a30: 55                   	pushq	%rbp
-ffff800000115a31: 48 89 e5             	movq	%rsp, %rbp
-ffff800000115a34: 41 56                	pushq	%r14
-ffff800000115a36: 53                   	pushq	%rbx
-ffff800000115a37: 48 83 ec 10          	subq	$16, %rsp
+ffff800000115a10: 55                   	pushq	%rbp
+ffff800000115a11: 48 89 e5             	movq	%rsp, %rbp
+ffff800000115a14: 41 56                	pushq	%r14
+ffff800000115a16: 53                   	pushq	%rbx
+ffff800000115a17: 48 83 ec 10          	subq	$16, %rsp
 ; 	assert(cur_task);
-ffff800000115a3b: 49 be 08 f3 11 00 00 80 ff ff	movabsq	$-140737487179000, %r14 # imm = 0xFFFF80000011F308
-ffff800000115a45: 49 8b 06             	movq	(%r14), %rax
-ffff800000115a48: 48 8b 58 08          	movq	8(%rax), %rbx
-ffff800000115a4c: 48 85 db             	testq	%rbx, %rbx
-ffff800000115a4f: 74 2c                	je	0xffff800000115a7d <syscall_handler+0x4d>
+ffff800000115a1b: 49 be 08 f3 11 00 00 80 ff ff	movabsq	$-140737487179000, %r14 # imm = 0xFFFF80000011F308
+ffff800000115a25: 49 8b 06             	movq	(%r14), %rax
+ffff800000115a28: 48 8b 58 08          	movq	8(%rax), %rbx
+ffff800000115a2c: 48 85 db             	testq	%rbx, %rbx
+ffff800000115a2f: 74 2c                	je	0xffff800000115a5d <syscall_handler+0x4d>
 ; 	frame->rax = syscall(syscallno, a1, a2, a3, a4, a5, a6);
-ffff800000115a51: 48 b8 c0 58 11 00 00 80 ff ff	movabsq	$-140737487218496, %rax # imm = 0xFFFF8000001158C0
-ffff800000115a5b: ff d0                	callq	*%rax
-ffff800000115a5d: 48 89 43 78          	movq	%rax, 120(%rbx)
+ffff800000115a31: 48 b8 a0 58 11 00 00 80 ff ff	movabsq	$-140737487218528, %rax # imm = 0xFFFF8000001158A0
+ffff800000115a3b: ff d0                	callq	*%rax
+ffff800000115a3d: 48 89 43 78          	movq	%rax, 120(%rbx)
 ; 	task_run(cur_task);
-ffff800000115a61: 49 8b 06             	movq	(%r14), %rax
-ffff800000115a64: 48 8b 78 08          	movq	8(%rax), %rdi
-ffff800000115a68: 48 b8 50 65 11 00 00 80 ff ff	movabsq	$-140737487215280, %rax # imm = 0xFFFF800000116550
-ffff800000115a72: ff d0                	callq	*%rax
+ffff800000115a41: 49 8b 06             	movq	(%r14), %rax
+ffff800000115a44: 48 8b 78 08          	movq	8(%rax), %rdi
+ffff800000115a48: 48 b8 30 65 11 00 00 80 ff ff	movabsq	$-140737487215312, %rax # imm = 0xFFFF800000116530
+ffff800000115a52: ff d0                	callq	*%rax
 ; }
-ffff800000115a74: 48 83 c4 10          	addq	$16, %rsp
-ffff800000115a78: 5b                   	popq	%rbx
-ffff800000115a79: 41 5e                	popq	%r14
-ffff800000115a7b: 5d                   	popq	%rbp
-ffff800000115a7c: c3                   	retq
+ffff800000115a54: 48 83 c4 10          	addq	$16, %rsp
+ffff800000115a58: 5b                   	popq	%rbx
+ffff800000115a59: 41 5e                	popq	%r14
+ffff800000115a5b: 5d                   	popq	%rbp
+ffff800000115a5c: c3                   	retq
 ; 	assert(cur_task);
-ffff800000115a7d: 48 bf 23 a0 11 00 00 80 ff ff	movabsq	$-140737487200221, %rdi # imm = 0xFFFF80000011A023
-ffff800000115a87: 48 ba 35 a4 11 00 00 80 ff ff	movabsq	$-140737487199179, %rdx # imm = 0xFFFF80000011A435
-ffff800000115a91: 48 b9 af a8 11 00 00 80 ff ff	movabsq	$-140737487198033, %rcx # imm = 0xFFFF80000011A8AF
-ffff800000115a9b: 48 bb 20 c9 10 00 00 80 ff ff	movabsq	$-140737487255264, %rbx # imm = 0xFFFF80000010C920
-ffff800000115aa5: be 6f 00 00 00       	movl	$111, %esi
-ffff800000115aaa: 31 c0                	xorl	%eax, %eax
-ffff800000115aac: ff d3                	callq	*%rbx
-ffff800000115aae: cc                   	int3
-ffff800000115aaf: cc                   	int3
+ffff800000115a5d: 48 bf 23 a0 11 00 00 80 ff ff	movabsq	$-140737487200221, %rdi # imm = 0xFFFF80000011A023
+ffff800000115a67: 48 ba 35 a4 11 00 00 80 ff ff	movabsq	$-140737487199179, %rdx # imm = 0xFFFF80000011A435
+ffff800000115a71: 48 b9 af a8 11 00 00 80 ff ff	movabsq	$-140737487198033, %rcx # imm = 0xFFFF80000011A8AF
+ffff800000115a7b: 48 bb 20 c9 10 00 00 80 ff ff	movabsq	$-140737487255264, %rbx # imm = 0xFFFF80000010C920
+ffff800000115a85: be 6f 00 00 00       	movl	$111, %esi
+ffff800000115a8a: 31 c0                	xorl	%eax, %eax
+ffff800000115a8c: ff d3                	callq	*%rbx
+ffff800000115a8e: cc                   	int3
+ffff800000115a8f: cc                   	int3
 
-ffff800000115ab0 <pid2task>:
+ffff800000115a90 <pid2task>:
 ; {
-ffff800000115ab0: 55                   	pushq	%rbp
-ffff800000115ab1: 48 89 e5             	movq	%rsp, %rbp
+ffff800000115a90: 55                   	pushq	%rbp
+ffff800000115a91: 48 89 e5             	movq	%rsp, %rbp
 ; 	if (pid == 0) {
-ffff800000115ab4: 85 ff                	testl	%edi, %edi
-ffff800000115ab6: 74 53                	je	0xffff800000115b0b <pid2task+0x5b>
+ffff800000115a94: 85 ff                	testl	%edi, %edi
+ffff800000115a96: 74 53                	je	0xffff800000115aeb <pid2task+0x5b>
 ; 	if (pid >= pid_max) {
-ffff800000115ab8: 48 b8 60 f3 11 00 00 80 ff ff	movabsq	$-140737487178912, %rax # imm = 0xFFFF80000011F360
-ffff800000115ac2: 39 38                	cmpl	%edi, (%rax)
-ffff800000115ac4: 7e 41                	jle	0xffff800000115b07 <pid2task+0x57>
+ffff800000115a98: 48 b8 60 f3 11 00 00 80 ff ff	movabsq	$-140737487178912, %rax # imm = 0xFFFF80000011F360
+ffff800000115aa2: 39 38                	cmpl	%edi, (%rax)
+ffff800000115aa4: 7e 41                	jle	0xffff800000115ae7 <pid2task+0x57>
 ; 	task = tasks[pid];
-ffff800000115ac6: 48 b8 68 f3 11 00 00 80 ff ff	movabsq	$-140737487178904, %rax # imm = 0xFFFF80000011F368
-ffff800000115ad0: 48 8b 00             	movq	(%rax), %rax
-ffff800000115ad3: 48 63 cf             	movslq	%edi, %rcx
-ffff800000115ad6: 48 8b 04 c8          	movq	(%rax,%rcx,8), %rax
+ffff800000115aa6: 48 b8 68 f3 11 00 00 80 ff ff	movabsq	$-140737487178904, %rax # imm = 0xFFFF80000011F368
+ffff800000115ab0: 48 8b 00             	movq	(%rax), %rax
+ffff800000115ab3: 48 63 cf             	movslq	%edi, %rcx
+ffff800000115ab6: 48 8b 04 c8          	movq	(%rax,%rcx,8), %rax
 ; 	if (!task) {
-ffff800000115ada: 48 85 c0             	testq	%rax, %rax
-ffff800000115add: 74 28                	je	0xffff800000115b07 <pid2task+0x57>
+ffff800000115aba: 48 85 c0             	testq	%rax, %rax
+ffff800000115abd: 74 28                	je	0xffff800000115ae7 <pid2task+0x57>
 ; 	if (!check_perm) {
-ffff800000115adf: 85 f6                	testl	%esi, %esi
-ffff800000115ae1: 74 26                	je	0xffff800000115b09 <pid2task+0x59>
+ffff800000115abf: 85 f6                	testl	%esi, %esi
+ffff800000115ac1: 74 26                	je	0xffff800000115ae9 <pid2task+0x59>
 ; 	if (task != cur_task && task->task_ppid != cur_task->task_pid) {
-ffff800000115ae3: 48 b9 08 f3 11 00 00 80 ff ff	movabsq	$-140737487179000, %rcx # imm = 0xFFFF80000011F308
-ffff800000115aed: 48 8b 09             	movq	(%rcx), %rcx
-ffff800000115af0: 48 8b 49 08          	movq	8(%rcx), %rcx
-ffff800000115af4: 48 39 c8             	cmpq	%rcx, %rax
-ffff800000115af7: 74 10                	je	0xffff800000115b09 <pid2task+0x59>
-ffff800000115af9: 8b 90 c4 00 00 00    	movl	196(%rax), %edx
-ffff800000115aff: 3b 91 c0 00 00 00    	cmpl	192(%rcx), %edx
-ffff800000115b05: 74 02                	je	0xffff800000115b09 <pid2task+0x59>
-ffff800000115b07: 31 c0                	xorl	%eax, %eax
+ffff800000115ac3: 48 b9 08 f3 11 00 00 80 ff ff	movabsq	$-140737487179000, %rcx # imm = 0xFFFF80000011F308
+ffff800000115acd: 48 8b 09             	movq	(%rcx), %rcx
+ffff800000115ad0: 48 8b 49 08          	movq	8(%rcx), %rcx
+ffff800000115ad4: 48 39 c8             	cmpq	%rcx, %rax
+ffff800000115ad7: 74 10                	je	0xffff800000115ae9 <pid2task+0x59>
+ffff800000115ad9: 8b 90 c4 00 00 00    	movl	196(%rax), %edx
+ffff800000115adf: 3b 91 c0 00 00 00    	cmpl	192(%rcx), %edx
+ffff800000115ae5: 74 02                	je	0xffff800000115ae9 <pid2task+0x59>
+ffff800000115ae7: 31 c0                	xorl	%eax, %eax
 ; }
-ffff800000115b09: 5d                   	popq	%rbp
-ffff800000115b0a: c3                   	retq
+ffff800000115ae9: 5d                   	popq	%rbp
+ffff800000115aea: c3                   	retq
 ; 		return cur_task;
-ffff800000115b0b: 48 b8 08 f3 11 00 00 80 ff ff	movabsq	$-140737487179000, %rax # imm = 0xFFFF80000011F308
-ffff800000115b15: 48 8b 00             	movq	(%rax), %rax
-ffff800000115b18: 48 8b 40 08          	movq	8(%rax), %rax
+ffff800000115aeb: 48 b8 08 f3 11 00 00 80 ff ff	movabsq	$-140737487179000, %rax # imm = 0xFFFF80000011F308
+ffff800000115af5: 48 8b 00             	movq	(%rax), %rax
+ffff800000115af8: 48 8b 40 08          	movq	8(%rax), %rax
 ; }
-ffff800000115b1c: 5d                   	popq	%rbp
-ffff800000115b1d: c3                   	retq
-ffff800000115b1e: 66 90                	nop
+ffff800000115afc: 5d                   	popq	%rbp
+ffff800000115afd: c3                   	retq
+ffff800000115afe: 66 90                	nop
 
-ffff800000115b20 <task_init>:
+ffff800000115b00 <task_init>:
 ; {
-ffff800000115b20: 55                   	pushq	%rbp
-ffff800000115b21: 48 89 e5             	movq	%rsp, %rbp
+ffff800000115b00: 55                   	pushq	%rbp
+ffff800000115b01: 48 89 e5             	movq	%rsp, %rbp
 ; 	populate_region(kernel_pml4, (void*) PIDMAP_BASE, ROUNDUP(pid_max * sizeof(struct task *), PAGE_SIZE), 
-ffff800000115b24: 48 b8 f8 02 17 00 00 80 ff ff	movabsq	$-140737486847240, %rax # imm = 0xFFFF8000001702F8
-ffff800000115b2e: 48 8b 38             	movq	(%rax), %rdi
-ffff800000115b31: 48 b8 60 f3 11 00 00 80 ff ff	movabsq	$-140737487178912, %rax # imm = 0xFFFF80000011F360
-ffff800000115b3b: 48 63 00             	movslq	(%rax), %rax
-ffff800000115b3e: 48 8d 14 c5 ff 0f 00 00      	leaq	4095(,%rax,8), %rdx
-ffff800000115b46: 48 81 e2 00 f0 ff ff 	andq	$-4096, %rdx            # imm = 0xF000
-ffff800000115b4d: 48 b8 50 46 11 00 00 80 ff ff	movabsq	$-140737487223216, %rax # imm = 0xFFFF800000114650
-ffff800000115b57: 48 be 00 00 00 00 80 fe ff ff	movabsq	$-1649267441664, %rsi # imm = 0xFFFFFE8000000000
-ffff800000115b61: 48 b9 03 00 00 00 00 00 00 80	movabsq	$-9223372036854775805, %rcx # imm = 0x8000000000000003
-ffff800000115b6b: ff d0                	callq	*%rax
+ffff800000115b04: 48 b8 f8 02 17 00 00 80 ff ff	movabsq	$-140737486847240, %rax # imm = 0xFFFF8000001702F8
+ffff800000115b0e: 48 8b 38             	movq	(%rax), %rdi
+ffff800000115b11: 48 b8 60 f3 11 00 00 80 ff ff	movabsq	$-140737487178912, %rax # imm = 0xFFFF80000011F360
+ffff800000115b1b: 48 63 00             	movslq	(%rax), %rax
+ffff800000115b1e: 48 8d 14 c5 ff 0f 00 00      	leaq	4095(,%rax,8), %rdx
+ffff800000115b26: 48 81 e2 00 f0 ff ff 	andq	$-4096, %rdx            # imm = 0xF000
+ffff800000115b2d: 48 b8 50 46 11 00 00 80 ff ff	movabsq	$-140737487223216, %rax # imm = 0xFFFF800000114650
+ffff800000115b37: 48 be 00 00 00 00 80 fe ff ff	movabsq	$-1649267441664, %rsi # imm = 0xFFFFFE8000000000
+ffff800000115b41: 48 b9 03 00 00 00 00 00 00 80	movabsq	$-9223372036854775805, %rcx # imm = 0x8000000000000003
+ffff800000115b4b: ff d0                	callq	*%rax
 ; }
-ffff800000115b6d: 5d                   	popq	%rbp
-ffff800000115b6e: c3                   	retq
-ffff800000115b6f: 90                   	nop
+ffff800000115b4d: 5d                   	popq	%rbp
+ffff800000115b4e: c3                   	retq
+ffff800000115b4f: 90                   	nop
 
-ffff800000115b70 <task_alloc>:
+ffff800000115b50 <task_alloc>:
 ; {
-ffff800000115b70: 55                   	pushq	%rbp
-ffff800000115b71: 48 89 e5             	movq	%rsp, %rbp
-ffff800000115b74: 41 56                	pushq	%r14
-ffff800000115b76: 53                   	pushq	%rbx
-ffff800000115b77: 41 89 fe             	movl	%edi, %r14d
+ffff800000115b50: 55                   	pushq	%rbp
+ffff800000115b51: 48 89 e5             	movq	%rsp, %rbp
+ffff800000115b54: 41 56                	pushq	%r14
+ffff800000115b56: 53                   	pushq	%rbx
+ffff800000115b57: 41 89 fe             	movl	%edi, %r14d
 ; 	task = kmalloc(sizeof *task);
-ffff800000115b7a: 48 b8 e0 45 11 00 00 80 ff ff	movabsq	$-140737487223328, %rax # imm = 0xFFFF8000001145E0
-ffff800000115b84: bf e0 00 00 00       	movl	$224, %edi
-ffff800000115b89: ff d0                	callq	*%rax
+ffff800000115b5a: 48 b8 e0 45 11 00 00 80 ff ff	movabsq	$-140737487223328, %rax # imm = 0xFFFF8000001145E0
+ffff800000115b64: bf e0 00 00 00       	movl	$224, %edi
+ffff800000115b69: ff d0                	callq	*%rax
 ; 	if (!task) {
-ffff800000115b8b: 48 85 c0             	testq	%rax, %rax
-ffff800000115b8e: 74 65                	je	0xffff800000115bf5 <task_alloc+0x85>
-ffff800000115b90: 48 89 c3             	movq	%rax, %rbx
+ffff800000115b6b: 48 85 c0             	testq	%rax, %rax
+ffff800000115b6e: 74 65                	je	0xffff800000115bd5 <task_alloc+0x85>
+ffff800000115b70: 48 89 c3             	movq	%rax, %rbx
 ; 	if (task_setup_vas(task) < 0) {
-ffff800000115b93: 48 b8 d0 5c 11 00 00 80 ff ff	movabsq	$-140737487217456, %rax # imm = 0xFFFF800000115CD0
-ffff800000115b9d: 48 89 df             	movq	%rbx, %rdi
-ffff800000115ba0: ff d0                	callq	*%rax
-ffff800000115ba2: 85 c0                	testl	%eax, %eax
-ffff800000115ba4: 78 40                	js	0xffff800000115be6 <task_alloc+0x76>
-ffff800000115ba6: 48 b8 60 f3 11 00 00 80 ff ff	movabsq	$-140737487178912, %rax # imm = 0xFFFF80000011F360
-ffff800000115bb0: 8b 00                	movl	(%rax), %eax
-ffff800000115bb2: b9 01 00 00 00       	movl	$1, %ecx
+ffff800000115b73: 48 b8 b0 5c 11 00 00 80 ff ff	movabsq	$-140737487217488, %rax # imm = 0xFFFF800000115CB0
+ffff800000115b7d: 48 89 df             	movq	%rbx, %rdi
+ffff800000115b80: ff d0                	callq	*%rax
+ffff800000115b82: 85 c0                	testl	%eax, %eax
+ffff800000115b84: 78 40                	js	0xffff800000115bc6 <task_alloc+0x76>
+ffff800000115b86: 48 b8 60 f3 11 00 00 80 ff ff	movabsq	$-140737487178912, %rax # imm = 0xFFFF80000011F360
+ffff800000115b90: 8b 00                	movl	(%rax), %eax
+ffff800000115b92: b9 01 00 00 00       	movl	$1, %ecx
 ; 	for (pid = 1; pid < pid_max; ++pid) {
-ffff800000115bb7: 83 f8 02             	cmpl	$2, %eax
-ffff800000115bba: 7c 26                	jl	0xffff800000115be2 <task_alloc+0x72>
-ffff800000115bbc: 48 b9 68 f3 11 00 00 80 ff ff	movabsq	$-140737487178904, %rcx # imm = 0xFFFF80000011F368
-ffff800000115bc6: 48 8b 11             	movq	(%rcx), %rdx
-ffff800000115bc9: b9 01 00 00 00       	movl	$1, %ecx
-ffff800000115bce: 66 90                	nop
+ffff800000115b97: 83 f8 02             	cmpl	$2, %eax
+ffff800000115b9a: 7c 26                	jl	0xffff800000115bc2 <task_alloc+0x72>
+ffff800000115b9c: 48 b9 68 f3 11 00 00 80 ff ff	movabsq	$-140737487178904, %rcx # imm = 0xFFFF80000011F368
+ffff800000115ba6: 48 8b 11             	movq	(%rcx), %rdx
+ffff800000115ba9: b9 01 00 00 00       	movl	$1, %ecx
+ffff800000115bae: 66 90                	nop
 ; 		if (!tasks[pid]) {
-ffff800000115bd0: 48 83 3c ca 00       	cmpq	$0, (%rdx,%rcx,8)
-ffff800000115bd5: 74 28                	je	0xffff800000115bff <task_alloc+0x8f>
+ffff800000115bb0: 48 83 3c ca 00       	cmpq	$0, (%rdx,%rcx,8)
+ffff800000115bb5: 74 28                	je	0xffff800000115bdf <task_alloc+0x8f>
 ; 	for (pid = 1; pid < pid_max; ++pid) {
-ffff800000115bd7: 48 83 c1 01          	addq	$1, %rcx
-ffff800000115bdb: 48 39 c8             	cmpq	%rcx, %rax
-ffff800000115bde: 75 f0                	jne	0xffff800000115bd0 <task_alloc+0x60>
-ffff800000115be0: 89 c1                	movl	%eax, %ecx
+ffff800000115bb7: 48 83 c1 01          	addq	$1, %rcx
+ffff800000115bbb: 48 39 c8             	cmpq	%rcx, %rax
+ffff800000115bbe: 75 f0                	jne	0xffff800000115bb0 <task_alloc+0x60>
+ffff800000115bc0: 89 c1                	movl	%eax, %ecx
 ; 	if (pid == pid_max) {
-ffff800000115be2: 39 c1                	cmpl	%eax, %ecx
-ffff800000115be4: 75 27                	jne	0xffff800000115c0d <task_alloc+0x9d>
-ffff800000115be6: 48 b8 30 46 11 00 00 80 ff ff	movabsq	$-140737487223248, %rax # imm = 0xFFFF800000114630
-ffff800000115bf0: 48 89 df             	movq	%rbx, %rdi
-ffff800000115bf3: ff d0                	callq	*%rax
-ffff800000115bf5: 31 db                	xorl	%ebx, %ebx
+ffff800000115bc2: 39 c1                	cmpl	%eax, %ecx
+ffff800000115bc4: 75 27                	jne	0xffff800000115bed <task_alloc+0x9d>
+ffff800000115bc6: 48 b8 30 46 11 00 00 80 ff ff	movabsq	$-140737487223248, %rax # imm = 0xFFFF800000114630
+ffff800000115bd0: 48 89 df             	movq	%rbx, %rdi
+ffff800000115bd3: ff d0                	callq	*%rax
+ffff800000115bd5: 31 db                	xorl	%ebx, %ebx
 ; }
-ffff800000115bf7: 48 89 d8             	movq	%rbx, %rax
-ffff800000115bfa: 5b                   	popq	%rbx
-ffff800000115bfb: 41 5e                	popq	%r14
-ffff800000115bfd: 5d                   	popq	%rbp
-ffff800000115bfe: c3                   	retq
+ffff800000115bd7: 48 89 d8             	movq	%rbx, %rax
+ffff800000115bda: 5b                   	popq	%rbx
+ffff800000115bdb: 41 5e                	popq	%r14
+ffff800000115bdd: 5d                   	popq	%rbp
+ffff800000115bde: c3                   	retq
 ; 			tasks[pid] = task;
-ffff800000115bff: 48 89 1c ca          	movq	%rbx, (%rdx,%rcx,8)
+ffff800000115bdf: 48 89 1c ca          	movq	%rbx, (%rdx,%rcx,8)
 ; 			task->task_pid = pid;
-ffff800000115c03: 89 8b c0 00 00 00    	movl	%ecx, 192(%rbx)
+ffff800000115be3: 89 8b c0 00 00 00    	movl	%ecx, 192(%rbx)
 ; 	if (pid == pid_max) {
-ffff800000115c09: 39 c1                	cmpl	%eax, %ecx
-ffff800000115c0b: 74 d9                	je	0xffff800000115be6 <task_alloc+0x76>
+ffff800000115be9: 39 c1                	cmpl	%eax, %ecx
+ffff800000115beb: 74 d9                	je	0xffff800000115bc6 <task_alloc+0x76>
 ; 	task->task_ppid = ppid;
-ffff800000115c0d: 44 89 b3 c4 00 00 00 	movl	%r14d, 196(%rbx)
-ffff800000115c14: 48 b8 00 00 00 00 01 00 00 00	movabsq	$4294967296, %rax # imm = 0x100000000
+ffff800000115bed: 44 89 b3 c4 00 00 00 	movl	%r14d, 196(%rbx)
+ffff800000115bf4: 48 b8 00 00 00 00 01 00 00 00	movabsq	$4294967296, %rax # imm = 0x100000000
 ; 	task->task_type = TASK_TYPE_USER;
-ffff800000115c1e: 48 89 83 c8 00 00 00 	movq	%rax, 200(%rbx)
+ffff800000115bfe: 48 89 83 c8 00 00 00 	movq	%rax, 200(%rbx)
 ; 	task->task_runs = 0;
-ffff800000115c25: c7 83 d0 00 00 00 00 00 00 00	movl	$0, 208(%rbx)
+ffff800000115c05: c7 83 d0 00 00 00 00 00 00 00	movl	$0, 208(%rbx)
 ; 	memset(&task->task_frame, 0, sizeof task->task_frame);
-ffff800000115c2f: 48 b8 50 09 11 00 00 80 ff ff	movabsq	$-140737487238832, %rax # imm = 0xFFFF800000110950
-ffff800000115c39: 45 31 f6             	xorl	%r14d, %r14d
-ffff800000115c3c: ba b8 00 00 00       	movl	$184, %edx
-ffff800000115c41: 48 89 df             	movq	%rbx, %rdi
-ffff800000115c44: 31 f6                	xorl	%esi, %esi
-ffff800000115c46: ff d0                	callq	*%rax
+ffff800000115c0f: 48 b8 50 09 11 00 00 80 ff ff	movabsq	$-140737487238832, %rax # imm = 0xFFFF800000110950
+ffff800000115c19: 45 31 f6             	xorl	%r14d, %r14d
+ffff800000115c1c: ba b8 00 00 00       	movl	$184, %edx
+ffff800000115c21: 48 89 df             	movq	%rbx, %rdi
+ffff800000115c24: 31 f6                	xorl	%esi, %esi
+ffff800000115c26: ff d0                	callq	*%rax
 ; 	task->task_frame.ds = GDT_UDATA | 3;
-ffff800000115c48: 48 c7 03 1b 00 00 00 	movq	$27, (%rbx)
+ffff800000115c28: 48 c7 03 1b 00 00 00 	movq	$27, (%rbx)
 ; 	task->task_frame.ss = GDT_UDATA | 3;
-ffff800000115c4f: 48 c7 83 b0 00 00 00 1b 00 00 00     	movq	$27, 176(%rbx)
-ffff800000115c5a: 48 b8 00 e0 ff ff ff 7f 00 00	movabsq	$140737488347136, %rax # imm = 0x7FFFFFFFE000
+ffff800000115c2f: 48 c7 83 b0 00 00 00 1b 00 00 00     	movq	$27, 176(%rbx)
+ffff800000115c3a: 48 b8 00 e0 ff ff ff 7f 00 00	movabsq	$140737488347136, %rax # imm = 0x7FFFFFFFE000
 ; 	task->task_frame.rsp = USTACK_TOP;
-ffff800000115c64: 48 89 83 a8 00 00 00 	movq	%rax, 168(%rbx)
+ffff800000115c44: 48 89 83 a8 00 00 00 	movq	%rax, 168(%rbx)
 ; 	task->task_frame.cs = GDT_UCODE | 3;
-ffff800000115c6b: 48 c7 83 98 00 00 00 23 00 00 00     	movq	$35, 152(%rbx)
+ffff800000115c4b: 48 c7 83 98 00 00 00 23 00 00 00     	movq	$35, 152(%rbx)
 ; 	        cur_task ? cur_task->task_pid : 0, task->task_pid);
-ffff800000115c76: 48 b8 08 f3 11 00 00 80 ff ff	movabsq	$-140737487179000, %rax # imm = 0xFFFF80000011F308
-ffff800000115c80: 48 8b 00             	movq	(%rax), %rax
-ffff800000115c83: 48 8b 40 08          	movq	8(%rax), %rax
-ffff800000115c87: 48 85 c0             	testq	%rax, %rax
-ffff800000115c8a: 74 07                	je	0xffff800000115c93 <task_alloc+0x123>
-ffff800000115c8c: 44 8b b0 c0 00 00 00 	movl	192(%rax), %r14d
-ffff800000115c93: 8b 93 c0 00 00 00    	movl	192(%rbx), %edx
+ffff800000115c56: 48 b8 08 f3 11 00 00 80 ff ff	movabsq	$-140737487179000, %rax # imm = 0xFFFF80000011F308
+ffff800000115c60: 48 8b 00             	movq	(%rax), %rax
+ffff800000115c63: 48 8b 40 08          	movq	8(%rax), %rax
+ffff800000115c67: 48 85 c0             	testq	%rax, %rax
+ffff800000115c6a: 74 07                	je	0xffff800000115c73 <task_alloc+0x123>
+ffff800000115c6c: 44 8b b0 c0 00 00 00 	movl	192(%rax), %r14d
+ffff800000115c73: 8b 93 c0 00 00 00    	movl	192(%rbx), %edx
 ; 	cprintf("[PID %5u] New task with PID %u\n",
-ffff800000115c99: 48 bf b8 a8 11 00 00 80 ff ff	movabsq	$-140737487198024, %rdi # imm = 0xFFFF80000011A8B8
-ffff800000115ca3: 48 b9 b0 d4 10 00 00 80 ff ff	movabsq	$-140737487252304, %rcx # imm = 0xFFFF80000010D4B0
-ffff800000115cad: 44 89 f6             	movl	%r14d, %esi
-ffff800000115cb0: 31 c0                	xorl	%eax, %eax
-ffff800000115cb2: ff d1                	callq	*%rcx
+ffff800000115c79: 48 bf b8 a8 11 00 00 80 ff ff	movabsq	$-140737487198024, %rdi # imm = 0xFFFF80000011A8B8
+ffff800000115c83: 48 b9 b0 d4 10 00 00 80 ff ff	movabsq	$-140737487252304, %rcx # imm = 0xFFFF80000010D4B0
+ffff800000115c8d: 44 89 f6             	movl	%r14d, %esi
+ffff800000115c90: 31 c0                	xorl	%eax, %eax
+ffff800000115c92: ff d1                	callq	*%rcx
 ; 	task->task_wait = NULL;
-ffff800000115cb4: 48 c7 83 b8 00 00 00 00 00 00 00     	movq	$0, 184(%rbx)
-ffff800000115cbf: e9 33 ff ff ff       	jmp	0xffff800000115bf7 <task_alloc+0x87>
-ffff800000115cc4: 66 2e 0f 1f 84 00 00 00 00 00	nopw	%cs:(%rax,%rax)
-ffff800000115cce: 66 90                	nop
+ffff800000115c94: 48 c7 83 b8 00 00 00 00 00 00 00     	movq	$0, 184(%rbx)
+ffff800000115c9f: e9 33 ff ff ff       	jmp	0xffff800000115bd7 <task_alloc+0x87>
+ffff800000115ca4: 66 2e 0f 1f 84 00 00 00 00 00	nopw	%cs:(%rax,%rax)
+ffff800000115cae: 66 90                	nop
 
-ffff800000115cd0 <task_setup_vas>:
+ffff800000115cb0 <task_setup_vas>:
 ; {
-ffff800000115cd0: 55                   	pushq	%rbp
-ffff800000115cd1: 48 89 e5             	movq	%rsp, %rbp
-ffff800000115cd4: 53                   	pushq	%rbx
-ffff800000115cd5: 50                   	pushq	%rax
-ffff800000115cd6: 48 89 fb             	movq	%rdi, %rbx
+ffff800000115cb0: 55                   	pushq	%rbp
+ffff800000115cb1: 48 89 e5             	movq	%rsp, %rbp
+ffff800000115cb4: 53                   	pushq	%rbx
+ffff800000115cb5: 50                   	pushq	%rax
+ffff800000115cb6: 48 89 fb             	movq	%rdi, %rbx
 ; 	page = page_alloc(ALLOC_ZERO);
-ffff800000115cd9: 48 b8 50 dd 10 00 00 80 ff ff	movabsq	$-140737487250096, %rax # imm = 0xFFFF80000010DD50
-ffff800000115ce3: bf 01 00 00 00       	movl	$1, %edi
-ffff800000115ce8: ff d0                	callq	*%rax
+ffff800000115cb9: 48 b8 50 dd 10 00 00 80 ff ff	movabsq	$-140737487250096, %rax # imm = 0xFFFF80000010DD50
+ffff800000115cc3: bf 01 00 00 00       	movl	$1, %edi
+ffff800000115cc8: ff d0                	callq	*%rax
 ; 	if (!page) {
-ffff800000115cea: 48 85 c0             	testq	%rax, %rax
-ffff800000115ced: 0f 84 97 00 00 00    	je	0xffff800000115d8a <task_setup_vas+0xba>
+ffff800000115cca: 48 85 c0             	testq	%rax, %rax
+ffff800000115ccd: 0f 84 97 00 00 00    	je	0xffff800000115d6a <task_setup_vas+0xba>
 ; 	++page->pp_ref;
-ffff800000115cf3: 66 83 40 10 01       	addw	$1, 16(%rax)
+ffff800000115cd3: 66 83 40 10 01       	addw	$1, 16(%rax)
 ; 	struct page_table *user_pml4 = page2kva(page);
-ffff800000115cf8: 48 b9 f0 66 11 00 00 80 ff ff	movabsq	$-140737487214864, %rcx # imm = 0xFFFF8000001166F0
-ffff800000115d02: 48 89 c7             	movq	%rax, %rdi
-ffff800000115d05: ff d1                	callq	*%rcx
-ffff800000115d07: 48 b9 f8 02 17 00 00 80 ff ff	movabsq	$-140737486847240, %rcx # imm = 0xFFFF8000001702F8
-ffff800000115d11: 48 8b 09             	movq	(%rcx), %rcx
-ffff800000115d14: ba 00 01 00 00       	movl	$256, %edx              # imm = 0x100
-ffff800000115d19: 0f 1f 80 00 00 00 00 	nopl	(%rax)
+ffff800000115cd8: 48 b9 d0 66 11 00 00 80 ff ff	movabsq	$-140737487214896, %rcx # imm = 0xFFFF8000001166D0
+ffff800000115ce2: 48 89 c7             	movq	%rax, %rdi
+ffff800000115ce5: ff d1                	callq	*%rcx
+ffff800000115ce7: 48 b9 f8 02 17 00 00 80 ff ff	movabsq	$-140737486847240, %rcx # imm = 0xFFFF8000001702F8
+ffff800000115cf1: 48 8b 09             	movq	(%rcx), %rcx
+ffff800000115cf4: ba 00 01 00 00       	movl	$256, %edx              # imm = 0x100
+ffff800000115cf9: 0f 1f 80 00 00 00 00 	nopl	(%rax)
 ; 		user_pml4->entries[i] = kernel_pml4->entries[i];
-ffff800000115d20: 48 8b 34 d1          	movq	(%rcx,%rdx,8), %rsi
-ffff800000115d24: 48 89 34 d0          	movq	%rsi, (%rax,%rdx,8)
+ffff800000115d00: 48 8b 34 d1          	movq	(%rcx,%rdx,8), %rsi
+ffff800000115d04: 48 89 34 d0          	movq	%rsi, (%rax,%rdx,8)
 ; 	for(int i = PML4_INDEX(KERNEL_VMA); i < PAGE_TABLE_ENTRIES; i++){
-ffff800000115d28: 48 83 c2 01          	addq	$1, %rdx
-ffff800000115d2c: 48 81 fa 00 02 00 00 	cmpq	$512, %rdx              # imm = 0x200
-ffff800000115d33: 75 eb                	jne	0xffff800000115d20 <task_setup_vas+0x50>
+ffff800000115d08: 48 83 c2 01          	addq	$1, %rdx
+ffff800000115d0c: 48 81 fa 00 02 00 00 	cmpq	$512, %rdx              # imm = 0x200
+ffff800000115d13: 75 eb                	jne	0xffff800000115d00 <task_setup_vas+0x50>
 ; 	task->task_pml4 = user_pml4;
-ffff800000115d35: 48 89 83 d8 00 00 00 	movq	%rax, 216(%rbx)
+ffff800000115d15: 48 89 83 d8 00 00 00 	movq	%rax, 216(%rbx)
 ; 	assert(!page_lookup(task->task_pml4, (void*) 0x804000, NULL));
-ffff800000115d3c: 48 b9 30 12 11 00 00 80 ff ff	movabsq	$-140737487236560, %rcx # imm = 0xFFFF800000111230
-ffff800000115d46: 31 db                	xorl	%ebx, %ebx
-ffff800000115d48: be 00 40 80 00       	movl	$8404992, %esi          # imm = 0x804000
-ffff800000115d4d: 48 89 c7             	movq	%rax, %rdi
-ffff800000115d50: 31 d2                	xorl	%edx, %edx
-ffff800000115d52: ff d1                	callq	*%rcx
-ffff800000115d54: 48 85 c0             	testq	%rax, %rax
-ffff800000115d57: 74 36                	je	0xffff800000115d8f <task_setup_vas+0xbf>
-ffff800000115d59: 48 bf ec 9b 11 00 00 80 ff ff	movabsq	$-140737487201300, %rdi # imm = 0xFFFF800000119BEC
-ffff800000115d63: 48 ba 35 a4 11 00 00 80 ff ff	movabsq	$-140737487199179, %rdx # imm = 0xFFFF80000011A435
-ffff800000115d6d: 48 b9 3a a0 11 00 00 80 ff ff	movabsq	$-140737487200198, %rcx # imm = 0xFFFF80000011A03A
-ffff800000115d77: 48 bb 20 c9 10 00 00 80 ff ff	movabsq	$-140737487255264, %rbx # imm = 0xFFFF80000010C920
-ffff800000115d81: be 5c 00 00 00       	movl	$92, %esi
-ffff800000115d86: 31 c0                	xorl	%eax, %eax
-ffff800000115d88: ff d3                	callq	*%rbx
-ffff800000115d8a: bb fa ff ff ff       	movl	$4294967290, %ebx       # imm = 0xFFFFFFFA
+ffff800000115d1c: 48 b9 30 12 11 00 00 80 ff ff	movabsq	$-140737487236560, %rcx # imm = 0xFFFF800000111230
+ffff800000115d26: 31 db                	xorl	%ebx, %ebx
+ffff800000115d28: be 00 40 80 00       	movl	$8404992, %esi          # imm = 0x804000
+ffff800000115d2d: 48 89 c7             	movq	%rax, %rdi
+ffff800000115d30: 31 d2                	xorl	%edx, %edx
+ffff800000115d32: ff d1                	callq	*%rcx
+ffff800000115d34: 48 85 c0             	testq	%rax, %rax
+ffff800000115d37: 74 36                	je	0xffff800000115d6f <task_setup_vas+0xbf>
+ffff800000115d39: 48 bf ec 9b 11 00 00 80 ff ff	movabsq	$-140737487201300, %rdi # imm = 0xFFFF800000119BEC
+ffff800000115d43: 48 ba 35 a4 11 00 00 80 ff ff	movabsq	$-140737487199179, %rdx # imm = 0xFFFF80000011A435
+ffff800000115d4d: 48 b9 3a a0 11 00 00 80 ff ff	movabsq	$-140737487200198, %rcx # imm = 0xFFFF80000011A03A
+ffff800000115d57: 48 bb 20 c9 10 00 00 80 ff ff	movabsq	$-140737487255264, %rbx # imm = 0xFFFF80000010C920
+ffff800000115d61: be 5c 00 00 00       	movl	$92, %esi
+ffff800000115d66: 31 c0                	xorl	%eax, %eax
+ffff800000115d68: ff d3                	callq	*%rbx
+ffff800000115d6a: bb fa ff ff ff       	movl	$4294967290, %ebx       # imm = 0xFFFFFFFA
 ; }
-ffff800000115d8f: 89 d8                	movl	%ebx, %eax
-ffff800000115d91: 48 83 c4 08          	addq	$8, %rsp
-ffff800000115d95: 5b                   	popq	%rbx
-ffff800000115d96: 5d                   	popq	%rbp
-ffff800000115d97: c3                   	retq
-ffff800000115d98: 0f 1f 84 00 00 00 00 00      	nopl	(%rax,%rax)
+ffff800000115d6f: 89 d8                	movl	%ebx, %eax
+ffff800000115d71: 48 83 c4 08          	addq	$8, %rsp
+ffff800000115d75: 5b                   	popq	%rbx
+ffff800000115d76: 5d                   	popq	%rbp
+ffff800000115d77: c3                   	retq
+ffff800000115d78: 0f 1f 84 00 00 00 00 00      	nopl	(%rax,%rax)
 
-ffff800000115da0 <debug_print>:
+ffff800000115d80 <debug_print>:
 ; void debug_print(struct page_table *pml4){
-ffff800000115da0: 55                   	pushq	%rbp
-ffff800000115da1: 48 89 e5             	movq	%rsp, %rbp
-ffff800000115da4: 41 57                	pushq	%r15
-ffff800000115da6: 41 56                	pushq	%r14
-ffff800000115da8: 41 55                	pushq	%r13
-ffff800000115daa: 41 54                	pushq	%r12
-ffff800000115dac: 53                   	pushq	%rbx
-ffff800000115dad: 48 83 ec 28          	subq	$40, %rsp
-ffff800000115db1: 48 89 7d c0          	movq	%rdi, -64(%rbp)
-ffff800000115db5: 48 bb ec 9b 11 00 00 80 ff ff	movabsq	$-140737487201300, %rbx # imm = 0xFFFF800000119BEC
-ffff800000115dbf: 49 be 70 5f 11 00 00 80 ff ff	movabsq	$-140737487216784, %r14 # imm = 0xFFFF800000115F70
-ffff800000115dc9: 31 c9                	xorl	%ecx, %ecx
-ffff800000115dcb: eb 18                	jmp	0xffff800000115de5 <debug_print+0x45>
-ffff800000115dcd: 0f 1f 00             	nopl	(%rax)
-ffff800000115dd0: 48 8b 4d d0          	movq	-48(%rbp), %rcx
+ffff800000115d80: 55                   	pushq	%rbp
+ffff800000115d81: 48 89 e5             	movq	%rsp, %rbp
+ffff800000115d84: 41 57                	pushq	%r15
+ffff800000115d86: 41 56                	pushq	%r14
+ffff800000115d88: 41 55                	pushq	%r13
+ffff800000115d8a: 41 54                	pushq	%r12
+ffff800000115d8c: 53                   	pushq	%rbx
+ffff800000115d8d: 48 83 ec 28          	subq	$40, %rsp
+ffff800000115d91: 48 89 7d c0          	movq	%rdi, -64(%rbp)
+ffff800000115d95: 48 bb ec 9b 11 00 00 80 ff ff	movabsq	$-140737487201300, %rbx # imm = 0xFFFF800000119BEC
+ffff800000115d9f: 49 be 50 5f 11 00 00 80 ff ff	movabsq	$-140737487216816, %r14 # imm = 0xFFFF800000115F50
+ffff800000115da9: 31 c9                	xorl	%ecx, %ecx
+ffff800000115dab: eb 18                	jmp	0xffff800000115dc5 <debug_print+0x45>
+ffff800000115dad: 0f 1f 00             	nopl	(%rax)
+ffff800000115db0: 48 8b 4d d0          	movq	-48(%rbp), %rcx
 ; 	for(int i = 0; i < PAGE_TABLE_ENTRIES; i++){
-ffff800000115dd4: 48 83 c1 01          	addq	$1, %rcx
-ffff800000115dd8: 48 81 f9 00 02 00 00 	cmpq	$512, %rcx              # imm = 0x200
-ffff800000115ddf: 0f 84 7c 01 00 00    	je	0xffff800000115f61 <debug_print+0x1c1>
-ffff800000115de5: 48 8b 45 c0          	movq	-64(%rbp), %rax
-ffff800000115de9: 48 89 4d d0          	movq	%rcx, -48(%rbp)
+ffff800000115db4: 48 83 c1 01          	addq	$1, %rcx
+ffff800000115db8: 48 81 f9 00 02 00 00 	cmpq	$512, %rcx              # imm = 0x200
+ffff800000115dbf: 0f 84 7c 01 00 00    	je	0xffff800000115f41 <debug_print+0x1c1>
+ffff800000115dc5: 48 8b 45 c0          	movq	-64(%rbp), %rax
+ffff800000115dc9: 48 89 4d d0          	movq	%rcx, -48(%rbp)
 ; 		physaddr_t entry = pml4->entries[i];
-ffff800000115ded: 48 8b 04 c8          	movq	(%rax,%rcx,8), %rax
+ffff800000115dcd: 48 8b 04 c8          	movq	(%rax,%rcx,8), %rax
 ; 		if(entry == 0)continue;
-ffff800000115df1: 48 85 c0             	testq	%rax, %rax
-ffff800000115df4: 74 da                	je	0xffff800000115dd0 <debug_print+0x30>
-ffff800000115df6: 49 89 c7             	movq	%rax, %r15
+ffff800000115dd1: 48 85 c0             	testq	%rax, %rax
+ffff800000115dd4: 74 da                	je	0xffff800000115db0 <debug_print+0x30>
+ffff800000115dd6: 49 89 c7             	movq	%rax, %r15
 ; 		cprintf("entry: %d: %p\n", i, entry);
-ffff800000115df9: 48 bf d5 ad 11 00 00 80 ff ff	movabsq	$-140737487196715, %rdi # imm = 0xFFFF80000011ADD5
-ffff800000115e03: 48 8b 75 d0          	movq	-48(%rbp), %rsi
-ffff800000115e07: 48 89 c2             	movq	%rax, %rdx
-ffff800000115e0a: 31 c0                	xorl	%eax, %eax
-ffff800000115e0c: 48 b9 b0 d4 10 00 00 80 ff ff	movabsq	$-140737487252304, %rcx # imm = 0xFFFF80000010D4B0
-ffff800000115e16: ff d1                	callq	*%rcx
-ffff800000115e18: 48 b8 00 f0 ff ff ff ff 00 00	movabsq	$281474976706560, %rax # imm = 0xFFFFFFFFF000
-ffff800000115e22: 49 21 c7             	andq	%rax, %r15
-ffff800000115e25: 4c 89 7d b8          	movq	%r15, -72(%rbp)
-ffff800000115e29: 45 31 ff             	xorl	%r15d, %r15d
-ffff800000115e2c: eb 13                	jmp	0xffff800000115e41 <debug_print+0xa1>
-ffff800000115e2e: 66 90                	nop
-ffff800000115e30: 4c 8b 7d c8          	movq	-56(%rbp), %r15
+ffff800000115dd9: 48 bf d5 ad 11 00 00 80 ff ff	movabsq	$-140737487196715, %rdi # imm = 0xFFFF80000011ADD5
+ffff800000115de3: 48 8b 75 d0          	movq	-48(%rbp), %rsi
+ffff800000115de7: 48 89 c2             	movq	%rax, %rdx
+ffff800000115dea: 31 c0                	xorl	%eax, %eax
+ffff800000115dec: 48 b9 b0 d4 10 00 00 80 ff ff	movabsq	$-140737487252304, %rcx # imm = 0xFFFF80000010D4B0
+ffff800000115df6: ff d1                	callq	*%rcx
+ffff800000115df8: 48 b8 00 f0 ff ff ff ff 00 00	movabsq	$281474976706560, %rax # imm = 0xFFFFFFFFF000
+ffff800000115e02: 49 21 c7             	andq	%rax, %r15
+ffff800000115e05: 4c 89 7d b8          	movq	%r15, -72(%rbp)
+ffff800000115e09: 45 31 ff             	xorl	%r15d, %r15d
+ffff800000115e0c: eb 13                	jmp	0xffff800000115e21 <debug_print+0xa1>
+ffff800000115e0e: 66 90                	nop
+ffff800000115e10: 4c 8b 7d c8          	movq	-56(%rbp), %r15
 ; 		for(int j = 0; j < PAGE_TABLE_ENTRIES; j++){
-ffff800000115e34: 49 83 c7 01          	addq	$1, %r15
-ffff800000115e38: 49 81 ff 00 02 00 00 	cmpq	$512, %r15              # imm = 0x200
-ffff800000115e3f: 74 8f                	je	0xffff800000115dd0 <debug_print+0x30>
+ffff800000115e14: 49 83 c7 01          	addq	$1, %r15
+ffff800000115e18: 49 81 ff 00 02 00 00 	cmpq	$512, %r15              # imm = 0x200
+ffff800000115e1f: 74 8f                	je	0xffff800000115db0 <debug_print+0x30>
 ; 			struct page_table *pdpt = KADDR(PAGE_ADDR(entry));
-ffff800000115e41: 48 89 df             	movq	%rbx, %rdi
-ffff800000115e44: be b8 00 00 00       	movl	$184, %esi
-ffff800000115e49: 48 8b 55 b8          	movq	-72(%rbp), %rdx
-ffff800000115e4d: 41 ff d6             	callq	*%r14
-ffff800000115e50: 4c 89 7d c8          	movq	%r15, -56(%rbp)
+ffff800000115e21: 48 89 df             	movq	%rbx, %rdi
+ffff800000115e24: be b8 00 00 00       	movl	$184, %esi
+ffff800000115e29: 48 8b 55 b8          	movq	-72(%rbp), %rdx
+ffff800000115e2d: 41 ff d6             	callq	*%r14
+ffff800000115e30: 4c 89 7d c8          	movq	%r15, -56(%rbp)
 ; 			physaddr_t entry2 = pdpt->entries[j];
-ffff800000115e54: 4a 8b 04 f8          	movq	(%rax,%r15,8), %rax
+ffff800000115e34: 4a 8b 04 f8          	movq	(%rax,%r15,8), %rax
 ; 			if(entry2 == 0)continue;
-ffff800000115e58: 48 85 c0             	testq	%rax, %rax
-ffff800000115e5b: 74 d3                	je	0xffff800000115e30 <debug_print+0x90>
-ffff800000115e5d: 49 89 c7             	movq	%rax, %r15
+ffff800000115e38: 48 85 c0             	testq	%rax, %rax
+ffff800000115e3b: 74 d3                	je	0xffff800000115e10 <debug_print+0x90>
+ffff800000115e3d: 49 89 c7             	movq	%rax, %r15
 ; 			cprintf("	entry2: %d %p\n", j, entry2);
-ffff800000115e60: 48 bf a5 9e 11 00 00 80 ff ff	movabsq	$-140737487200603, %rdi # imm = 0xFFFF800000119EA5
-ffff800000115e6a: 48 8b 75 c8          	movq	-56(%rbp), %rsi
-ffff800000115e6e: 48 89 c2             	movq	%rax, %rdx
-ffff800000115e71: 31 c0                	xorl	%eax, %eax
-ffff800000115e73: 48 b9 b0 d4 10 00 00 80 ff ff	movabsq	$-140737487252304, %rcx # imm = 0xFFFF80000010D4B0
-ffff800000115e7d: ff d1                	callq	*%rcx
-ffff800000115e7f: 48 b8 00 f0 ff ff ff ff 00 00	movabsq	$281474976706560, %rax # imm = 0xFFFFFFFFF000
-ffff800000115e89: 49 21 c7             	andq	%rax, %r15
-ffff800000115e8c: 4c 89 7d b0          	movq	%r15, -80(%rbp)
-ffff800000115e90: 45 31 ff             	xorl	%r15d, %r15d
-ffff800000115e93: eb 3a                	jmp	0xffff800000115ecf <debug_print+0x12f>
-ffff800000115e95: 66 2e 0f 1f 84 00 00 00 00 00	nopw	%cs:(%rax,%rax)
-ffff800000115e9f: 90                   	nop
+ffff800000115e40: 48 bf a5 9e 11 00 00 80 ff ff	movabsq	$-140737487200603, %rdi # imm = 0xFFFF800000119EA5
+ffff800000115e4a: 48 8b 75 c8          	movq	-56(%rbp), %rsi
+ffff800000115e4e: 48 89 c2             	movq	%rax, %rdx
+ffff800000115e51: 31 c0                	xorl	%eax, %eax
+ffff800000115e53: 48 b9 b0 d4 10 00 00 80 ff ff	movabsq	$-140737487252304, %rcx # imm = 0xFFFF80000010D4B0
+ffff800000115e5d: ff d1                	callq	*%rcx
+ffff800000115e5f: 48 b8 00 f0 ff ff ff ff 00 00	movabsq	$281474976706560, %rax # imm = 0xFFFFFFFFF000
+ffff800000115e69: 49 21 c7             	andq	%rax, %r15
+ffff800000115e6c: 4c 89 7d b0          	movq	%r15, -80(%rbp)
+ffff800000115e70: 45 31 ff             	xorl	%r15d, %r15d
+ffff800000115e73: eb 3a                	jmp	0xffff800000115eaf <debug_print+0x12f>
+ffff800000115e75: 66 2e 0f 1f 84 00 00 00 00 00	nopw	%cs:(%rax,%rax)
+ffff800000115e7f: 90                   	nop
 ; 					cprintf("		HUGE PAGE %d %p\n", k, entry3);
-ffff800000115ea0: 48 bf 0d a9 11 00 00 80 ff ff	movabsq	$-140737487197939, %rdi # imm = 0xFFFF80000011A90D
-ffff800000115eaa: 44 89 fe             	movl	%r15d, %esi
-ffff800000115ead: 4c 89 e2             	movq	%r12, %rdx
-ffff800000115eb0: 31 c0                	xorl	%eax, %eax
-ffff800000115eb2: 48 b9 b0 d4 10 00 00 80 ff ff	movabsq	$-140737487252304, %rcx # imm = 0xFFFF80000010D4B0
-ffff800000115ebc: ff d1                	callq	*%rcx
+ffff800000115e80: 48 bf 0d a9 11 00 00 80 ff ff	movabsq	$-140737487197939, %rdi # imm = 0xFFFF80000011A90D
+ffff800000115e8a: 44 89 fe             	movl	%r15d, %esi
+ffff800000115e8d: 4c 89 e2             	movq	%r12, %rdx
+ffff800000115e90: 31 c0                	xorl	%eax, %eax
+ffff800000115e92: 48 b9 b0 d4 10 00 00 80 ff ff	movabsq	$-140737487252304, %rcx # imm = 0xFFFF80000010D4B0
+ffff800000115e9c: ff d1                	callq	*%rcx
 ; 			for(int k = 0; k < PAGE_TABLE_ENTRIES; k++){
-ffff800000115ebe: 49 83 c7 01          	addq	$1, %r15
-ffff800000115ec2: 49 81 ff 00 02 00 00 	cmpq	$512, %r15              # imm = 0x200
-ffff800000115ec9: 0f 84 61 ff ff ff    	je	0xffff800000115e30 <debug_print+0x90>
+ffff800000115e9e: 49 83 c7 01          	addq	$1, %r15
+ffff800000115ea2: 49 81 ff 00 02 00 00 	cmpq	$512, %r15              # imm = 0x200
+ffff800000115ea9: 0f 84 61 ff ff ff    	je	0xffff800000115e10 <debug_print+0x90>
 ; 				struct page_table *pdir = KADDR(PAGE_ADDR(entry2));
-ffff800000115ecf: 48 89 df             	movq	%rbx, %rdi
-ffff800000115ed2: be c0 00 00 00       	movl	$192, %esi
-ffff800000115ed7: 48 8b 55 b0          	movq	-80(%rbp), %rdx
-ffff800000115edb: 41 ff d6             	callq	*%r14
+ffff800000115eaf: 48 89 df             	movq	%rbx, %rdi
+ffff800000115eb2: be c0 00 00 00       	movl	$192, %esi
+ffff800000115eb7: 48 8b 55 b0          	movq	-80(%rbp), %rdx
+ffff800000115ebb: 41 ff d6             	callq	*%r14
 ; 				physaddr_t entry3 = pdir->entries[k];
-ffff800000115ede: 4e 8b 24 f8          	movq	(%rax,%r15,8), %r12
+ffff800000115ebe: 4e 8b 24 f8          	movq	(%rax,%r15,8), %r12
 ; 				if(entry3 == 0)continue;
-ffff800000115ee2: 4d 85 e4             	testq	%r12, %r12
-ffff800000115ee5: 74 d7                	je	0xffff800000115ebe <debug_print+0x11e>
+ffff800000115ec2: 4d 85 e4             	testq	%r12, %r12
+ffff800000115ec5: 74 d7                	je	0xffff800000115e9e <debug_print+0x11e>
 ; 				if(entry3 & PAGE_HUGE){
-ffff800000115ee7: 41 f6 c4 80          	testb	$-128, %r12b
-ffff800000115eeb: 75 b3                	jne	0xffff800000115ea0 <debug_print+0x100>
+ffff800000115ec7: 41 f6 c4 80          	testb	$-128, %r12b
+ffff800000115ecb: 75 b3                	jne	0xffff800000115e80 <debug_print+0x100>
 ; 				cprintf("		entry3 %d %p\n", k, entry3);
-ffff800000115eed: 48 bf b5 9e 11 00 00 80 ff ff	movabsq	$-140737487200587, %rdi # imm = 0xFFFF800000119EB5
-ffff800000115ef7: 44 89 fe             	movl	%r15d, %esi
-ffff800000115efa: 4c 89 e2             	movq	%r12, %rdx
-ffff800000115efd: 31 c0                	xorl	%eax, %eax
-ffff800000115eff: 48 b9 b0 d4 10 00 00 80 ff ff	movabsq	$-140737487252304, %rcx # imm = 0xFFFF80000010D4B0
-ffff800000115f09: ff d1                	callq	*%rcx
-ffff800000115f0b: 48 b8 00 f0 ff ff ff ff 00 00	movabsq	$281474976706560, %rax # imm = 0xFFFFFFFFF000
-ffff800000115f15: 49 21 c4             	andq	%rax, %r12
-ffff800000115f18: 45 31 ed             	xorl	%r13d, %r13d
-ffff800000115f1b: eb 10                	jmp	0xffff800000115f2d <debug_print+0x18d>
-ffff800000115f1d: 0f 1f 00             	nopl	(%rax)
+ffff800000115ecd: 48 bf b5 9e 11 00 00 80 ff ff	movabsq	$-140737487200587, %rdi # imm = 0xFFFF800000119EB5
+ffff800000115ed7: 44 89 fe             	movl	%r15d, %esi
+ffff800000115eda: 4c 89 e2             	movq	%r12, %rdx
+ffff800000115edd: 31 c0                	xorl	%eax, %eax
+ffff800000115edf: 48 b9 b0 d4 10 00 00 80 ff ff	movabsq	$-140737487252304, %rcx # imm = 0xFFFF80000010D4B0
+ffff800000115ee9: ff d1                	callq	*%rcx
+ffff800000115eeb: 48 b8 00 f0 ff ff ff ff 00 00	movabsq	$281474976706560, %rax # imm = 0xFFFFFFFFF000
+ffff800000115ef5: 49 21 c4             	andq	%rax, %r12
+ffff800000115ef8: 45 31 ed             	xorl	%r13d, %r13d
+ffff800000115efb: eb 10                	jmp	0xffff800000115f0d <debug_print+0x18d>
+ffff800000115efd: 0f 1f 00             	nopl	(%rax)
 ; 				for(int l = 0; l < PAGE_TABLE_ENTRIES; l++){
-ffff800000115f20: 49 83 c5 01          	addq	$1, %r13
-ffff800000115f24: 49 81 fd 00 02 00 00 	cmpq	$512, %r13              # imm = 0x200
-ffff800000115f2b: 74 91                	je	0xffff800000115ebe <debug_print+0x11e>
+ffff800000115f00: 49 83 c5 01          	addq	$1, %r13
+ffff800000115f04: 49 81 fd 00 02 00 00 	cmpq	$512, %r13              # imm = 0x200
+ffff800000115f0b: 74 91                	je	0xffff800000115e9e <debug_print+0x11e>
 ; 					struct page_table *ptbl = KADDR(PAGE_ADDR(entry3));
-ffff800000115f2d: 48 89 df             	movq	%rbx, %rdi
-ffff800000115f30: be ca 00 00 00       	movl	$202, %esi
-ffff800000115f35: 4c 89 e2             	movq	%r12, %rdx
-ffff800000115f38: 41 ff d6             	callq	*%r14
+ffff800000115f0d: 48 89 df             	movq	%rbx, %rdi
+ffff800000115f10: be ca 00 00 00       	movl	$202, %esi
+ffff800000115f15: 4c 89 e2             	movq	%r12, %rdx
+ffff800000115f18: 41 ff d6             	callq	*%r14
 ; 					physaddr_t entry4 = ptbl->entries[l];
-ffff800000115f3b: 4a 8b 14 e8          	movq	(%rax,%r13,8), %rdx
+ffff800000115f1b: 4a 8b 14 e8          	movq	(%rax,%r13,8), %rdx
 ; 					if(entry4 == 0)continue;
-ffff800000115f3f: 48 85 d2             	testq	%rdx, %rdx
-ffff800000115f42: 74 dc                	je	0xffff800000115f20 <debug_print+0x180>
+ffff800000115f1f: 48 85 d2             	testq	%rdx, %rdx
+ffff800000115f22: 74 dc                	je	0xffff800000115f00 <debug_print+0x180>
 ; 					cprintf("			entry %d %p\n", l, entry4);
-ffff800000115f44: 48 bf bb b5 11 00 00 80 ff ff	movabsq	$-140737487194693, %rdi # imm = 0xFFFF80000011B5BB
-ffff800000115f4e: 44 89 ee             	movl	%r13d, %esi
-ffff800000115f51: 31 c0                	xorl	%eax, %eax
-ffff800000115f53: 48 b9 b0 d4 10 00 00 80 ff ff	movabsq	$-140737487252304, %rcx # imm = 0xFFFF80000010D4B0
-ffff800000115f5d: ff d1                	callq	*%rcx
-ffff800000115f5f: eb bf                	jmp	0xffff800000115f20 <debug_print+0x180>
+ffff800000115f24: 48 bf bb b5 11 00 00 80 ff ff	movabsq	$-140737487194693, %rdi # imm = 0xFFFF80000011B5BB
+ffff800000115f2e: 44 89 ee             	movl	%r13d, %esi
+ffff800000115f31: 31 c0                	xorl	%eax, %eax
+ffff800000115f33: 48 b9 b0 d4 10 00 00 80 ff ff	movabsq	$-140737487252304, %rcx # imm = 0xFFFF80000010D4B0
+ffff800000115f3d: ff d1                	callq	*%rcx
+ffff800000115f3f: eb bf                	jmp	0xffff800000115f00 <debug_print+0x180>
 ; }
-ffff800000115f61: 48 83 c4 28          	addq	$40, %rsp
-ffff800000115f65: 5b                   	popq	%rbx
-ffff800000115f66: 41 5c                	popq	%r12
-ffff800000115f68: 41 5d                	popq	%r13
-ffff800000115f6a: 41 5e                	popq	%r14
-ffff800000115f6c: 41 5f                	popq	%r15
-ffff800000115f6e: 5d                   	popq	%rbp
-ffff800000115f6f: c3                   	retq
+ffff800000115f41: 48 83 c4 28          	addq	$40, %rsp
+ffff800000115f45: 5b                   	popq	%rbx
+ffff800000115f46: 41 5c                	popq	%r12
+ffff800000115f48: 41 5d                	popq	%r13
+ffff800000115f4a: 41 5e                	popq	%r14
+ffff800000115f4c: 41 5f                	popq	%r15
+ffff800000115f4e: 5d                   	popq	%rbp
+ffff800000115f4f: c3                   	retq
 
-ffff800000115f70 <_kaddr>:
+ffff800000115f50 <_kaddr>:
 ; {
-ffff800000115f70: 55                   	pushq	%rbp
-ffff800000115f71: 48 89 e5             	movq	%rsp, %rbp
-ffff800000115f74: 48 89 d0             	movq	%rdx, %rax
+ffff800000115f50: 55                   	pushq	%rbp
+ffff800000115f51: 48 89 e5             	movq	%rsp, %rbp
+ffff800000115f54: 48 89 d0             	movq	%rdx, %rax
 ; 	if (PAGE_INDEX(pa) >= npages)
-ffff800000115f77: 48 89 d1             	movq	%rdx, %rcx
-ffff800000115f7a: 48 c1 e9 0c          	shrq	$12, %rcx
-ffff800000115f7e: 48 ba e0 02 17 00 00 80 ff ff	movabsq	$-140737486847264, %rdx # imm = 0xFFFF8000001702E0
-ffff800000115f88: 48 3b 0a             	cmpq	(%rdx), %rcx
-ffff800000115f8b: 73 0f                	jae	0xffff800000115f9c <_kaddr+0x2c>
-ffff800000115f8d: 48 b9 00 00 00 00 00 80 ff ff	movabsq	$-140737488355328, %rcx # imm = 0xFFFF800000000000
+ffff800000115f57: 48 89 d1             	movq	%rdx, %rcx
+ffff800000115f5a: 48 c1 e9 0c          	shrq	$12, %rcx
+ffff800000115f5e: 48 ba e0 02 17 00 00 80 ff ff	movabsq	$-140737486847264, %rdx # imm = 0xFFFF8000001702E0
+ffff800000115f68: 48 3b 0a             	cmpq	(%rdx), %rcx
+ffff800000115f6b: 73 0f                	jae	0xffff800000115f7c <_kaddr+0x2c>
+ffff800000115f6d: 48 b9 00 00 00 00 00 80 ff ff	movabsq	$-140737488355328, %rcx # imm = 0xFFFF800000000000
 ; 	return (void *)(pa + KERNEL_VMA);
-ffff800000115f97: 48 01 c8             	addq	%rcx, %rax
-ffff800000115f9a: 5d                   	popq	%rbp
-ffff800000115f9b: c3                   	retq
+ffff800000115f77: 48 01 c8             	addq	%rcx, %rax
+ffff800000115f7a: 5d                   	popq	%rbp
+ffff800000115f7b: c3                   	retq
 ; 		_panic(file, line, "KADDR called with invalid pa %08lx", pa);
-ffff800000115f9c: 48 ba 9d ab 11 00 00 80 ff ff	movabsq	$-140737487197283, %rdx # imm = 0xFFFF80000011AB9D
-ffff800000115fa6: 49 b8 20 c9 10 00 00 80 ff ff	movabsq	$-140737487255264, %r8 # imm = 0xFFFF80000010C920
-ffff800000115fb0: 48 89 c1             	movq	%rax, %rcx
-ffff800000115fb3: 31 c0                	xorl	%eax, %eax
-ffff800000115fb5: 41 ff d0             	callq	*%r8
-ffff800000115fb8: 0f 1f 84 00 00 00 00 00      	nopl	(%rax,%rax)
+ffff800000115f7c: 48 ba 9d ab 11 00 00 80 ff ff	movabsq	$-140737487197283, %rdx # imm = 0xFFFF80000011AB9D
+ffff800000115f86: 49 b8 20 c9 10 00 00 80 ff ff	movabsq	$-140737487255264, %r8 # imm = 0xFFFF80000010C920
+ffff800000115f90: 48 89 c1             	movq	%rax, %rcx
+ffff800000115f93: 31 c0                	xorl	%eax, %eax
+ffff800000115f95: 41 ff d0             	callq	*%r8
+ffff800000115f98: 0f 1f 84 00 00 00 00 00      	nopl	(%rax,%rax)
 
-ffff800000115fc0 <debug_va_to_idx>:
+ffff800000115fa0 <debug_va_to_idx>:
 ; void debug_va_to_idx(uintptr_t va){
-ffff800000115fc0: 55                   	pushq	%rbp
-ffff800000115fc1: 48 89 e5             	movq	%rsp, %rbp
-ffff800000115fc4: 48 89 fe             	movq	%rdi, %rsi
+ffff800000115fa0: 55                   	pushq	%rbp
+ffff800000115fa1: 48 89 e5             	movq	%rsp, %rbp
+ffff800000115fa4: 48 89 fe             	movq	%rdi, %rsi
 ; 	cprintf("va: %p is found at: pml4: %d pdpt: %d  pdir %d ptbl %d\n", va, PML4_INDEX(va) % 512, PDPT_INDEX(va) % 512, PAGE_DIR_INDEX(va) % 512, PAGE_INDEX(va) % 512);
-ffff800000115fc7: 48 89 fa             	movq	%rdi, %rdx
-ffff800000115fca: 48 c1 ea 27          	shrq	$39, %rdx
-ffff800000115fce: 81 e2 ff 01 00 00    	andl	$511, %edx              # imm = 0x1FF
-ffff800000115fd4: 48 89 f9             	movq	%rdi, %rcx
-ffff800000115fd7: 48 c1 e9 1e          	shrq	$30, %rcx
-ffff800000115fdb: 81 e1 ff 01 00 00    	andl	$511, %ecx              # imm = 0x1FF
-ffff800000115fe1: 41 89 f0             	movl	%esi, %r8d
-ffff800000115fe4: 41 c1 e8 15          	shrl	$21, %r8d
-ffff800000115fe8: 41 81 e0 ff 01 00 00 	andl	$511, %r8d              # imm = 0x1FF
-ffff800000115fef: 41 89 f1             	movl	%esi, %r9d
-ffff800000115ff2: 41 c1 e9 0c          	shrl	$12, %r9d
-ffff800000115ff6: 41 81 e1 ff 01 00 00 	andl	$511, %r9d              # imm = 0x1FF
-ffff800000115ffd: 48 bf e9 ab 11 00 00 80 ff ff	movabsq	$-140737487197207, %rdi # imm = 0xFFFF80000011ABE9
-ffff800000116007: 49 ba b0 d4 10 00 00 80 ff ff	movabsq	$-140737487252304, %r10 # imm = 0xFFFF80000010D4B0
-ffff800000116011: 31 c0                	xorl	%eax, %eax
-ffff800000116013: 41 ff d2             	callq	*%r10
+ffff800000115fa7: 48 89 fa             	movq	%rdi, %rdx
+ffff800000115faa: 48 c1 ea 27          	shrq	$39, %rdx
+ffff800000115fae: 81 e2 ff 01 00 00    	andl	$511, %edx              # imm = 0x1FF
+ffff800000115fb4: 48 89 f9             	movq	%rdi, %rcx
+ffff800000115fb7: 48 c1 e9 1e          	shrq	$30, %rcx
+ffff800000115fbb: 81 e1 ff 01 00 00    	andl	$511, %ecx              # imm = 0x1FF
+ffff800000115fc1: 41 89 f0             	movl	%esi, %r8d
+ffff800000115fc4: 41 c1 e8 15          	shrl	$21, %r8d
+ffff800000115fc8: 41 81 e0 ff 01 00 00 	andl	$511, %r8d              # imm = 0x1FF
+ffff800000115fcf: 41 89 f1             	movl	%esi, %r9d
+ffff800000115fd2: 41 c1 e9 0c          	shrl	$12, %r9d
+ffff800000115fd6: 41 81 e1 ff 01 00 00 	andl	$511, %r9d              # imm = 0x1FF
+ffff800000115fdd: 48 bf e9 ab 11 00 00 80 ff ff	movabsq	$-140737487197207, %rdi # imm = 0xFFFF80000011ABE9
+ffff800000115fe7: 49 ba b0 d4 10 00 00 80 ff ff	movabsq	$-140737487252304, %r10 # imm = 0xFFFF80000010D4B0
+ffff800000115ff1: 31 c0                	xorl	%eax, %eax
+ffff800000115ff3: 41 ff d2             	callq	*%r10
 ; }
-ffff800000116016: 5d                   	popq	%rbp
-ffff800000116017: c3                   	retq
-ffff800000116018: 0f 1f 84 00 00 00 00 00      	nopl	(%rax,%rax)
+ffff800000115ff6: 5d                   	popq	%rbp
+ffff800000115ff7: c3                   	retq
+ffff800000115ff8: 0f 1f 84 00 00 00 00 00      	nopl	(%rax,%rax)
 
-ffff800000116020 <task_create>:
+ffff800000116000 <task_create>:
 ; {
-ffff800000116020: 55                   	pushq	%rbp
-ffff800000116021: 48 89 e5             	movq	%rsp, %rbp
-ffff800000116024: 41 57                	pushq	%r15
-ffff800000116026: 41 56                	pushq	%r14
-ffff800000116028: 53                   	pushq	%rbx
-ffff800000116029: 50                   	pushq	%rax
-ffff80000011602a: 41 89 f6             	movl	%esi, %r14d
-ffff80000011602d: 49 89 ff             	movq	%rdi, %r15
+ffff800000116000: 55                   	pushq	%rbp
+ffff800000116001: 48 89 e5             	movq	%rsp, %rbp
+ffff800000116004: 41 57                	pushq	%r15
+ffff800000116006: 41 56                	pushq	%r14
+ffff800000116008: 53                   	pushq	%rbx
+ffff800000116009: 50                   	pushq	%rax
+ffff80000011600a: 41 89 f6             	movl	%esi, %r14d
+ffff80000011600d: 49 89 ff             	movq	%rdi, %r15
 ; 	struct task* task = task_alloc(0);
-ffff800000116030: 48 b8 70 5b 11 00 00 80 ff ff	movabsq	$-140737487217808, %rax # imm = 0xFFFF800000115B70
-ffff80000011603a: 31 ff                	xorl	%edi, %edi
-ffff80000011603c: ff d0                	callq	*%rax
+ffff800000116010: 48 b8 50 5b 11 00 00 80 ff ff	movabsq	$-140737487217840, %rax # imm = 0xFFFF800000115B50
+ffff80000011601a: 31 ff                	xorl	%edi, %edi
+ffff80000011601c: ff d0                	callq	*%rax
 ; 	if(!task)return;
-ffff80000011603e: 48 85 c0             	testq	%rax, %rax
-ffff800000116041: 74 39                	je	0xffff80000011607c <task_create+0x5c>
-ffff800000116043: 48 89 c3             	movq	%rax, %rbx
+ffff80000011601e: 48 85 c0             	testq	%rax, %rax
+ffff800000116021: 74 39                	je	0xffff80000011605c <task_create+0x5c>
+ffff800000116023: 48 89 c3             	movq	%rax, %rbx
 ; 	task_load_elf(task, binary);
-ffff800000116046: 48 b8 90 60 11 00 00 80 ff ff	movabsq	$-140737487216496, %rax # imm = 0xFFFF800000116090
-ffff800000116050: 48 89 df             	movq	%rbx, %rdi
-ffff800000116053: 4c 89 fe             	movq	%r15, %rsi
-ffff800000116056: ff d0                	callq	*%rax
+ffff800000116026: 48 b8 70 60 11 00 00 80 ff ff	movabsq	$-140737487216528, %rax # imm = 0xFFFF800000116070
+ffff800000116030: 48 89 df             	movq	%rbx, %rdi
+ffff800000116033: 4c 89 fe             	movq	%r15, %rsi
+ffff800000116036: ff d0                	callq	*%rax
 ; 	task->task_type = type;
-ffff800000116058: 44 89 b3 c8 00 00 00 	movl	%r14d, 200(%rbx)
+ffff800000116038: 44 89 b3 c8 00 00 00 	movl	%r14d, 200(%rbx)
 ; 	if(type == TASK_TYPE_USER)nuser_tasks++;
-ffff80000011605f: 45 85 f6             	testl	%r14d, %r14d
-ffff800000116062: 75 0e                	jne	0xffff800000116072 <task_create+0x52>
-ffff800000116064: 48 b8 80 1e 17 00 00 80 ff ff	movabsq	$-140737486840192, %rax # imm = 0xFFFF800000171E80
-ffff80000011606e: 48 83 00 01          	addq	$1, (%rax)
+ffff80000011603f: 45 85 f6             	testl	%r14d, %r14d
+ffff800000116042: 75 0e                	jne	0xffff800000116052 <task_create+0x52>
+ffff800000116044: 48 b8 80 1e 17 00 00 80 ff ff	movabsq	$-140737486840192, %rax # imm = 0xFFFF800000171E80
+ffff80000011604e: 48 83 00 01          	addq	$1, (%rax)
 ; 	task->task_ppid = 0;
-ffff800000116072: c7 83 c4 00 00 00 00 00 00 00	movl	$0, 196(%rbx)
+ffff800000116052: c7 83 c4 00 00 00 00 00 00 00	movl	$0, 196(%rbx)
 ; }
-ffff80000011607c: 48 83 c4 08          	addq	$8, %rsp
-ffff800000116080: 5b                   	popq	%rbx
-ffff800000116081: 41 5e                	popq	%r14
-ffff800000116083: 41 5f                	popq	%r15
-ffff800000116085: 5d                   	popq	%rbp
-ffff800000116086: c3                   	retq
-ffff800000116087: 66 0f 1f 84 00 00 00 00 00   	nopw	(%rax,%rax)
+ffff80000011605c: 48 83 c4 08          	addq	$8, %rsp
+ffff800000116060: 5b                   	popq	%rbx
+ffff800000116061: 41 5e                	popq	%r14
+ffff800000116063: 41 5f                	popq	%r15
+ffff800000116065: 5d                   	popq	%rbp
+ffff800000116066: c3                   	retq
+ffff800000116067: 66 0f 1f 84 00 00 00 00 00   	nopw	(%rax,%rax)
 
-ffff800000116090 <task_load_elf>:
+ffff800000116070 <task_load_elf>:
 ; {
-ffff800000116090: 55                   	pushq	%rbp
-ffff800000116091: 48 89 e5             	movq	%rsp, %rbp
-ffff800000116094: 41 57                	pushq	%r15
-ffff800000116096: 41 56                	pushq	%r14
-ffff800000116098: 41 55                	pushq	%r13
-ffff80000011609a: 41 54                	pushq	%r12
-ffff80000011609c: 53                   	pushq	%rbx
-ffff80000011609d: 50                   	pushq	%rax
+ffff800000116070: 55                   	pushq	%rbp
+ffff800000116071: 48 89 e5             	movq	%rsp, %rbp
+ffff800000116074: 41 57                	pushq	%r15
+ffff800000116076: 41 56                	pushq	%r14
+ffff800000116078: 41 55                	pushq	%r13
+ffff80000011607a: 41 54                	pushq	%r12
+ffff80000011607c: 53                   	pushq	%rbx
+ffff80000011607d: 50                   	pushq	%rax
 ; 	if (elf->e_magic != ELF_MAGIC) {
-ffff80000011609e: 8b 0e                	movl	(%rsi), %ecx
-ffff8000001160a0: 81 f9 7f 45 4c 46    	cmpl	$1179403647, %ecx       # imm = 0x464C457F
-ffff8000001160a6: 0f 85 66 02 00 00    	jne	0xffff800000116312 <task_load_elf+0x282>
-ffff8000001160ac: 48 89 f3             	movq	%rsi, %rbx
+ffff80000011607e: 8b 0e                	movl	(%rsi), %ecx
+ffff800000116080: 81 f9 7f 45 4c 46    	cmpl	$1179403647, %ecx       # imm = 0x464C457F
+ffff800000116086: 0f 85 66 02 00 00    	jne	0xffff8000001162f2 <task_load_elf+0x282>
+ffff80000011608c: 48 89 f3             	movq	%rsi, %rbx
 ; 	struct elf_proghdr *prog_headers = (struct elf_proghdr *)(binary + elf->e_phoff);
-ffff8000001160af: 4c 8b 7e 20          	movq	32(%rsi), %r15
+ffff80000011608f: 4c 8b 7e 20          	movq	32(%rsi), %r15
 ; 	assert(elf->e_phoff != 0);
-ffff8000001160b3: 4d 85 ff             	testq	%r15, %r15
-ffff8000001160b6: 0f 84 83 02 00 00    	je	0xffff80000011633f <task_load_elf+0x2af>
-ffff8000001160bc: 49 89 fe             	movq	%rdi, %r14
+ffff800000116093: 4d 85 ff             	testq	%r15, %r15
+ffff800000116096: 0f 84 83 02 00 00    	je	0xffff80000011631f <task_load_elf+0x2af>
+ffff80000011609c: 49 89 fe             	movq	%rdi, %r14
 ; 	load_pml4((struct page_table*)PADDR(task->task_pml4));
-ffff8000001160bf: 48 8b b7 d8 00 00 00 	movq	216(%rdi), %rsi
-ffff8000001160c6: 48 b8 60 64 11 00 00 80 ff ff	movabsq	$-140737487215520, %rax # imm = 0xFFFF800000116460
-ffff8000001160d0: bf f7 00 00 00       	movl	$247, %edi
-ffff8000001160d5: ff d0                	callq	*%rax
-ffff8000001160d7: 48 b9 40 64 11 00 00 80 ff ff	movabsq	$-140737487215552, %rcx # imm = 0xFFFF800000116440
-ffff8000001160e1: 48 89 c7             	movq	%rax, %rdi
-ffff8000001160e4: ff d1                	callq	*%rcx
+ffff80000011609f: 48 8b b7 d8 00 00 00 	movq	216(%rdi), %rsi
+ffff8000001160a6: 48 b8 40 64 11 00 00 80 ff ff	movabsq	$-140737487215552, %rax # imm = 0xFFFF800000116440
+ffff8000001160b0: bf f7 00 00 00       	movl	$247, %edi
+ffff8000001160b5: ff d0                	callq	*%rax
+ffff8000001160b7: 48 b9 20 64 11 00 00 80 ff ff	movabsq	$-140737487215584, %rcx # imm = 0xFFFF800000116420
+ffff8000001160c1: 48 89 c7             	movq	%rax, %rdi
+ffff8000001160c4: ff d1                	callq	*%rcx
 ; 	for(int i = 0; i < elf->e_phnum; i++){
-ffff8000001160e6: 66 83 7b 38 00       	cmpw	$0, 56(%rbx)
-ffff8000001160eb: 0f 84 fe 00 00 00    	je	0xffff8000001161ef <task_load_elf+0x15f>
-ffff8000001160f1: 4d 8d 2c 1f          	leaq	(%r15,%rbx), %r13
-ffff8000001160f5: 49 83 c5 28          	addq	$40, %r13
-ffff8000001160f9: 45 31 ff             	xorl	%r15d, %r15d
-ffff8000001160fc: 48 b8 07 00 00 00 00 00 00 80	movabsq	$-9223372036854775801, %rax # imm = 0x8000000000000007
-ffff800000116106: 4c 8d 60 f9          	leaq	-7(%rax), %r12
-ffff80000011610a: eb 39                	jmp	0xffff800000116145 <task_load_elf+0xb5>
+ffff8000001160c6: 66 83 7b 38 00       	cmpw	$0, 56(%rbx)
+ffff8000001160cb: 0f 84 fe 00 00 00    	je	0xffff8000001161cf <task_load_elf+0x15f>
+ffff8000001160d1: 4d 8d 2c 1f          	leaq	(%r15,%rbx), %r13
+ffff8000001160d5: 49 83 c5 28          	addq	$40, %r13
+ffff8000001160d9: 45 31 ff             	xorl	%r15d, %r15d
+ffff8000001160dc: 48 b8 07 00 00 00 00 00 00 80	movabsq	$-9223372036854775801, %rax # imm = 0x8000000000000007
+ffff8000001160e6: 4c 8d 60 f9          	leaq	-7(%rax), %r12
+ffff8000001160ea: eb 39                	jmp	0xffff800000116125 <task_load_elf+0xb5>
 ; 			memset((void*)ph->p_va, 0, ph->p_memsz);
-ffff80000011610c: 49 8b 7d e8          	movq	-24(%r13), %rdi
-ffff800000116110: 49 8b 55 00          	movq	(%r13), %rdx
-ffff800000116114: 31 f6                	xorl	%esi, %esi
-ffff800000116116: 48 b8 50 09 11 00 00 80 ff ff	movabsq	$-140737487238832, %rax # imm = 0xFFFF800000110950
-ffff800000116120: ff d0                	callq	*%rax
-ffff800000116122: 66 2e 0f 1f 84 00 00 00 00 00	nopw	%cs:(%rax,%rax)
-ffff80000011612c: 0f 1f 40 00          	nopl	(%rax)
+ffff8000001160ec: 49 8b 7d e8          	movq	-24(%r13), %rdi
+ffff8000001160f0: 49 8b 55 00          	movq	(%r13), %rdx
+ffff8000001160f4: 31 f6                	xorl	%esi, %esi
+ffff8000001160f6: 48 b8 50 09 11 00 00 80 ff ff	movabsq	$-140737487238832, %rax # imm = 0xFFFF800000110950
+ffff800000116100: ff d0                	callq	*%rax
+ffff800000116102: 66 2e 0f 1f 84 00 00 00 00 00	nopw	%cs:(%rax,%rax)
+ffff80000011610c: 0f 1f 40 00          	nopl	(%rax)
 ; 	for(int i = 0; i < elf->e_phnum; i++){
-ffff800000116130: 49 83 c7 01          	addq	$1, %r15
-ffff800000116134: 0f b7 43 38          	movzwl	56(%rbx), %eax
-ffff800000116138: 49 83 c5 38          	addq	$56, %r13
-ffff80000011613c: 49 39 c7             	cmpq	%rax, %r15
-ffff80000011613f: 0f 83 aa 00 00 00    	jae	0xffff8000001161ef <task_load_elf+0x15f>
+ffff800000116110: 49 83 c7 01          	addq	$1, %r15
+ffff800000116114: 0f b7 43 38          	movzwl	56(%rbx), %eax
+ffff800000116118: 49 83 c5 38          	addq	$56, %r13
+ffff80000011611c: 49 39 c7             	cmpq	%rax, %r15
+ffff80000011611f: 0f 83 aa 00 00 00    	jae	0xffff8000001161cf <task_load_elf+0x15f>
 ; 		if(!(ph->p_type & ELF_PROG_LOAD)){
-ffff800000116145: 41 f6 45 d8 01       	testb	$1, -40(%r13)
-ffff80000011614a: 74 e4                	je	0xffff800000116130 <task_load_elf+0xa0>
+ffff800000116125: 41 f6 45 d8 01       	testb	$1, -40(%r13)
+ffff80000011612a: 74 e4                	je	0xffff800000116110 <task_load_elf+0xa0>
 ; 		if(ph->p_va == 0 || ph->p_memsz == 0){
-ffff80000011614c: 49 8b 75 e8          	movq	-24(%r13), %rsi
-ffff800000116150: 48 85 f6             	testq	%rsi, %rsi
-ffff800000116153: 74 db                	je	0xffff800000116130 <task_load_elf+0xa0>
-ffff800000116155: 49 8b 55 00          	movq	(%r13), %rdx
-ffff800000116159: 48 85 d2             	testq	%rdx, %rdx
-ffff80000011615c: 74 d2                	je	0xffff800000116130 <task_load_elf+0xa0>
+ffff80000011612c: 49 8b 75 e8          	movq	-24(%r13), %rsi
+ffff800000116130: 48 85 f6             	testq	%rsi, %rsi
+ffff800000116133: 74 db                	je	0xffff800000116110 <task_load_elf+0xa0>
+ffff800000116135: 49 8b 55 00          	movq	(%r13), %rdx
+ffff800000116139: 48 85 d2             	testq	%rdx, %rdx
+ffff80000011613c: 74 d2                	je	0xffff800000116110 <task_load_elf+0xa0>
 ; 		assert(ph->p_offset != 0);
-ffff80000011615e: 49 83 7d e0 00       	cmpq	$0, -32(%r13)
-ffff800000116163: 0f 84 f9 00 00 00    	je	0xffff800000116262 <task_load_elf+0x1d2>
+ffff80000011613e: 49 83 7d e0 00       	cmpq	$0, -32(%r13)
+ffff800000116143: 0f 84 f9 00 00 00    	je	0xffff800000116242 <task_load_elf+0x1d2>
 ; 		if(ph->p_flags & ELF_PROG_FLAG_WRITE) flags |= PAGE_WRITE | PAGE_NO_EXEC;
-ffff800000116169: 41 8b 45 dc          	movl	-36(%r13), %eax
-ffff80000011616d: bf 05 00 00 00       	movl	$5, %edi
-ffff800000116172: a8 02                	testb	$2, %al
-ffff800000116174: 74 0a                	je	0xffff800000116180 <task_load_elf+0xf0>
-ffff800000116176: 48 bf 07 00 00 00 00 00 00 80	movabsq	$-9223372036854775801, %rdi # imm = 0x8000000000000007
+ffff800000116149: 41 8b 45 dc          	movl	-36(%r13), %eax
+ffff80000011614d: bf 05 00 00 00       	movl	$5, %edi
+ffff800000116152: a8 02                	testb	$2, %al
+ffff800000116154: 74 0a                	je	0xffff800000116160 <task_load_elf+0xf0>
+ffff800000116156: 48 bf 07 00 00 00 00 00 00 80	movabsq	$-9223372036854775801, %rdi # imm = 0x8000000000000007
 ; 		if(!(ph->p_flags & ELF_PROG_FLAG_EXEC)){
-ffff800000116180: 48 89 f9             	movq	%rdi, %rcx
-ffff800000116183: 4c 09 e1             	orq	%r12, %rcx
-ffff800000116186: a8 01                	testb	$1, %al
-ffff800000116188: 48 0f 45 cf          	cmovneq	%rdi, %rcx
+ffff800000116160: 48 89 f9             	movq	%rdi, %rcx
+ffff800000116163: 4c 09 e1             	orq	%r12, %rcx
+ffff800000116166: a8 01                	testb	$1, %al
+ffff800000116168: 48 0f 45 cf          	cmovneq	%rdi, %rcx
 ; 		if(ph->p_va + ph->p_memsz >= KERNEL_VMA){
-ffff80000011618c: 48 8d 04 32          	leaq	(%rdx,%rsi), %rax
-ffff800000116190: 48 c1 e8 2f          	shrq	$47, %rax
-ffff800000116194: 3d ff ff 01 00       	cmpl	$131071, %eax           # imm = 0x1FFFF
-ffff800000116199: 0f 83 f4 00 00 00    	jae	0xffff800000116293 <task_load_elf+0x203>
+ffff80000011616c: 48 8d 04 32          	leaq	(%rdx,%rsi), %rax
+ffff800000116170: 48 c1 e8 2f          	shrq	$47, %rax
+ffff800000116174: 3d ff ff 01 00       	cmpl	$131071, %eax           # imm = 0x1FFFF
+ffff800000116179: 0f 83 f4 00 00 00    	jae	0xffff800000116273 <task_load_elf+0x203>
 ; 		if(ph->p_memsz < ph->p_filesz && ph->p_filesz > 0){
-ffff80000011619f: 49 3b 55 f8          	cmpq	-8(%r13), %rdx
-ffff8000001161a3: 0f 82 11 01 00 00    	jb	0xffff8000001162ba <task_load_elf+0x22a>
+ffff80000011617f: 49 3b 55 f8          	cmpq	-8(%r13), %rdx
+ffff800000116183: 0f 82 11 01 00 00    	jb	0xffff80000011629a <task_load_elf+0x22a>
 ; 		populate_region(task->task_pml4, (void*)ph->p_va, ph->p_memsz, flags);
-ffff8000001161a9: 49 8b be d8 00 00 00 	movq	216(%r14), %rdi
-ffff8000001161b0: 48 b8 50 46 11 00 00 80 ff ff	movabsq	$-140737487223216, %rax # imm = 0xFFFF800000114650
-ffff8000001161ba: ff d0                	callq	*%rax
+ffff800000116189: 49 8b be d8 00 00 00 	movq	216(%r14), %rdi
+ffff800000116190: 48 b8 50 46 11 00 00 80 ff ff	movabsq	$-140737487223216, %rax # imm = 0xFFFF800000114650
+ffff80000011619a: ff d0                	callq	*%rax
 ; 		if(ph->p_filesz > 0){
-ffff8000001161bc: 49 8b 55 f8          	movq	-8(%r13), %rdx
-ffff8000001161c0: 48 85 d2             	testq	%rdx, %rdx
-ffff8000001161c3: 0f 84 43 ff ff ff    	je	0xffff80000011610c <task_load_elf+0x7c>
+ffff80000011619c: 49 8b 55 f8          	movq	-8(%r13), %rdx
+ffff8000001161a0: 48 85 d2             	testq	%rdx, %rdx
+ffff8000001161a3: 0f 84 43 ff ff ff    	je	0xffff8000001160ec <task_load_elf+0x7c>
 ; 			assert(ph->p_filesz == ph->p_memsz);
-ffff8000001161c9: 49 3b 55 00          	cmpq	(%r13), %rdx
-ffff8000001161cd: 0f 85 0e 01 00 00    	jne	0xffff8000001162e1 <task_load_elf+0x251>
+ffff8000001161a9: 49 3b 55 00          	cmpq	(%r13), %rdx
+ffff8000001161ad: 0f 85 0e 01 00 00    	jne	0xffff8000001162c1 <task_load_elf+0x251>
 ; 			memcpy((void*)ph->p_va, binary + ph->p_offset, ph->p_filesz);
-ffff8000001161d3: 49 8b 7d e8          	movq	-24(%r13), %rdi
-ffff8000001161d7: 49 8b 75 e0          	movq	-32(%r13), %rsi
-ffff8000001161db: 48 01 de             	addq	%rbx, %rsi
-ffff8000001161de: 48 b8 20 0a 11 00 00 80 ff ff	movabsq	$-140737487238624, %rax # imm = 0xFFFF800000110A20
-ffff8000001161e8: ff d0                	callq	*%rax
-ffff8000001161ea: e9 41 ff ff ff       	jmp	0xffff800000116130 <task_load_elf+0xa0>
+ffff8000001161b3: 49 8b 7d e8          	movq	-24(%r13), %rdi
+ffff8000001161b7: 49 8b 75 e0          	movq	-32(%r13), %rsi
+ffff8000001161bb: 48 01 de             	addq	%rbx, %rsi
+ffff8000001161be: 48 b8 20 0a 11 00 00 80 ff ff	movabsq	$-140737487238624, %rax # imm = 0xFFFF800000110A20
+ffff8000001161c8: ff d0                	callq	*%rax
+ffff8000001161ca: e9 41 ff ff ff       	jmp	0xffff800000116110 <task_load_elf+0xa0>
 ; 	load_pml4((void*)PADDR(kernel_pml4));
-ffff8000001161ef: 48 b8 f8 02 17 00 00 80 ff ff	movabsq	$-140737486847240, %rax # imm = 0xFFFF8000001702F8
-ffff8000001161f9: 48 8b 30             	movq	(%rax), %rsi
-ffff8000001161fc: bf 1a 01 00 00       	movl	$282, %edi              # imm = 0x11A
-ffff800000116201: 48 b8 60 64 11 00 00 80 ff ff	movabsq	$-140737487215520, %rax # imm = 0xFFFF800000116460
-ffff80000011620b: ff d0                	callq	*%rax
-ffff80000011620d: 48 89 c7             	movq	%rax, %rdi
-ffff800000116210: 48 b8 40 64 11 00 00 80 ff ff	movabsq	$-140737487215552, %rax # imm = 0xFFFF800000116440
-ffff80000011621a: ff d0                	callq	*%rax
+ffff8000001161cf: 48 b8 f8 02 17 00 00 80 ff ff	movabsq	$-140737486847240, %rax # imm = 0xFFFF8000001702F8
+ffff8000001161d9: 48 8b 30             	movq	(%rax), %rsi
+ffff8000001161dc: bf 1a 01 00 00       	movl	$282, %edi              # imm = 0x11A
+ffff8000001161e1: 48 b8 40 64 11 00 00 80 ff ff	movabsq	$-140737487215552, %rax # imm = 0xFFFF800000116440
+ffff8000001161eb: ff d0                	callq	*%rax
+ffff8000001161ed: 48 89 c7             	movq	%rax, %rdi
+ffff8000001161f0: 48 b8 20 64 11 00 00 80 ff ff	movabsq	$-140737487215584, %rax # imm = 0xFFFF800000116420
+ffff8000001161fa: ff d0                	callq	*%rax
 ; 	populate_region(task->task_pml4, (void*)USTACK_TOP - PAGE_SIZE, PAGE_SIZE, PAGE_PRESENT | PAGE_WRITE | PAGE_USER | PAGE_NO_EXEC);
-ffff80000011621c: 49 8b be d8 00 00 00 	movq	216(%r14), %rdi
-ffff800000116223: 48 be 00 d0 ff ff ff 7f 00 00	movabsq	$140737488343040, %rsi # imm = 0x7FFFFFFFD000
-ffff80000011622d: ba 00 10 00 00       	movl	$4096, %edx             # imm = 0x1000
-ffff800000116232: 48 b9 07 00 00 00 00 00 00 80	movabsq	$-9223372036854775801, %rcx # imm = 0x8000000000000007
-ffff80000011623c: 48 b8 50 46 11 00 00 80 ff ff	movabsq	$-140737487223216, %rax # imm = 0xFFFF800000114650
-ffff800000116246: ff d0                	callq	*%rax
+ffff8000001161fc: 49 8b be d8 00 00 00 	movq	216(%r14), %rdi
+ffff800000116203: 48 be 00 d0 ff ff ff 7f 00 00	movabsq	$140737488343040, %rsi # imm = 0x7FFFFFFFD000
+ffff80000011620d: ba 00 10 00 00       	movl	$4096, %edx             # imm = 0x1000
+ffff800000116212: 48 b9 07 00 00 00 00 00 00 80	movabsq	$-9223372036854775801, %rcx # imm = 0x8000000000000007
+ffff80000011621c: 48 b8 50 46 11 00 00 80 ff ff	movabsq	$-140737487223216, %rax # imm = 0xFFFF800000114650
+ffff800000116226: ff d0                	callq	*%rax
 ; 	task->task_frame.rip = elf->e_entry;
-ffff800000116248: 48 8b 43 18          	movq	24(%rbx), %rax
-ffff80000011624c: 49 89 86 90 00 00 00 	movq	%rax, 144(%r14)
+ffff800000116228: 48 8b 43 18          	movq	24(%rbx), %rax
+ffff80000011622c: 49 89 86 90 00 00 00 	movq	%rax, 144(%r14)
 ; }
-ffff800000116253: 48 83 c4 08          	addq	$8, %rsp
-ffff800000116257: 5b                   	popq	%rbx
-ffff800000116258: 41 5c                	popq	%r12
-ffff80000011625a: 41 5d                	popq	%r13
-ffff80000011625c: 41 5e                	popq	%r14
-ffff80000011625e: 41 5f                	popq	%r15
-ffff800000116260: 5d                   	popq	%rbp
-ffff800000116261: c3                   	retq
+ffff800000116233: 48 83 c4 08          	addq	$8, %rsp
+ffff800000116237: 5b                   	popq	%rbx
+ffff800000116238: 41 5c                	popq	%r12
+ffff80000011623a: 41 5d                	popq	%r13
+ffff80000011623c: 41 5e                	popq	%r14
+ffff80000011623e: 41 5f                	popq	%r15
+ffff800000116240: 5d                   	popq	%rbp
+ffff800000116241: c3                   	retq
 ; 		assert(ph->p_offset != 0);
-ffff800000116262: 48 bf ec 9b 11 00 00 80 ff ff	movabsq	$-140737487201300, %rdi # imm = 0xFFFF800000119BEC
-ffff80000011626c: 48 ba 35 a4 11 00 00 80 ff ff	movabsq	$-140737487199179, %rdx # imm = 0xFFFF80000011A435
-ffff800000116276: 48 b9 9c a9 11 00 00 80 ff ff	movabsq	$-140737487197796, %rcx # imm = 0xFFFF80000011A99C
-ffff800000116280: 48 bb 20 c9 10 00 00 80 ff ff	movabsq	$-140737487255264, %rbx # imm = 0xFFFF80000010C920
-ffff80000011628a: be 02 01 00 00       	movl	$258, %esi              # imm = 0x102
-ffff80000011628f: 31 c0                	xorl	%eax, %eax
-ffff800000116291: ff d3                	callq	*%rbx
+ffff800000116242: 48 bf ec 9b 11 00 00 80 ff ff	movabsq	$-140737487201300, %rdi # imm = 0xFFFF800000119BEC
+ffff80000011624c: 48 ba 35 a4 11 00 00 80 ff ff	movabsq	$-140737487199179, %rdx # imm = 0xFFFF80000011A435
+ffff800000116256: 48 b9 9c a9 11 00 00 80 ff ff	movabsq	$-140737487197796, %rcx # imm = 0xFFFF80000011A99C
+ffff800000116260: 48 bb 20 c9 10 00 00 80 ff ff	movabsq	$-140737487255264, %rbx # imm = 0xFFFF80000010C920
+ffff80000011626a: be 02 01 00 00       	movl	$258, %esi              # imm = 0x102
+ffff80000011626f: 31 c0                	xorl	%eax, %eax
+ffff800000116271: ff d3                	callq	*%rbx
 ; 			panic("elf section maps to kernel memory");
-ffff800000116293: 48 bf ec 9b 11 00 00 80 ff ff	movabsq	$-140737487201300, %rdi # imm = 0xFFFF800000119BEC
-ffff80000011629d: 48 ba d2 b3 11 00 00 80 ff ff	movabsq	$-140737487195182, %rdx # imm = 0xFFFF80000011B3D2
-ffff8000001162a7: 48 b9 20 c9 10 00 00 80 ff ff	movabsq	$-140737487255264, %rcx # imm = 0xFFFF80000010C920
-ffff8000001162b1: be 0a 01 00 00       	movl	$266, %esi              # imm = 0x10A
-ffff8000001162b6: 31 c0                	xorl	%eax, %eax
-ffff8000001162b8: ff d1                	callq	*%rcx
+ffff800000116273: 48 bf ec 9b 11 00 00 80 ff ff	movabsq	$-140737487201300, %rdi # imm = 0xFFFF800000119BEC
+ffff80000011627d: 48 ba d2 b3 11 00 00 80 ff ff	movabsq	$-140737487195182, %rdx # imm = 0xFFFF80000011B3D2
+ffff800000116287: 48 b9 20 c9 10 00 00 80 ff ff	movabsq	$-140737487255264, %rcx # imm = 0xFFFF80000010C920
+ffff800000116291: be 0a 01 00 00       	movl	$266, %esi              # imm = 0x10A
+ffff800000116296: 31 c0                	xorl	%eax, %eax
+ffff800000116298: ff d1                	callq	*%rcx
 ; 			panic("not enough data in file to write to memory");
-ffff8000001162ba: 48 bf ec 9b 11 00 00 80 ff ff	movabsq	$-140737487201300, %rdi # imm = 0xFFFF800000119BEC
-ffff8000001162c4: 48 ba e5 a6 11 00 00 80 ff ff	movabsq	$-140737487198491, %rdx # imm = 0xFFFF80000011A6E5
-ffff8000001162ce: 48 b9 20 c9 10 00 00 80 ff ff	movabsq	$-140737487255264, %rcx # imm = 0xFFFF80000010C920
-ffff8000001162d8: be 0d 01 00 00       	movl	$269, %esi              # imm = 0x10D
-ffff8000001162dd: 31 c0                	xorl	%eax, %eax
-ffff8000001162df: ff d1                	callq	*%rcx
+ffff80000011629a: 48 bf ec 9b 11 00 00 80 ff ff	movabsq	$-140737487201300, %rdi # imm = 0xFFFF800000119BEC
+ffff8000001162a4: 48 ba e5 a6 11 00 00 80 ff ff	movabsq	$-140737487198491, %rdx # imm = 0xFFFF80000011A6E5
+ffff8000001162ae: 48 b9 20 c9 10 00 00 80 ff ff	movabsq	$-140737487255264, %rcx # imm = 0xFFFF80000010C920
+ffff8000001162b8: be 0d 01 00 00       	movl	$269, %esi              # imm = 0x10D
+ffff8000001162bd: 31 c0                	xorl	%eax, %eax
+ffff8000001162bf: ff d1                	callq	*%rcx
 ; 			assert(ph->p_filesz == ph->p_memsz);
-ffff8000001162e1: 48 bf ec 9b 11 00 00 80 ff ff	movabsq	$-140737487201300, %rdi # imm = 0xFFFF800000119BEC
-ffff8000001162eb: 48 ba 35 a4 11 00 00 80 ff ff	movabsq	$-140737487199179, %rdx # imm = 0xFFFF80000011A435
-ffff8000001162f5: 48 b9 ed a7 11 00 00 80 ff ff	movabsq	$-140737487198227, %rcx # imm = 0xFFFF80000011A7ED
-ffff8000001162ff: 48 bb 20 c9 10 00 00 80 ff ff	movabsq	$-140737487255264, %rbx # imm = 0xFFFF80000010C920
-ffff800000116309: be 12 01 00 00       	movl	$274, %esi              # imm = 0x112
-ffff80000011630e: 31 c0                	xorl	%eax, %eax
-ffff800000116310: ff d3                	callq	*%rbx
+ffff8000001162c1: 48 bf ec 9b 11 00 00 80 ff ff	movabsq	$-140737487201300, %rdi # imm = 0xFFFF800000119BEC
+ffff8000001162cb: 48 ba 35 a4 11 00 00 80 ff ff	movabsq	$-140737487199179, %rdx # imm = 0xFFFF80000011A435
+ffff8000001162d5: 48 b9 ed a7 11 00 00 80 ff ff	movabsq	$-140737487198227, %rcx # imm = 0xFFFF80000011A7ED
+ffff8000001162df: 48 bb 20 c9 10 00 00 80 ff ff	movabsq	$-140737487255264, %rbx # imm = 0xFFFF80000010C920
+ffff8000001162e9: be 12 01 00 00       	movl	$274, %esi              # imm = 0x112
+ffff8000001162ee: 31 c0                	xorl	%eax, %eax
+ffff8000001162f0: ff d3                	callq	*%rbx
 ; 		panic("binary has wrong magic number. got: %d, expected: %d", elf->e_magic, ELF_MAGIC);
-ffff800000116312: 48 bf ec 9b 11 00 00 80 ff ff	movabsq	$-140737487201300, %rdi # imm = 0xFFFF800000119BEC
-ffff80000011631c: 48 ba 53 a6 11 00 00 80 ff ff	movabsq	$-140737487198637, %rdx # imm = 0xFFFF80000011A653
-ffff800000116326: 48 bb 20 c9 10 00 00 80 ff ff	movabsq	$-140737487255264, %rbx # imm = 0xFFFF80000010C920
-ffff800000116330: be f2 00 00 00       	movl	$242, %esi
-ffff800000116335: 41 b8 7f 45 4c 46    	movl	$1179403647, %r8d       # imm = 0x464C457F
-ffff80000011633b: 31 c0                	xorl	%eax, %eax
-ffff80000011633d: ff d3                	callq	*%rbx
+ffff8000001162f2: 48 bf ec 9b 11 00 00 80 ff ff	movabsq	$-140737487201300, %rdi # imm = 0xFFFF800000119BEC
+ffff8000001162fc: 48 ba 53 a6 11 00 00 80 ff ff	movabsq	$-140737487198637, %rdx # imm = 0xFFFF80000011A653
+ffff800000116306: 48 bb 20 c9 10 00 00 80 ff ff	movabsq	$-140737487255264, %rbx # imm = 0xFFFF80000010C920
+ffff800000116310: be f2 00 00 00       	movl	$242, %esi
+ffff800000116315: 41 b8 7f 45 4c 46    	movl	$1179403647, %r8d       # imm = 0x464C457F
+ffff80000011631b: 31 c0                	xorl	%eax, %eax
+ffff80000011631d: ff d3                	callq	*%rbx
 ; 	assert(elf->e_phoff != 0);
-ffff80000011633f: 48 bf ec 9b 11 00 00 80 ff ff	movabsq	$-140737487201300, %rdi # imm = 0xFFFF800000119BEC
-ffff800000116349: 48 ba 35 a4 11 00 00 80 ff ff	movabsq	$-140737487199179, %rdx # imm = 0xFFFF80000011A435
-ffff800000116353: 48 b9 c5 a1 11 00 00 80 ff ff	movabsq	$-140737487199803, %rcx # imm = 0xFFFF80000011A1C5
-ffff80000011635d: 48 bb 20 c9 10 00 00 80 ff ff	movabsq	$-140737487255264, %rbx # imm = 0xFFFF80000010C920
-ffff800000116367: be f5 00 00 00       	movl	$245, %esi
-ffff80000011636c: 31 c0                	xorl	%eax, %eax
-ffff80000011636e: ff d3                	callq	*%rbx
+ffff80000011631f: 48 bf ec 9b 11 00 00 80 ff ff	movabsq	$-140737487201300, %rdi # imm = 0xFFFF800000119BEC
+ffff800000116329: 48 ba 35 a4 11 00 00 80 ff ff	movabsq	$-140737487199179, %rdx # imm = 0xFFFF80000011A435
+ffff800000116333: 48 b9 c5 a1 11 00 00 80 ff ff	movabsq	$-140737487199803, %rcx # imm = 0xFFFF80000011A1C5
+ffff80000011633d: 48 bb 20 c9 10 00 00 80 ff ff	movabsq	$-140737487255264, %rbx # imm = 0xFFFF80000010C920
+ffff800000116347: be f5 00 00 00       	movl	$245, %esi
+ffff80000011634c: 31 c0                	xorl	%eax, %eax
+ffff80000011634e: ff d3                	callq	*%rbx
 
-ffff800000116370 <task_free>:
+ffff800000116350 <task_free>:
 ; {
-ffff800000116370: 55                   	pushq	%rbp
-ffff800000116371: 48 89 e5             	movq	%rsp, %rbp
-ffff800000116374: 41 56                	pushq	%r14
-ffff800000116376: 53                   	pushq	%rbx
-ffff800000116377: 48 89 fb             	movq	%rdi, %rbx
+ffff800000116350: 55                   	pushq	%rbp
+ffff800000116351: 48 89 e5             	movq	%rsp, %rbp
+ffff800000116354: 41 56                	pushq	%r14
+ffff800000116356: 53                   	pushq	%rbx
+ffff800000116357: 48 89 fb             	movq	%rdi, %rbx
 ; 	if (task == cur_task) {
-ffff80000011637a: 49 be 08 f3 11 00 00 80 ff ff	movabsq	$-140737487179000, %r14 # imm = 0xFFFF80000011F308
-ffff800000116384: 49 8b 06             	movq	(%r14), %rax
-ffff800000116387: 48 39 78 08          	cmpq	%rdi, 8(%rax)
-ffff80000011638b: 75 2d                	jne	0xffff8000001163ba <task_free+0x4a>
+ffff80000011635a: 49 be 08 f3 11 00 00 80 ff ff	movabsq	$-140737487179000, %r14 # imm = 0xFFFF80000011F308
+ffff800000116364: 49 8b 06             	movq	(%r14), %rax
+ffff800000116367: 48 39 78 08          	cmpq	%rdi, 8(%rax)
+ffff80000011636b: 75 2d                	jne	0xffff80000011639a <task_free+0x4a>
 ; 		load_pml4((struct page_table *)PADDR(kernel_pml4));
-ffff80000011638d: 48 b8 f8 02 17 00 00 80 ff ff	movabsq	$-140737486847240, %rax # imm = 0xFFFF8000001702F8
-ffff800000116397: 48 8b 30             	movq	(%rax), %rsi
-ffff80000011639a: 48 b8 60 64 11 00 00 80 ff ff	movabsq	$-140737487215520, %rax # imm = 0xFFFF800000116460
-ffff8000001163a4: bf 41 01 00 00       	movl	$321, %edi              # imm = 0x141
-ffff8000001163a9: ff d0                	callq	*%rax
-ffff8000001163ab: 48 b9 40 64 11 00 00 80 ff ff	movabsq	$-140737487215552, %rcx # imm = 0xFFFF800000116440
-ffff8000001163b5: 48 89 c7             	movq	%rax, %rdi
-ffff8000001163b8: ff d1                	callq	*%rcx
+ffff80000011636d: 48 b8 f8 02 17 00 00 80 ff ff	movabsq	$-140737486847240, %rax # imm = 0xFFFF8000001702F8
+ffff800000116377: 48 8b 30             	movq	(%rax), %rsi
+ffff80000011637a: 48 b8 40 64 11 00 00 80 ff ff	movabsq	$-140737487215552, %rax # imm = 0xFFFF800000116440
+ffff800000116384: bf 41 01 00 00       	movl	$321, %edi              # imm = 0x141
+ffff800000116389: ff d0                	callq	*%rax
+ffff80000011638b: 48 b9 20 64 11 00 00 80 ff ff	movabsq	$-140737487215584, %rcx # imm = 0xFFFF800000116420
+ffff800000116395: 48 89 c7             	movq	%rax, %rdi
+ffff800000116398: ff d1                	callq	*%rcx
 ; 	tasks[task->task_pid] = NULL;
-ffff8000001163ba: 48 b8 68 f3 11 00 00 80 ff ff	movabsq	$-140737487178904, %rax # imm = 0xFFFF80000011F368
-ffff8000001163c4: 48 8b 00             	movq	(%rax), %rax
-ffff8000001163c7: 48 63 8b c0 00 00 00 	movslq	192(%rbx), %rcx
-ffff8000001163ce: 48 c7 04 c8 00 00 00 00      	movq	$0, (%rax,%rcx,8)
+ffff80000011639a: 48 b8 68 f3 11 00 00 80 ff ff	movabsq	$-140737487178904, %rax # imm = 0xFFFF80000011F368
+ffff8000001163a4: 48 8b 00             	movq	(%rax), %rax
+ffff8000001163a7: 48 63 8b c0 00 00 00 	movslq	192(%rbx), %rcx
+ffff8000001163ae: 48 c7 04 c8 00 00 00 00      	movq	$0, (%rax,%rcx,8)
 ; 	unmap_user_pages(task->task_pml4);
-ffff8000001163d6: 48 8b bb d8 00 00 00 	movq	216(%rbx), %rdi
-ffff8000001163dd: 48 b8 c0 1d 11 00 00 80 ff ff	movabsq	$-140737487233600, %rax # imm = 0xFFFF800000111DC0
-ffff8000001163e7: ff d0                	callq	*%rax
+ffff8000001163b6: 48 8b bb d8 00 00 00 	movq	216(%rbx), %rdi
+ffff8000001163bd: 48 b8 c0 1d 11 00 00 80 ff ff	movabsq	$-140737487233600, %rax # imm = 0xFFFF800000111DC0
+ffff8000001163c7: ff d0                	callq	*%rax
 ; 	cprintf("[PID %5u] Freed task with PID %u\n", cur_task ? cur_task->task_pid : 0,
-ffff8000001163e9: 49 8b 06             	movq	(%r14), %rax
-ffff8000001163ec: 48 8b 40 08          	movq	8(%rax), %rax
-ffff8000001163f0: 48 85 c0             	testq	%rax, %rax
-ffff8000001163f3: 74 08                	je	0xffff8000001163fd <task_free+0x8d>
-ffff8000001163f5: 8b b0 c0 00 00 00    	movl	192(%rax), %esi
-ffff8000001163fb: eb 02                	jmp	0xffff8000001163ff <task_free+0x8f>
-ffff8000001163fd: 31 f6                	xorl	%esi, %esi
+ffff8000001163c9: 49 8b 06             	movq	(%r14), %rax
+ffff8000001163cc: 48 8b 40 08          	movq	8(%rax), %rax
+ffff8000001163d0: 48 85 c0             	testq	%rax, %rax
+ffff8000001163d3: 74 08                	je	0xffff8000001163dd <task_free+0x8d>
+ffff8000001163d5: 8b b0 c0 00 00 00    	movl	192(%rax), %esi
+ffff8000001163db: eb 02                	jmp	0xffff8000001163df <task_free+0x8f>
+ffff8000001163dd: 31 f6                	xorl	%esi, %esi
 ; 		task->task_pid);
-ffff8000001163ff: 8b 93 c0 00 00 00    	movl	192(%rbx), %edx
+ffff8000001163df: 8b 93 c0 00 00 00    	movl	192(%rbx), %edx
 ; 	cprintf("[PID %5u] Freed task with PID %u\n", cur_task ? cur_task->task_pid : 0,
-ffff800000116405: 48 bf d8 9a 11 00 00 80 ff ff	movabsq	$-140737487201576, %rdi # imm = 0xFFFF800000119AD8
-ffff80000011640f: 48 b9 b0 d4 10 00 00 80 ff ff	movabsq	$-140737487252304, %rcx # imm = 0xFFFF80000010D4B0
-ffff800000116419: 31 c0                	xorl	%eax, %eax
-ffff80000011641b: ff d1                	callq	*%rcx
+ffff8000001163e5: 48 bf d8 9a 11 00 00 80 ff ff	movabsq	$-140737487201576, %rdi # imm = 0xFFFF800000119AD8
+ffff8000001163ef: 48 b9 b0 d4 10 00 00 80 ff ff	movabsq	$-140737487252304, %rcx # imm = 0xFFFF80000010D4B0
+ffff8000001163f9: 31 c0                	xorl	%eax, %eax
+ffff8000001163fb: ff d1                	callq	*%rcx
 ; 	kfree(task);
-ffff80000011641d: 48 b8 30 46 11 00 00 80 ff ff	movabsq	$-140737487223248, %rax # imm = 0xFFFF800000114630
-ffff800000116427: 48 89 df             	movq	%rbx, %rdi
-ffff80000011642a: ff d0                	callq	*%rax
+ffff8000001163fd: 48 b8 30 46 11 00 00 80 ff ff	movabsq	$-140737487223248, %rax # imm = 0xFFFF800000114630
+ffff800000116407: 48 89 df             	movq	%rbx, %rdi
+ffff80000011640a: ff d0                	callq	*%rax
 ; }
-ffff80000011642c: 5b                   	popq	%rbx
-ffff80000011642d: 41 5e                	popq	%r14
-ffff80000011642f: 5d                   	popq	%rbp
-ffff800000116430: c3                   	retq
-ffff800000116431: 66 2e 0f 1f 84 00 00 00 00 00	nopw	%cs:(%rax,%rax)
-ffff80000011643b: 0f 1f 44 00 00       	nopl	(%rax,%rax)
+ffff80000011640c: 5b                   	popq	%rbx
+ffff80000011640d: 41 5e                	popq	%r14
+ffff80000011640f: 5d                   	popq	%rbp
+ffff800000116410: c3                   	retq
+ffff800000116411: 66 2e 0f 1f 84 00 00 00 00 00	nopw	%cs:(%rax,%rax)
+ffff80000011641b: 0f 1f 44 00 00       	nopl	(%rax,%rax)
 
-ffff800000116440 <load_pml4>:
+ffff800000116420 <load_pml4>:
 ; {
-ffff800000116440: 55                   	pushq	%rbp
-ffff800000116441: 48 89 e5             	movq	%rsp, %rbp
+ffff800000116420: 55                   	pushq	%rbp
+ffff800000116421: 48 89 e5             	movq	%rsp, %rbp
 ; 	write_cr3((uintptr_t)pml4);
-ffff800000116444: 48 b8 40 67 11 00 00 80 ff ff	movabsq	$-140737487214784, %rax # imm = 0xFFFF800000116740
-ffff80000011644e: ff d0                	callq	*%rax
+ffff800000116424: 48 b8 20 67 11 00 00 80 ff ff	movabsq	$-140737487214816, %rax # imm = 0xFFFF800000116720
+ffff80000011642e: ff d0                	callq	*%rax
 ; }
-ffff800000116450: 5d                   	popq	%rbp
-ffff800000116451: c3                   	retq
-ffff800000116452: 66 2e 0f 1f 84 00 00 00 00 00	nopw	%cs:(%rax,%rax)
-ffff80000011645c: 0f 1f 40 00          	nopl	(%rax)
+ffff800000116430: 5d                   	popq	%rbp
+ffff800000116431: c3                   	retq
+ffff800000116432: 66 2e 0f 1f 84 00 00 00 00 00	nopw	%cs:(%rax,%rax)
+ffff80000011643c: 0f 1f 40 00          	nopl	(%rax)
 
-ffff800000116460 <_paddr>:
+ffff800000116440 <_paddr>:
 ; {
-ffff800000116460: 48 89 f0             	movq	%rsi, %rax
+ffff800000116440: 48 89 f0             	movq	%rsi, %rax
 ; 	if ((uintptr_t)kva < KERNEL_VMA)
-ffff800000116463: 48 89 f1             	movq	%rsi, %rcx
-ffff800000116466: 48 c1 e9 2f          	shrq	$47, %rcx
-ffff80000011646a: 81 f9 fe ff 01 00    	cmpl	$131070, %ecx           # imm = 0x1FFFE
-ffff800000116470: 76 0e                	jbe	0xffff800000116480 <_paddr+0x20>
-ffff800000116472: 48 b9 00 00 00 00 00 80 00 00	movabsq	$140737488355328, %rcx # imm = 0x800000000000
+ffff800000116443: 48 89 f1             	movq	%rsi, %rcx
+ffff800000116446: 48 c1 e9 2f          	shrq	$47, %rcx
+ffff80000011644a: 81 f9 fe ff 01 00    	cmpl	$131070, %ecx           # imm = 0x1FFFE
+ffff800000116450: 76 0e                	jbe	0xffff800000116460 <_paddr+0x20>
+ffff800000116452: 48 b9 00 00 00 00 00 80 00 00	movabsq	$140737488355328, %rcx # imm = 0x800000000000
 ; 	return (physaddr_t)kva - KERNEL_VMA;
-ffff80000011647c: 48 01 c8             	addq	%rcx, %rax
-ffff80000011647f: c3                   	retq
-ffff800000116480: 55                   	pushq	%rbp
-ffff800000116481: 48 89 e5             	movq	%rsp, %rbp
-ffff800000116484: 89 fe                	movl	%edi, %esi
+ffff80000011645c: 48 01 c8             	addq	%rcx, %rax
+ffff80000011645f: c3                   	retq
+ffff800000116460: 55                   	pushq	%rbp
+ffff800000116461: 48 89 e5             	movq	%rsp, %rbp
+ffff800000116464: 89 fe                	movl	%edi, %esi
 ; 		_panic(file, line, "PADDR called with invalid kva %08lx", kva);
-ffff800000116486: 48 bf ec 9b 11 00 00 80 ff ff	movabsq	$-140737487201300, %rdi # imm = 0xFFFF800000119BEC
-ffff800000116490: 48 ba 4f 9f 11 00 00 80 ff ff	movabsq	$-140737487200433, %rdx # imm = 0xFFFF800000119F4F
-ffff80000011649a: 49 b8 20 c9 10 00 00 80 ff ff	movabsq	$-140737487255264, %r8 # imm = 0xFFFF80000010C920
-ffff8000001164a4: 48 89 c1             	movq	%rax, %rcx
-ffff8000001164a7: 31 c0                	xorl	%eax, %eax
-ffff8000001164a9: 41 ff d0             	callq	*%r8
-ffff8000001164ac: 0f 1f 40 00          	nopl	(%rax)
+ffff800000116466: 48 bf ec 9b 11 00 00 80 ff ff	movabsq	$-140737487201300, %rdi # imm = 0xFFFF800000119BEC
+ffff800000116470: 48 ba 4f 9f 11 00 00 80 ff ff	movabsq	$-140737487200433, %rdx # imm = 0xFFFF800000119F4F
+ffff80000011647a: 49 b8 20 c9 10 00 00 80 ff ff	movabsq	$-140737487255264, %r8 # imm = 0xFFFF80000010C920
+ffff800000116484: 48 89 c1             	movq	%rax, %rcx
+ffff800000116487: 31 c0                	xorl	%eax, %eax
+ffff800000116489: 41 ff d0             	callq	*%r8
+ffff80000011648c: 0f 1f 40 00          	nopl	(%rax)
 
-ffff8000001164b0 <task_destroy>:
+ffff800000116490 <task_destroy>:
 ; {
-ffff8000001164b0: 55                   	pushq	%rbp
-ffff8000001164b1: 48 89 e5             	movq	%rsp, %rbp
-ffff8000001164b4: 53                   	pushq	%rbx
-ffff8000001164b5: 50                   	pushq	%rax
+ffff800000116490: 55                   	pushq	%rbp
+ffff800000116491: 48 89 e5             	movq	%rsp, %rbp
+ffff800000116494: 53                   	pushq	%rbx
+ffff800000116495: 50                   	pushq	%rax
 ; 	task_free(task);
-ffff8000001164b6: 48 b8 70 63 11 00 00 80 ff ff	movabsq	$-140737487215760, %rax # imm = 0xFFFF800000116370
-ffff8000001164c0: ff d0                	callq	*%rax
+ffff800000116496: 48 b8 50 63 11 00 00 80 ff ff	movabsq	$-140737487215792, %rax # imm = 0xFFFF800000116350
+ffff8000001164a0: ff d0                	callq	*%rax
 ; 	cprintf("Destroyed the only task - nothing more to do!\n");
-ffff8000001164c2: 48 bf 62 a7 11 00 00 80 ff ff	movabsq	$-140737487198366, %rdi # imm = 0xFFFF80000011A762
-ffff8000001164cc: 48 b9 b0 d4 10 00 00 80 ff ff	movabsq	$-140737487252304, %rcx # imm = 0xFFFF80000010D4B0
-ffff8000001164d6: 31 c0                	xorl	%eax, %eax
-ffff8000001164d8: ff d1                	callq	*%rcx
-ffff8000001164da: 48 bb 40 cf 10 00 00 80 ff ff	movabsq	$-140737487253696, %rbx # imm = 0xFFFF80000010CF40
-ffff8000001164e4: 66 2e 0f 1f 84 00 00 00 00 00	nopw	%cs:(%rax,%rax)
-ffff8000001164ee: 66 90                	nop
+ffff8000001164a2: 48 bf 62 a7 11 00 00 80 ff ff	movabsq	$-140737487198366, %rdi # imm = 0xFFFF80000011A762
+ffff8000001164ac: 48 b9 b0 d4 10 00 00 80 ff ff	movabsq	$-140737487252304, %rcx # imm = 0xFFFF80000010D4B0
+ffff8000001164b6: 31 c0                	xorl	%eax, %eax
+ffff8000001164b8: ff d1                	callq	*%rcx
+ffff8000001164ba: 48 bb 40 cf 10 00 00 80 ff ff	movabsq	$-140737487253696, %rbx # imm = 0xFFFF80000010CF40
+ffff8000001164c4: 66 2e 0f 1f 84 00 00 00 00 00	nopw	%cs:(%rax,%rax)
+ffff8000001164ce: 66 90                	nop
 ; 		monitor(NULL);
-ffff8000001164f0: 31 ff                	xorl	%edi, %edi
-ffff8000001164f2: ff d3                	callq	*%rbx
+ffff8000001164d0: 31 ff                	xorl	%edi, %edi
+ffff8000001164d2: ff d3                	callq	*%rbx
 ; 	while (1) {
-ffff8000001164f4: eb fa                	jmp	0xffff8000001164f0 <task_destroy+0x40>
-ffff8000001164f6: 66 2e 0f 1f 84 00 00 00 00 00	nopw	%cs:(%rax,%rax)
+ffff8000001164d4: eb fa                	jmp	0xffff8000001164d0 <task_destroy+0x40>
+ffff8000001164d6: 66 2e 0f 1f 84 00 00 00 00 00	nopw	%cs:(%rax,%rax)
 
-ffff800000116500 <task_pop_frame>:
+ffff8000001164e0 <task_pop_frame>:
 ; {
-ffff800000116500: 55                   	pushq	%rbp
-ffff800000116501: 48 89 e5             	movq	%rsp, %rbp
+ffff8000001164e0: 55                   	pushq	%rbp
+ffff8000001164e1: 48 89 e5             	movq	%rsp, %rbp
 ; 	switch (frame->int_no) {
-ffff800000116504: 48 81 bf 80 00 00 00 80 00 00 00     	cmpq	$128, 128(%rdi)
-ffff80000011650f: 75 0c                	jne	0xffff80000011651d <task_pop_frame+0x1d>
+ffff8000001164e4: 48 81 bf 80 00 00 00 80 00 00 00     	cmpq	$128, 128(%rdi)
+ffff8000001164ef: 75 0c                	jne	0xffff8000001164fd <task_pop_frame+0x1d>
 ; 	case 0x80: sysret64(frame); break;
-ffff800000116511: 48 b8 a6 57 11 00 00 80 ff ff	movabsq	$-140737487218778, %rax # imm = 0xFFFF8000001157A6
-ffff80000011651b: eb 0a                	jmp	0xffff800000116527 <task_pop_frame+0x27>
+ffff8000001164f1: 48 b8 87 57 11 00 00 80 ff ff	movabsq	$-140737487218809, %rax # imm = 0xFFFF800000115787
+ffff8000001164fb: eb 0a                	jmp	0xffff800000116507 <task_pop_frame+0x27>
 ; 	default: iret64(frame); break;
-ffff80000011651d: 48 b8 3c 57 11 00 00 80 ff ff	movabsq	$-140737487218884, %rax # imm = 0xFFFF80000011573C
-ffff800000116527: ff d0                	callq	*%rax
+ffff8000001164fd: 48 b8 1d 57 11 00 00 80 ff ff	movabsq	$-140737487218915, %rax # imm = 0xFFFF80000011571D
+ffff800000116507: ff d0                	callq	*%rax
 ; 	panic("We should have gone back to userspace!");
-ffff800000116529: 48 bf ec 9b 11 00 00 80 ff ff	movabsq	$-140737487201300, %rdi # imm = 0xFFFF800000119BEC
-ffff800000116533: 48 ba 2c a6 11 00 00 80 ff ff	movabsq	$-140737487198676, %rdx # imm = 0xFFFF80000011A62C
-ffff80000011653d: 48 b9 20 c9 10 00 00 80 ff ff	movabsq	$-140737487255264, %rcx # imm = 0xFFFF80000010C920
-ffff800000116547: be 6f 01 00 00       	movl	$367, %esi              # imm = 0x16F
-ffff80000011654c: 31 c0                	xorl	%eax, %eax
-ffff80000011654e: ff d1                	callq	*%rcx
+ffff800000116509: 48 bf ec 9b 11 00 00 80 ff ff	movabsq	$-140737487201300, %rdi # imm = 0xFFFF800000119BEC
+ffff800000116513: 48 ba 2c a6 11 00 00 80 ff ff	movabsq	$-140737487198676, %rdx # imm = 0xFFFF80000011A62C
+ffff80000011651d: 48 b9 20 c9 10 00 00 80 ff ff	movabsq	$-140737487255264, %rcx # imm = 0xFFFF80000010C920
+ffff800000116527: be 6f 01 00 00       	movl	$367, %esi              # imm = 0x16F
+ffff80000011652c: 31 c0                	xorl	%eax, %eax
+ffff80000011652e: ff d1                	callq	*%rcx
 
-ffff800000116550 <task_run>:
+ffff800000116530 <task_run>:
 ; {
-ffff800000116550: 55                   	pushq	%rbp
-ffff800000116551: 48 89 e5             	movq	%rsp, %rbp
-ffff800000116554: 53                   	pushq	%rbx
-ffff800000116555: 50                   	pushq	%rax
+ffff800000116530: 55                   	pushq	%rbp
+ffff800000116531: 48 89 e5             	movq	%rsp, %rbp
+ffff800000116534: 53                   	pushq	%rbx
+ffff800000116535: 50                   	pushq	%rax
 ; 	assert(task);
-ffff800000116556: 48 85 ff             	testq	%rdi, %rdi
-ffff800000116559: 75 31                	jne	0xffff80000011658c <task_run+0x3c>
-ffff80000011655b: 48 bf ec 9b 11 00 00 80 ff ff	movabsq	$-140737487201300, %rdi # imm = 0xFFFF800000119BEC
-ffff800000116565: 48 ba 35 a4 11 00 00 80 ff ff	movabsq	$-140737487199179, %rdx # imm = 0xFFFF80000011A435
-ffff80000011656f: 48 b9 87 ab 11 00 00 80 ff ff	movabsq	$-140737487197305, %rcx # imm = 0xFFFF80000011AB87
-ffff800000116579: 48 bb 20 c9 10 00 00 80 ff ff	movabsq	$-140737487255264, %rbx # imm = 0xFFFF80000010C920
-ffff800000116583: be 79 01 00 00       	movl	$377, %esi              # imm = 0x179
-ffff800000116588: 31 c0                	xorl	%eax, %eax
-ffff80000011658a: ff d3                	callq	*%rbx
+ffff800000116536: 48 85 ff             	testq	%rdi, %rdi
+ffff800000116539: 75 31                	jne	0xffff80000011656c <task_run+0x3c>
+ffff80000011653b: 48 bf ec 9b 11 00 00 80 ff ff	movabsq	$-140737487201300, %rdi # imm = 0xFFFF800000119BEC
+ffff800000116545: 48 ba 35 a4 11 00 00 80 ff ff	movabsq	$-140737487199179, %rdx # imm = 0xFFFF80000011A435
+ffff80000011654f: 48 b9 87 ab 11 00 00 80 ff ff	movabsq	$-140737487197305, %rcx # imm = 0xFFFF80000011AB87
+ffff800000116559: 48 bb 20 c9 10 00 00 80 ff ff	movabsq	$-140737487255264, %rbx # imm = 0xFFFF80000010C920
+ffff800000116563: be 79 01 00 00       	movl	$377, %esi              # imm = 0x179
+ffff800000116568: 31 c0                	xorl	%eax, %eax
+ffff80000011656a: ff d3                	callq	*%rbx
 ; 	if(cur_task != task){
-ffff80000011658c: 48 bb 08 f3 11 00 00 80 ff ff	movabsq	$-140737487179000, %rbx # imm = 0xFFFF80000011F308
-ffff800000116596: 48 8b 03             	movq	(%rbx), %rax
-ffff800000116599: 48 8b 40 08          	movq	8(%rax), %rax
-ffff80000011659d: 48 39 f8             	cmpq	%rdi, %rax
-ffff8000001165a0: 74 51                	je	0xffff8000001165f3 <task_run+0xa3>
+ffff80000011656c: 48 bb 08 f3 11 00 00 80 ff ff	movabsq	$-140737487179000, %rbx # imm = 0xFFFF80000011F308
+ffff800000116576: 48 8b 03             	movq	(%rbx), %rax
+ffff800000116579: 48 8b 40 08          	movq	8(%rax), %rax
+ffff80000011657d: 48 39 f8             	cmpq	%rdi, %rax
+ffff800000116580: 74 51                	je	0xffff8000001165d3 <task_run+0xa3>
 ; 		assert(task->task_status == TASK_RUNNABLE);
-ffff8000001165a2: 83 bf cc 00 00 00 01 	cmpl	$1, 204(%rdi)
-ffff8000001165a9: 75 5b                	jne	0xffff800000116606 <task_run+0xb6>
+ffff800000116582: 83 bf cc 00 00 00 01 	cmpl	$1, 204(%rdi)
+ffff800000116589: 75 5b                	jne	0xffff8000001165e6 <task_run+0xb6>
 ; 		if(cur_task){
-ffff8000001165ab: 48 85 c0             	testq	%rax, %rax
-ffff8000001165ae: 0f 85 83 00 00 00    	jne	0xffff800000116637 <task_run+0xe7>
+ffff80000011658b: 48 85 c0             	testq	%rax, %rax
+ffff80000011658e: 0f 85 83 00 00 00    	jne	0xffff800000116617 <task_run+0xe7>
 ; 		cur_task = task;
-ffff8000001165b4: 48 8b 03             	movq	(%rbx), %rax
-ffff8000001165b7: 48 89 78 08          	movq	%rdi, 8(%rax)
+ffff800000116594: 48 8b 03             	movq	(%rbx), %rax
+ffff800000116597: 48 89 78 08          	movq	%rdi, 8(%rax)
 ; 		cur_task->task_status = TASK_RUNNING;
-ffff8000001165bb: c7 87 cc 00 00 00 02 00 00 00	movl	$2, 204(%rdi)
+ffff80000011659b: c7 87 cc 00 00 00 02 00 00 00	movl	$2, 204(%rdi)
 ; 		cur_task->task_runs++;
-ffff8000001165c5: 83 87 d0 00 00 00 01 	addl	$1, 208(%rdi)
+ffff8000001165a5: 83 87 d0 00 00 00 01 	addl	$1, 208(%rdi)
 ; 		load_pml4((struct page_table*)PADDR(cur_task->task_pml4));
-ffff8000001165cc: 48 8b b7 d8 00 00 00 	movq	216(%rdi), %rsi
-ffff8000001165d3: 48 b8 60 64 11 00 00 80 ff ff	movabsq	$-140737487215520, %rax # imm = 0xFFFF800000116460
-ffff8000001165dd: bf ab 01 00 00       	movl	$427, %edi              # imm = 0x1AB
-ffff8000001165e2: ff d0                	callq	*%rax
-ffff8000001165e4: 48 b9 40 64 11 00 00 80 ff ff	movabsq	$-140737487215552, %rcx # imm = 0xFFFF800000116440
-ffff8000001165ee: 48 89 c7             	movq	%rax, %rdi
-ffff8000001165f1: ff d1                	callq	*%rcx
+ffff8000001165ac: 48 8b b7 d8 00 00 00 	movq	216(%rdi), %rsi
+ffff8000001165b3: 48 b8 40 64 11 00 00 80 ff ff	movabsq	$-140737487215552, %rax # imm = 0xFFFF800000116440
+ffff8000001165bd: bf ab 01 00 00       	movl	$427, %edi              # imm = 0x1AB
+ffff8000001165c2: ff d0                	callq	*%rax
+ffff8000001165c4: 48 b9 20 64 11 00 00 80 ff ff	movabsq	$-140737487215584, %rcx # imm = 0xFFFF800000116420
+ffff8000001165ce: 48 89 c7             	movq	%rax, %rdi
+ffff8000001165d1: ff d1                	callq	*%rcx
 ; 	task_pop_frame(&cur_task->task_frame);
-ffff8000001165f3: 48 8b 03             	movq	(%rbx), %rax
-ffff8000001165f6: 48 8b 78 08          	movq	8(%rax), %rdi
-ffff8000001165fa: 48 b8 00 65 11 00 00 80 ff ff	movabsq	$-140737487215360, %rax # imm = 0xFFFF800000116500
-ffff800000116604: ff d0                	callq	*%rax
+ffff8000001165d3: 48 8b 03             	movq	(%rbx), %rax
+ffff8000001165d6: 48 8b 78 08          	movq	8(%rax), %rdi
+ffff8000001165da: 48 b8 e0 64 11 00 00 80 ff ff	movabsq	$-140737487215392, %rax # imm = 0xFFFF8000001164E0
+ffff8000001165e4: ff d0                	callq	*%rax
 ; 		assert(task->task_status == TASK_RUNNABLE);
-ffff800000116606: 48 bf ec 9b 11 00 00 80 ff ff	movabsq	$-140737487201300, %rdi # imm = 0xFFFF800000119BEC
-ffff800000116610: 48 ba 35 a4 11 00 00 80 ff ff	movabsq	$-140737487199179, %rdx # imm = 0xFFFF80000011A435
-ffff80000011661a: 48 b9 21 ae 11 00 00 80 ff ff	movabsq	$-140737487196639, %rcx # imm = 0xFFFF80000011AE21
-ffff800000116624: 48 bb 20 c9 10 00 00 80 ff ff	movabsq	$-140737487255264, %rbx # imm = 0xFFFF80000010C920
-ffff80000011662e: be 8d 01 00 00       	movl	$397, %esi              # imm = 0x18D
-ffff800000116633: 31 c0                	xorl	%eax, %eax
-ffff800000116635: ff d3                	callq	*%rbx
+ffff8000001165e6: 48 bf ec 9b 11 00 00 80 ff ff	movabsq	$-140737487201300, %rdi # imm = 0xFFFF800000119BEC
+ffff8000001165f0: 48 ba 35 a4 11 00 00 80 ff ff	movabsq	$-140737487199179, %rdx # imm = 0xFFFF80000011A435
+ffff8000001165fa: 48 b9 21 ae 11 00 00 80 ff ff	movabsq	$-140737487196639, %rcx # imm = 0xFFFF80000011AE21
+ffff800000116604: 48 bb 20 c9 10 00 00 80 ff ff	movabsq	$-140737487255264, %rbx # imm = 0xFFFF80000010C920
+ffff80000011660e: be 8d 01 00 00       	movl	$397, %esi              # imm = 0x18D
+ffff800000116613: 31 c0                	xorl	%eax, %eax
+ffff800000116615: ff d3                	callq	*%rbx
 ; 			switch (cur_task->task_status)
-ffff800000116637: 8b 88 cc 00 00 00    	movl	204(%rax), %ecx
-ffff80000011663d: 48 83 f9 03          	cmpq	$3, %rcx
-ffff800000116641: 77 1c                	ja	0xffff80000011665f <task_run+0x10f>
-ffff800000116643: 48 ba 90 98 11 00 00 80 ff ff	movabsq	$-140737487202160, %rdx # imm = 0xFFFF800000119890
-ffff80000011664d: ff 24 ca             	jmpq	*(%rdx,%rcx,8)
+ffff800000116617: 8b 88 cc 00 00 00    	movl	204(%rax), %ecx
+ffff80000011661d: 48 83 f9 03          	cmpq	$3, %rcx
+ffff800000116621: 77 1c                	ja	0xffff80000011663f <task_run+0x10f>
+ffff800000116623: 48 ba 90 98 11 00 00 80 ff ff	movabsq	$-140737487202160, %rdx # imm = 0xFFFF800000119890
+ffff80000011662d: ff 24 ca             	jmpq	*(%rdx,%rcx,8)
 ; 				task_destroy(cur_task);
-ffff800000116650: 48 b9 b0 64 11 00 00 80 ff ff	movabsq	$-140737487215440, %rcx # imm = 0xFFFF8000001164B0
-ffff80000011665a: 48 89 c7             	movq	%rax, %rdi
-ffff80000011665d: ff d1                	callq	*%rcx
+ffff800000116630: 48 b9 90 64 11 00 00 80 ff ff	movabsq	$-140737487215472, %rcx # imm = 0xFFFF800000116490
+ffff80000011663a: 48 89 c7             	movq	%rax, %rdi
+ffff80000011663d: ff d1                	callq	*%rcx
 ; 				panic("unknown task state in task_run");
-ffff80000011665f: 48 bf ec 9b 11 00 00 80 ff ff	movabsq	$-140737487201300, %rdi # imm = 0xFFFF800000119BEC
-ffff800000116669: 48 ba 02 a4 11 00 00 80 ff ff	movabsq	$-140737487199230, %rdx # imm = 0xFFFF80000011A402
-ffff800000116673: 48 b9 20 c9 10 00 00 80 ff ff	movabsq	$-140737487255264, %rcx # imm = 0xFFFF80000010C920
-ffff80000011667d: be a3 01 00 00       	movl	$419, %esi              # imm = 0x1A3
-ffff800000116682: 31 c0                	xorl	%eax, %eax
-ffff800000116684: ff d1                	callq	*%rcx
+ffff80000011663f: 48 bf ec 9b 11 00 00 80 ff ff	movabsq	$-140737487201300, %rdi # imm = 0xFFFF800000119BEC
+ffff800000116649: 48 ba 02 a4 11 00 00 80 ff ff	movabsq	$-140737487199230, %rdx # imm = 0xFFFF80000011A402
+ffff800000116653: 48 b9 20 c9 10 00 00 80 ff ff	movabsq	$-140737487255264, %rcx # imm = 0xFFFF80000010C920
+ffff80000011665d: be a3 01 00 00       	movl	$419, %esi              # imm = 0x1A3
+ffff800000116662: 31 c0                	xorl	%eax, %eax
+ffff800000116664: ff d1                	callq	*%rcx
 ; 				panic("runnable task running! forgot to set to running?");
-ffff800000116686: 48 bf ec 9b 11 00 00 80 ff ff	movabsq	$-140737487201300, %rdi # imm = 0xFFFF800000119BEC
-ffff800000116690: 48 ba a1 b3 11 00 00 80 ff ff	movabsq	$-140737487195231, %rdx # imm = 0xFFFF80000011B3A1
-ffff80000011669a: 48 b9 20 c9 10 00 00 80 ff ff	movabsq	$-140737487255264, %rcx # imm = 0xFFFF80000010C920
-ffff8000001166a4: be 98 01 00 00       	movl	$408, %esi              # imm = 0x198
-ffff8000001166a9: 31 c0                	xorl	%eax, %eax
-ffff8000001166ab: ff d1                	callq	*%rcx
+ffff800000116666: 48 bf ec 9b 11 00 00 80 ff ff	movabsq	$-140737487201300, %rdi # imm = 0xFFFF800000119BEC
+ffff800000116670: 48 ba a1 b3 11 00 00 80 ff ff	movabsq	$-140737487195231, %rdx # imm = 0xFFFF80000011B3A1
+ffff80000011667a: 48 b9 20 c9 10 00 00 80 ff ff	movabsq	$-140737487255264, %rcx # imm = 0xFFFF80000010C920
+ffff800000116684: be 98 01 00 00       	movl	$408, %esi              # imm = 0x198
+ffff800000116689: 31 c0                	xorl	%eax, %eax
+ffff80000011668b: ff d1                	callq	*%rcx
 ; 				cur_task->task_status = TASK_RUNNABLE;
-ffff8000001166ad: c7 80 cc 00 00 00 01 00 00 00	movl	$1, 204(%rax)
-ffff8000001166b7: e9 f8 fe ff ff       	jmp	0xffff8000001165b4 <task_run+0x64>
+ffff80000011668d: c7 80 cc 00 00 00 01 00 00 00	movl	$1, 204(%rax)
+ffff800000116697: e9 f8 fe ff ff       	jmp	0xffff800000116594 <task_run+0x64>
 ; 				panic("cant get here in lab3");
-ffff8000001166bc: 48 bf ec 9b 11 00 00 80 ff ff	movabsq	$-140737487201300, %rdi # imm = 0xFFFF800000119BEC
-ffff8000001166c6: 48 ba 53 9a 11 00 00 80 ff ff	movabsq	$-140737487201709, %rdx # imm = 0xFFFF800000119A53
-ffff8000001166d0: 48 b9 20 c9 10 00 00 80 ff ff	movabsq	$-140737487255264, %rcx # imm = 0xFFFF80000010C920
-ffff8000001166da: be a0 01 00 00       	movl	$416, %esi              # imm = 0x1A0
-ffff8000001166df: 31 c0                	xorl	%eax, %eax
-ffff8000001166e1: ff d1                	callq	*%rcx
-ffff8000001166e3: 66 2e 0f 1f 84 00 00 00 00 00	nopw	%cs:(%rax,%rax)
-ffff8000001166ed: 0f 1f 00             	nopl	(%rax)
+ffff80000011669c: 48 bf ec 9b 11 00 00 80 ff ff	movabsq	$-140737487201300, %rdi # imm = 0xFFFF800000119BEC
+ffff8000001166a6: 48 ba 53 9a 11 00 00 80 ff ff	movabsq	$-140737487201709, %rdx # imm = 0xFFFF800000119A53
+ffff8000001166b0: 48 b9 20 c9 10 00 00 80 ff ff	movabsq	$-140737487255264, %rcx # imm = 0xFFFF80000010C920
+ffff8000001166ba: be a0 01 00 00       	movl	$416, %esi              # imm = 0x1A0
+ffff8000001166bf: 31 c0                	xorl	%eax, %eax
+ffff8000001166c1: ff d1                	callq	*%rcx
+ffff8000001166c3: 66 2e 0f 1f 84 00 00 00 00 00	nopw	%cs:(%rax,%rax)
+ffff8000001166cd: 0f 1f 00             	nopl	(%rax)
 
-ffff8000001166f0 <page2kva>:
+ffff8000001166d0 <page2kva>:
 ; {
-ffff8000001166f0: 55                   	pushq	%rbp
-ffff8000001166f1: 48 89 e5             	movq	%rsp, %rbp
+ffff8000001166d0: 55                   	pushq	%rbp
+ffff8000001166d1: 48 89 e5             	movq	%rsp, %rbp
 ; 	return KADDR(page2pa(pp));
-ffff8000001166f4: 48 b8 20 67 11 00 00 80 ff ff	movabsq	$-140737487214816, %rax # imm = 0xFFFF800000116720
-ffff8000001166fe: ff d0                	callq	*%rax
-ffff800000116700: 48 bf 9f 9c 11 00 00 80 ff ff	movabsq	$-140737487201121, %rdi # imm = 0xFFFF800000119C9F
-ffff80000011670a: 48 b9 70 5f 11 00 00 80 ff ff	movabsq	$-140737487216784, %rcx # imm = 0xFFFF800000115F70
-ffff800000116714: be 50 00 00 00       	movl	$80, %esi
-ffff800000116719: 48 89 c2             	movq	%rax, %rdx
-ffff80000011671c: ff d1                	callq	*%rcx
-ffff80000011671e: 5d                   	popq	%rbp
-ffff80000011671f: c3                   	retq
+ffff8000001166d4: 48 b8 00 67 11 00 00 80 ff ff	movabsq	$-140737487214848, %rax # imm = 0xFFFF800000116700
+ffff8000001166de: ff d0                	callq	*%rax
+ffff8000001166e0: 48 bf 9f 9c 11 00 00 80 ff ff	movabsq	$-140737487201121, %rdi # imm = 0xFFFF800000119C9F
+ffff8000001166ea: 48 b9 50 5f 11 00 00 80 ff ff	movabsq	$-140737487216816, %rcx # imm = 0xFFFF800000115F50
+ffff8000001166f4: be 50 00 00 00       	movl	$80, %esi
+ffff8000001166f9: 48 89 c2             	movq	%rax, %rdx
+ffff8000001166fc: ff d1                	callq	*%rcx
+ffff8000001166fe: 5d                   	popq	%rbp
+ffff8000001166ff: c3                   	retq
 
-ffff800000116720 <page2pa>:
+ffff800000116700 <page2pa>:
+; {
+ffff800000116700: 55                   	pushq	%rbp
+ffff800000116701: 48 89 e5             	movq	%rsp, %rbp
+ffff800000116704: 48 89 f8             	movq	%rdi, %rax
+; 	return (pp - pages) << PAGE_TABLE_SHIFT;
+ffff800000116707: 48 b9 e8 02 17 00 00 80 ff ff	movabsq	$-140737486847256, %rcx # imm = 0xFFFF8000001702E8
+ffff800000116711: 48 2b 01             	subq	(%rcx), %rax
+ffff800000116714: 48 c1 e0 07          	shlq	$7, %rax
+ffff800000116718: 5d                   	popq	%rbp
+ffff800000116719: c3                   	retq
+ffff80000011671a: 66 0f 1f 44 00 00    	nopw	(%rax,%rax)
+
+ffff800000116720 <write_cr3>:
 ; {
 ffff800000116720: 55                   	pushq	%rbp
 ffff800000116721: 48 89 e5             	movq	%rsp, %rbp
-ffff800000116724: 48 89 f8             	movq	%rdi, %rax
-; 	return (pp - pages) << PAGE_TABLE_SHIFT;
-ffff800000116727: 48 b9 e8 02 17 00 00 80 ff ff	movabsq	$-140737486847256, %rcx # imm = 0xFFFF8000001702E8
-ffff800000116731: 48 2b 01             	subq	(%rcx), %rax
-ffff800000116734: 48 c1 e0 07          	shlq	$7, %rax
-ffff800000116738: 5d                   	popq	%rbp
-ffff800000116739: c3                   	retq
-ffff80000011673a: 66 0f 1f 44 00 00    	nopw	(%rax,%rax)
-
-ffff800000116740 <write_cr3>:
-; {
-ffff800000116740: 55                   	pushq	%rbp
-ffff800000116741: 48 89 e5             	movq	%rsp, %rbp
 ; 	asm volatile("movq %0, %%cr3\n" :: "r" (value));
-ffff800000116744: 0f 22 df             	movq	%rdi, %cr3
+ffff800000116724: 0f 22 df             	movq	%rdi, %cr3
 ; }
-ffff800000116747: 5d                   	popq	%rbp
-ffff800000116748: c3                   	retq
-ffff800000116749: cc                   	int3
-ffff80000011674a: cc                   	int3
-ffff80000011674b: cc                   	int3
-ffff80000011674c: cc                   	int3
-ffff80000011674d: cc                   	int3
-ffff80000011674e: cc                   	int3
-ffff80000011674f: cc                   	int3
+ffff800000116727: 5d                   	popq	%rbp
+ffff800000116728: c3                   	retq
+ffff800000116729: cc                   	int3
+ffff80000011672a: cc                   	int3
+ffff80000011672b: cc                   	int3
+ffff80000011672c: cc                   	int3
+ffff80000011672d: cc                   	int3
+ffff80000011672e: cc                   	int3
+ffff80000011672f: cc                   	int3
 
-ffff800000116750 <lab3_check_kmem_init>:
+ffff800000116730 <lab3_check_kmem_init>:
 ; {
-ffff800000116750: 55                   	pushq	%rbp
-ffff800000116751: 48 89 e5             	movq	%rsp, %rbp
-ffff800000116754: 41 57                	pushq	%r15
-ffff800000116756: 41 56                	pushq	%r14
-ffff800000116758: 41 54                	pushq	%r12
-ffff80000011675a: 53                   	pushq	%rbx
-ffff80000011675b: 41 be 40 00 00 00    	movl	$64, %r14d
-ffff800000116761: 48 bb 00 07 17 00 00 80 ff ff	movabsq	$-140737486846208, %rbx # imm = 0xFFFF800000170700
-ffff80000011676b: 49 bf 60 68 11 00 00 80 ff ff	movabsq	$-140737487214496, %r15 # imm = 0xFFFF800000116860
-ffff800000116775: 66 2e 0f 1f 84 00 00 00 00 00	nopw	%cs:(%rax,%rax)
-ffff80000011677f: 90                   	nop
+ffff800000116730: 55                   	pushq	%rbp
+ffff800000116731: 48 89 e5             	movq	%rsp, %rbp
+ffff800000116734: 41 57                	pushq	%r15
+ffff800000116736: 41 56                	pushq	%r14
+ffff800000116738: 41 54                	pushq	%r12
+ffff80000011673a: 53                   	pushq	%rbx
+ffff80000011673b: 41 be 40 00 00 00    	movl	$64, %r14d
+ffff800000116741: 48 bb 00 07 17 00 00 80 ff ff	movabsq	$-140737486846208, %rbx # imm = 0xFFFF800000170700
+ffff80000011674b: 49 bf 40 68 11 00 00 80 ff ff	movabsq	$-140737487214528, %r15 # imm = 0xFFFF800000116840
+ffff800000116755: 66 2e 0f 1f 84 00 00 00 00 00	nopw	%cs:(%rax,%rax)
+ffff80000011675f: 90                   	nop
 ; 	for (i = 0; i < 32; ++i) {
-ffff800000116780: 4d 8d 66 20          	leaq	32(%r14), %r12
-ffff800000116784: 49 81 fc 60 04 00 00 	cmpq	$1120, %r12             # imm = 0x460
-ffff80000011678b: 74 55                	je	0xffff8000001167e2 <lab3_check_kmem_init+0x92>
+ffff800000116760: 4d 8d 66 20          	leaq	32(%r14), %r12
+ffff800000116764: 49 81 fc 60 04 00 00 	cmpq	$1120, %r12             # imm = 0x460
+ffff80000011676b: 74 55                	je	0xffff8000001167c2 <lab3_check_kmem_init+0x92>
 ; 		if (!list_is_empty(&slab->partial)) {
-ffff80000011678d: 48 89 df             	movq	%rbx, %rdi
-ffff800000116790: 41 ff d7             	callq	*%r15
-ffff800000116793: 85 c0                	testl	%eax, %eax
-ffff800000116795: 74 6c                	je	0xffff800000116803 <lab3_check_kmem_init+0xb3>
+ffff80000011676d: 48 89 df             	movq	%rbx, %rdi
+ffff800000116770: 41 ff d7             	callq	*%r15
+ffff800000116773: 85 c0                	testl	%eax, %eax
+ffff800000116775: 74 6c                	je	0xffff8000001167e3 <lab3_check_kmem_init+0xb3>
 ; 		if (!list_is_empty(&slab->full)) {
-ffff800000116797: 48 8d 7b 10          	leaq	16(%rbx), %rdi
-ffff80000011679b: 41 ff d7             	callq	*%r15
-ffff80000011679e: 85 c0                	testl	%eax, %eax
-ffff8000001167a0: 0f 84 82 00 00 00    	je	0xffff800000116828 <lab3_check_kmem_init+0xd8>
-ffff8000001167a6: 49 8d 4c 24 e0       	leaq	-32(%r12), %rcx
+ffff800000116777: 48 8d 7b 10          	leaq	16(%rbx), %rdi
+ffff80000011677b: 41 ff d7             	callq	*%r15
+ffff80000011677e: 85 c0                	testl	%eax, %eax
+ffff800000116780: 0f 84 82 00 00 00    	je	0xffff800000116808 <lab3_check_kmem_init+0xd8>
+ffff800000116786: 49 8d 4c 24 e0       	leaq	-32(%r12), %rcx
 ; 		if (slab->obj_size != obj_size) {
-ffff8000001167ab: 4c 8b 43 28          	movq	40(%rbx), %r8
-ffff8000001167af: 48 83 c3 38          	addq	$56, %rbx
-ffff8000001167b3: 4d 89 e6             	movq	%r12, %r14
+ffff80000011678b: 4c 8b 43 28          	movq	40(%rbx), %r8
+ffff80000011678f: 48 83 c3 38          	addq	$56, %rbx
+ffff800000116793: 4d 89 e6             	movq	%r12, %r14
 ; 		if (slab->obj_size != obj_size) {
-ffff8000001167b6: 4c 39 c1             	cmpq	%r8, %rcx
-ffff8000001167b9: 74 c5                	je	0xffff800000116780 <lab3_check_kmem_init+0x30>
+ffff800000116796: 4c 39 c1             	cmpq	%r8, %rcx
+ffff800000116799: 74 c5                	je	0xffff800000116760 <lab3_check_kmem_init+0x30>
 ; 			panic("slab for object size %u has unexpected object "
-ffff8000001167bb: 48 bf 21 a4 11 00 00 80 ff ff	movabsq	$-140737487199199, %rdi # imm = 0xFFFF80000011A421
-ffff8000001167c5: 48 ba 18 ab 11 00 00 80 ff ff	movabsq	$-140737487197416, %rdx # imm = 0xFFFF80000011AB18
-ffff8000001167cf: 48 bb 20 c9 10 00 00 80 ff ff	movabsq	$-140737487255264, %rbx # imm = 0xFFFF80000010C920
-ffff8000001167d9: be 21 00 00 00       	movl	$33, %esi
-ffff8000001167de: 31 c0                	xorl	%eax, %eax
-ffff8000001167e0: ff d3                	callq	*%rbx
+ffff80000011679b: 48 bf 21 a4 11 00 00 80 ff ff	movabsq	$-140737487199199, %rdi # imm = 0xFFFF80000011A421
+ffff8000001167a5: 48 ba 18 ab 11 00 00 80 ff ff	movabsq	$-140737487197416, %rdx # imm = 0xFFFF80000011AB18
+ffff8000001167af: 48 bb 20 c9 10 00 00 80 ff ff	movabsq	$-140737487255264, %rbx # imm = 0xFFFF80000010C920
+ffff8000001167b9: be 21 00 00 00       	movl	$33, %esi
+ffff8000001167be: 31 c0                	xorl	%eax, %eax
+ffff8000001167c0: ff d3                	callq	*%rbx
 ; 	cprintf("[LAB 3] check_kmem_init() succeeded!\n");
-ffff8000001167e2: 48 bf 93 ad 11 00 00 80 ff ff	movabsq	$-140737487196781, %rdi # imm = 0xFFFF80000011AD93
-ffff8000001167ec: 48 b9 b0 d4 10 00 00 80 ff ff	movabsq	$-140737487252304, %rcx # imm = 0xFFFF80000010D4B0
-ffff8000001167f6: 31 c0                	xorl	%eax, %eax
-ffff8000001167f8: ff d1                	callq	*%rcx
+ffff8000001167c2: 48 bf 93 ad 11 00 00 80 ff ff	movabsq	$-140737487196781, %rdi # imm = 0xFFFF80000011AD93
+ffff8000001167cc: 48 b9 b0 d4 10 00 00 80 ff ff	movabsq	$-140737487252304, %rcx # imm = 0xFFFF80000010D4B0
+ffff8000001167d6: 31 c0                	xorl	%eax, %eax
+ffff8000001167d8: ff d1                	callq	*%rcx
 ; }
-ffff8000001167fa: 5b                   	popq	%rbx
-ffff8000001167fb: 41 5c                	popq	%r12
-ffff8000001167fd: 41 5e                	popq	%r14
-ffff8000001167ff: 41 5f                	popq	%r15
-ffff800000116801: 5d                   	popq	%rbp
-ffff800000116802: c3                   	retq
+ffff8000001167da: 5b                   	popq	%rbx
+ffff8000001167db: 41 5c                	popq	%r12
+ffff8000001167dd: 41 5e                	popq	%r14
+ffff8000001167df: 41 5f                	popq	%r15
+ffff8000001167e1: 5d                   	popq	%rbp
+ffff8000001167e2: c3                   	retq
 ; 			panic("slab for object size %u has partial slabs",
-ffff800000116803: 48 bf 21 a4 11 00 00 80 ff ff	movabsq	$-140737487199199, %rdi # imm = 0xFFFF80000011A421
-ffff80000011680d: 48 ba ee aa 11 00 00 80 ff ff	movabsq	$-140737487197458, %rdx # imm = 0xFFFF80000011AAEE
-ffff800000116817: 48 bb 20 c9 10 00 00 80 ff ff	movabsq	$-140737487255264, %rbx # imm = 0xFFFF80000010C920
-ffff800000116821: be 17 00 00 00       	movl	$23, %esi
-ffff800000116826: eb 23                	jmp	0xffff80000011684b <lab3_check_kmem_init+0xfb>
+ffff8000001167e3: 48 bf 21 a4 11 00 00 80 ff ff	movabsq	$-140737487199199, %rdi # imm = 0xFFFF80000011A421
+ffff8000001167ed: 48 ba ee aa 11 00 00 80 ff ff	movabsq	$-140737487197458, %rdx # imm = 0xFFFF80000011AAEE
+ffff8000001167f7: 48 bb 20 c9 10 00 00 80 ff ff	movabsq	$-140737487255264, %rbx # imm = 0xFFFF80000010C920
+ffff800000116801: be 17 00 00 00       	movl	$23, %esi
+ffff800000116806: eb 23                	jmp	0xffff80000011682b <lab3_check_kmem_init+0xfb>
 ; 			panic("slab for object size %u has full slabs",
-ffff800000116828: 48 bf 21 a4 11 00 00 80 ff ff	movabsq	$-140737487199199, %rdi # imm = 0xFFFF80000011A421
-ffff800000116832: 48 ba fa 9a 11 00 00 80 ff ff	movabsq	$-140737487201542, %rdx # imm = 0xFFFF800000119AFA
-ffff80000011683c: 48 bb 20 c9 10 00 00 80 ff ff	movabsq	$-140737487255264, %rbx # imm = 0xFFFF80000010C920
-ffff800000116846: be 1c 00 00 00       	movl	$28, %esi
-ffff80000011684b: 4c 89 f1             	movq	%r14, %rcx
-ffff80000011684e: 31 c0                	xorl	%eax, %eax
-ffff800000116850: ff d3                	callq	*%rbx
-ffff800000116852: 66 2e 0f 1f 84 00 00 00 00 00	nopw	%cs:(%rax,%rax)
-ffff80000011685c: 0f 1f 40 00          	nopl	(%rax)
+ffff800000116808: 48 bf 21 a4 11 00 00 80 ff ff	movabsq	$-140737487199199, %rdi # imm = 0xFFFF80000011A421
+ffff800000116812: 48 ba fa 9a 11 00 00 80 ff ff	movabsq	$-140737487201542, %rdx # imm = 0xFFFF800000119AFA
+ffff80000011681c: 48 bb 20 c9 10 00 00 80 ff ff	movabsq	$-140737487255264, %rbx # imm = 0xFFFF80000010C920
+ffff800000116826: be 1c 00 00 00       	movl	$28, %esi
+ffff80000011682b: 4c 89 f1             	movq	%r14, %rcx
+ffff80000011682e: 31 c0                	xorl	%eax, %eax
+ffff800000116830: ff d3                	callq	*%rbx
+ffff800000116832: 66 2e 0f 1f 84 00 00 00 00 00	nopw	%cs:(%rax,%rax)
+ffff80000011683c: 0f 1f 40 00          	nopl	(%rax)
 
-ffff800000116860 <list_is_empty>:
+ffff800000116840 <list_is_empty>:
 ; {
-ffff800000116860: 55                   	pushq	%rbp
-ffff800000116861: 48 89 e5             	movq	%rsp, %rbp
+ffff800000116840: 55                   	pushq	%rbp
+ffff800000116841: 48 89 e5             	movq	%rsp, %rbp
 ; 	return head->next == head;
-ffff800000116864: 31 c0                	xorl	%eax, %eax
-ffff800000116866: 48 39 3f             	cmpq	%rdi, (%rdi)
-ffff800000116869: 0f 94 c0             	sete	%al
-ffff80000011686c: 5d                   	popq	%rbp
-ffff80000011686d: c3                   	retq
-ffff80000011686e: 66 90                	nop
+ffff800000116844: 31 c0                	xorl	%eax, %eax
+ffff800000116846: 48 39 3f             	cmpq	%rdi, (%rdi)
+ffff800000116849: 0f 94 c0             	sete	%al
+ffff80000011684c: 5d                   	popq	%rbp
+ffff80000011684d: c3                   	retq
+ffff80000011684e: 66 90                	nop
 
-ffff800000116870 <lab3_check_kmem_single_alloc>:
+ffff800000116850 <lab3_check_kmem_single_alloc>:
 ; {
-ffff800000116870: 55                   	pushq	%rbp
-ffff800000116871: 48 89 e5             	movq	%rsp, %rbp
-ffff800000116874: 41 57                	pushq	%r15
-ffff800000116876: 41 56                	pushq	%r14
-ffff800000116878: 41 55                	pushq	%r13
-ffff80000011687a: 41 54                	pushq	%r12
-ffff80000011687c: 53                   	pushq	%rbx
-ffff80000011687d: 50                   	pushq	%rax
-ffff80000011687e: 41 bd 40 00 00 00    	movl	$64, %r13d
-ffff800000116884: 48 bb 00 07 17 00 00 80 ff ff	movabsq	$-140737486846208, %rbx # imm = 0xFFFF800000170700
-ffff80000011688e: 49 be 60 68 11 00 00 80 ff ff	movabsq	$-140737487214496, %r14 # imm = 0xFFFF800000116860
-ffff800000116898: 0f 1f 84 00 00 00 00 00      	nopl	(%rax,%rax)
+ffff800000116850: 55                   	pushq	%rbp
+ffff800000116851: 48 89 e5             	movq	%rsp, %rbp
+ffff800000116854: 41 57                	pushq	%r15
+ffff800000116856: 41 56                	pushq	%r14
+ffff800000116858: 41 55                	pushq	%r13
+ffff80000011685a: 41 54                	pushq	%r12
+ffff80000011685c: 53                   	pushq	%rbx
+ffff80000011685d: 50                   	pushq	%rax
+ffff80000011685e: 41 bd 40 00 00 00    	movl	$64, %r13d
+ffff800000116864: 48 bb 00 07 17 00 00 80 ff ff	movabsq	$-140737486846208, %rbx # imm = 0xFFFF800000170700
+ffff80000011686e: 49 be 40 68 11 00 00 80 ff ff	movabsq	$-140737487214528, %r14 # imm = 0xFFFF800000116840
+ffff800000116878: 0f 1f 84 00 00 00 00 00      	nopl	(%rax,%rax)
 ; 	for (i = 0; i < 32; ++i) {
-ffff8000001168a0: 4d 8d 7d 20          	leaq	32(%r13), %r15
-ffff8000001168a4: 49 81 ff 60 04 00 00 	cmpq	$1120, %r15             # imm = 0x460
-ffff8000001168ab: 0f 84 f0 00 00 00    	je	0xffff8000001169a1 <lab3_check_kmem_single_alloc+0x131>
+ffff800000116880: 4d 8d 7d 20          	leaq	32(%r13), %r15
+ffff800000116884: 49 81 ff 60 04 00 00 	cmpq	$1120, %r15             # imm = 0x460
+ffff80000011688b: 0f 84 f0 00 00 00    	je	0xffff800000116981 <lab3_check_kmem_single_alloc+0x131>
 ; 		real_obj_size = ROUNDUP(obj_size + sizeof(struct slab_obj), 32);
-ffff8000001168b1: 49 8d 45 e0          	leaq	-32(%r13), %rax
-ffff8000001168b5: 48 89 45 d0          	movq	%rax, -48(%rbp)
+ffff800000116891: 49 8d 45 e0          	leaq	-32(%r13), %rax
+ffff800000116895: 48 89 45 d0          	movq	%rax, -48(%rbp)
 ; 		if (!list_is_empty(&slab->partial)) {
-ffff8000001168b9: 48 89 df             	movq	%rbx, %rdi
-ffff8000001168bc: 41 ff d6             	callq	*%r14
-ffff8000001168bf: 85 c0                	testl	%eax, %eax
-ffff8000001168c1: 0f 84 01 01 00 00    	je	0xffff8000001169c8 <lab3_check_kmem_single_alloc+0x158>
+ffff800000116899: 48 89 df             	movq	%rbx, %rdi
+ffff80000011689c: 41 ff d6             	callq	*%r14
+ffff80000011689f: 85 c0                	testl	%eax, %eax
+ffff8000001168a1: 0f 84 01 01 00 00    	je	0xffff8000001169a8 <lab3_check_kmem_single_alloc+0x158>
 ; 		if (!list_is_empty(&slab->full)) {
-ffff8000001168c7: 4c 8d 63 10          	leaq	16(%rbx), %r12
-ffff8000001168cb: 4c 89 e7             	movq	%r12, %rdi
-ffff8000001168ce: 41 ff d6             	callq	*%r14
-ffff8000001168d1: 85 c0                	testl	%eax, %eax
-ffff8000001168d3: 0f 84 17 01 00 00    	je	0xffff8000001169f0 <lab3_check_kmem_single_alloc+0x180>
+ffff8000001168a7: 4c 8d 63 10          	leaq	16(%rbx), %r12
+ffff8000001168ab: 4c 89 e7             	movq	%r12, %rdi
+ffff8000001168ae: 41 ff d6             	callq	*%r14
+ffff8000001168b1: 85 c0                	testl	%eax, %eax
+ffff8000001168b3: 0f 84 17 01 00 00    	je	0xffff8000001169d0 <lab3_check_kmem_single_alloc+0x180>
 ; 		if (slab->obj_size != real_obj_size) {
-ffff8000001168d9: 4c 8b 43 28          	movq	40(%rbx), %r8
-ffff8000001168dd: 4d 39 c5             	cmpq	%r8, %r13
-ffff8000001168e0: 0f 85 32 01 00 00    	jne	0xffff800000116a18 <lab3_check_kmem_single_alloc+0x1a8>
-ffff8000001168e6: 48 8b 7d d0          	movq	-48(%rbp), %rdi
+ffff8000001168b9: 4c 8b 43 28          	movq	40(%rbx), %r8
+ffff8000001168bd: 4d 39 c5             	cmpq	%r8, %r13
+ffff8000001168c0: 0f 85 32 01 00 00    	jne	0xffff8000001169f8 <lab3_check_kmem_single_alloc+0x1a8>
+ffff8000001168c6: 48 8b 7d d0          	movq	-48(%rbp), %rdi
 ; 		p = kmalloc(obj_size);
-ffff8000001168ea: 48 b8 e0 45 11 00 00 80 ff ff	movabsq	$-140737487223328, %rax # imm = 0xFFFF8000001145E0
-ffff8000001168f4: ff d0                	callq	*%rax
+ffff8000001168ca: 48 b8 e0 45 11 00 00 80 ff ff	movabsq	$-140737487223328, %rax # imm = 0xFFFF8000001145E0
+ffff8000001168d4: ff d0                	callq	*%rax
 ; 		if (!p) {
-ffff8000001168f6: 48 85 c0             	testq	%rax, %rax
-ffff8000001168f9: 0f 84 44 01 00 00    	je	0xffff800000116a43 <lab3_check_kmem_single_alloc+0x1d3>
-ffff8000001168ff: 49 89 c5             	movq	%rax, %r13
+ffff8000001168d6: 48 85 c0             	testq	%rax, %rax
+ffff8000001168d9: 0f 84 44 01 00 00    	je	0xffff800000116a23 <lab3_check_kmem_single_alloc+0x1d3>
+ffff8000001168df: 49 89 c5             	movq	%rax, %r13
 ; 		if (list_is_empty(&slab->partial)) {
-ffff800000116902: 48 89 df             	movq	%rbx, %rdi
-ffff800000116905: 41 ff d6             	callq	*%r14
-ffff800000116908: 85 c0                	testl	%eax, %eax
-ffff80000011690a: 0f 85 5b 01 00 00    	jne	0xffff800000116a6b <lab3_check_kmem_single_alloc+0x1fb>
+ffff8000001168e2: 48 89 df             	movq	%rbx, %rdi
+ffff8000001168e5: 41 ff d6             	callq	*%r14
+ffff8000001168e8: 85 c0                	testl	%eax, %eax
+ffff8000001168ea: 0f 85 5b 01 00 00    	jne	0xffff800000116a4b <lab3_check_kmem_single_alloc+0x1fb>
 ; 		if (!list_is_empty(&slab->full)) {
-ffff800000116910: 4c 89 e7             	movq	%r12, %rdi
-ffff800000116913: 41 ff d6             	callq	*%r14
-ffff800000116916: 85 c0                	testl	%eax, %eax
-ffff800000116918: 0f 84 75 01 00 00    	je	0xffff800000116a93 <lab3_check_kmem_single_alloc+0x223>
+ffff8000001168f0: 4c 89 e7             	movq	%r12, %rdi
+ffff8000001168f3: 41 ff d6             	callq	*%r14
+ffff8000001168f6: 85 c0                	testl	%eax, %eax
+ffff8000001168f8: 0f 84 75 01 00 00    	je	0xffff800000116a73 <lab3_check_kmem_single_alloc+0x223>
 ; 		info = container_of(slab->partial.next, struct slab_info, node);
-ffff80000011691e: 48 8b 03             	movq	(%rbx), %rax
+ffff8000001168fe: 48 8b 03             	movq	(%rbx), %rax
 ; 		if (info->free_count + 1 != slab->count) {
-ffff800000116921: 48 8b 48 20          	movq	32(%rax), %rcx
-ffff800000116925: 48 83 c1 01          	addq	$1, %rcx
-ffff800000116929: 48 3b 4b 30          	cmpq	48(%rbx), %rcx
-ffff80000011692d: 0f 85 85 01 00 00    	jne	0xffff800000116ab8 <lab3_check_kmem_single_alloc+0x248>
+ffff800000116901: 48 8b 48 20          	movq	32(%rax), %rcx
+ffff800000116905: 48 83 c1 01          	addq	$1, %rcx
+ffff800000116909: 48 3b 4b 30          	cmpq	48(%rbx), %rcx
+ffff80000011690d: 0f 85 85 01 00 00    	jne	0xffff800000116a98 <lab3_check_kmem_single_alloc+0x248>
 ; 		info = container_of(slab->partial.next, struct slab_info, node);
-ffff800000116933: 48 83 c0 f8          	addq	$-8, %rax
+ffff800000116913: 48 83 c0 f8          	addq	$-8, %rax
 ; 		if (obj->info != info) {
-ffff800000116937: 49 39 45 f8          	cmpq	%rax, -8(%r13)
-ffff80000011693b: 0f 85 9e 01 00 00    	jne	0xffff800000116adf <lab3_check_kmem_single_alloc+0x26f>
+ffff800000116917: 49 39 45 f8          	cmpq	%rax, -8(%r13)
+ffff80000011691b: 0f 85 9e 01 00 00    	jne	0xffff800000116abf <lab3_check_kmem_single_alloc+0x26f>
 ; 		kfree(p);
-ffff800000116941: 4c 89 ef             	movq	%r13, %rdi
-ffff800000116944: 48 b8 30 46 11 00 00 80 ff ff	movabsq	$-140737487223248, %rax # imm = 0xFFFF800000114630
-ffff80000011694e: ff d0                	callq	*%rax
+ffff800000116921: 4c 89 ef             	movq	%r13, %rdi
+ffff800000116924: 48 b8 30 46 11 00 00 80 ff ff	movabsq	$-140737487223248, %rax # imm = 0xFFFF800000114630
+ffff80000011692e: ff d0                	callq	*%rax
 ; 		if (!list_is_empty(&slab->partial)) {
-ffff800000116950: 48 89 df             	movq	%rbx, %rdi
-ffff800000116953: 41 ff d6             	callq	*%r14
-ffff800000116956: 85 c0                	testl	%eax, %eax
-ffff800000116958: 0f 84 a8 01 00 00    	je	0xffff800000116b06 <lab3_check_kmem_single_alloc+0x296>
-ffff80000011695e: 48 83 c3 38          	addq	$56, %rbx
+ffff800000116930: 48 89 df             	movq	%rbx, %rdi
+ffff800000116933: 41 ff d6             	callq	*%r14
+ffff800000116936: 85 c0                	testl	%eax, %eax
+ffff800000116938: 0f 84 a8 01 00 00    	je	0xffff800000116ae6 <lab3_check_kmem_single_alloc+0x296>
+ffff80000011693e: 48 83 c3 38          	addq	$56, %rbx
 ; 		if (!list_is_empty(&slab->full)) {
-ffff800000116962: 4c 89 e7             	movq	%r12, %rdi
-ffff800000116965: 41 ff d6             	callq	*%r14
-ffff800000116968: 4d 89 fd             	movq	%r15, %r13
-ffff80000011696b: 85 c0                	testl	%eax, %eax
-ffff80000011696d: 0f 85 2d ff ff ff    	jne	0xffff8000001168a0 <lab3_check_kmem_single_alloc+0x30>
+ffff800000116942: 4c 89 e7             	movq	%r12, %rdi
+ffff800000116945: 41 ff d6             	callq	*%r14
+ffff800000116948: 4d 89 fd             	movq	%r15, %r13
+ffff80000011694b: 85 c0                	testl	%eax, %eax
+ffff80000011694d: 0f 85 2d ff ff ff    	jne	0xffff800000116880 <lab3_check_kmem_single_alloc+0x30>
 ; 			panic("slab for object size %u has full slabs",
-ffff800000116973: 49 83 c7 c0          	addq	$-64, %r15
-ffff800000116977: 48 bf 21 a4 11 00 00 80 ff ff	movabsq	$-140737487199199, %rdi # imm = 0xFFFF80000011A421
-ffff800000116981: 48 ba fa 9a 11 00 00 80 ff ff	movabsq	$-140737487201542, %rdx # imm = 0xFFFF800000119AFA
-ffff80000011698b: 48 bb 20 c9 10 00 00 80 ff ff	movabsq	$-140737487255264, %rbx # imm = 0xFFFF80000010C920
-ffff800000116995: be 6c 00 00 00       	movl	$108, %esi
-ffff80000011699a: 4c 89 f9             	movq	%r15, %rcx
-ffff80000011699d: 31 c0                	xorl	%eax, %eax
-ffff80000011699f: ff d3                	callq	*%rbx
+ffff800000116953: 49 83 c7 c0          	addq	$-64, %r15
+ffff800000116957: 48 bf 21 a4 11 00 00 80 ff ff	movabsq	$-140737487199199, %rdi # imm = 0xFFFF80000011A421
+ffff800000116961: 48 ba fa 9a 11 00 00 80 ff ff	movabsq	$-140737487201542, %rdx # imm = 0xFFFF800000119AFA
+ffff80000011696b: 48 bb 20 c9 10 00 00 80 ff ff	movabsq	$-140737487255264, %rbx # imm = 0xFFFF80000010C920
+ffff800000116975: be 6c 00 00 00       	movl	$108, %esi
+ffff80000011697a: 4c 89 f9             	movq	%r15, %rcx
+ffff80000011697d: 31 c0                	xorl	%eax, %eax
+ffff80000011697f: ff d3                	callq	*%rbx
 ; 	cprintf("[LAB 3] check_kmem_single_alloc() succeeded!\n");
-ffff8000001169a1: 48 bf ec 9d 11 00 00 80 ff ff	movabsq	$-140737487200788, %rdi # imm = 0xFFFF800000119DEC
-ffff8000001169ab: 48 b9 b0 d4 10 00 00 80 ff ff	movabsq	$-140737487252304, %rcx # imm = 0xFFFF80000010D4B0
-ffff8000001169b5: 31 c0                	xorl	%eax, %eax
-ffff8000001169b7: ff d1                	callq	*%rcx
+ffff800000116981: 48 bf ec 9d 11 00 00 80 ff ff	movabsq	$-140737487200788, %rdi # imm = 0xFFFF800000119DEC
+ffff80000011698b: 48 b9 b0 d4 10 00 00 80 ff ff	movabsq	$-140737487252304, %rcx # imm = 0xFFFF80000010D4B0
+ffff800000116995: 31 c0                	xorl	%eax, %eax
+ffff800000116997: ff d1                	callq	*%rcx
 ; }
-ffff8000001169b9: 48 83 c4 08          	addq	$8, %rsp
-ffff8000001169bd: 5b                   	popq	%rbx
-ffff8000001169be: 41 5c                	popq	%r12
-ffff8000001169c0: 41 5d                	popq	%r13
-ffff8000001169c2: 41 5e                	popq	%r14
-ffff8000001169c4: 41 5f                	popq	%r15
-ffff8000001169c6: 5d                   	popq	%rbp
-ffff8000001169c7: c3                   	retq
+ffff800000116999: 48 83 c4 08          	addq	$8, %rsp
+ffff80000011699d: 5b                   	popq	%rbx
+ffff80000011699e: 41 5c                	popq	%r12
+ffff8000001169a0: 41 5d                	popq	%r13
+ffff8000001169a2: 41 5e                	popq	%r14
+ffff8000001169a4: 41 5f                	popq	%r15
+ffff8000001169a6: 5d                   	popq	%rbp
+ffff8000001169a7: c3                   	retq
 ; 			panic("slab for object size %u has partial slabs",
-ffff8000001169c8: 48 bf 21 a4 11 00 00 80 ff ff	movabsq	$-140737487199199, %rdi # imm = 0xFFFF80000011A421
-ffff8000001169d2: 48 ba ee aa 11 00 00 80 ff ff	movabsq	$-140737487197458, %rdx # imm = 0xFFFF80000011AAEE
-ffff8000001169dc: 48 bb 20 c9 10 00 00 80 ff ff	movabsq	$-140737487255264, %rbx # imm = 0xFFFF80000010C920
-ffff8000001169e6: be 38 00 00 00       	movl	$56, %esi
-ffff8000001169eb: e9 39 01 00 00       	jmp	0xffff800000116b29 <lab3_check_kmem_single_alloc+0x2b9>
+ffff8000001169a8: 48 bf 21 a4 11 00 00 80 ff ff	movabsq	$-140737487199199, %rdi # imm = 0xFFFF80000011A421
+ffff8000001169b2: 48 ba ee aa 11 00 00 80 ff ff	movabsq	$-140737487197458, %rdx # imm = 0xFFFF80000011AAEE
+ffff8000001169bc: 48 bb 20 c9 10 00 00 80 ff ff	movabsq	$-140737487255264, %rbx # imm = 0xFFFF80000010C920
+ffff8000001169c6: be 38 00 00 00       	movl	$56, %esi
+ffff8000001169cb: e9 39 01 00 00       	jmp	0xffff800000116b09 <lab3_check_kmem_single_alloc+0x2b9>
 ; 			panic("slab for object size %u has full slabs",
-ffff8000001169f0: 48 bf 21 a4 11 00 00 80 ff ff	movabsq	$-140737487199199, %rdi # imm = 0xFFFF80000011A421
-ffff8000001169fa: 48 ba fa 9a 11 00 00 80 ff ff	movabsq	$-140737487201542, %rdx # imm = 0xFFFF800000119AFA
-ffff800000116a04: 48 bb 20 c9 10 00 00 80 ff ff	movabsq	$-140737487255264, %rbx # imm = 0xFFFF80000010C920
-ffff800000116a0e: be 3d 00 00 00       	movl	$61, %esi
-ffff800000116a13: e9 11 01 00 00       	jmp	0xffff800000116b29 <lab3_check_kmem_single_alloc+0x2b9>
+ffff8000001169d0: 48 bf 21 a4 11 00 00 80 ff ff	movabsq	$-140737487199199, %rdi # imm = 0xFFFF80000011A421
+ffff8000001169da: 48 ba fa 9a 11 00 00 80 ff ff	movabsq	$-140737487201542, %rdx # imm = 0xFFFF800000119AFA
+ffff8000001169e4: 48 bb 20 c9 10 00 00 80 ff ff	movabsq	$-140737487255264, %rbx # imm = 0xFFFF80000010C920
+ffff8000001169ee: be 3d 00 00 00       	movl	$61, %esi
+ffff8000001169f3: e9 11 01 00 00       	jmp	0xffff800000116b09 <lab3_check_kmem_single_alloc+0x2b9>
 ; 			panic("slab for object size %u has unexpected object "
-ffff800000116a18: 48 bf 21 a4 11 00 00 80 ff ff	movabsq	$-140737487199199, %rdi # imm = 0xFFFF80000011A421
-ffff800000116a22: 48 ba 18 ab 11 00 00 80 ff ff	movabsq	$-140737487197416, %rdx # imm = 0xFFFF80000011AB18
-ffff800000116a2c: 48 bb 20 c9 10 00 00 80 ff ff	movabsq	$-140737487255264, %rbx # imm = 0xFFFF80000010C920
-ffff800000116a36: be 42 00 00 00       	movl	$66, %esi
-ffff800000116a3b: 48 8b 4d d0          	movq	-48(%rbp), %rcx
-ffff800000116a3f: 31 c0                	xorl	%eax, %eax
-ffff800000116a41: ff d3                	callq	*%rbx
+ffff8000001169f8: 48 bf 21 a4 11 00 00 80 ff ff	movabsq	$-140737487199199, %rdi # imm = 0xFFFF80000011A421
+ffff800000116a02: 48 ba 18 ab 11 00 00 80 ff ff	movabsq	$-140737487197416, %rdx # imm = 0xFFFF80000011AB18
+ffff800000116a0c: 48 bb 20 c9 10 00 00 80 ff ff	movabsq	$-140737487255264, %rbx # imm = 0xFFFF80000010C920
+ffff800000116a16: be 42 00 00 00       	movl	$66, %esi
+ffff800000116a1b: 48 8b 4d d0          	movq	-48(%rbp), %rcx
+ffff800000116a1f: 31 c0                	xorl	%eax, %eax
+ffff800000116a21: ff d3                	callq	*%rbx
 ; 			panic("kmalloc(%u) returned NULL", obj_size);
-ffff800000116a43: 48 bf 21 a4 11 00 00 80 ff ff	movabsq	$-140737487199199, %rdi # imm = 0xFFFF80000011A421
-ffff800000116a4d: 48 ba d8 a8 11 00 00 80 ff ff	movabsq	$-140737487197992, %rdx # imm = 0xFFFF80000011A8D8
-ffff800000116a57: 48 bb 20 c9 10 00 00 80 ff ff	movabsq	$-140737487255264, %rbx # imm = 0xFFFF80000010C920
-ffff800000116a61: be 48 00 00 00       	movl	$72, %esi
-ffff800000116a66: e9 be 00 00 00       	jmp	0xffff800000116b29 <lab3_check_kmem_single_alloc+0x2b9>
+ffff800000116a23: 48 bf 21 a4 11 00 00 80 ff ff	movabsq	$-140737487199199, %rdi # imm = 0xFFFF80000011A421
+ffff800000116a2d: 48 ba d8 a8 11 00 00 80 ff ff	movabsq	$-140737487197992, %rdx # imm = 0xFFFF80000011A8D8
+ffff800000116a37: 48 bb 20 c9 10 00 00 80 ff ff	movabsq	$-140737487255264, %rbx # imm = 0xFFFF80000010C920
+ffff800000116a41: be 48 00 00 00       	movl	$72, %esi
+ffff800000116a46: e9 be 00 00 00       	jmp	0xffff800000116b09 <lab3_check_kmem_single_alloc+0x2b9>
 ; 			panic("slab for object size %u has no partial slabs",
-ffff800000116a6b: 48 bf 21 a4 11 00 00 80 ff ff	movabsq	$-140737487199199, %rdi # imm = 0xFFFF80000011A421
-ffff800000116a75: 48 ba 78 9d 11 00 00 80 ff ff	movabsq	$-140737487200904, %rdx # imm = 0xFFFF800000119D78
-ffff800000116a7f: 48 bb 20 c9 10 00 00 80 ff ff	movabsq	$-140737487255264, %rbx # imm = 0xFFFF80000010C920
-ffff800000116a89: be 4d 00 00 00       	movl	$77, %esi
-ffff800000116a8e: e9 96 00 00 00       	jmp	0xffff800000116b29 <lab3_check_kmem_single_alloc+0x2b9>
+ffff800000116a4b: 48 bf 21 a4 11 00 00 80 ff ff	movabsq	$-140737487199199, %rdi # imm = 0xFFFF80000011A421
+ffff800000116a55: 48 ba 78 9d 11 00 00 80 ff ff	movabsq	$-140737487200904, %rdx # imm = 0xFFFF800000119D78
+ffff800000116a5f: 48 bb 20 c9 10 00 00 80 ff ff	movabsq	$-140737487255264, %rbx # imm = 0xFFFF80000010C920
+ffff800000116a69: be 4d 00 00 00       	movl	$77, %esi
+ffff800000116a6e: e9 96 00 00 00       	jmp	0xffff800000116b09 <lab3_check_kmem_single_alloc+0x2b9>
 ; 			panic("slab for object size %u has full slabs",
-ffff800000116a93: 48 bf 21 a4 11 00 00 80 ff ff	movabsq	$-140737487199199, %rdi # imm = 0xFFFF80000011A421
-ffff800000116a9d: 48 ba fa 9a 11 00 00 80 ff ff	movabsq	$-140737487201542, %rdx # imm = 0xFFFF800000119AFA
-ffff800000116aa7: 48 bb 20 c9 10 00 00 80 ff ff	movabsq	$-140737487255264, %rbx # imm = 0xFFFF80000010C920
-ffff800000116ab1: be 52 00 00 00       	movl	$82, %esi
-ffff800000116ab6: eb 71                	jmp	0xffff800000116b29 <lab3_check_kmem_single_alloc+0x2b9>
+ffff800000116a73: 48 bf 21 a4 11 00 00 80 ff ff	movabsq	$-140737487199199, %rdi # imm = 0xFFFF80000011A421
+ffff800000116a7d: 48 ba fa 9a 11 00 00 80 ff ff	movabsq	$-140737487201542, %rdx # imm = 0xFFFF800000119AFA
+ffff800000116a87: 48 bb 20 c9 10 00 00 80 ff ff	movabsq	$-140737487255264, %rbx # imm = 0xFFFF80000010C920
+ffff800000116a91: be 52 00 00 00       	movl	$82, %esi
+ffff800000116a96: eb 71                	jmp	0xffff800000116b09 <lab3_check_kmem_single_alloc+0x2b9>
 ; 			panic("slab for object size %u has inconsistent free "
-ffff800000116ab8: 48 bf 21 a4 11 00 00 80 ff ff	movabsq	$-140737487199199, %rdi # imm = 0xFFFF80000011A421
-ffff800000116ac2: 48 ba 52 ab 11 00 00 80 ff ff	movabsq	$-140737487197358, %rdx # imm = 0xFFFF80000011AB52
-ffff800000116acc: 48 b9 20 c9 10 00 00 80 ff ff	movabsq	$-140737487255264, %rcx # imm = 0xFFFF80000010C920
-ffff800000116ad6: be 59 00 00 00       	movl	$89, %esi
-ffff800000116adb: 31 c0                	xorl	%eax, %eax
-ffff800000116add: ff d1                	callq	*%rcx
+ffff800000116a98: 48 bf 21 a4 11 00 00 80 ff ff	movabsq	$-140737487199199, %rdi # imm = 0xFFFF80000011A421
+ffff800000116aa2: 48 ba 52 ab 11 00 00 80 ff ff	movabsq	$-140737487197358, %rdx # imm = 0xFFFF80000011AB52
+ffff800000116aac: 48 b9 20 c9 10 00 00 80 ff ff	movabsq	$-140737487255264, %rcx # imm = 0xFFFF80000010C920
+ffff800000116ab6: be 59 00 00 00       	movl	$89, %esi
+ffff800000116abb: 31 c0                	xorl	%eax, %eax
+ffff800000116abd: ff d1                	callq	*%rcx
 ; 			panic("allocated object does not point to the slab it "
-ffff800000116adf: 48 bf 21 a4 11 00 00 80 ff ff	movabsq	$-140737487199199, %rdi # imm = 0xFFFF80000011A421
-ffff800000116ae9: 48 ba a5 9d 11 00 00 80 ff ff	movabsq	$-140737487200859, %rdx # imm = 0xFFFF800000119DA5
-ffff800000116af3: 48 b9 20 c9 10 00 00 80 ff ff	movabsq	$-140737487255264, %rcx # imm = 0xFFFF80000010C920
-ffff800000116afd: be 60 00 00 00       	movl	$96, %esi
-ffff800000116b02: 31 c0                	xorl	%eax, %eax
-ffff800000116b04: ff d1                	callq	*%rcx
+ffff800000116abf: 48 bf 21 a4 11 00 00 80 ff ff	movabsq	$-140737487199199, %rdi # imm = 0xFFFF80000011A421
+ffff800000116ac9: 48 ba a5 9d 11 00 00 80 ff ff	movabsq	$-140737487200859, %rdx # imm = 0xFFFF800000119DA5
+ffff800000116ad3: 48 b9 20 c9 10 00 00 80 ff ff	movabsq	$-140737487255264, %rcx # imm = 0xFFFF80000010C920
+ffff800000116add: be 60 00 00 00       	movl	$96, %esi
+ffff800000116ae2: 31 c0                	xorl	%eax, %eax
+ffff800000116ae4: ff d1                	callq	*%rcx
 ; 			panic("slab for object size %u has partial slabs",
-ffff800000116b06: 48 bf 21 a4 11 00 00 80 ff ff	movabsq	$-140737487199199, %rdi # imm = 0xFFFF80000011A421
-ffff800000116b10: 48 ba ee aa 11 00 00 80 ff ff	movabsq	$-140737487197458, %rdx # imm = 0xFFFF80000011AAEE
-ffff800000116b1a: 48 bb 20 c9 10 00 00 80 ff ff	movabsq	$-140737487255264, %rbx # imm = 0xFFFF80000010C920
-ffff800000116b24: be 67 00 00 00       	movl	$103, %esi
-ffff800000116b29: 48 8b 4d d0          	movq	-48(%rbp), %rcx
-ffff800000116b2d: 31 c0                	xorl	%eax, %eax
-ffff800000116b2f: ff d3                	callq	*%rbx
-ffff800000116b31: 66 2e 0f 1f 84 00 00 00 00 00	nopw	%cs:(%rax,%rax)
-ffff800000116b3b: 0f 1f 44 00 00       	nopl	(%rax,%rax)
+ffff800000116ae6: 48 bf 21 a4 11 00 00 80 ff ff	movabsq	$-140737487199199, %rdi # imm = 0xFFFF80000011A421
+ffff800000116af0: 48 ba ee aa 11 00 00 80 ff ff	movabsq	$-140737487197458, %rdx # imm = 0xFFFF80000011AAEE
+ffff800000116afa: 48 bb 20 c9 10 00 00 80 ff ff	movabsq	$-140737487255264, %rbx # imm = 0xFFFF80000010C920
+ffff800000116b04: be 67 00 00 00       	movl	$103, %esi
+ffff800000116b09: 48 8b 4d d0          	movq	-48(%rbp), %rcx
+ffff800000116b0d: 31 c0                	xorl	%eax, %eax
+ffff800000116b0f: ff d3                	callq	*%rbx
+ffff800000116b11: 66 2e 0f 1f 84 00 00 00 00 00	nopw	%cs:(%rax,%rax)
+ffff800000116b1b: 0f 1f 44 00 00       	nopl	(%rax,%rax)
 
-ffff800000116b40 <lab3_check_kmem_full_alloc>:
+ffff800000116b20 <lab3_check_kmem_full_alloc>:
 ; {
-ffff800000116b40: 55                   	pushq	%rbp
-ffff800000116b41: 48 89 e5             	movq	%rsp, %rbp
-ffff800000116b44: 41 57                	pushq	%r15
-ffff800000116b46: 41 56                	pushq	%r14
-ffff800000116b48: 41 55                	pushq	%r13
-ffff800000116b4a: 41 54                	pushq	%r12
-ffff800000116b4c: 53                   	pushq	%rbx
-ffff800000116b4d: 48 83 ec 18          	subq	$24, %rsp
-ffff800000116b51: 31 db                	xorl	%ebx, %ebx
-ffff800000116b53: 49 bf 00 07 17 00 00 80 ff ff	movabsq	$-140737486846208, %r15 # imm = 0xFFFF800000170700
-ffff800000116b5d: 45 31 f6             	xorl	%r14d, %r14d
+ffff800000116b20: 55                   	pushq	%rbp
+ffff800000116b21: 48 89 e5             	movq	%rsp, %rbp
+ffff800000116b24: 41 57                	pushq	%r15
+ffff800000116b26: 41 56                	pushq	%r14
+ffff800000116b28: 41 55                	pushq	%r13
+ffff800000116b2a: 41 54                	pushq	%r12
+ffff800000116b2c: 53                   	pushq	%rbx
+ffff800000116b2d: 48 83 ec 18          	subq	$24, %rsp
+ffff800000116b31: 31 db                	xorl	%ebx, %ebx
+ffff800000116b33: 49 bf 00 07 17 00 00 80 ff ff	movabsq	$-140737486846208, %r15 # imm = 0xFFFF800000170700
+ffff800000116b3d: 45 31 f6             	xorl	%r14d, %r14d
 ; 		slab = slabs + i;
-ffff800000116b60: 4d 6b ee 38          	imulq	$56, %r14, %r13
-ffff800000116b64: 4b 8d 3c 2f          	leaq	(%r15,%r13), %rdi
+ffff800000116b40: 4d 6b ee 38          	imulq	$56, %r14, %r13
+ffff800000116b44: 4b 8d 3c 2f          	leaq	(%r15,%r13), %rdi
 ; 		obj_size = (i + 1) * 32;
-ffff800000116b68: 49 83 c6 01          	addq	$1, %r14
-ffff800000116b6c: 4c 89 75 c8          	movq	%r14, -56(%rbp)
+ffff800000116b48: 49 83 c6 01          	addq	$1, %r14
+ffff800000116b4c: 4c 89 75 c8          	movq	%r14, -56(%rbp)
 ; 		obj_size = (i + 1) * 32;
-ffff800000116b70: 49 c1 e6 05          	shlq	$5, %r14
-ffff800000116b74: 48 89 7d d0          	movq	%rdi, -48(%rbp)
-ffff800000116b78: 49 bc 60 68 11 00 00 80 ff ff	movabsq	$-140737487214496, %r12 # imm = 0xFFFF800000116860
+ffff800000116b50: 49 c1 e6 05          	shlq	$5, %r14
+ffff800000116b54: 48 89 7d d0          	movq	%rdi, -48(%rbp)
+ffff800000116b58: 49 bc 40 68 11 00 00 80 ff ff	movabsq	$-140737487214528, %r12 # imm = 0xFFFF800000116840
 ; 		if (!list_is_empty(&slab->partial)) {
-ffff800000116b82: 41 ff d4             	callq	*%r12
-ffff800000116b85: 85 c0                	testl	%eax, %eax
-ffff800000116b87: 0f 84 68 01 00 00    	je	0xffff800000116cf5 <lab3_check_kmem_full_alloc+0x1b5>
+ffff800000116b62: 41 ff d4             	callq	*%r12
+ffff800000116b65: 85 c0                	testl	%eax, %eax
+ffff800000116b67: 0f 84 68 01 00 00    	je	0xffff800000116cd5 <lab3_check_kmem_full_alloc+0x1b5>
 ; 		if (!list_is_empty(&slab->full)) {
-ffff800000116b8d: 4b 8d 3c 2f          	leaq	(%r15,%r13), %rdi
-ffff800000116b91: 48 83 c7 10          	addq	$16, %rdi
-ffff800000116b95: 48 89 7d c0          	movq	%rdi, -64(%rbp)
-ffff800000116b99: 41 ff d4             	callq	*%r12
-ffff800000116b9c: 85 c0                	testl	%eax, %eax
-ffff800000116b9e: 0f 84 76 01 00 00    	je	0xffff800000116d1a <lab3_check_kmem_full_alloc+0x1da>
-ffff800000116ba4: 49 8d 46 20          	leaq	32(%r14), %rax
+ffff800000116b6d: 4b 8d 3c 2f          	leaq	(%r15,%r13), %rdi
+ffff800000116b71: 48 83 c7 10          	addq	$16, %rdi
+ffff800000116b75: 48 89 7d c0          	movq	%rdi, -64(%rbp)
+ffff800000116b79: 41 ff d4             	callq	*%r12
+ffff800000116b7c: 85 c0                	testl	%eax, %eax
+ffff800000116b7e: 0f 84 76 01 00 00    	je	0xffff800000116cfa <lab3_check_kmem_full_alloc+0x1da>
+ffff800000116b84: 49 8d 46 20          	leaq	32(%r14), %rax
 ; 		if (slab->obj_size != real_obj_size) {
-ffff800000116ba8: 4f 8b 44 2f 28       	movq	40(%r15,%r13), %r8
-ffff800000116bad: 49 39 c0             	cmpq	%rax, %r8
-ffff800000116bb0: 0f 85 89 01 00 00    	jne	0xffff800000116d3f <lab3_check_kmem_full_alloc+0x1ff>
+ffff800000116b88: 4f 8b 44 2f 28       	movq	40(%r15,%r13), %r8
+ffff800000116b8d: 49 39 c0             	cmpq	%rax, %r8
+ffff800000116b90: 0f 85 89 01 00 00    	jne	0xffff800000116d1f <lab3_check_kmem_full_alloc+0x1ff>
 ; 		for (k = 0; k < slab->count; ++k) {
-ffff800000116bb6: 4b 83 7c 2f 30 00    	cmpq	$0, 48(%r15,%r13)
-ffff800000116bbc: 74 3e                	je	0xffff800000116bfc <lab3_check_kmem_full_alloc+0xbc>
-ffff800000116bbe: 4d 01 fd             	addq	%r15, %r13
-ffff800000116bc1: 49 83 c5 30          	addq	$48, %r13
-ffff800000116bc5: 45 31 e4             	xorl	%r12d, %r12d
-ffff800000116bc8: 49 bf e0 45 11 00 00 80 ff ff	movabsq	$-140737487223328, %r15 # imm = 0xFFFF8000001145E0
-ffff800000116bd2: 66 2e 0f 1f 84 00 00 00 00 00	nopw	%cs:(%rax,%rax)
-ffff800000116bdc: 0f 1f 40 00          	nopl	(%rax)
+ffff800000116b96: 4b 83 7c 2f 30 00    	cmpq	$0, 48(%r15,%r13)
+ffff800000116b9c: 74 3e                	je	0xffff800000116bdc <lab3_check_kmem_full_alloc+0xbc>
+ffff800000116b9e: 4d 01 fd             	addq	%r15, %r13
+ffff800000116ba1: 49 83 c5 30          	addq	$48, %r13
+ffff800000116ba5: 45 31 e4             	xorl	%r12d, %r12d
+ffff800000116ba8: 49 bf e0 45 11 00 00 80 ff ff	movabsq	$-140737487223328, %r15 # imm = 0xFFFF8000001145E0
+ffff800000116bb2: 66 2e 0f 1f 84 00 00 00 00 00	nopw	%cs:(%rax,%rax)
+ffff800000116bbc: 0f 1f 40 00          	nopl	(%rax)
 ; 			p = kmalloc(obj_size);
-ffff800000116be0: 4c 89 f7             	movq	%r14, %rdi
-ffff800000116be3: 41 ff d7             	callq	*%r15
+ffff800000116bc0: 4c 89 f7             	movq	%r14, %rdi
+ffff800000116bc3: 41 ff d7             	callq	*%r15
 ; 			if (!p) {
-ffff800000116be6: 48 85 c0             	testq	%rax, %rax
-ffff800000116be9: 0f 84 dc 00 00 00    	je	0xffff800000116ccb <lab3_check_kmem_full_alloc+0x18b>
-ffff800000116bef: 48 89 c3             	movq	%rax, %rbx
-ffff800000116bf2: 49 83 c4 01          	addq	$1, %r12
+ffff800000116bc6: 48 85 c0             	testq	%rax, %rax
+ffff800000116bc9: 0f 84 dc 00 00 00    	je	0xffff800000116cab <lab3_check_kmem_full_alloc+0x18b>
+ffff800000116bcf: 48 89 c3             	movq	%rax, %rbx
+ffff800000116bd2: 49 83 c4 01          	addq	$1, %r12
 ; 		for (k = 0; k < slab->count; ++k) {
-ffff800000116bf6: 4d 3b 65 00          	cmpq	(%r13), %r12
-ffff800000116bfa: 72 e4                	jb	0xffff800000116be0 <lab3_check_kmem_full_alloc+0xa0>
-ffff800000116bfc: 48 8b 7d d0          	movq	-48(%rbp), %rdi
-ffff800000116c00: 49 bc 60 68 11 00 00 80 ff ff	movabsq	$-140737487214496, %r12 # imm = 0xFFFF800000116860
+ffff800000116bd6: 4d 3b 65 00          	cmpq	(%r13), %r12
+ffff800000116bda: 72 e4                	jb	0xffff800000116bc0 <lab3_check_kmem_full_alloc+0xa0>
+ffff800000116bdc: 48 8b 7d d0          	movq	-48(%rbp), %rdi
+ffff800000116be0: 49 bc 40 68 11 00 00 80 ff ff	movabsq	$-140737487214528, %r12 # imm = 0xFFFF800000116840
 ; 		if (!list_is_empty(&slab->partial)) {
-ffff800000116c0a: 41 ff d4             	callq	*%r12
-ffff800000116c0d: 85 c0                	testl	%eax, %eax
-ffff800000116c0f: 0f 84 54 01 00 00    	je	0xffff800000116d69 <lab3_check_kmem_full_alloc+0x229>
-ffff800000116c15: 4c 8b 7d c0          	movq	-64(%rbp), %r15
+ffff800000116bea: 41 ff d4             	callq	*%r12
+ffff800000116bed: 85 c0                	testl	%eax, %eax
+ffff800000116bef: 0f 84 54 01 00 00    	je	0xffff800000116d49 <lab3_check_kmem_full_alloc+0x229>
+ffff800000116bf5: 4c 8b 7d c0          	movq	-64(%rbp), %r15
 ; 		if (list_is_empty(&slab->full)) {
-ffff800000116c19: 4c 89 ff             	movq	%r15, %rdi
-ffff800000116c1c: 41 ff d4             	callq	*%r12
-ffff800000116c1f: 85 c0                	testl	%eax, %eax
-ffff800000116c21: 0f 85 6a 01 00 00    	jne	0xffff800000116d91 <lab3_check_kmem_full_alloc+0x251>
+ffff800000116bf9: 4c 89 ff             	movq	%r15, %rdi
+ffff800000116bfc: 41 ff d4             	callq	*%r12
+ffff800000116bff: 85 c0                	testl	%eax, %eax
+ffff800000116c01: 0f 85 6a 01 00 00    	jne	0xffff800000116d71 <lab3_check_kmem_full_alloc+0x251>
 ; 		info = container_of(slab->full.next, struct slab_info, node);
-ffff800000116c27: 4d 8b 2f             	movq	(%r15), %r13
+ffff800000116c07: 4d 8b 2f             	movq	(%r15), %r13
 ; 		if (info->free_count != 0) {
-ffff800000116c2a: 49 83 7d 20 00       	cmpq	$0, 32(%r13)
-ffff800000116c2f: 0f 85 84 01 00 00    	jne	0xffff800000116db9 <lab3_check_kmem_full_alloc+0x279>
-ffff800000116c35: 49 83 c5 f8          	addq	$-8, %r13
+ffff800000116c0a: 49 83 7d 20 00       	cmpq	$0, 32(%r13)
+ffff800000116c0f: 0f 85 84 01 00 00    	jne	0xffff800000116d99 <lab3_check_kmem_full_alloc+0x279>
+ffff800000116c15: 49 83 c5 f8          	addq	$-8, %r13
 ; 		if (obj->info != info) {
-ffff800000116c39: 4c 39 6b f8          	cmpq	%r13, -8(%rbx)
-ffff800000116c3d: 0f 85 9e 01 00 00    	jne	0xffff800000116de1 <lab3_check_kmem_full_alloc+0x2a1>
+ffff800000116c19: 4c 39 6b f8          	cmpq	%r13, -8(%rbx)
+ffff800000116c1d: 0f 85 9e 01 00 00    	jne	0xffff800000116dc1 <lab3_check_kmem_full_alloc+0x2a1>
 ; 		kfree(p);
-ffff800000116c43: 48 89 df             	movq	%rbx, %rdi
-ffff800000116c46: 48 b8 30 46 11 00 00 80 ff ff	movabsq	$-140737487223248, %rax # imm = 0xFFFF800000114630
-ffff800000116c50: ff d0                	callq	*%rax
-ffff800000116c52: 48 8b 7d d0          	movq	-48(%rbp), %rdi
-ffff800000116c56: 49 bc 60 68 11 00 00 80 ff ff	movabsq	$-140737487214496, %r12 # imm = 0xFFFF800000116860
+ffff800000116c23: 48 89 df             	movq	%rbx, %rdi
+ffff800000116c26: 48 b8 30 46 11 00 00 80 ff ff	movabsq	$-140737487223248, %rax # imm = 0xFFFF800000114630
+ffff800000116c30: ff d0                	callq	*%rax
+ffff800000116c32: 48 8b 7d d0          	movq	-48(%rbp), %rdi
+ffff800000116c36: 49 bc 40 68 11 00 00 80 ff ff	movabsq	$-140737487214528, %r12 # imm = 0xFFFF800000116840
 ; 		if (list_is_empty(&slab->partial)) {
-ffff800000116c60: 41 ff d4             	callq	*%r12
-ffff800000116c63: 85 c0                	testl	%eax, %eax
-ffff800000116c65: 0f 85 9d 01 00 00    	jne	0xffff800000116e08 <lab3_check_kmem_full_alloc+0x2c8>
+ffff800000116c40: 41 ff d4             	callq	*%r12
+ffff800000116c43: 85 c0                	testl	%eax, %eax
+ffff800000116c45: 0f 85 9d 01 00 00    	jne	0xffff800000116de8 <lab3_check_kmem_full_alloc+0x2c8>
 ; 		if (!list_is_empty(&slab->full)) {
-ffff800000116c6b: 4c 89 ff             	movq	%r15, %rdi
-ffff800000116c6e: 41 ff d4             	callq	*%r12
-ffff800000116c71: 85 c0                	testl	%eax, %eax
-ffff800000116c73: 0f 84 b7 01 00 00    	je	0xffff800000116e30 <lab3_check_kmem_full_alloc+0x2f0>
-ffff800000116c79: 48 8b 7d d0          	movq	-48(%rbp), %rdi
+ffff800000116c4b: 4c 89 ff             	movq	%r15, %rdi
+ffff800000116c4e: 41 ff d4             	callq	*%r12
+ffff800000116c51: 85 c0                	testl	%eax, %eax
+ffff800000116c53: 0f 84 b7 01 00 00    	je	0xffff800000116e10 <lab3_check_kmem_full_alloc+0x2f0>
+ffff800000116c59: 48 8b 7d d0          	movq	-48(%rbp), %rdi
 ; 		slab_free_chunk(slab, info);
-ffff800000116c7d: 4c 89 ee             	movq	%r13, %rsi
-ffff800000116c80: 48 b8 c0 4a 11 00 00 80 ff ff	movabsq	$-140737487222080, %rax # imm = 0xFFFF800000114AC0
-ffff800000116c8a: ff d0                	callq	*%rax
-ffff800000116c8c: 4c 8b 75 c8          	movq	-56(%rbp), %r14
+ffff800000116c5d: 4c 89 ee             	movq	%r13, %rsi
+ffff800000116c60: 48 b8 c0 4a 11 00 00 80 ff ff	movabsq	$-140737487222080, %rax # imm = 0xFFFF800000114AC0
+ffff800000116c6a: ff d0                	callq	*%rax
+ffff800000116c6c: 4c 8b 75 c8          	movq	-56(%rbp), %r14
 ; 	for (i = 0; i < 32; ++i) {
-ffff800000116c90: 49 83 fe 20          	cmpq	$32, %r14
-ffff800000116c94: 49 bf 00 07 17 00 00 80 ff ff	movabsq	$-140737486846208, %r15 # imm = 0xFFFF800000170700
-ffff800000116c9e: 0f 85 bc fe ff ff    	jne	0xffff800000116b60 <lab3_check_kmem_full_alloc+0x20>
+ffff800000116c70: 49 83 fe 20          	cmpq	$32, %r14
+ffff800000116c74: 49 bf 00 07 17 00 00 80 ff ff	movabsq	$-140737486846208, %r15 # imm = 0xFFFF800000170700
+ffff800000116c7e: 0f 85 bc fe ff ff    	jne	0xffff800000116b40 <lab3_check_kmem_full_alloc+0x20>
 ; 	cprintf("[LAB 3] check_kmem_full_alloc() succeeded!\n");
-ffff800000116ca4: 48 bf 73 ae 11 00 00 80 ff ff	movabsq	$-140737487196557, %rdi # imm = 0xFFFF80000011AE73
-ffff800000116cae: 48 b9 b0 d4 10 00 00 80 ff ff	movabsq	$-140737487252304, %rcx # imm = 0xFFFF80000010D4B0
-ffff800000116cb8: 31 c0                	xorl	%eax, %eax
-ffff800000116cba: ff d1                	callq	*%rcx
+ffff800000116c84: 48 bf 73 ae 11 00 00 80 ff ff	movabsq	$-140737487196557, %rdi # imm = 0xFFFF80000011AE73
+ffff800000116c8e: 48 b9 b0 d4 10 00 00 80 ff ff	movabsq	$-140737487252304, %rcx # imm = 0xFFFF80000010D4B0
+ffff800000116c98: 31 c0                	xorl	%eax, %eax
+ffff800000116c9a: ff d1                	callq	*%rcx
 ; }
-ffff800000116cbc: 48 83 c4 18          	addq	$24, %rsp
-ffff800000116cc0: 5b                   	popq	%rbx
-ffff800000116cc1: 41 5c                	popq	%r12
-ffff800000116cc3: 41 5d                	popq	%r13
-ffff800000116cc5: 41 5e                	popq	%r14
-ffff800000116cc7: 41 5f                	popq	%r15
-ffff800000116cc9: 5d                   	popq	%rbp
-ffff800000116cca: c3                   	retq
+ffff800000116c9c: 48 83 c4 18          	addq	$24, %rsp
+ffff800000116ca0: 5b                   	popq	%rbx
+ffff800000116ca1: 41 5c                	popq	%r12
+ffff800000116ca3: 41 5d                	popq	%r13
+ffff800000116ca5: 41 5e                	popq	%r14
+ffff800000116ca7: 41 5f                	popq	%r15
+ffff800000116ca9: 5d                   	popq	%rbp
+ffff800000116caa: c3                   	retq
 ; 				panic("kmalloc(%u) returned NULL", obj_size);
-ffff800000116ccb: 48 bf 21 a4 11 00 00 80 ff ff	movabsq	$-140737487199199, %rdi # imm = 0xFFFF80000011A421
-ffff800000116cd5: 48 ba d8 a8 11 00 00 80 ff ff	movabsq	$-140737487197992, %rdx # imm = 0xFFFF80000011A8D8
-ffff800000116cdf: 48 bb 20 c9 10 00 00 80 ff ff	movabsq	$-140737487255264, %rbx # imm = 0xFFFF80000010C920
-ffff800000116ce9: be 94 00 00 00       	movl	$148, %esi
-ffff800000116cee: 4c 89 f1             	movq	%r14, %rcx
-ffff800000116cf1: 31 c0                	xorl	%eax, %eax
-ffff800000116cf3: ff d3                	callq	*%rbx
+ffff800000116cab: 48 bf 21 a4 11 00 00 80 ff ff	movabsq	$-140737487199199, %rdi # imm = 0xFFFF80000011A421
+ffff800000116cb5: 48 ba d8 a8 11 00 00 80 ff ff	movabsq	$-140737487197992, %rdx # imm = 0xFFFF80000011A8D8
+ffff800000116cbf: 48 bb 20 c9 10 00 00 80 ff ff	movabsq	$-140737487255264, %rbx # imm = 0xFFFF80000010C920
+ffff800000116cc9: be 94 00 00 00       	movl	$148, %esi
+ffff800000116cce: 4c 89 f1             	movq	%r14, %rcx
+ffff800000116cd1: 31 c0                	xorl	%eax, %eax
+ffff800000116cd3: ff d3                	callq	*%rbx
 ; 			panic("slab for object size %u has partial slabs",
-ffff800000116cf5: 48 bf 21 a4 11 00 00 80 ff ff	movabsq	$-140737487199199, %rdi # imm = 0xFFFF80000011A421
-ffff800000116cff: 48 ba ee aa 11 00 00 80 ff ff	movabsq	$-140737487197458, %rdx # imm = 0xFFFF80000011AAEE
-ffff800000116d09: 48 bb 20 c9 10 00 00 80 ff ff	movabsq	$-140737487255264, %rbx # imm = 0xFFFF80000010C920
-ffff800000116d13: be 83 00 00 00       	movl	$131, %esi
-ffff800000116d18: eb d4                	jmp	0xffff800000116cee <lab3_check_kmem_full_alloc+0x1ae>
+ffff800000116cd5: 48 bf 21 a4 11 00 00 80 ff ff	movabsq	$-140737487199199, %rdi # imm = 0xFFFF80000011A421
+ffff800000116cdf: 48 ba ee aa 11 00 00 80 ff ff	movabsq	$-140737487197458, %rdx # imm = 0xFFFF80000011AAEE
+ffff800000116ce9: 48 bb 20 c9 10 00 00 80 ff ff	movabsq	$-140737487255264, %rbx # imm = 0xFFFF80000010C920
+ffff800000116cf3: be 83 00 00 00       	movl	$131, %esi
+ffff800000116cf8: eb d4                	jmp	0xffff800000116cce <lab3_check_kmem_full_alloc+0x1ae>
 ; 			panic("slab for object size %u has full slabs",
-ffff800000116d1a: 48 bf 21 a4 11 00 00 80 ff ff	movabsq	$-140737487199199, %rdi # imm = 0xFFFF80000011A421
-ffff800000116d24: 48 ba fa 9a 11 00 00 80 ff ff	movabsq	$-140737487201542, %rdx # imm = 0xFFFF800000119AFA
-ffff800000116d2e: 48 bb 20 c9 10 00 00 80 ff ff	movabsq	$-140737487255264, %rbx # imm = 0xFFFF80000010C920
-ffff800000116d38: be 88 00 00 00       	movl	$136, %esi
-ffff800000116d3d: eb af                	jmp	0xffff800000116cee <lab3_check_kmem_full_alloc+0x1ae>
+ffff800000116cfa: 48 bf 21 a4 11 00 00 80 ff ff	movabsq	$-140737487199199, %rdi # imm = 0xFFFF80000011A421
+ffff800000116d04: 48 ba fa 9a 11 00 00 80 ff ff	movabsq	$-140737487201542, %rdx # imm = 0xFFFF800000119AFA
+ffff800000116d0e: 48 bb 20 c9 10 00 00 80 ff ff	movabsq	$-140737487255264, %rbx # imm = 0xFFFF80000010C920
+ffff800000116d18: be 88 00 00 00       	movl	$136, %esi
+ffff800000116d1d: eb af                	jmp	0xffff800000116cce <lab3_check_kmem_full_alloc+0x1ae>
 ; 			panic("slab for object size %u has unexpected object "
-ffff800000116d3f: 48 bf 21 a4 11 00 00 80 ff ff	movabsq	$-140737487199199, %rdi # imm = 0xFFFF80000011A421
-ffff800000116d49: 48 ba 18 ab 11 00 00 80 ff ff	movabsq	$-140737487197416, %rdx # imm = 0xFFFF80000011AB18
-ffff800000116d53: 48 bb 20 c9 10 00 00 80 ff ff	movabsq	$-140737487255264, %rbx # imm = 0xFFFF80000010C920
-ffff800000116d5d: be 8d 00 00 00       	movl	$141, %esi
-ffff800000116d62: 4c 89 f1             	movq	%r14, %rcx
-ffff800000116d65: 31 c0                	xorl	%eax, %eax
-ffff800000116d67: ff d3                	callq	*%rbx
+ffff800000116d1f: 48 bf 21 a4 11 00 00 80 ff ff	movabsq	$-140737487199199, %rdi # imm = 0xFFFF80000011A421
+ffff800000116d29: 48 ba 18 ab 11 00 00 80 ff ff	movabsq	$-140737487197416, %rdx # imm = 0xFFFF80000011AB18
+ffff800000116d33: 48 bb 20 c9 10 00 00 80 ff ff	movabsq	$-140737487255264, %rbx # imm = 0xFFFF80000010C920
+ffff800000116d3d: be 8d 00 00 00       	movl	$141, %esi
+ffff800000116d42: 4c 89 f1             	movq	%r14, %rcx
+ffff800000116d45: 31 c0                	xorl	%eax, %eax
+ffff800000116d47: ff d3                	callq	*%rbx
 ; 			panic("slab for object size %u has partial slabs",
-ffff800000116d69: 48 bf 21 a4 11 00 00 80 ff ff	movabsq	$-140737487199199, %rdi # imm = 0xFFFF80000011A421
-ffff800000116d73: 48 ba ee aa 11 00 00 80 ff ff	movabsq	$-140737487197458, %rdx # imm = 0xFFFF80000011AAEE
-ffff800000116d7d: 48 bb 20 c9 10 00 00 80 ff ff	movabsq	$-140737487255264, %rbx # imm = 0xFFFF80000010C920
-ffff800000116d87: be 9a 00 00 00       	movl	$154, %esi
-ffff800000116d8c: e9 5d ff ff ff       	jmp	0xffff800000116cee <lab3_check_kmem_full_alloc+0x1ae>
+ffff800000116d49: 48 bf 21 a4 11 00 00 80 ff ff	movabsq	$-140737487199199, %rdi # imm = 0xFFFF80000011A421
+ffff800000116d53: 48 ba ee aa 11 00 00 80 ff ff	movabsq	$-140737487197458, %rdx # imm = 0xFFFF80000011AAEE
+ffff800000116d5d: 48 bb 20 c9 10 00 00 80 ff ff	movabsq	$-140737487255264, %rbx # imm = 0xFFFF80000010C920
+ffff800000116d67: be 9a 00 00 00       	movl	$154, %esi
+ffff800000116d6c: e9 5d ff ff ff       	jmp	0xffff800000116cce <lab3_check_kmem_full_alloc+0x1ae>
 ; 			panic("slab for object size %u has no full slabs",
-ffff800000116d91: 48 bf 21 a4 11 00 00 80 ff ff	movabsq	$-140737487199199, %rdi # imm = 0xFFFF80000011A421
-ffff800000116d9b: 48 ba 11 a5 11 00 00 80 ff ff	movabsq	$-140737487198959, %rdx # imm = 0xFFFF80000011A511
-ffff800000116da5: 48 bb 20 c9 10 00 00 80 ff ff	movabsq	$-140737487255264, %rbx # imm = 0xFFFF80000010C920
-ffff800000116daf: be 9f 00 00 00       	movl	$159, %esi
-ffff800000116db4: e9 35 ff ff ff       	jmp	0xffff800000116cee <lab3_check_kmem_full_alloc+0x1ae>
+ffff800000116d71: 48 bf 21 a4 11 00 00 80 ff ff	movabsq	$-140737487199199, %rdi # imm = 0xFFFF80000011A421
+ffff800000116d7b: 48 ba 11 a5 11 00 00 80 ff ff	movabsq	$-140737487198959, %rdx # imm = 0xFFFF80000011A511
+ffff800000116d85: 48 bb 20 c9 10 00 00 80 ff ff	movabsq	$-140737487255264, %rbx # imm = 0xFFFF80000010C920
+ffff800000116d8f: be 9f 00 00 00       	movl	$159, %esi
+ffff800000116d94: e9 35 ff ff ff       	jmp	0xffff800000116cce <lab3_check_kmem_full_alloc+0x1ae>
 ; 			panic("slab for object size %u still has free "
-ffff800000116db9: 48 bf 21 a4 11 00 00 80 ff ff	movabsq	$-140737487199199, %rdi # imm = 0xFFFF80000011A421
-ffff800000116dc3: 48 ba 44 ae 11 00 00 80 ff ff	movabsq	$-140737487196604, %rdx # imm = 0xFFFF80000011AE44
-ffff800000116dcd: 48 bb 20 c9 10 00 00 80 ff ff	movabsq	$-140737487255264, %rbx # imm = 0xFFFF80000010C920
-ffff800000116dd7: be a6 00 00 00       	movl	$166, %esi
-ffff800000116ddc: e9 0d ff ff ff       	jmp	0xffff800000116cee <lab3_check_kmem_full_alloc+0x1ae>
+ffff800000116d99: 48 bf 21 a4 11 00 00 80 ff ff	movabsq	$-140737487199199, %rdi # imm = 0xFFFF80000011A421
+ffff800000116da3: 48 ba 44 ae 11 00 00 80 ff ff	movabsq	$-140737487196604, %rdx # imm = 0xFFFF80000011AE44
+ffff800000116dad: 48 bb 20 c9 10 00 00 80 ff ff	movabsq	$-140737487255264, %rbx # imm = 0xFFFF80000010C920
+ffff800000116db7: be a6 00 00 00       	movl	$166, %esi
+ffff800000116dbc: e9 0d ff ff ff       	jmp	0xffff800000116cce <lab3_check_kmem_full_alloc+0x1ae>
 ; 			panic("allocated object does not point to the slab it "
-ffff800000116de1: 48 bf 21 a4 11 00 00 80 ff ff	movabsq	$-140737487199199, %rdi # imm = 0xFFFF80000011A421
-ffff800000116deb: 48 ba a5 9d 11 00 00 80 ff ff	movabsq	$-140737487200859, %rdx # imm = 0xFFFF800000119DA5
-ffff800000116df5: 48 b9 20 c9 10 00 00 80 ff ff	movabsq	$-140737487255264, %rcx # imm = 0xFFFF80000010C920
-ffff800000116dff: be ad 00 00 00       	movl	$173, %esi
-ffff800000116e04: 31 c0                	xorl	%eax, %eax
-ffff800000116e06: ff d1                	callq	*%rcx
+ffff800000116dc1: 48 bf 21 a4 11 00 00 80 ff ff	movabsq	$-140737487199199, %rdi # imm = 0xFFFF80000011A421
+ffff800000116dcb: 48 ba a5 9d 11 00 00 80 ff ff	movabsq	$-140737487200859, %rdx # imm = 0xFFFF800000119DA5
+ffff800000116dd5: 48 b9 20 c9 10 00 00 80 ff ff	movabsq	$-140737487255264, %rcx # imm = 0xFFFF80000010C920
+ffff800000116ddf: be ad 00 00 00       	movl	$173, %esi
+ffff800000116de4: 31 c0                	xorl	%eax, %eax
+ffff800000116de6: ff d1                	callq	*%rcx
 ; 			panic("slab for object size %u has no partial slabs",
-ffff800000116e08: 48 bf 21 a4 11 00 00 80 ff ff	movabsq	$-140737487199199, %rdi # imm = 0xFFFF80000011A421
-ffff800000116e12: 48 ba 78 9d 11 00 00 80 ff ff	movabsq	$-140737487200904, %rdx # imm = 0xFFFF800000119D78
-ffff800000116e1c: 48 bb 20 c9 10 00 00 80 ff ff	movabsq	$-140737487255264, %rbx # imm = 0xFFFF80000010C920
-ffff800000116e26: be b4 00 00 00       	movl	$180, %esi
-ffff800000116e2b: e9 be fe ff ff       	jmp	0xffff800000116cee <lab3_check_kmem_full_alloc+0x1ae>
+ffff800000116de8: 48 bf 21 a4 11 00 00 80 ff ff	movabsq	$-140737487199199, %rdi # imm = 0xFFFF80000011A421
+ffff800000116df2: 48 ba 78 9d 11 00 00 80 ff ff	movabsq	$-140737487200904, %rdx # imm = 0xFFFF800000119D78
+ffff800000116dfc: 48 bb 20 c9 10 00 00 80 ff ff	movabsq	$-140737487255264, %rbx # imm = 0xFFFF80000010C920
+ffff800000116e06: be b4 00 00 00       	movl	$180, %esi
+ffff800000116e0b: e9 be fe ff ff       	jmp	0xffff800000116cce <lab3_check_kmem_full_alloc+0x1ae>
 ; 			panic("slab for object size %u has full slabs",
-ffff800000116e30: 48 bf 21 a4 11 00 00 80 ff ff	movabsq	$-140737487199199, %rdi # imm = 0xFFFF80000011A421
-ffff800000116e3a: 48 ba fa 9a 11 00 00 80 ff ff	movabsq	$-140737487201542, %rdx # imm = 0xFFFF800000119AFA
-ffff800000116e44: 48 bb 20 c9 10 00 00 80 ff ff	movabsq	$-140737487255264, %rbx # imm = 0xFFFF80000010C920
-ffff800000116e4e: be b9 00 00 00       	movl	$185, %esi
-ffff800000116e53: e9 96 fe ff ff       	jmp	0xffff800000116cee <lab3_check_kmem_full_alloc+0x1ae>
-ffff800000116e58: 0f 1f 84 00 00 00 00 00      	nopl	(%rax,%rax)
+ffff800000116e10: 48 bf 21 a4 11 00 00 80 ff ff	movabsq	$-140737487199199, %rdi # imm = 0xFFFF80000011A421
+ffff800000116e1a: 48 ba fa 9a 11 00 00 80 ff ff	movabsq	$-140737487201542, %rdx # imm = 0xFFFF800000119AFA
+ffff800000116e24: 48 bb 20 c9 10 00 00 80 ff ff	movabsq	$-140737487255264, %rbx # imm = 0xFFFF80000010C920
+ffff800000116e2e: be b9 00 00 00       	movl	$185, %esi
+ffff800000116e33: e9 96 fe ff ff       	jmp	0xffff800000116cce <lab3_check_kmem_full_alloc+0x1ae>
+ffff800000116e38: 0f 1f 84 00 00 00 00 00      	nopl	(%rax,%rax)
 
-ffff800000116e60 <lab3_check_kmem_limit>:
+ffff800000116e40 <lab3_check_kmem_limit>:
 ; {
-ffff800000116e60: 55                   	pushq	%rbp
-ffff800000116e61: 48 89 e5             	movq	%rsp, %rbp
-ffff800000116e64: 53                   	pushq	%rbx
-ffff800000116e65: 50                   	pushq	%rax
+ffff800000116e40: 55                   	pushq	%rbp
+ffff800000116e41: 48 89 e5             	movq	%rsp, %rbp
+ffff800000116e44: 53                   	pushq	%rbx
+ffff800000116e45: 50                   	pushq	%rax
 ; 	size_t size = (nslabs + 1) * 32 + 1;
-ffff800000116e66: 48 b8 00 f3 11 00 00 80 ff ff	movabsq	$-140737487179008, %rax # imm = 0xFFFF80000011F300
-ffff800000116e70: 48 8b 18             	movq	(%rax), %rbx
-ffff800000116e73: 48 c1 e3 05          	shlq	$5, %rbx
-ffff800000116e77: 48 83 c3 21          	addq	$33, %rbx
+ffff800000116e46: 48 b8 00 f3 11 00 00 80 ff ff	movabsq	$-140737487179008, %rax # imm = 0xFFFF80000011F300
+ffff800000116e50: 48 8b 18             	movq	(%rax), %rbx
+ffff800000116e53: 48 c1 e3 05          	shlq	$5, %rbx
+ffff800000116e57: 48 83 c3 21          	addq	$33, %rbx
 ; 	p = kmalloc(size);
-ffff800000116e7b: 48 b8 e0 45 11 00 00 80 ff ff	movabsq	$-140737487223328, %rax # imm = 0xFFFF8000001145E0
-ffff800000116e85: 48 89 df             	movq	%rbx, %rdi
-ffff800000116e88: ff d0                	callq	*%rax
+ffff800000116e5b: 48 b8 e0 45 11 00 00 80 ff ff	movabsq	$-140737487223328, %rax # imm = 0xFFFF8000001145E0
+ffff800000116e65: 48 89 df             	movq	%rbx, %rdi
+ffff800000116e68: ff d0                	callq	*%rax
 ; 	if (p) {
-ffff800000116e8a: 48 85 c0             	testq	%rax, %rax
-ffff800000116e8d: 75 1f                	jne	0xffff800000116eae <lab3_check_kmem_limit+0x4e>
+ffff800000116e6a: 48 85 c0             	testq	%rax, %rax
+ffff800000116e6d: 75 1f                	jne	0xffff800000116e8e <lab3_check_kmem_limit+0x4e>
 ; 	cprintf("[LAB 3] check_kmem_limit() succeeded!\n");
-ffff800000116e8f: 48 bf f8 b2 11 00 00 80 ff ff	movabsq	$-140737487195400, %rdi # imm = 0xFFFF80000011B2F8
-ffff800000116e99: 48 b9 b0 d4 10 00 00 80 ff ff	movabsq	$-140737487252304, %rcx # imm = 0xFFFF80000010D4B0
-ffff800000116ea3: 31 c0                	xorl	%eax, %eax
-ffff800000116ea5: ff d1                	callq	*%rcx
+ffff800000116e6f: 48 bf f8 b2 11 00 00 80 ff ff	movabsq	$-140737487195400, %rdi # imm = 0xFFFF80000011B2F8
+ffff800000116e79: 48 b9 b0 d4 10 00 00 80 ff ff	movabsq	$-140737487252304, %rcx # imm = 0xFFFF80000010D4B0
+ffff800000116e83: 31 c0                	xorl	%eax, %eax
+ffff800000116e85: ff d1                	callq	*%rcx
 ; }
-ffff800000116ea7: 48 83 c4 08          	addq	$8, %rsp
-ffff800000116eab: 5b                   	popq	%rbx
-ffff800000116eac: 5d                   	popq	%rbp
-ffff800000116ead: c3                   	retq
+ffff800000116e87: 48 83 c4 08          	addq	$8, %rsp
+ffff800000116e8b: 5b                   	popq	%rbx
+ffff800000116e8c: 5d                   	popq	%rbp
+ffff800000116e8d: c3                   	retq
 ; 		panic("kmalloc(%u) should not allocate memory", size);
-ffff800000116eae: 48 bf 21 a4 11 00 00 80 ff ff	movabsq	$-140737487199199, %rdi # imm = 0xFFFF80000011A421
-ffff800000116eb8: 48 ba 61 a3 11 00 00 80 ff ff	movabsq	$-140737487199391, %rdx # imm = 0xFFFF80000011A361
-ffff800000116ec2: 49 b8 20 c9 10 00 00 80 ff ff	movabsq	$-140737487255264, %r8 # imm = 0xFFFF80000010C920
-ffff800000116ecc: be ca 00 00 00       	movl	$202, %esi
-ffff800000116ed1: 48 89 d9             	movq	%rbx, %rcx
-ffff800000116ed4: 31 c0                	xorl	%eax, %eax
-ffff800000116ed6: 41 ff d0             	callq	*%r8
-ffff800000116ed9: 0f 1f 80 00 00 00 00 	nopl	(%rax)
+ffff800000116e8e: 48 bf 21 a4 11 00 00 80 ff ff	movabsq	$-140737487199199, %rdi # imm = 0xFFFF80000011A421
+ffff800000116e98: 48 ba 61 a3 11 00 00 80 ff ff	movabsq	$-140737487199391, %rdx # imm = 0xFFFF80000011A361
+ffff800000116ea2: 49 b8 20 c9 10 00 00 80 ff ff	movabsq	$-140737487255264, %r8 # imm = 0xFFFF80000010C920
+ffff800000116eac: be ca 00 00 00       	movl	$202, %esi
+ffff800000116eb1: 48 89 d9             	movq	%rbx, %rcx
+ffff800000116eb4: 31 c0                	xorl	%eax, %eax
+ffff800000116eb6: 41 ff d0             	callq	*%r8
+ffff800000116eb9: 0f 1f 80 00 00 00 00 	nopl	(%rax)
 
-ffff800000116ee0 <lab3_check_kmem>:
+ffff800000116ec0 <lab3_check_kmem>:
 ; {
-ffff800000116ee0: 55                   	pushq	%rbp
-ffff800000116ee1: 48 89 e5             	movq	%rsp, %rbp
+ffff800000116ec0: 55                   	pushq	%rbp
+ffff800000116ec1: 48 89 e5             	movq	%rsp, %rbp
 ; 	lab3_check_kmem_init();
-ffff800000116ee4: 48 b8 50 67 11 00 00 80 ff ff	movabsq	$-140737487214768, %rax # imm = 0xFFFF800000116750
-ffff800000116eee: ff d0                	callq	*%rax
+ffff800000116ec4: 48 b8 30 67 11 00 00 80 ff ff	movabsq	$-140737487214800, %rax # imm = 0xFFFF800000116730
+ffff800000116ece: ff d0                	callq	*%rax
 ; 	lab3_check_kmem_single_alloc();
-ffff800000116ef0: 48 b8 70 68 11 00 00 80 ff ff	movabsq	$-140737487214480, %rax # imm = 0xFFFF800000116870
-ffff800000116efa: ff d0                	callq	*%rax
+ffff800000116ed0: 48 b8 50 68 11 00 00 80 ff ff	movabsq	$-140737487214512, %rax # imm = 0xFFFF800000116850
+ffff800000116eda: ff d0                	callq	*%rax
 ; 	lab3_check_kmem_full_alloc();
-ffff800000116efc: 48 b8 40 6b 11 00 00 80 ff ff	movabsq	$-140737487213760, %rax # imm = 0xFFFF800000116B40
-ffff800000116f06: ff d0                	callq	*%rax
+ffff800000116edc: 48 b8 20 6b 11 00 00 80 ff ff	movabsq	$-140737487213792, %rax # imm = 0xFFFF800000116B20
+ffff800000116ee6: ff d0                	callq	*%rax
 ; 	lab3_check_kmem_limit();
-ffff800000116f08: 48 b8 60 6e 11 00 00 80 ff ff	movabsq	$-140737487212960, %rax # imm = 0xFFFF800000116E60
-ffff800000116f12: ff d0                	callq	*%rax
+ffff800000116ee8: 48 b8 40 6e 11 00 00 80 ff ff	movabsq	$-140737487212992, %rax # imm = 0xFFFF800000116E40
+ffff800000116ef2: ff d0                	callq	*%rax
 ; }
-ffff800000116f14: 5d                   	popq	%rbp
-ffff800000116f15: c3                   	retq
-ffff800000116f16: 66 2e 0f 1f 84 00 00 00 00 00	nopw	%cs:(%rax,%rax)
+ffff800000116ef4: 5d                   	popq	%rbp
+ffff800000116ef5: c3                   	retq
+ffff800000116ef6: 66 2e 0f 1f 84 00 00 00 00 00	nopw	%cs:(%rax,%rax)
 
-ffff800000116f20 <lab3_check_pte_us>:
+ffff800000116f00 <lab3_check_pte_us>:
 ; {
-ffff800000116f20: 55                   	pushq	%rbp
-ffff800000116f21: 48 89 e5             	movq	%rsp, %rbp
+ffff800000116f00: 55                   	pushq	%rbp
+ffff800000116f01: 48 89 e5             	movq	%rsp, %rbp
 ; 	if (!(*entry & PAGE_PRESENT)) {
-ffff800000116f24: 48 8b 07             	movq	(%rdi), %rax
-ffff800000116f27: a8 01                	testb	$1, %al
-ffff800000116f29: 74 2c                	je	0xffff800000116f57 <lab3_check_pte_us+0x37>
-ffff800000116f2b: 48 89 f1             	movq	%rsi, %rcx
+ffff800000116f04: 48 8b 07             	movq	(%rdi), %rax
+ffff800000116f07: a8 01                	testb	$1, %al
+ffff800000116f09: 74 2c                	je	0xffff800000116f37 <lab3_check_pte_us+0x37>
+ffff800000116f0b: 48 89 f1             	movq	%rsi, %rcx
 ; 	if (base < KERNEL_VMA && !is_user) {
-ffff800000116f2e: 48 89 f2             	movq	%rsi, %rdx
-ffff800000116f31: 48 c1 ea 2f          	shrq	$47, %rdx
-ffff800000116f35: 81 fa fe ff 01 00    	cmpl	$131070, %edx           # imm = 0x1FFFE
-ffff800000116f3b: 77 0a                	ja	0xffff800000116f47 <lab3_check_pte_us+0x27>
-ffff800000116f3d: 89 c6                	movl	%eax, %esi
-ffff800000116f3f: 83 e6 04             	andl	$4, %esi
+ffff800000116f0e: 48 89 f2             	movq	%rsi, %rdx
+ffff800000116f11: 48 c1 ea 2f          	shrq	$47, %rdx
+ffff800000116f15: 81 fa fe ff 01 00    	cmpl	$131070, %edx           # imm = 0x1FFFE
+ffff800000116f1b: 77 0a                	ja	0xffff800000116f27 <lab3_check_pte_us+0x27>
+ffff800000116f1d: 89 c6                	movl	%eax, %esi
+ffff800000116f1f: 83 e6 04             	andl	$4, %esi
 ; 	if (base < KERNEL_VMA && !is_user) {
-ffff800000116f42: 48 85 f6             	testq	%rsi, %rsi
-ffff800000116f45: 74 14                	je	0xffff800000116f5b <lab3_check_pte_us+0x3b>
-ffff800000116f47: 81 fa ff ff 01 00    	cmpl	$131071, %edx           # imm = 0x1FFFF
+ffff800000116f22: 48 85 f6             	testq	%rsi, %rsi
+ffff800000116f25: 74 14                	je	0xffff800000116f3b <lab3_check_pte_us+0x3b>
+ffff800000116f27: 81 fa ff ff 01 00    	cmpl	$131071, %edx           # imm = 0x1FFFF
 ; 	} else if (base >= KERNEL_VMA && is_user) {
-ffff800000116f4d: 72 08                	jb	0xffff800000116f57 <lab3_check_pte_us+0x37>
-ffff800000116f4f: 83 e0 04             	andl	$4, %eax
+ffff800000116f2d: 72 08                	jb	0xffff800000116f37 <lab3_check_pte_us+0x37>
+ffff800000116f2f: 83 e0 04             	andl	$4, %eax
 ; 	} else if (base >= KERNEL_VMA && is_user) {
-ffff800000116f52: 48 85 c0             	testq	%rax, %rax
-ffff800000116f55: 75 2c                	jne	0xffff800000116f83 <lab3_check_pte_us+0x63>
+ffff800000116f32: 48 85 c0             	testq	%rax, %rax
+ffff800000116f35: 75 2c                	jne	0xffff800000116f63 <lab3_check_pte_us+0x63>
 ; }
-ffff800000116f57: 31 c0                	xorl	%eax, %eax
-ffff800000116f59: 5d                   	popq	%rbp
-ffff800000116f5a: c3                   	retq
+ffff800000116f37: 31 c0                	xorl	%eax, %eax
+ffff800000116f39: 5d                   	popq	%rbp
+ffff800000116f3a: c3                   	retq
 ; 		panic("%p is mapped as supervisor!", base);
-ffff800000116f5b: 48 bf 21 a4 11 00 00 80 ff ff	movabsq	$-140737487199199, %rdi # imm = 0xFFFF80000011A421
-ffff800000116f65: 48 ba 00 9c 11 00 00 80 ff ff	movabsq	$-140737487201280, %rdx # imm = 0xFFFF800000119C00
-ffff800000116f6f: 49 b8 20 c9 10 00 00 80 ff ff	movabsq	$-140737487255264, %r8 # imm = 0xFFFF80000010C920
-ffff800000116f79: be e6 00 00 00       	movl	$230, %esi
-ffff800000116f7e: 31 c0                	xorl	%eax, %eax
-ffff800000116f80: 41 ff d0             	callq	*%r8
+ffff800000116f3b: 48 bf 21 a4 11 00 00 80 ff ff	movabsq	$-140737487199199, %rdi # imm = 0xFFFF80000011A421
+ffff800000116f45: 48 ba 00 9c 11 00 00 80 ff ff	movabsq	$-140737487201280, %rdx # imm = 0xFFFF800000119C00
+ffff800000116f4f: 49 b8 20 c9 10 00 00 80 ff ff	movabsq	$-140737487255264, %r8 # imm = 0xFFFF80000010C920
+ffff800000116f59: be e6 00 00 00       	movl	$230, %esi
+ffff800000116f5e: 31 c0                	xorl	%eax, %eax
+ffff800000116f60: 41 ff d0             	callq	*%r8
 ; 		panic("%p is mapped as user!", base);
-ffff800000116f83: 48 bf 21 a4 11 00 00 80 ff ff	movabsq	$-140737487199199, %rdi # imm = 0xFFFF80000011A421
-ffff800000116f8d: 48 ba 82 b1 11 00 00 80 ff ff	movabsq	$-140737487195774, %rdx # imm = 0xFFFF80000011B182
-ffff800000116f97: 49 b8 20 c9 10 00 00 80 ff ff	movabsq	$-140737487255264, %r8 # imm = 0xFFFF80000010C920
-ffff800000116fa1: be e8 00 00 00       	movl	$232, %esi
-ffff800000116fa6: 31 c0                	xorl	%eax, %eax
-ffff800000116fa8: 41 ff d0             	callq	*%r8
-ffff800000116fab: 0f 1f 44 00 00       	nopl	(%rax,%rax)
+ffff800000116f63: 48 bf 21 a4 11 00 00 80 ff ff	movabsq	$-140737487199199, %rdi # imm = 0xFFFF80000011A421
+ffff800000116f6d: 48 ba 82 b1 11 00 00 80 ff ff	movabsq	$-140737487195774, %rdx # imm = 0xFFFF80000011B182
+ffff800000116f77: 49 b8 20 c9 10 00 00 80 ff ff	movabsq	$-140737487255264, %r8 # imm = 0xFFFF80000010C920
+ffff800000116f81: be e8 00 00 00       	movl	$232, %esi
+ffff800000116f86: 31 c0                	xorl	%eax, %eax
+ffff800000116f88: 41 ff d0             	callq	*%r8
+ffff800000116f8b: 0f 1f 44 00 00       	nopl	(%rax,%rax)
 
-ffff800000116fb0 <lab3_check_pde_us>:
+ffff800000116f90 <lab3_check_pde_us>:
 ; {
-ffff800000116fb0: 55                   	pushq	%rbp
-ffff800000116fb1: 48 89 e5             	movq	%rsp, %rbp
+ffff800000116f90: 55                   	pushq	%rbp
+ffff800000116f91: 48 89 e5             	movq	%rsp, %rbp
 ; 	if (!(*entry & PAGE_PRESENT) || !(*entry & PAGE_HUGE)) {
-ffff800000116fb4: 48 8b 07             	movq	(%rdi), %rax
-ffff800000116fb7: 89 c2                	movl	%eax, %edx
-ffff800000116fb9: f7 d2                	notl	%edx
-ffff800000116fbb: f6 c2 81             	testb	$-127, %dl
-ffff800000116fbe: 75 2c                	jne	0xffff800000116fec <lab3_check_pde_us+0x3c>
-ffff800000116fc0: 48 89 f1             	movq	%rsi, %rcx
+ffff800000116f94: 48 8b 07             	movq	(%rdi), %rax
+ffff800000116f97: 89 c2                	movl	%eax, %edx
+ffff800000116f99: f7 d2                	notl	%edx
+ffff800000116f9b: f6 c2 81             	testb	$-127, %dl
+ffff800000116f9e: 75 2c                	jne	0xffff800000116fcc <lab3_check_pde_us+0x3c>
+ffff800000116fa0: 48 89 f1             	movq	%rsi, %rcx
 ; 	if (base < KERNEL_VMA && !is_user) {
-ffff800000116fc3: 48 89 f2             	movq	%rsi, %rdx
-ffff800000116fc6: 48 c1 ea 2f          	shrq	$47, %rdx
-ffff800000116fca: 81 fa fe ff 01 00    	cmpl	$131070, %edx           # imm = 0x1FFFE
-ffff800000116fd0: 77 0a                	ja	0xffff800000116fdc <lab3_check_pde_us+0x2c>
-ffff800000116fd2: 89 c6                	movl	%eax, %esi
-ffff800000116fd4: 83 e6 04             	andl	$4, %esi
+ffff800000116fa3: 48 89 f2             	movq	%rsi, %rdx
+ffff800000116fa6: 48 c1 ea 2f          	shrq	$47, %rdx
+ffff800000116faa: 81 fa fe ff 01 00    	cmpl	$131070, %edx           # imm = 0x1FFFE
+ffff800000116fb0: 77 0a                	ja	0xffff800000116fbc <lab3_check_pde_us+0x2c>
+ffff800000116fb2: 89 c6                	movl	%eax, %esi
+ffff800000116fb4: 83 e6 04             	andl	$4, %esi
 ; 	if (base < KERNEL_VMA && !is_user) {
-ffff800000116fd7: 48 85 f6             	testq	%rsi, %rsi
-ffff800000116fda: 74 14                	je	0xffff800000116ff0 <lab3_check_pde_us+0x40>
-ffff800000116fdc: 81 fa ff ff 01 00    	cmpl	$131071, %edx           # imm = 0x1FFFF
+ffff800000116fb7: 48 85 f6             	testq	%rsi, %rsi
+ffff800000116fba: 74 14                	je	0xffff800000116fd0 <lab3_check_pde_us+0x40>
+ffff800000116fbc: 81 fa ff ff 01 00    	cmpl	$131071, %edx           # imm = 0x1FFFF
 ; 	} else if (base >= KERNEL_VMA && is_user) {
-ffff800000116fe2: 72 08                	jb	0xffff800000116fec <lab3_check_pde_us+0x3c>
-ffff800000116fe4: 83 e0 04             	andl	$4, %eax
+ffff800000116fc2: 72 08                	jb	0xffff800000116fcc <lab3_check_pde_us+0x3c>
+ffff800000116fc4: 83 e0 04             	andl	$4, %eax
 ; 	} else if (base >= KERNEL_VMA && is_user) {
-ffff800000116fe7: 48 85 c0             	testq	%rax, %rax
-ffff800000116fea: 75 2c                	jne	0xffff800000117018 <lab3_check_pde_us+0x68>
+ffff800000116fc7: 48 85 c0             	testq	%rax, %rax
+ffff800000116fca: 75 2c                	jne	0xffff800000116ff8 <lab3_check_pde_us+0x68>
 ; }
-ffff800000116fec: 31 c0                	xorl	%eax, %eax
-ffff800000116fee: 5d                   	popq	%rbp
-ffff800000116fef: c3                   	retq
+ffff800000116fcc: 31 c0                	xorl	%eax, %eax
+ffff800000116fce: 5d                   	popq	%rbp
+ffff800000116fcf: c3                   	retq
 ; 		panic("%p is mapped as supervisor!", base);
-ffff800000116ff0: 48 bf 21 a4 11 00 00 80 ff ff	movabsq	$-140737487199199, %rdi # imm = 0xFFFF80000011A421
-ffff800000116ffa: 48 ba 00 9c 11 00 00 80 ff ff	movabsq	$-140737487201280, %rdx # imm = 0xFFFF800000119C00
-ffff800000117004: 49 b8 20 c9 10 00 00 80 ff ff	movabsq	$-140737487255264, %r8 # imm = 0xFFFF80000010C920
-ffff80000011700e: be fc 00 00 00       	movl	$252, %esi
-ffff800000117013: 31 c0                	xorl	%eax, %eax
-ffff800000117015: 41 ff d0             	callq	*%r8
+ffff800000116fd0: 48 bf 21 a4 11 00 00 80 ff ff	movabsq	$-140737487199199, %rdi # imm = 0xFFFF80000011A421
+ffff800000116fda: 48 ba 00 9c 11 00 00 80 ff ff	movabsq	$-140737487201280, %rdx # imm = 0xFFFF800000119C00
+ffff800000116fe4: 49 b8 20 c9 10 00 00 80 ff ff	movabsq	$-140737487255264, %r8 # imm = 0xFFFF80000010C920
+ffff800000116fee: be fc 00 00 00       	movl	$252, %esi
+ffff800000116ff3: 31 c0                	xorl	%eax, %eax
+ffff800000116ff5: 41 ff d0             	callq	*%r8
 ; 		panic("%p is mapped as user!", base);
-ffff800000117018: 48 bf 21 a4 11 00 00 80 ff ff	movabsq	$-140737487199199, %rdi # imm = 0xFFFF80000011A421
-ffff800000117022: 48 ba 82 b1 11 00 00 80 ff ff	movabsq	$-140737487195774, %rdx # imm = 0xFFFF80000011B182
-ffff80000011702c: 49 b8 20 c9 10 00 00 80 ff ff	movabsq	$-140737487255264, %r8 # imm = 0xFFFF80000010C920
-ffff800000117036: be fe 00 00 00       	movl	$254, %esi
-ffff80000011703b: 31 c0                	xorl	%eax, %eax
-ffff80000011703d: 41 ff d0             	callq	*%r8
+ffff800000116ff8: 48 bf 21 a4 11 00 00 80 ff ff	movabsq	$-140737487199199, %rdi # imm = 0xFFFF80000011A421
+ffff800000117002: 48 ba 82 b1 11 00 00 80 ff ff	movabsq	$-140737487195774, %rdx # imm = 0xFFFF80000011B182
+ffff80000011700c: 49 b8 20 c9 10 00 00 80 ff ff	movabsq	$-140737487255264, %r8 # imm = 0xFFFF80000010C920
+ffff800000117016: be fe 00 00 00       	movl	$254, %esi
+ffff80000011701b: 31 c0                	xorl	%eax, %eax
+ffff80000011701d: 41 ff d0             	callq	*%r8
 
-ffff800000117040 <lab3_check_us>:
+ffff800000117020 <lab3_check_us>:
 ; {
-ffff800000117040: 55                   	pushq	%rbp
-ffff800000117041: 48 89 e5             	movq	%rsp, %rbp
-ffff800000117044: 48 83 ec 50          	subq	$80, %rsp
-ffff800000117048: 48 89 f8             	movq	%rdi, %rax
+ffff800000117020: 55                   	pushq	%rbp
+ffff800000117021: 48 89 e5             	movq	%rsp, %rbp
+ffff800000117024: 48 83 ec 50          	subq	$80, %rsp
+ffff800000117028: 48 89 f8             	movq	%rdi, %rax
 ; 	struct page_walker walker = {
-ffff80000011704b: 48 be b0 98 11 00 00 80 ff ff	movabsq	$-140737487202128, %rsi # imm = 0xFFFF8000001198B0
-ffff800000117055: 48 8d 55 b0          	leaq	-80(%rbp), %rdx
-ffff800000117059: b9 0a 00 00 00       	movl	$10, %ecx
-ffff80000011705e: 48 89 d7             	movq	%rdx, %rdi
-ffff800000117061: f3 48 a5             	rep		movsq	(%rsi), %es:(%rdi)
+ffff80000011702b: 48 be b0 98 11 00 00 80 ff ff	movabsq	$-140737487202128, %rsi # imm = 0xFFFF8000001198B0
+ffff800000117035: 48 8d 55 b0          	leaq	-80(%rbp), %rdx
+ffff800000117039: b9 0a 00 00 00       	movl	$10, %ecx
+ffff80000011703e: 48 89 d7             	movq	%rdx, %rdi
+ffff800000117041: f3 48 a5             	rep		movsq	(%rsi), %es:(%rdi)
 ; 	walk_all_pages(pml4, &walker);
-ffff800000117064: 48 b9 00 22 11 00 00 80 ff ff	movabsq	$-140737487232512, %rcx # imm = 0xFFFF800000112200
-ffff80000011706e: 48 89 c7             	movq	%rax, %rdi
-ffff800000117071: 48 89 d6             	movq	%rdx, %rsi
-ffff800000117074: ff d1                	callq	*%rcx
+ffff800000117044: 48 b9 00 22 11 00 00 80 ff ff	movabsq	$-140737487232512, %rcx # imm = 0xFFFF800000112200
+ffff80000011704e: 48 89 c7             	movq	%rax, %rdi
+ffff800000117051: 48 89 d6             	movq	%rdx, %rsi
+ffff800000117054: ff d1                	callq	*%rcx
 ; 	cprintf("[LAB 3] check_us() succeeded!\n");
-ffff800000117076: 48 bf 70 a0 11 00 00 80 ff ff	movabsq	$-140737487200144, %rdi # imm = 0xFFFF80000011A070
-ffff800000117080: 48 b9 b0 d4 10 00 00 80 ff ff	movabsq	$-140737487252304, %rcx # imm = 0xFFFF80000010D4B0
-ffff80000011708a: 31 c0                	xorl	%eax, %eax
-ffff80000011708c: ff d1                	callq	*%rcx
+ffff800000117056: 48 bf 70 a0 11 00 00 80 ff ff	movabsq	$-140737487200144, %rdi # imm = 0xFFFF80000011A070
+ffff800000117060: 48 b9 b0 d4 10 00 00 80 ff ff	movabsq	$-140737487252304, %rcx # imm = 0xFFFF80000010D4B0
+ffff80000011706a: 31 c0                	xorl	%eax, %eax
+ffff80000011706c: ff d1                	callq	*%rcx
 ; 	return 0;
-ffff80000011708e: 31 c0                	xorl	%eax, %eax
-ffff800000117090: 48 83 c4 50          	addq	$80, %rsp
-ffff800000117094: 5d                   	popq	%rbp
-ffff800000117095: c3                   	retq
-ffff800000117096: 66 2e 0f 1f 84 00 00 00 00 00	nopw	%cs:(%rax,%rax)
+ffff80000011706e: 31 c0                	xorl	%eax, %eax
+ffff800000117070: 48 83 c4 50          	addq	$80, %rsp
+ffff800000117074: 5d                   	popq	%rbp
+ffff800000117075: c3                   	retq
+ffff800000117076: 66 2e 0f 1f 84 00 00 00 00 00	nopw	%cs:(%rax,%rax)
 
-ffff8000001170a0 <lab3_check_pte_wx>:
+ffff800000117080 <lab3_check_pte_wx>:
 ; {
-ffff8000001170a0: 55                   	pushq	%rbp
-ffff8000001170a1: 48 89 e5             	movq	%rsp, %rbp
-ffff8000001170a4: 48 b8 02 00 00 00 00 00 00 80	movabsq	$-9223372036854775806, %rax # imm = 0x8000000000000002
+ffff800000117080: 55                   	pushq	%rbp
+ffff800000117081: 48 89 e5             	movq	%rsp, %rbp
+ffff800000117084: 48 b8 02 00 00 00 00 00 00 80	movabsq	$-9223372036854775806, %rax # imm = 0x8000000000000002
 ; 	flags = *entry & (PAGE_WRITE | PAGE_NO_EXEC);
-ffff8000001170ae: 48 23 07             	andq	(%rdi), %rax
+ffff80000011708e: 48 23 07             	andq	(%rdi), %rax
 ; 	if (flags == PAGE_WRITE) {
-ffff8000001170b1: 48 83 f8 02          	cmpq	$2, %rax
-ffff8000001170b5: 74 04                	je	0xffff8000001170bb <lab3_check_pte_wx+0x1b>
+ffff800000117091: 48 83 f8 02          	cmpq	$2, %rax
+ffff800000117095: 74 04                	je	0xffff80000011709b <lab3_check_pte_wx+0x1b>
 ; 	return 0;
-ffff8000001170b7: 31 c0                	xorl	%eax, %eax
-ffff8000001170b9: 5d                   	popq	%rbp
-ffff8000001170ba: c3                   	retq
-ffff8000001170bb: 48 89 f1             	movq	%rsi, %rcx
+ffff800000117097: 31 c0                	xorl	%eax, %eax
+ffff800000117099: 5d                   	popq	%rbp
+ffff80000011709a: c3                   	retq
+ffff80000011709b: 48 89 f1             	movq	%rsi, %rcx
 ; 		panic("%p is mapped as write executable!\n", base);
-ffff8000001170be: 48 bf 21 a4 11 00 00 80 ff ff	movabsq	$-140737487199199, %rdi # imm = 0xFFFF80000011A421
-ffff8000001170c8: 48 ba 7b 9a 11 00 00 80 ff ff	movabsq	$-140737487201669, %rdx # imm = 0xFFFF800000119A7B
-ffff8000001170d2: 49 b8 20 c9 10 00 00 80 ff ff	movabsq	$-140737487255264, %r8 # imm = 0xFFFF80000010C920
-ffff8000001170dc: be 1c 01 00 00       	movl	$284, %esi              # imm = 0x11C
-ffff8000001170e1: 31 c0                	xorl	%eax, %eax
-ffff8000001170e3: 41 ff d0             	callq	*%r8
-ffff8000001170e6: 66 2e 0f 1f 84 00 00 00 00 00	nopw	%cs:(%rax,%rax)
+ffff80000011709e: 48 bf 21 a4 11 00 00 80 ff ff	movabsq	$-140737487199199, %rdi # imm = 0xFFFF80000011A421
+ffff8000001170a8: 48 ba 7b 9a 11 00 00 80 ff ff	movabsq	$-140737487201669, %rdx # imm = 0xFFFF800000119A7B
+ffff8000001170b2: 49 b8 20 c9 10 00 00 80 ff ff	movabsq	$-140737487255264, %r8 # imm = 0xFFFF80000010C920
+ffff8000001170bc: be 1c 01 00 00       	movl	$284, %esi              # imm = 0x11C
+ffff8000001170c1: 31 c0                	xorl	%eax, %eax
+ffff8000001170c3: 41 ff d0             	callq	*%r8
+ffff8000001170c6: 66 2e 0f 1f 84 00 00 00 00 00	nopw	%cs:(%rax,%rax)
 
-ffff8000001170f0 <lab3_check_pde_wx>:
+ffff8000001170d0 <lab3_check_pde_wx>:
 ; {
-ffff8000001170f0: 55                   	pushq	%rbp
-ffff8000001170f1: 48 89 e5             	movq	%rsp, %rbp
-ffff8000001170f4: 48 b8 82 00 00 00 00 00 00 80	movabsq	$-9223372036854775678, %rax # imm = 0x8000000000000082
+ffff8000001170d0: 55                   	pushq	%rbp
+ffff8000001170d1: 48 89 e5             	movq	%rsp, %rbp
+ffff8000001170d4: 48 b8 82 00 00 00 00 00 00 80	movabsq	$-9223372036854775678, %rax # imm = 0x8000000000000082
 ; 	if (!(*entry & PAGE_HUGE)) {
-ffff8000001170fe: 48 23 07             	andq	(%rdi), %rax
-ffff800000117101: 48 3d 82 00 00 00    	cmpq	$130, %rax
-ffff800000117107: 74 04                	je	0xffff80000011710d <lab3_check_pde_wx+0x1d>
+ffff8000001170de: 48 23 07             	andq	(%rdi), %rax
+ffff8000001170e1: 48 3d 82 00 00 00    	cmpq	$130, %rax
+ffff8000001170e7: 74 04                	je	0xffff8000001170ed <lab3_check_pde_wx+0x1d>
 ; }
-ffff800000117109: 31 c0                	xorl	%eax, %eax
-ffff80000011710b: 5d                   	popq	%rbp
-ffff80000011710c: c3                   	retq
-ffff80000011710d: 48 89 f1             	movq	%rsi, %rcx
+ffff8000001170e9: 31 c0                	xorl	%eax, %eax
+ffff8000001170eb: 5d                   	popq	%rbp
+ffff8000001170ec: c3                   	retq
+ffff8000001170ed: 48 89 f1             	movq	%rsi, %rcx
 ; 		panic("%p is mapped as write executable!\n", base);
-ffff800000117110: 48 bf 21 a4 11 00 00 80 ff ff	movabsq	$-140737487199199, %rdi # imm = 0xFFFF80000011A421
-ffff80000011711a: 48 ba 7b 9a 11 00 00 80 ff ff	movabsq	$-140737487201669, %rdx # imm = 0xFFFF800000119A7B
-ffff800000117124: 49 b8 20 c9 10 00 00 80 ff ff	movabsq	$-140737487255264, %r8 # imm = 0xFFFF80000010C920
-ffff80000011712e: be 30 01 00 00       	movl	$304, %esi              # imm = 0x130
-ffff800000117133: 31 c0                	xorl	%eax, %eax
-ffff800000117135: 41 ff d0             	callq	*%r8
-ffff800000117138: 0f 1f 84 00 00 00 00 00      	nopl	(%rax,%rax)
+ffff8000001170f0: 48 bf 21 a4 11 00 00 80 ff ff	movabsq	$-140737487199199, %rdi # imm = 0xFFFF80000011A421
+ffff8000001170fa: 48 ba 7b 9a 11 00 00 80 ff ff	movabsq	$-140737487201669, %rdx # imm = 0xFFFF800000119A7B
+ffff800000117104: 49 b8 20 c9 10 00 00 80 ff ff	movabsq	$-140737487255264, %r8 # imm = 0xFFFF80000010C920
+ffff80000011710e: be 30 01 00 00       	movl	$304, %esi              # imm = 0x130
+ffff800000117113: 31 c0                	xorl	%eax, %eax
+ffff800000117115: 41 ff d0             	callq	*%r8
+ffff800000117118: 0f 1f 84 00 00 00 00 00      	nopl	(%rax,%rax)
 
-ffff800000117140 <lab3_check_wx>:
+ffff800000117120 <lab3_check_wx>:
 ; {
-ffff800000117140: 55                   	pushq	%rbp
-ffff800000117141: 48 89 e5             	movq	%rsp, %rbp
-ffff800000117144: 48 83 ec 50          	subq	$80, %rsp
-ffff800000117148: 48 89 f8             	movq	%rdi, %rax
+ffff800000117120: 55                   	pushq	%rbp
+ffff800000117121: 48 89 e5             	movq	%rsp, %rbp
+ffff800000117124: 48 83 ec 50          	subq	$80, %rsp
+ffff800000117128: 48 89 f8             	movq	%rdi, %rax
 ; 	struct page_walker walker = {
-ffff80000011714b: 48 be 00 99 11 00 00 80 ff ff	movabsq	$-140737487202048, %rsi # imm = 0xFFFF800000119900
-ffff800000117155: 48 8d 55 b0          	leaq	-80(%rbp), %rdx
-ffff800000117159: b9 0a 00 00 00       	movl	$10, %ecx
-ffff80000011715e: 48 89 d7             	movq	%rdx, %rdi
-ffff800000117161: f3 48 a5             	rep		movsq	(%rsi), %es:(%rdi)
+ffff80000011712b: 48 be 00 99 11 00 00 80 ff ff	movabsq	$-140737487202048, %rsi # imm = 0xFFFF800000119900
+ffff800000117135: 48 8d 55 b0          	leaq	-80(%rbp), %rdx
+ffff800000117139: b9 0a 00 00 00       	movl	$10, %ecx
+ffff80000011713e: 48 89 d7             	movq	%rdx, %rdi
+ffff800000117141: f3 48 a5             	rep		movsq	(%rsi), %es:(%rdi)
 ; 	walk_all_pages(pml4, &walker);
-ffff800000117164: 48 b9 00 22 11 00 00 80 ff ff	movabsq	$-140737487232512, %rcx # imm = 0xFFFF800000112200
-ffff80000011716e: 48 89 c7             	movq	%rax, %rdi
-ffff800000117171: 48 89 d6             	movq	%rdx, %rsi
-ffff800000117174: ff d1                	callq	*%rcx
+ffff800000117144: 48 b9 00 22 11 00 00 80 ff ff	movabsq	$-140737487232512, %rcx # imm = 0xFFFF800000112200
+ffff80000011714e: 48 89 c7             	movq	%rax, %rdi
+ffff800000117151: 48 89 d6             	movq	%rdx, %rsi
+ffff800000117154: ff d1                	callq	*%rcx
 ; 	cprintf("[LAB 3] check_wx() succeeded!\n");
-ffff800000117176: 48 bf e8 b4 11 00 00 80 ff ff	movabsq	$-140737487194904, %rdi # imm = 0xFFFF80000011B4E8
-ffff800000117180: 48 b9 b0 d4 10 00 00 80 ff ff	movabsq	$-140737487252304, %rcx # imm = 0xFFFF80000010D4B0
-ffff80000011718a: 31 c0                	xorl	%eax, %eax
-ffff80000011718c: ff d1                	callq	*%rcx
+ffff800000117156: 48 bf e8 b4 11 00 00 80 ff ff	movabsq	$-140737487194904, %rdi # imm = 0xFFFF80000011B4E8
+ffff800000117160: 48 b9 b0 d4 10 00 00 80 ff ff	movabsq	$-140737487252304, %rcx # imm = 0xFFFF80000010D4B0
+ffff80000011716a: 31 c0                	xorl	%eax, %eax
+ffff80000011716c: ff d1                	callq	*%rcx
 ; 	return 0;
-ffff80000011718e: 31 c0                	xorl	%eax, %eax
-ffff800000117190: 48 83 c4 50          	addq	$80, %rsp
-ffff800000117194: 5d                   	popq	%rbp
-ffff800000117195: c3                   	retq
-ffff800000117196: 66 2e 0f 1f 84 00 00 00 00 00	nopw	%cs:(%rax,%rax)
+ffff80000011716e: 31 c0                	xorl	%eax, %eax
+ffff800000117170: 48 83 c4 50          	addq	$80, %rsp
+ffff800000117174: 5d                   	popq	%rbp
+ffff800000117175: c3                   	retq
+ffff800000117176: 66 2e 0f 1f 84 00 00 00 00 00	nopw	%cs:(%rax,%rax)
 
-ffff8000001171a0 <lab3_check_null>:
+ffff800000117180 <lab3_check_null>:
 ; int lab3_check_null(struct page_table *pml4) {
-ffff8000001171a0: 55                   	pushq	%rbp
-ffff8000001171a1: 48 89 e5             	movq	%rsp, %rbp
+ffff800000117180: 55                   	pushq	%rbp
+ffff800000117181: 48 89 e5             	movq	%rsp, %rbp
 ; 	if (page_lookup(pml4, 0, NULL)) {
-ffff8000001171a4: 48 b8 30 12 11 00 00 80 ff ff	movabsq	$-140737487236560, %rax # imm = 0xFFFF800000111230
-ffff8000001171ae: 31 f6                	xorl	%esi, %esi
-ffff8000001171b0: 31 d2                	xorl	%edx, %edx
-ffff8000001171b2: ff d0                	callq	*%rax
-ffff8000001171b4: 48 85 c0             	testq	%rax, %rax
-ffff8000001171b7: 75 1c                	jne	0xffff8000001171d5 <lab3_check_null+0x35>
+ffff800000117184: 48 b8 30 12 11 00 00 80 ff ff	movabsq	$-140737487236560, %rax # imm = 0xFFFF800000111230
+ffff80000011718e: 31 f6                	xorl	%esi, %esi
+ffff800000117190: 31 d2                	xorl	%edx, %edx
+ffff800000117192: ff d0                	callq	*%rax
+ffff800000117194: 48 85 c0             	testq	%rax, %rax
+ffff800000117197: 75 1c                	jne	0xffff8000001171b5 <lab3_check_null+0x35>
 ; 	cprintf("[LAB 3] check_null() succeeded!\n");
-ffff8000001171b9: 48 bf f4 b3 11 00 00 80 ff ff	movabsq	$-140737487195148, %rdi # imm = 0xFFFF80000011B3F4
-ffff8000001171c3: 48 b9 b0 d4 10 00 00 80 ff ff	movabsq	$-140737487252304, %rcx # imm = 0xFFFF80000010D4B0
-ffff8000001171cd: 31 c0                	xorl	%eax, %eax
-ffff8000001171cf: ff d1                	callq	*%rcx
+ffff800000117199: 48 bf f4 b3 11 00 00 80 ff ff	movabsq	$-140737487195148, %rdi # imm = 0xFFFF80000011B3F4
+ffff8000001171a3: 48 b9 b0 d4 10 00 00 80 ff ff	movabsq	$-140737487252304, %rcx # imm = 0xFFFF80000010D4B0
+ffff8000001171ad: 31 c0                	xorl	%eax, %eax
+ffff8000001171af: ff d1                	callq	*%rcx
 ; 	return 0;
-ffff8000001171d1: 31 c0                	xorl	%eax, %eax
-ffff8000001171d3: 5d                   	popq	%rbp
-ffff8000001171d4: c3                   	retq
+ffff8000001171b1: 31 c0                	xorl	%eax, %eax
+ffff8000001171b3: 5d                   	popq	%rbp
+ffff8000001171b4: c3                   	retq
 ; 		panic("NULL should not be mapped!");
-ffff8000001171d5: 48 bf 21 a4 11 00 00 80 ff ff	movabsq	$-140737487199199, %rdi # imm = 0xFFFF80000011A421
-ffff8000001171df: 48 ba 9d b0 11 00 00 80 ff ff	movabsq	$-140737487196003, %rdx # imm = 0xFFFF80000011B09D
-ffff8000001171e9: 48 b9 20 c9 10 00 00 80 ff ff	movabsq	$-140737487255264, %rcx # imm = 0xFFFF80000010C920
-ffff8000001171f3: be 46 01 00 00       	movl	$326, %esi              # imm = 0x146
-ffff8000001171f8: 31 c0                	xorl	%eax, %eax
-ffff8000001171fa: ff d1                	callq	*%rcx
-ffff8000001171fc: 0f 1f 40 00          	nopl	(%rax)
+ffff8000001171b5: 48 bf 21 a4 11 00 00 80 ff ff	movabsq	$-140737487199199, %rdi # imm = 0xFFFF80000011A421
+ffff8000001171bf: 48 ba 9d b0 11 00 00 80 ff ff	movabsq	$-140737487196003, %rdx # imm = 0xFFFF80000011B09D
+ffff8000001171c9: 48 b9 20 c9 10 00 00 80 ff ff	movabsq	$-140737487255264, %rcx # imm = 0xFFFF80000010C920
+ffff8000001171d3: be 46 01 00 00       	movl	$326, %esi              # imm = 0x146
+ffff8000001171d8: 31 c0                	xorl	%eax, %eax
+ffff8000001171da: ff d1                	callq	*%rcx
+ffff8000001171dc: 0f 1f 40 00          	nopl	(%rax)
 
-ffff800000117200 <lab3_check_vas>:
+ffff8000001171e0 <lab3_check_vas>:
 ; {
-ffff800000117200: 55                   	pushq	%rbp
-ffff800000117201: 48 89 e5             	movq	%rsp, %rbp
-ffff800000117204: 53                   	pushq	%rbx
-ffff800000117205: 50                   	pushq	%rax
-ffff800000117206: 48 89 fb             	movq	%rdi, %rbx
+ffff8000001171e0: 55                   	pushq	%rbp
+ffff8000001171e1: 48 89 e5             	movq	%rsp, %rbp
+ffff8000001171e4: 53                   	pushq	%rbx
+ffff8000001171e5: 50                   	pushq	%rax
+ffff8000001171e6: 48 89 fb             	movq	%rdi, %rbx
 ; 	lab3_check_us(pml4);
-ffff800000117209: 48 b8 40 70 11 00 00 80 ff ff	movabsq	$-140737487212480, %rax # imm = 0xFFFF800000117040
-ffff800000117213: ff d0                	callq	*%rax
+ffff8000001171e9: 48 b8 20 70 11 00 00 80 ff ff	movabsq	$-140737487212512, %rax # imm = 0xFFFF800000117020
+ffff8000001171f3: ff d0                	callq	*%rax
 ; 	lab3_check_wx(pml4);
-ffff800000117215: 48 b8 40 71 11 00 00 80 ff ff	movabsq	$-140737487212224, %rax # imm = 0xFFFF800000117140
-ffff80000011721f: 48 89 df             	movq	%rbx, %rdi
-ffff800000117222: ff d0                	callq	*%rax
+ffff8000001171f5: 48 b8 20 71 11 00 00 80 ff ff	movabsq	$-140737487212256, %rax # imm = 0xFFFF800000117120
+ffff8000001171ff: 48 89 df             	movq	%rbx, %rdi
+ffff800000117202: ff d0                	callq	*%rax
 ; 	lab3_check_null(pml4);
-ffff800000117224: 48 b8 a0 71 11 00 00 80 ff ff	movabsq	$-140737487212128, %rax # imm = 0xFFFF8000001171A0
-ffff80000011722e: 48 89 df             	movq	%rbx, %rdi
-ffff800000117231: ff d0                	callq	*%rax
+ffff800000117204: 48 b8 80 71 11 00 00 80 ff ff	movabsq	$-140737487212160, %rax # imm = 0xFFFF800000117180
+ffff80000011720e: 48 89 df             	movq	%rbx, %rdi
+ffff800000117211: ff d0                	callq	*%rax
 ; }
-ffff800000117233: 48 83 c4 08          	addq	$8, %rsp
-ffff800000117237: 5b                   	popq	%rbx
-ffff800000117238: 5d                   	popq	%rbp
-ffff800000117239: c3                   	retq
+ffff800000117213: 48 83 c4 08          	addq	$8, %rsp
+ffff800000117217: 5b                   	popq	%rbx
+ffff800000117218: 5d                   	popq	%rbp
+ffff800000117219: c3                   	retq
