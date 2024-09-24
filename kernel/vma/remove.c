@@ -19,19 +19,7 @@ void remove_vma(struct task *task, struct vma *vma)
 /* Frees all the VMAs for the given task. */
 void free_vmas(struct task *task)
 {
-	/* LAB 4: your code here. */
-	struct list* vm_entry;
-	struct list *next;
-	struct vma* vma;
-	list_foreach_safe(&task->task_mmap, vm_entry, next){
-		vma = container_of(vm_entry, struct vma, vm_mmap);
-
-		//unmap all memory used by vma
-		remove_vma_range(task, vma->vm_base, vma->vm_len);
-
-		remove_vma(task, vma);
-		kfree(vma);
-	}
+	remove_vma_range(task, 0, KERNEL_LIM);
 }
 
 /* Splits the VMA into the address range [base, base + size) and removes the
@@ -40,10 +28,11 @@ void free_vmas(struct task *task)
 int do_remove_vma(struct task *task, void *base, size_t size, struct vma *vma,
 	void *udata)
 {
-	/* LAB 4: your code here. */
-
-	remove_vma(task, vma);
-	kfree(vma);
+	assert(vma->vm_base == base);
+	assert(vma->vm_end >= base + size -1);
+	struct vma* new_vma =  split_vma(task, vma, base);
+	remove_vma(task, new_vma);
+	unmap_page_range(task->task_pml4, base, size);
 	return 0;
 }
 
@@ -62,6 +51,7 @@ int do_unmap_vma(struct task *task, void *base, size_t size, struct vma *vma,
 	void *udata)
 {
 	/* LAB 4: your code here. */
+	//TODO probably also flush tlb
 	return 0;
 }
 
