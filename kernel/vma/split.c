@@ -2,6 +2,7 @@
 #include <vma.h>
 
 #include <kernel/vma.h>
+#include <assert.h>
 
 /* Given a task and a VMA, this function splits the VMA at the given address
  * by setting the end address of original VMA to the given address and by
@@ -9,26 +10,26 @@
  */
 struct vma *split_vma(struct task *task, struct vma *lhs, void *addr)
 {
-	if(!task || !lhs){
+	assert(!task || !lhs);
+
+	if(addr > lhs->vm_end || addr < lhs->vm_base){
 		return NULL;
 	}
-	if(addr > lhs->vm_end || addr <= lhs->vm_base){
-		return NULL;
-	}
+	
 	size_t new_lhs_size = addr - lhs->vm_base;
 	size_t new_rhs_size = lhs->vm_end - addr + 1;
 
 	struct vma* new_vma = NULL;
 
-	if(lhs->vm_src != 0 && lhs->vm_len > new_lhs_size){
+	if(lhs->vm_src){
 		new_vma = add_executable_vma(task, lhs->vm_name, addr, new_rhs_size, lhs->vm_flags, lhs->vm_src + new_lhs_size, lhs->vm_len - new_lhs_size);
 	}
 	else{
 		new_vma = add_anonymous_vma(task, lhs->vm_name, addr, new_rhs_size, lhs->vm_flags);
 	}
-	if(new_vma){
-		lhs->vm_end = addr -1;
-	}
+	
+	lhs->vm_end = addr - 1;
+	
 	return new_vma;
 }
 

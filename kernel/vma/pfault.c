@@ -17,7 +17,7 @@ int task_page_fault_handler(struct task *task, void *va, int flags)
 	bool illegalWrite = !(vm->vm_flags & VM_WRITE) && (flags & PF_WRITE);
 
 	bool invalidPf = illegalWrite || !(vm->vm_flags & VM_READ) || (flags & PF_RESERVED) 
-				|| (flags & PF_IFETCH) && !(vm->vm_flags & VM_EXEC);
+				|| ((flags & PF_IFETCH) && !(vm->vm_flags & VM_EXEC));
 
 	if(invalidPf) return -1;
 
@@ -27,7 +27,7 @@ int task_page_fault_handler(struct task *task, void *va, int flags)
 	//map in missing page
 	//this code may change depending on what bonus we implement
 	//do we map one page at a time or multiple?
-	populate_vma_range(task, ROUNDDOWN((uintptr_t) va, PAGE_SIZE), PAGE_SIZE, vm->vm_flags);
+	populate_vma_range(task, (void*) ROUNDDOWN((uintptr_t) va, PAGE_SIZE), PAGE_SIZE, vm->vm_flags);
 
 	return 0;
 }

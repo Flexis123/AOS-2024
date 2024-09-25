@@ -32,6 +32,8 @@
         "kmem.h": "c",
         "lookup.h": "c",
         "map.h": "c",
-        "buddy.h": "c"
+        "buddy.h": "c",
+        "rbtree.h": "c",
+        "vma.h": "c"
     }
 }

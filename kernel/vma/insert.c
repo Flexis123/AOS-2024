@@ -76,17 +76,24 @@ struct vma *add_executable_vma(struct task *task, char *name, void *addr,
 	/* LAB 4: your code here. */
 	struct vma* vm = kmalloc(sizeof(struct vma));
 	vm->vm_base = addr;
-	vm->vm_end = addr + size;
+	vm->vm_end = addr + size - 1;
 	vm->vm_len = len;
 	vm->vm_name = name;
 	vm->vm_flags = flags;
 	vm->vm_src = src;
+	
+	list_init(&vm->vm_mmap);
+	rb_node_init(&vm->vm_rb);
 
 	int ret = insert_vma(task, vm);
 	if(ret >= 0){
+		/*
 		struct vma* prev_vma = vm;
 		
+		//merge adjacent vma's
 		while(prev_vma != (vm = merge_vmas(task, vm)));
+		*/
+
 		return vm;
 	}
 

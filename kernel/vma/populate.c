@@ -22,23 +22,23 @@ int do_populate_vma(struct task *task, void *base, size_t size,
 	if(vma->vm_flags != *((int*)udata)) return -1;
 
 	struct page_info* page;
-	uint64_t flags;
+	uint64_t flags = PAGE_PRESENT | PAGE_USER;
+	if(vma->vm_flags & VM_WRITE) flags |= PAGE_WRITE;
+	if(!(vma->vm_flags & VM_EXEC)) flags |= PAGE_NO_EXEC;
 
-	vma->vm_len = 0; //can the vma be fragmnted?
-	for(void* va = vma->vm_base; va < MIN(base + size, vma->vm_end); va += PAGE_SIZE, vma->vm_len += PAGE_SIZE){
+	void *vma_base = MAX(vma->vm_base + vma->vm_len, base);
+	void *vma_end = MIN(vma->vm_end, base + size);
+
+	for(void* va = vma_base; va < vma_end; va += PAGE_SIZE, vma->vm_len += PAGE_SIZE){
 		if(!(page = page_alloc(ALLOC_ZERO))){
 			panic("OOM: cannot populate vma with physical pages");
 		}
 
-		flags = 0;
-		if(vma->vm_flags & VM_WRITE) flags |= PAGE_WRITE;
-		if(!(vma->vm_flags & VM_EXEC)) flags |= PAGE_NO_EXEC;
-
-		if(page_insert(task->task_pml4, page, va, flags | PAGE_PRESENT | PAGE_USER) < 0){
+		if(page_insert(task->task_pml4, page, va, flags) < 0){
 			panic("Problem with mapping physical page to virtual page for VMA");
 		}
 
-		if(vma->vm_src) memcpy(base, vma->vm_src + vma->vm_len, PAGE_SIZE);
+		if(vma->vm_src) memcpy(base, vma->vm_src + (va - vma->vm_base), PAGE_SIZE);
 	}
 	
 	return 0;

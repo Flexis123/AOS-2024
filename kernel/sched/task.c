@@ -7,8 +7,8 @@
 #include <kernel/monitor.h>
 #include <kernel/mem.h>
 #include <kernel/sched.h>
-#include <vma/remove.h>
-#include <vma/insert.h>
+#include <kernel/vma/remove.h>
+#include <kernel/vma/insert.h>
 
 pid_t pid_max = 1 << 16;
 struct task **tasks = (struct task **)PIDMAP_BASE;
@@ -140,6 +140,7 @@ struct task *task_alloc(pid_t ppid)
 	task->task_type = TASK_TYPE_USER;
 	task->task_status = TASK_RUNNABLE;
 	task->task_runs = 0;
+	list_init(&task->task_mmap);
 
 	memset(&task->task_frame, 0, sizeof task->task_frame);
 
@@ -244,11 +245,17 @@ static void task_load_elf(struct task *task, uint8_t *binary)
 		panic("binary has wrong magic number. got: %d, expected: %d", elf->e_magic, ELF_MAGIC);
 	}
 	struct elf_proghdr *prog_headers = (struct elf_proghdr *)(binary + elf->e_phoff);
+	struct elf_secthdr *sections = (struct elf_secthdr *)(binary + elf->e_shoff);
 	assert(elf->e_phoff != 0);
 
-	load_pml4((struct page_table*)PADDR(task->task_pml4));
+	/*
+	for(uint16_t i = 0; i < elf->e_shnum; i++){
+		cprintf("section name = %s\n", sections[i].sh_name);
+		cprintf("section type = %s\n", sections[i].sh_type);
+	}
+	*/
 
-	for(int i = 0; i < elf->e_phnum; i++){
+	for(uint16_t i = 0; i < elf->e_phnum; i++){
 		struct elf_proghdr *ph = &prog_headers[i];
 		if(!(ph->p_type & ELF_PROG_LOAD)){
 			continue;
@@ -258,6 +265,7 @@ static void task_load_elf(struct task *task, uint8_t *binary)
 		}
 
 		assert(ph->p_offset != 0);
+
 		physaddr_t flags = 0;
 		if(ph->p_flags & ELF_PROG_FLAG_WRITE) flags |= VM_WRITE;
 		if(ph->p_flags & ELF_PROG_FLAG_EXEC) flags |= VM_EXEC;
@@ -275,20 +283,22 @@ static void task_load_elf(struct task *task, uint8_t *binary)
 		if(ph->p_filesz > 0){
 			assert(ph->p_filesz == ph->p_memsz);
 			//memcpy((void*)ph->p_va, binary + ph->p_offset, ph->p_filesz);
-			add_executable_vma(task, "task elf header", (void*)ph->p_va, ph->p_memsz, flags, binary + ph->p_offset, 0);
+			//char *vma_name = kmalloc(32);
+			//snprintf(vma_name, 32, "elf prog hdr %d", i);
+			
+			add_executable_vma(task, NULL, (void*)ph->p_va, ph->p_memsz, flags, binary + ph->p_offset, 0);
 		}
 		else{
 			//memset((void*)ph->p_va, 0, ph->p_memsz);
-			add_anonymous_vma(task, "empty task elf header?!", (void*)ph->p_va, ph->p_memsz, flags);
+			add_anonymous_vma(task, NULL, (void*)ph->p_va, ph->p_memsz, flags);
 		}
 		
 	}
-	load_pml4((void*)PADDR(kernel_pml4));
 
 	/* Now map one page for the program's initial stack at virtual address
 	 * USTACK_TOP - PAGE_SIZE.
 	 */
-	add_anonymous_vma(task, "user stack", (void*)USTACK_TOP, 2 * PAGE_SIZE, PAGE_PRESENT | PAGE_WRITE | PAGE_USER | PAGE_NO_EXEC);
+	add_anonymous_vma(task, "stack", (void*)USTACK_TOP, 2 * PAGE_SIZE, VM_WRITE | VM_READ);
 	//populate_region(task->task_pml4, (void*)USTACK_TOP - PAGE_SIZE, PAGE_SIZE, PAGE_PRESENT | PAGE_WRITE | PAGE_USER | PAGE_NO_EXEC);
 	//protect_region(task->task_pml4, (void*)USTACK_TOP - PAGE_SIZE, PAGE_SIZE, PAGE_PRESENT | PAGE_WRITE | PAGE_USER | PAGE_NO_EXEC);
 	task->task_frame.rip = elf->e_entry;

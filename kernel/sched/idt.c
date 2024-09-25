@@ -11,7 +11,7 @@
 
 #include <kernel/sched/task.h>
 #include <kernel/mem/insert.h>
-#include <vma/pfault.h>
+#include <kernel/vma/pfault.h>
 
 #define __DEF_INT_HANDLER(int_no) \
 	void isr##int_no();
