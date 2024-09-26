@@ -35,10 +35,10 @@ executing boot map region from va 0xffffff8000000000 to 0xffffff800000ffff, flag
 [LAB 2] check_buddy_consistency() succeeded!
 [LAB 2] check_vas() succeeded!
 [PID     0] New task with PID 1
-add executable vma at va 0x800020, until (exclusive) 0x8010ec from src: 0xffff8000001bc4a8
-add executable vma at va 0x802000, until (exclusive) 0x802338 from src: 0xffff8000001be348
-add executable vma at va 0x803000, until (exclusive) 0x803008 from src: 0xffff8000001bf348
-add executable vma at va 0x200000, until (exclusive) 0x200068 from src: 0xffff8000001bf358
+add executable vma at va 8388640, with size: 4300 from src: 18446603336223016104
+add executable vma at va 8396800, with size: 824 from src: 18446603336223023944
+add executable vma at va 8400896, with size: 8 from src: 18446603336223028040
+add executable vma at va 2097152, with size: 104 from src: 18446603336223028056
 [PID     1] VMAs:
   0x0000000000200000 - 0x0000000000201000 [rw-] 0xffff8000001bf358 - 0x0000000000000068 ".data"
   0x0000000000800000 - 0x0000000000802000 [r-x] 0xffff8000001bc4a8 - 0x00000000000010cc ".text"
@@ -62,6 +62,9 @@ INT frame at 0xffff800000368eb8
 [PID     1] user fault va 0x800020 ip 0x800020
 start task_page_Fault handler, va is: 0x800020
 populate vma range from: 0x800000 to (exclusive) 0x801000
+bytes already written; 0
+remaining in file; 4300, write space: 4064
+read pos is: 18446603336223016104, write pos 8388640, size: 4064
 page fault complete
 continue running
 INT frame at 0xffff800000368eb8
@@ -92,9 +95,12 @@ INT frame at 0xffff800000368eb8
 [PID     1] user fault va 0x80101c ip 0x80101c
 start task_page_Fault handler, va is: 0x80101c
 populate vma range from: 0x801000 to (exclusive) 0x802000
+bytes already written; 4096
+remaining in file; 236, write space: 4096
+read pos is: 18446603336223020168, write pos 8392704, size: 236
 page fault complete
 continue running
 kernel panic at kernel/vma/syscall.c:94: Unsupported flags in sys_mmap: 0x23
 Welcome to the OpenLSD kernel monitor!
 Type 'help' for a list of commands.
-qemu-system-x86_64: terminating on signal 15 from pid 123401 (make)
+qemu-system-x86_64: terminating on signal 15 from pid 154227 (make)
