@@ -90,40 +90,39 @@ int sys_mquery(struct vma_info *info, void *addr)
 void *sys_mmap(void *addr, size_t len, int prot, int flags, int fd,
 	uintptr_t offset)
 {
-	if(flags & ~(MAP_ANONYMOUS | MAP_PRIVATE | MAP_FIXED | MAP_POPULATE)){
-		panic("Unsupported flags in sys_mmap: %p", flags);
-	}
-	assert_user_mem(cur_task, addr, len, PAGE_USER | PAGE_WRITE);
+	if(flags & ~(MAP_ANONYMOUS | MAP_PRIVATE)){
+        panic("Unsupported flags in sys_mmap: %p", flags);
+    }
+	else if(addr >= (void *)USER_LIM || (addr + len) >= (void *)USER_LIM || addr + len < (void*) len || addr == NULL){
+        cprintf("debug invalid addr in sys_mmap: %p\n", addr);    
+        return MAP_FAILED;    
+    }
+    else if(prot & PROT_EXEC){
+        if(prot & PROT_WRITE){
+            cprintf("debug invalid prot flags, both write and execute\n");
+            return MAP_FAILED;
+        }
+        if(!(prot & PROT_READ)){
+            cprintf("debug invalid prot flags execute but no read\n");
+            return MAP_FAILED;
+        }
+    }
+    else if(prot & PROT_WRITE){
+        if(!(prot & PROT_READ)){
+            cprintf("debug invalid prot flags write but no read\n");
+            return MAP_FAILED;
+        }
+    }
+	
+	if(flags & MAP_FIXED) unmap_vma_range(cur_task, addr, len);
+	
+	if(flags & MAP_POPULATE) populate_vma_range(cur_task, addr, len, prot);
 
-	if(addr + len < addr || addr + len > (void *)USER_LIM){
-		cprintf("Debug, user tried to mmap above user_lim\n");
-		return NULL;
-	}
-	assert(flags == (MAP_ANONYMOUS | MAP_PRIVATE));//not sure about this. It is vaguely what the lab4.pdf says
-
-	if((prot & (PROT_EXEC | PROT_WRITE)) != (PROT_EXEC | PROT_WRITE) && (prot & (PROT_EXEC | PROT_WRITE)) != 0){
-		cprintf("Debug, cannot sys_mmap exec and write flags\n");
-		return NULL;
-	}
-	if(prot & PROT_READ){
-		cprintf("Cannot protect read in sys_mmap\n");
-		return NULL;
-	}
-	if(flags & MAP_FIXED){
-		unmap_vma_range(cur_task, addr, len);
-	}
-	if(flags & MAP_POPULATE){
-		uint64_t populate_flags = PAGE_PRESENT | PAGE_USER;
-		if(prot & PROT_EXEC) populate_flags |= PAGE_NO_EXEC;
-		if((prot & PROT_WRITE) == 0) populate_flags |= PAGE_WRITE;
-		populate_region(cur_task->task_pml4, addr, len, populate_flags);
-	}
-	return NULL;
+	return add_anonymous_vma(cur_task, "user anonymous mapping", addr, len, prot)->vm_base;
 }
 
 void sys_munmap(void *addr, size_t len)
 {
-	assert_user_mem(cur_task, addr, len, PAGE_USER);
 	remove_vma_range(cur_task, addr, len);
 }
 

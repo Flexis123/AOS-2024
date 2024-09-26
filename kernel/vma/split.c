@@ -23,6 +23,7 @@ struct vma *split_vma(struct task *task, struct vma *lhs, void *addr)
 
 	if(lhs->vm_src){
 		new_vma = add_executable_vma(task, lhs->vm_name, addr, new_rhs_size, lhs->vm_flags, lhs->vm_src + new_lhs_size, lhs->vm_len - new_lhs_size);
+		lhs->vm_len = new_lhs_size;
 	}
 	else{
 		new_vma = add_anonymous_vma(task, lhs->vm_name, addr, new_rhs_size, lhs->vm_flags);

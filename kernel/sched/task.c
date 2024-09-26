@@ -296,22 +296,8 @@ static void task_load_elf(struct task *task, uint8_t *binary)
 		//protect_region(task->task_pml4, (void*)ph->p_va, ph->p_memsz, flags);
 		if(ph->p_filesz > 0){
 			assert(ph->p_filesz == ph->p_memsz);
-			//memcpy((void*)ph->p_va, binary + ph->p_offset, ph->p_filesz);
-			//char *vma_name = kmalloc(32);
-			//snprintf(vma_name, 32, "elf prog hdr %d", i);
 			cprintf("add executable vma at va %p, until (exclusive) %p from src: %p\n", ph->p_va, ph->p_va + ph->p_memsz, binary + ph->p_offset);
 			struct vma * vma = add_executable_vma(task, name, (void*)ph->p_va, ph->p_memsz, flags, binary + ph->p_offset, ph->p_filesz);
-			assert(vma);
-			vma->src_offset = ph->p_va % PAGE_SIZE;
-			/*for(int i = 0; i < ph->p_filesz; i++){
-				cprintf("%d ", (int)*(binary + ph->p_offset + i));
-				if(i % 40 == 0){
-					cprintf("\n");
-				}
-			}
-			cprintf("end print, src is at: %p\n", binary + ph->p_offset);*/
-			
-
 		}
 		else{
 			//memset((void*)ph->p_va, 0, ph->p_memsz);

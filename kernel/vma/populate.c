@@ -25,17 +25,18 @@ int do_populate_vma(struct task *task, void *base, size_t size,
 	uint64_t flags = PAGE_PRESENT | PAGE_USER;
 	if(vma->vm_flags & VM_WRITE) flags |= PAGE_WRITE;
 	if(!(vma->vm_flags & VM_EXEC)) flags |= PAGE_NO_EXEC;
+	
 
+	//get vma bounds for which this functions acts upon
+	void* actual_base = MAX(vma->vm_base, base);
+	void* actual_end = MIN(vma->vm_end, base + size);
 
+	//POPULATE
+	//size_t sizePopulate = MIN(size, actual_end - actual_base);
 	populate_region(task->task_pml4, base, size, flags);
+
 	if(vma->vm_src){//TODO make this work for pages after vma_base
 
-		if(base == vma->vm_base){
-			memcpy(base + vma->src_offset, vma->vm_src, MIN(PAGE_SIZE, PAGE_SIZE - vma->src_offset));
-		}
-		else{
-			memcpy(base, vma->vm_src + (base - vma->vm_base) - vma->src_offset, MIN(PAGE_SIZE, vma->vm_len - (base - vma->vm_base) - vma->src_offset));
-		}
 	}
 	assert(page_lookup(task->task_pml4, base, NULL));
 

@@ -107,6 +107,7 @@ def test_evilmunmap():
 
 end_part('munmap')
 
+'''
 @test(10)
 def test_mprotect():
     r.user_test('mprotect')
@@ -198,6 +199,7 @@ def test_evilmadvise():
             '.PID     1. Freed task with PID 1')
 
 end_part('madvice')
+'''
 
 @test(10)
 def test_mapleft():

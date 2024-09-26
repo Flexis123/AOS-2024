@@ -27,7 +27,7 @@ struct vma {
 	 * This is used by executables.
 	 */
 	void *vm_src;
-	int src_offset;
+	size_t src_offset;
 
 	/* The amount of data available to back up the VMA. */
 	size_t vm_len;

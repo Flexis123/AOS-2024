@@ -100,11 +100,14 @@ void print_int_frame(struct int_frame *frame)
 	switch (frame->int_no) {
 	case INT_PAGE_FAULT:
 		cprintf(" CR2 %p\n", read_cr2());
-		cprintf(" ERR 0x%016llx (%s, %s, %s)\n",
+		
+		cprintf(" ERR 0x%016llx (%s, %s, %s, %s)\n",
 			frame->err_code,
 			frame->err_code & 4 ? "user" : "kernel",
 			frame->err_code & 2 ? "write" : "read",
-			frame->err_code & 1 ? "protection" : "not present");
+			frame->err_code & 1 ? "protection" : "not present",
+			frame->err_code & PF_IFETCH ? "ifetch" : "not ifetch"
+		);
 		break;
 	default:
 		cprintf(" ERR 0x%016llx\n", frame->err_code);
@@ -254,6 +257,8 @@ void int_handler(struct int_frame *frame)
 	task_run(cur_task);
 }
 
+#include <kernel/vma/show.h>
+
 void page_fault_handler(struct int_frame *frame)
 {
 	void *fault_va;
@@ -263,9 +268,11 @@ void page_fault_handler(struct int_frame *frame)
 	/* Read the CR2 register to find the faulting address. */
 	fault_va = (void *)read_cr2();
 
+	print_int_frame(frame);
+
 	/* Handle kernel-mode page faults. */
-	if(!(frame->err_code & PAGE_USER)){
-		print_int_frame(frame);
+	if(!(frame->err_code & PF_USER)){
+		//print_int_frame(frame);
 		panic("Page fault originated from the kernel");
 	}
 
@@ -275,6 +282,8 @@ void page_fault_handler(struct int_frame *frame)
 
 	if(task_page_fault_handler(cur_task, fault_va, frame->err_code) < 0){
 		cprintf("[PID %5u] user fault is invalid!\n");
+		//print_int_frame(frame);
 		task_destroy(cur_task);
 	}
+	show_vmas(cur_task);
 }

@@ -43,7 +43,7 @@ int do_remove_vma(struct task *task, void *base, size_t size, struct vma *vma,
 
 	//struct vma* new_vma = split_vma(task, vma, split_addr);
 	remove_vma(task, vma);
-	unmap_page_range(task->task_pml4, curr_base, vma->vm_len); //remove only mapped pages, so that is from [curr_base, vma->vm_len)
+	unmap_page_range(task->task_pml4, curr_base, curr_end - curr_base); //remove only mapped pages, so that is from [curr_base, vma->vm_len)
 
 	kfree(vma);
 	return 0;
