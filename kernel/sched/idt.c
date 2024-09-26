@@ -201,10 +201,11 @@ void int_dispatch(struct int_frame *frame)
 			return monitor(frame);
 
 		case INT_PAGE_FAULT:
+			//print_int_frame(frame);
 			return page_fault_handler(frame);
 
 		case INT_SYSCALL:
-			print_int_frame(frame);
+			//print_int_frame(frame);
 			frame->rax = syscall(frame->rdi, frame->rsi, frame->rdx, frame->rcx, frame->r8, frame->r9, frame->rbp);
 			return iret64(frame);
 	
@@ -232,7 +233,7 @@ void int_handler(struct int_frame *frame)
 	 * "cli" in the interrupt path.
 	 */
 	assert(!(read_rflags() & FLAGS_IF));
-	/* cprintf("Incoming INT frame at %p\n", frame); */
+	//cprintf("Incoming INT frame at %p\n", frame); 
 	if ((frame->cs & 3) == 3) {
 		/* Interrupt from user mode. */
 		assert(cur_task);
@@ -271,7 +272,6 @@ void page_fault_handler(struct int_frame *frame)
 	/* Destroy the task that caused the fault. */
 	cprintf("[PID %5u] user fault va %p ip %p\n",
 		cur_task->task_pid, fault_va, frame->rip);
-	print_int_frame(frame);
 
 	if(task_page_fault_handler(cur_task, fault_va, frame->err_code) < 0){
 		cprintf("[PID %5u] user fault is invalid!\n");

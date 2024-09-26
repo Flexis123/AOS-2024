@@ -20,27 +20,19 @@ int do_populate_vma(struct task *task, void *base, size_t size,
 	//yes?
 	//so then this should fail if the flags dont match as we cant do the virutal contigous mapping!
 	if(vma->vm_flags != *((int*)udata)) return -1;
-
 	struct page_info* page;
 	uint64_t flags = PAGE_PRESENT | PAGE_USER;
 	if(vma->vm_flags & VM_WRITE) flags |= PAGE_WRITE;
 	if(!(vma->vm_flags & VM_EXEC)) flags |= PAGE_NO_EXEC;
 
-	void *vma_base = MAX(vma->vm_base + vma->vm_len, base);
-	void *vma_end = MIN(vma->vm_end, base + size);
 
-	for(void* va = vma_base; va < vma_end; va += PAGE_SIZE, vma->vm_len += PAGE_SIZE){
-		if(!(page = page_alloc(ALLOC_ZERO))){
-			panic("OOM: cannot populate vma with physical pages");
-		}
-
-		if(page_insert(task->task_pml4, page, va, flags) < 0){
-			panic("Problem with mapping physical page to virtual page for VMA");
-		}
-
-		if(vma->vm_src) memcpy(base, vma->vm_src + (va - vma->vm_base), PAGE_SIZE);
+	populate_region(task->task_pml4, base, size, flags);
+	if(vma->vm_src){//TODO make this work for pages after vma_base
+		memcpy(base, vma->vm_src + vma->src_offset, MIN(PAGE_SIZE, PAGE_SIZE - vma->src_offset));
 	}
-	
+	cprintf("doing page lookup now\n");
+	assert(page_lookup(task->task_pml4, base, NULL));
+
 	return 0;
 }
 

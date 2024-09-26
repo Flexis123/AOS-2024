@@ -11,21 +11,31 @@
  */
 struct vma *merge_vma(struct task *task, struct vma *lhs, struct vma *rhs)
 {
-	assert(!lhs || !rhs || !task);
+	if(!lhs){
+		panic("no lhs in merge_vma");
+	}
+	if(!rhs){
+		panic("no rhs in merge_vma");
+	}
+	if(!task){
+		panic("no task in merge_vma");
+	}
 
-	if(lhs->vm_end != rhs->vm_base - 1){
+	//assert(!lhs || !rhs || !task);
+
+	if(lhs->vm_end != rhs->vm_base){
 		return NULL;
 	}
 	else if(lhs->vm_flags != rhs->vm_flags){
 		return NULL;
 	}
-	else if(lhs->vm_src != NULL && lhs->vm_src + lhs->vm_len != rhs->vm_src){//this is assuming that stuff in a vma is virutally contigous
+	else if(lhs->vm_src != NULL && lhs->vm_len < rhs->vm_end - lhs->vm_base){
 		return NULL;
 	}
 
-	void* new_end = rhs->vm_end;
+	lhs->vm_end = rhs->vm_end;
 	remove_vma(task, rhs);
-	lhs->vm_end = new_end;
+	
 	return lhs;
 }
 
@@ -45,7 +55,7 @@ struct vma *merge_vmas(struct task *task, struct vma *vma)
 		}
 	}
 	
-	struct vma *next = task_find_vma(task, vma->vm_end + 1);
+	struct vma *next = task_find_vma(task, vma->vm_end);
 	if(next){
 		struct vma *merged_vma = merge_vma(task, vma, next);
 

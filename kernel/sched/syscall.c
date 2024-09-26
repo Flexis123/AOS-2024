@@ -8,6 +8,7 @@
 #include <kernel/console.h>
 #include <kernel/mem.h>
 #include <kernel/sched.h>
+#include <kernel/vma/syscall.h>
 
 extern void syscall64(void);
 
@@ -80,12 +81,12 @@ int64_t syscall(uint64_t syscallno, uint64_t a1, uint64_t a2, uint64_t a3,
 	int64_t ret = 0;
 
 	switch (syscallno) {
-		case SYS_cgetc:
-			ret = sys_cgetc();
-			break;
-
 		case SYS_cputs:
 			sys_cputs((void*) a1, a2);
+			break;
+
+		case SYS_cgetc:
+			ret = sys_cgetc();
 			break;
 
 		case SYS_getpid:
@@ -95,7 +96,26 @@ int64_t syscall(uint64_t syscallno, uint64_t a1, uint64_t a2, uint64_t a3,
 		case SYS_kill:
 			ret = sys_kill(a1);
 			break;
+		
+		case SYS_mquery:
+			ret = sys_mquery((void *)a1, (void *)a2);
+			break;
 
+		case SYS_mmap:
+			ret = (int64_t)sys_mmap((void *)a1, a2, a3, a4, a5, a6);
+			break;
+
+		case SYS_munmap:
+			sys_munmap((void *)a1, a2);
+			break;
+
+		case SYS_mprotect:
+			ret = sys_mprotect((void *)a1, a2, a3);
+			break;
+		
+		case SYS_madvise:
+			ret = sys_madvise((void *)a1, a2, a3);
+			break;
 		default:
 			ret = -ENOSYS;
 	}

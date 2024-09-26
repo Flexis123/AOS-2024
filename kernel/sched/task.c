@@ -10,10 +10,49 @@
 #include <kernel/vma/remove.h>
 #include <kernel/vma/insert.h>
 
+#include <kernel/mem/vma.h>
+
 pid_t pid_max = 1 << 16;
 struct task **tasks = (struct task **)PIDMAP_BASE;
 size_t nuser_tasks = 0;
+void debug_print(struct page_table *pml4){
 
+	for(int i = 0; i < PAGE_TABLE_ENTRIES; i++){
+		physaddr_t entry = pml4->entries[i];
+
+		if(entry == 0)continue;
+
+		cprintf("entry: %d: %p\n", i, entry);
+
+		for(int j = 0; j < PAGE_TABLE_ENTRIES; j++){
+			struct page_table *pdpt = KADDR(PAGE_ADDR(entry));
+			physaddr_t entry2 = pdpt->entries[j];
+
+			if(entry2 == 0)continue;
+
+			cprintf("	entry2: %d %p\n", j, entry2);
+
+			for(int k = 0; k < PAGE_TABLE_ENTRIES; k++){
+				struct page_table *pdir = KADDR(PAGE_ADDR(entry2));
+				physaddr_t entry3 = pdir->entries[k];
+				if(entry3 == 0)continue;
+
+				if(entry3 & PAGE_HUGE){
+					cprintf("		HUGE PAGE %d %p\n", k, entry3);
+					continue;
+				}		
+				cprintf("		entry3 %d %p\n", k, entry3);
+				for(int l = 0; l < PAGE_TABLE_ENTRIES; l++){
+					struct page_table *ptbl = KADDR(PAGE_ADDR(entry3));
+					physaddr_t entry4 = ptbl->entries[l];
+
+					if(entry4 == 0)continue;
+					cprintf("			entry %d %p\n", l, entry4);
+				}
+			}
+		}
+	}
+}
 /* Looks up the respective task for a given PID.
  * If check_perm is non-zero, this function checks if the PID maps to the
  * current task or if the current task is the parent of the task that the PID
@@ -78,23 +117,17 @@ static int task_setup_vas(struct task *task)
 	if (!page) {
 		return -ENOMEM;
 	}
-
 	++page->pp_ref;
 
 	/* Now set task->task_pml4 and initialize the page table.
 	 * Can you use kernel_pml4 as a template?
 	 */
-	struct page_table *user_pml4 = page2kva(page);
+	struct page_table *pml4 = (struct page_table *)page2kva(page);
 
 	for(int i = PML4_INDEX(KERNEL_VMA); i < PAGE_TABLE_ENTRIES; i++){
-		user_pml4->entries[i] = kernel_pml4->entries[i];
+		pml4->entries[i] = kernel_pml4->entries[i];
 	}
-	task->task_pml4 = user_pml4;
-
-	assert(!page_lookup(task->task_pml4, (void*) 0x804000, NULL));
-
-	
-	/* LAB 3: your code here. */
+	task->task_pml4 = pml4;
 	return 0;
 }
 
@@ -174,44 +207,7 @@ struct task *task_alloc(pid_t ppid)
  *
  * Finally, this function maps one page for the program's initial stack.
  */
-void debug_print(struct page_table *pml4){
 
-	for(int i = 0; i < PAGE_TABLE_ENTRIES; i++){
-		physaddr_t entry = pml4->entries[i];
-
-		if(entry == 0)continue;
-
-		cprintf("entry: %d: %p\n", i, entry);
-
-		for(int j = 0; j < PAGE_TABLE_ENTRIES; j++){
-			struct page_table *pdpt = KADDR(PAGE_ADDR(entry));
-			physaddr_t entry2 = pdpt->entries[j];
-
-			if(entry2 == 0)continue;
-
-			cprintf("	entry2: %d %p\n", j, entry2);
-
-			for(int k = 0; k < PAGE_TABLE_ENTRIES; k++){
-				struct page_table *pdir = KADDR(PAGE_ADDR(entry2));
-				physaddr_t entry3 = pdir->entries[k];
-				if(entry3 == 0)continue;
-
-				if(entry3 & PAGE_HUGE){
-					cprintf("		HUGE PAGE %d %p\n", k, entry3);
-					continue;
-				}		
-				cprintf("		entry3 %d %p\n", k, entry3);
-				for(int l = 0; l < PAGE_TABLE_ENTRIES; l++){
-					struct page_table *ptbl = KADDR(PAGE_ADDR(entry3));
-					physaddr_t entry4 = ptbl->entries[l];
-
-					if(entry4 == 0)continue;
-					cprintf("			entry %d %p\n", l, entry4);
-				}
-			}
-		}
-	}
-}
 void debug_va_to_idx(uintptr_t va){
 	cprintf("va: %p is found at: pml4: %d pdpt: %d  pdir %d ptbl %d\n", va, PML4_INDEX(va) % 512, PDPT_INDEX(va) % 512, PAGE_DIR_INDEX(va) % 512, PAGE_INDEX(va) % 512);
 }
@@ -266,7 +262,7 @@ static void task_load_elf(struct task *task, uint8_t *binary)
 
 		assert(ph->p_offset != 0);
 
-		physaddr_t flags = 0;
+		int flags = 0;
 		if(ph->p_flags & ELF_PROG_FLAG_WRITE) flags |= VM_WRITE;
 		if(ph->p_flags & ELF_PROG_FLAG_EXEC) flags |= VM_EXEC;
 		if(ph->p_flags & ELF_PROG_FLAG_READ) flags |= VM_READ;
@@ -278,6 +274,24 @@ static void task_load_elf(struct task *task, uint8_t *binary)
 			panic("not enough data in file to write to memory");
 		}
 
+		char *name = NULL;
+
+		switch (flags)
+		{
+		case VM_READ | VM_WRITE:
+			name = ".data";
+			break;
+		case VM_READ | VM_EXEC:
+			name = ".text";
+			break;
+		case VM_READ:
+			name = ".rodata";
+			break;
+		
+		default:
+			break;
+		}
+
 		//populate_region(task->task_pml4, (void*)ph->p_va, ph->p_memsz, flags);
 		//protect_region(task->task_pml4, (void*)ph->p_va, ph->p_memsz, flags);
 		if(ph->p_filesz > 0){
@@ -285,23 +299,33 @@ static void task_load_elf(struct task *task, uint8_t *binary)
 			//memcpy((void*)ph->p_va, binary + ph->p_offset, ph->p_filesz);
 			//char *vma_name = kmalloc(32);
 			//snprintf(vma_name, 32, "elf prog hdr %d", i);
+			cprintf("add executable vma at va %p, until (exclusive) %p from src: %p\n", ph->p_va, ph->p_va + ph->p_memsz, binary + ph->p_offset);
+			struct vma * vma = add_executable_vma(task, name, (void*)ph->p_va, ph->p_memsz, flags, binary + ph->p_offset, ph->p_filesz);
+			assert(vma);
+			vma->src_offset = ph->p_va % PAGE_SIZE;
+			/*for(int i = 0; i < ph->p_filesz; i++){
+				cprintf("%d ", (int)*(binary + ph->p_offset + i));
+				if(i % 40 == 0){
+					cprintf("\n");
+				}
+			}
+			cprintf("end print, src is at: %p\n", binary + ph->p_offset);*/
 			
-			add_executable_vma(task, NULL, (void*)ph->p_va, ph->p_memsz, flags, binary + ph->p_offset, 0);
+
 		}
 		else{
 			//memset((void*)ph->p_va, 0, ph->p_memsz);
-			add_anonymous_vma(task, NULL, (void*)ph->p_va, ph->p_memsz, flags);
+			cprintf("add anonymous vma at va %p, until (exclusive) %p\n", ph->p_va, ph->p_va + ph->p_memsz);
+			add_anonymous_vma(task, name, (void*)ph->p_va, ph->p_memsz, flags);
 		}
-		
 	}
-
+	
 	/* Now map one page for the program's initial stack at virtual address
 	 * USTACK_TOP - PAGE_SIZE.
 	 */
-	add_anonymous_vma(task, "stack", (void*)USTACK_TOP, 2 * PAGE_SIZE, VM_WRITE | VM_READ);
-	//populate_region(task->task_pml4, (void*)USTACK_TOP - PAGE_SIZE, PAGE_SIZE, PAGE_PRESENT | PAGE_WRITE | PAGE_USER | PAGE_NO_EXEC);
-	//protect_region(task->task_pml4, (void*)USTACK_TOP - PAGE_SIZE, PAGE_SIZE, PAGE_PRESENT | PAGE_WRITE | PAGE_USER | PAGE_NO_EXEC);
+	add_anonymous_vma(task, "stack", (void*)USTACK_TOP, PAGE_SIZE, VM_WRITE | VM_READ);
 	task->task_frame.rip = elf->e_entry;
+	show_vmas(task);
 }
 
 /* Allocates a new task with task_alloc(), loads the named ELF binary using
@@ -442,8 +466,8 @@ void task_run(struct task *task)
 		cur_task = task;
 		cur_task->task_status = TASK_RUNNING;
 		cur_task->task_runs++;
-		load_pml4((struct page_table*)PADDR(cur_task->task_pml4));
 	}
-
+	cprintf("continue running\n");
+	load_pml4((struct page_table*)PADDR(cur_task->task_pml4));
 	task_pop_frame(&cur_task->task_frame);
 }

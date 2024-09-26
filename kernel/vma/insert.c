@@ -73,10 +73,12 @@ int insert_vma(struct task *task, struct vma *vma)
 struct vma *add_executable_vma(struct task *task, char *name, void *addr,
 	size_t size, int flags, void *src, size_t len)
 {
-	/* LAB 4: your code here. */
 	struct vma* vm = kmalloc(sizeof(struct vma));
-	vm->vm_base = addr;
-	vm->vm_end = addr + size - 1;
+
+	if(!vm)panic("Failed to kmalloc a vma");
+
+	vm->vm_base = ROUNDDOWN(addr, PAGE_SIZE);
+	vm->vm_end = ROUNDUP(addr + size, PAGE_SIZE);
 	vm->vm_len = len;
 	vm->vm_name = name;
 	vm->vm_flags = flags;
@@ -87,13 +89,11 @@ struct vma *add_executable_vma(struct task *task, char *name, void *addr,
 
 	int ret = insert_vma(task, vm);
 	if(ret >= 0){
-		/*
+		
 		struct vma* prev_vma = vm;
 		
 		//merge adjacent vma's
 		while(prev_vma != (vm = merge_vmas(task, vm)));
-		*/
-
 		return vm;
 	}
 

@@ -31,6 +31,7 @@ static int populate_pde(physaddr_t *entry, uintptr_t base, uintptr_t end,
 	if(hpage_aligned(base) && (end - base) + 1 >= HPAGE_SIZE){
 		page = page_alloc(ALLOC_HUGE);
 		if(!page)return -1;
+		page->pp_ref++;
 		//cprintf("populate huge page: %p, flags: %p\n", base, info->flags);
 		*entry = page2pa(page) | info->flags | PAGE_HUGE;
 		return 0;

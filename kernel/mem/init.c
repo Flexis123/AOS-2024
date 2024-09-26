@@ -64,6 +64,7 @@ int pml4_setup(struct boot_info *boot_info)
 	if (!kernel_pml4_page) {
 		panic("unable to allocate the PML4!");
 	}
+	kernel_pml4_page->pp_ref++;
 
 	kernel_pml4 = page2kva(kernel_pml4_page);
 
@@ -180,10 +181,7 @@ void mem_init(struct boot_info *boot_info)
 
 	/* Load the kernel PML4. */
 	/* LAB 2: your code here. */
-	debug_print(kernel_pml4);
-	dump_page_tables(kernel_pml4, PAGE_PRESENT | PAGE_WRITE | PAGE_HUGE);
-	debug_va_to_idx2(0xffff800000170240);
-	//panic("debug panic");
+
 	load_pml4((void*)(PADDR(kernel_pml4)));
 	//va: 0xffff800000170240 is found at: pml4: 256 pdpt: 0  pdir 0 ptbl 368
 	/* Check the paging functions. */

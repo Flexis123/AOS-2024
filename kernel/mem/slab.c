@@ -53,7 +53,7 @@ int slab_alloc_chunk(struct slab *slab)
 	info->free_count = slab->count;
 	
 	for(i = 0; i < slab->count; i++){
-		obj = (struct slab_obj*)base + i;
+		obj = (struct slab_obj*)(base + i * slab->obj_size);
 		list_init(&obj->node);
 		list_add(&info->free_list, &obj->node);
 		obj->info = info;

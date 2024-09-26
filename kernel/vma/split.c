@@ -12,12 +12,12 @@ struct vma *split_vma(struct task *task, struct vma *lhs, void *addr)
 {
 	assert(!task || !lhs);
 
-	if(addr > lhs->vm_end || addr < lhs->vm_base){
+	if(addr >= lhs->vm_end || addr < lhs->vm_base){
 		return NULL;
 	}
 	
 	size_t new_lhs_size = addr - lhs->vm_base;
-	size_t new_rhs_size = lhs->vm_end - addr + 1;
+	size_t new_rhs_size = lhs->vm_end - addr;
 
 	struct vma* new_vma = NULL;
 
@@ -28,7 +28,7 @@ struct vma *split_vma(struct task *task, struct vma *lhs, void *addr)
 		new_vma = add_anonymous_vma(task, lhs->vm_name, addr, new_rhs_size, lhs->vm_flags);
 	}
 	
-	lhs->vm_end = addr - 1;
+	lhs->vm_end = addr;
 	
 	return new_vma;
 }

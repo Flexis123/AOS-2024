@@ -128,7 +128,7 @@ void boot_map_kernel(struct page_table *pml4, struct elf *elf_hdr)
 		}
 		flags |= PAGE_PRESENT;
 		//this causes kernel segfault
-		cprintf("map region at va %p to %p with flags; %p\n", prog_hdr->p_va, ROUNDUP(prog_hdr->p_memsz + prog_hdr->p_va, PAGE_SIZE) -1, flags);
+		cprintf("map region at va %p to %p with flags; %p\n", prog_hdr->p_va, ROUNDUP(prog_hdr->p_memsz + prog_hdr->p_va, PAGE_SIZE), flags);
 		//boot_map_region(kernel_pml4, (void *)prog_hdr->p_va, prog_hdr->p_memsz, (physaddr_t)prog_hdr->p_pa, flags);
 		flags = 0;
 	}
