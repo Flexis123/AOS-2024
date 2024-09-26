@@ -97,4 +97,4 @@ continue running
 kernel panic at kernel/vma/syscall.c:94: Unsupported flags in sys_mmap: 0x23
 Welcome to the OpenLSD kernel monitor!
 Type 'help' for a list of commands.
-qemu-system-x86_64: terminating on signal 15 from pid 109856 (make)
+qemu-system-x86_64: terminating on signal 15 from pid 123401 (make)

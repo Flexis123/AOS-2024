@@ -92,8 +92,15 @@ struct vma *add_executable_vma(struct task *task, char *name, void *addr,
 		
 		struct vma* prev_vma = vm;
 		
+		do{
+			prev_vma = merge_vmas(task, vm);
+
+			if(prev_vma){
+				vm = prev_vma;
+			}
+		}while(prev_vma && (prev_vma->vm_end - prev_vma->vm_base) > (vm->vm_end - vm->vm_base));
 		//merge adjacent vma's
-		while(prev_vma != (vm = merge_vmas(task, vm)));
+		//while(prev_vma != (vm = merge_vmas(task, vm)));
 		return vm;
 	}
 

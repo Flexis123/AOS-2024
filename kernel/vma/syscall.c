@@ -117,7 +117,6 @@ void *sys_mmap(void *addr, size_t len, int prot, int flags, int fd,
 	if(flags & MAP_FIXED) unmap_vma_range(cur_task, addr, len);
 	
 	if(flags & MAP_POPULATE) populate_vma_range(cur_task, addr, len, prot);
-
 	return add_anonymous_vma(cur_task, "user anonymous mapping", addr, len, prot)->vm_base;
 }
 
