@@ -13,7 +13,7 @@ int task_page_fault_handler(struct task *task, void *va, int flags)
 
 	//CHECK for case where adress is out of vma but still legal
 	if(!vm){
-		/*
+		
 		if(va >= (void *)USER_LIM)return -1;
 
 		struct vma *vma_above = task_find_vma(task, va + PAGE_SIZE);
@@ -26,7 +26,7 @@ int task_page_fault_handler(struct task *task, void *va, int flags)
 		if(!vm){
 			panic("failed to grow user stack");
 		}
-		*/
+		
 	}
 
 	bool illegalWrite = !(vm->vm_flags & VM_WRITE) && (flags & PF_WRITE);

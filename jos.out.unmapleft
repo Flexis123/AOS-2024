@@ -3,10 +3,10 @@
 ***
 *** Now run 'make gdb'.
 ***
-c[?7l[2J[0mSeaBIOS (version 1.15.0-1)
+c[?7l[2J[0mSeaBIOS (version 1.16.3-debian-1.16.3-2)
 
 
-iPXE (https://ipxe.org) 00:03.0 CA00 PCI2.10 PnP PMM+07F8B4A0+07ECB4A0 CA00
+iPXE (https://ipxe.org) 00:03.0 CA00 PCI2.10 PnP PMM+06FCAF60+06F0AF60 CA00
 Press Ctrl-B to configure iPXE (PCI 00:03.0)...                                                                               
 
 
@@ -17,7 +17,7 @@ executing boot map region from va 0xffff800000000000 to 0xffff8000007fffff, flag
 exec flag enabled!
 map region at va 0xffff80000010c000 to 0xffff800000119000 with flags; 0x1
 map region at va 0xffff800000119000 to 0xffff800000121000 with flags; 0x8000000000000001
-map region at va 0xffff800000121000 to 0xffff800000277000 with flags; 0x8000000000000003
+map region at va 0xffff800000121000 to 0xffff800000278000 with flags; 0x8000000000000003
 init stack, no exec
 executing boot map region from va 0xfffffe7fffff8000 to 0xfffffe7fffffffff, flags: 0x8000000000000003
 map buddy pages as rw
@@ -35,47 +35,77 @@ executing boot map region from va 0xffffff8000000000 to 0xffffff800000ffff, flag
 [LAB 2] check_buddy_consistency() succeeded!
 [LAB 2] check_vas() succeeded!
 [PID     0] New task with PID 1
-add executable vma at va 0x800020, until (exclusive) 0x800fe0 from src: 0xffff80000024d4f8
-add executable vma at va 0x801000, until (exclusive) 0x8012dc from src: 0xffff80000024f398
-add executable vma at va 0x802000, until (exclusive) 0x802008 from src: 0xffff800000250398
-add executable vma at va 0x200000, until (exclusive) 0x200068 from src: 0xffff8000002503a8
+add executable vma at va 0x800020, until (exclusive) 0x800fe0 from src: 0xffff80000024e950
+add executable vma at va 0x801000, until (exclusive) 0x8012dc from src: 0xffff8000002507f0
+add executable vma at va 0x802000, until (exclusive) 0x802008 from src: 0xffff8000002517f0
+add executable vma at va 0x200000, until (exclusive) 0x200068 from src: 0xffff800000251800
 [PID     1] VMAs:
-  0x0000000000200000 - 0x0000000000201000 [rw-] 0xffff8000002503a8 - 0x0000000000000068 ".data"
-  0x0000000000800000 - 0x0000000000801000 [r-x] 0xffff80000024d4f8 - 0x0000000000000fc0 ".text"
-  0x0000000000801000 - 0x0000000000802000 [r--] 0xffff80000024f398 - 0x00000000000002dc ".rodata"
-  0x0000000000802000 - 0x0000000000803000 [rw-] 0xffff800000250398 - 0x0000000000000008 ".data"
+  0x0000000000200000 - 0x0000000000201000 [rw-] 0xffff800000251800 - 0x0000000000000068 ".data"
+  0x0000000000800000 - 0x0000000000801000 [r-x] 0xffff80000024e950 - 0x0000000000000fc0 ".text"
+  0x0000000000801000 - 0x0000000000802000 [r--] 0xffff8000002507f0 - 0x00000000000002dc ".rodata"
+  0x0000000000802000 - 0x0000000000803000 [rw-] 0xffff8000002517f0 - 0x0000000000000008 ".data"
   0x00007fffffffd000 - 0x00007fffffffe000 [rw-] "stack"
 [LAB 3] check_us() succeeded!
 [LAB 3] check_wx() succeeded!
 [LAB 3] check_null() succeeded!
 continue running
+INT frame at 0xffff800000368eb8
+ INT 14: Page Fault (#PF)
+ CR2 0x800020
+ ERR 0x0000000000000014 (user, read, not present, ifetch)
+ RAX 0x0000000000000000 RCX 0x0000000000000000 RDX 0x0000000000000000 RBX 0x0000000000000000
+ RSP 0x00007fffffffe000 RBP 0x0000000000000000 RSI 0x0000000000000000 RDI 0x0000000000000000
+ R8  0x0000000000000000 R9  0x0000000000000000 R10 0x0000000000000000 R11 0x0000000000000000
+ R12 0x0000000000000000 R13 0x0000000000000000 R14 0x0000000000000000 R15 0x0000000000000000
+ RIP 0x0000000000800020 RFL 0x0000000000000002
+ CS  0x0023             DS  0x001b             SS  0x001b
 [PID     1] user fault va 0x800020 ip 0x800020
 start task_page_Fault handler, va is: 0x800020
 populate vma range from: 0x800000 to (exclusive) 0x801000
 page fault complete
 continue running
-[PID     1] user fault va 0x7fffffffdff8 ip 0x800022
+INT frame at 0xffff800000368eb8
+ INT 14: Page Fault (#PF)
+ CR2 0x7fffffffdff8
+ ERR 0x0000000000000006 (user, write, not present, not ifetch)
+ RAX 0x00007fffffffe000 RCX 0x0000000000000000 RDX 0x0000000000000000 RBX 0x0000000000000000
+ RSP 0x00007fffffffe000 RBP 0x0000000000000000 RSI 0x0000000000000000 RDI 0x0000000000000000
+ R8  0x0000000000000000 R9  0x0000000000000000 R10 0x0000000000000000 R11 0x0000000000000000
+ R12 0x0000000000000000 R13 0x0000000000000000 R14 0x0000000000000000 R15 0x0000000000000000
+ RIP 0x0000000000800042 RFL 0x0000000000000046
+ CS  0x0023             DS  0x001b             SS  0x001b
+[PID     1] user fault va 0x7fffffffdff8 ip 0x800042
 start task_page_Fault handler, va is: 0x7fffffffdff8
 populate vma range from: 0x7fffffffd000 to (exclusive) 0x7fffffffe000
 page fault complete
 continue running
-[PID     1] user fault va 0x801022 ip 0x8004d1
-start task_page_Fault handler, va is: 0x801022
+INT frame at 0xffff800000368eb8
+ INT 14: Page Fault (#PF)
+ CR2 0x801056
+ ERR 0x0000000000000004 (user, read, not present, not ifetch)
+ RAX 0x0000003000000008 RCX 0x00007fffffffdf40 RDX 0x0000000000801056 RBX 0x0000000000801056
+ RSP 0x00007fffffffdd50 RBP 0x00007fffffffddb0 RSI 0x00007fffffffddc8 RDI 0x00000000008003f0
+ R8  0x0000000000000000 R9  0x0000000000000000 R10 0x0000000000000000 R11 0x0000000000000001
+ R12 0x000000000000002d R13 0x00007fffffffdf48 R14 0x00007fffffffddc8 R15 0x00000000008003f0
+ RIP 0x00000000008004f1 RFL 0x0000000000000006
+ CS  0x0023             DS  0x001b             SS  0x001b
+[PID     1] user fault va 0x801056 ip 0x8004f1
+start task_page_Fault handler, va is: 0x801056
 populate vma range from: 0x801000 to (exclusive) 0x802000
 page fault complete
 continue running
-] free
-] free
-lable] free
-] free
-lable] free
-lable] free
-lable] free
-] free
-lable] free
+0x0000000000000000 - 0x0000000000200000 [---] free
+0x0000000000200000 - 0x0000000000201000 [rw-] .data
+0x0000000000201000 - 0x0000000000800000 [---] free
+0x0000000000800000 - 0x0000000000801000 [r-x] .text
+0x0000000000801000 - 0x0000000000802000 [r--] .rodata
+0x0000000000802000 - 0x0000000000803000 [rw-] .data
+0x0000000000803000 - 0x00007fffffffd000 [---] free
+0x00007fffffffd000 - 0x00007fffffffe000 [rw-] stack
+0x00007fffffffe000 - 0x0000800000000000 [---] free
 [PID     1] Exiting gracefully
 [PID     1] Freed task with PID 1
 Destroyed the only task - nothing more to do!
 Welcome to the OpenLSD kernel monitor!
 Type 'help' for a list of commands.
-qemu-system-x86_64: terminating on signal 15 from pid 69154 (make)
+qemu-system-x86_64: terminating on signal 15 from pid 111753 (make)

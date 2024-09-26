@@ -83,7 +83,6 @@ struct vma *add_executable_vma(struct task *task, char *name, void *addr,
 	vm->vm_name = name;
 	vm->vm_flags = flags;
 	vm->vm_src = src;
-	vm->src_offset = 0;
 	
 	list_init(&vm->vm_mmap);
 	rb_node_init(&vm->vm_rb);
@@ -94,7 +93,7 @@ struct vma *add_executable_vma(struct task *task, char *name, void *addr,
 		struct vma* prev_vma = vm;
 		
 		//merge adjacent vma's
-		//while(prev_vma != (vm = merge_vmas(task, vm)));
+		while(prev_vma != (vm = merge_vmas(task, vm)));
 		return vm;
 	}
 

@@ -282,8 +282,8 @@ void page_fault_handler(struct int_frame *frame)
 
 	if(task_page_fault_handler(cur_task, fault_va, frame->err_code) < 0){
 		cprintf("[PID %5u] user fault is invalid!\n");
-		//print_int_frame(frame);
+		print_int_frame(frame);
 		task_destroy(cur_task);
 	}
-	show_vmas(cur_task);
+	//show_vmas(cur_task);
 }

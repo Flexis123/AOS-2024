@@ -36,7 +36,12 @@ int do_populate_vma(struct task *task, void *base, size_t size,
 	populate_region(task->task_pml4, base, size, flags);
 
 	if(vma->vm_src){//TODO make this work for pages after vma_base
-
+		if(base == vma->vm_base){
+			memcpy(base + vma->src_offset, vma->vm_src, MIN(PAGE_SIZE, PAGE_SIZE - vma->src_offset));
+		}
+		else{
+			memcpy(base, vma->vm_src + (base - vma->vm_base) - vma->src_offset, MIN(PAGE_SIZE, vma->vm_len - (base - vma->vm_base) - vma->src_offset));
+		}
 	}
 	assert(page_lookup(task->task_pml4, base, NULL));
 
