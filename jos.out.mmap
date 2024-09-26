@@ -44,7 +44,7 @@ add executable vma at va 0x200000, until (exclusive) 0x200068 from src: 0xffff80
   0x0000000000800000 - 0x0000000000802000 [r-x] 0xffff8000001f00e8 - 0x000000000000107c ".text"
   0x0000000000802000 - 0x0000000000803000 [r--] 0xffff8000001f1f88 - 0x0000000000000334 ".rodata"
   0x0000000000803000 - 0x0000000000804000 [rw-] 0xffff8000001f2f88 - 0x0000000000000008 ".data"
-  0x00007fffffffe000 - 0x00007ffffffff000 [rw-] "stack"
+  0x00007fffffffd000 - 0x00007fffffffe000 [rw-] "stack"
 [LAB 3] check_us() succeeded!
 [LAB 3] check_wx() succeeded!
 [LAB 3] check_null() succeeded!
@@ -52,14 +52,16 @@ continue running
 [PID     1] user fault va 0x800020 ip 0x800020
 start task_page_Fault handler, va is: 0x800020
 populate vma range from: 0x800000 to (exclusive) 0x801000
-doing page lookup now
 page fault complete
 continue running
-[PID     1] user fault va 0x0 ip 0x800020
-start task_page_Fault handler, va is: 0x0
-[PID     0] user fault is invalid!
+[PID     1] user fault va 0x7fffffffdff8 ip 0x800042
+start task_page_Fault handler, va is: 0x7fffffffdff8
+populate vma range from: 0x7fffffffd000 to (exclusive) 0x7fffffffe000
+page fault complete
+continue running
+[PID     1] Access violation for va 0x1000000
 [PID     1] Freed task with PID 1
 Destroyed the only task - nothing more to do!
 Welcome to the OpenLSD kernel monitor!
 Type 'help' for a list of commands.
-qemu-system-x86_64: terminating on signal 15 from pid 303549 (make)
+qemu-system-x86_64: terminating on signal 15 from pid 31557 (make)

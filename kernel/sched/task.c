@@ -323,7 +323,7 @@ static void task_load_elf(struct task *task, uint8_t *binary)
 	/* Now map one page for the program's initial stack at virtual address
 	 * USTACK_TOP - PAGE_SIZE.
 	 */
-	add_anonymous_vma(task, "stack", (void*)USTACK_TOP, PAGE_SIZE, VM_WRITE | VM_READ);
+	add_anonymous_vma(task, "stack", (void*)USTACK_TOP - PAGE_SIZE, PAGE_SIZE, VM_WRITE | VM_READ);
 	task->task_frame.rip = elf->e_entry;
 	show_vmas(task);
 }

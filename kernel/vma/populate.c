@@ -12,6 +12,7 @@
 int do_populate_vma(struct task *task, void *base, size_t size,
 	struct vma *vma, void *udata)
 {
+	assert(size <= PAGE_SIZE);
 	/* LAB 4: your code here. */
 	//should we have check that cheks if base + size fits in this vma?
 
@@ -28,9 +29,14 @@ int do_populate_vma(struct task *task, void *base, size_t size,
 
 	populate_region(task->task_pml4, base, size, flags);
 	if(vma->vm_src){//TODO make this work for pages after vma_base
-		memcpy(base, vma->vm_src + vma->src_offset, MIN(PAGE_SIZE, PAGE_SIZE - vma->src_offset));
+
+		if(base == vma->vm_base){
+			memcpy(base + vma->src_offset, vma->vm_src, MIN(PAGE_SIZE, PAGE_SIZE - vma->src_offset));
+		}
+		else{
+			memcpy(base, vma->vm_src + (base - vma->vm_base) - vma->src_offset, MIN(PAGE_SIZE, vma->vm_len - (base - vma->vm_base) - vma->src_offset));
+		}
 	}
-	cprintf("doing page lookup now\n");
 	assert(page_lookup(task->task_pml4, base, NULL));
 
 	return 0;
