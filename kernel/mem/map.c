@@ -72,7 +72,6 @@ void boot_map_region(struct page_table *pml4, void *va, size_t size,
 		.base = ROUNDDOWN((uintptr_t)va, PAGE_SIZE),
 		.end = ROUNDUP((uintptr_t)va + size, PAGE_SIZE) - 1,
 	};
-	cprintf("executing boot map region from va %p to %p, flags: %p\n", info.base, info.end, info.flags);
 	struct page_walker walker = {
 		.pte_callback = boot_map_pte,
 		.pde_callback = boot_map_pde,
@@ -106,7 +105,6 @@ void boot_map_kernel(struct page_table *pml4, struct elf *elf_hdr)
 	struct elf_proghdr *prog_start =
 	    (struct elf_proghdr *)((char *)elf_hdr + elf_hdr->e_phoff);
 
-	cprintf("map kernel, no exec\n");
 	boot_map_region(pml4, (void*) KERNEL_VMA, BOOT_MAP_LIM, 0, PAGE_PRESENT | PAGE_WRITE | PAGE_NO_EXEC);
 
 
@@ -121,15 +119,11 @@ void boot_map_kernel(struct page_table *pml4, struct elf *elf_hdr)
 		//setup flags
 		if(prog_hdr->p_flags & ELF_PROG_FLAG_WRITE) flags |= PAGE_WRITE;
 		if((prog_hdr->p_flags & ELF_PROG_FLAG_EXEC)){
-			cprintf("exec flag enabled!\n");
 		}
 		else{
 			flags |= PAGE_NO_EXEC;
 		}
 		flags |= PAGE_PRESENT;
-		//this causes kernel segfault
-		cprintf("map region at va %p to %p with flags; %p\n", prog_hdr->p_va, ROUNDUP(prog_hdr->p_memsz + prog_hdr->p_va, PAGE_SIZE), flags);
-		//boot_map_region(kernel_pml4, (void *)prog_hdr->p_va, prog_hdr->p_memsz, (physaddr_t)prog_hdr->p_pa, flags);
 		flags = 0;
 	}
 }

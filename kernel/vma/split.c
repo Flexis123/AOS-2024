@@ -54,9 +54,6 @@ struct vma *split_vma(struct task *task, struct vma *lhs, void *addr)
  */
 struct vma *split_vmas(struct task *task, struct vma *vma, void *base, size_t size)
 {
-	cprintf("split vmas, vma is %p\n", vma);
-
-
 	if(vma->vm_end - vma->vm_base == size){
 		return vma;
 	}

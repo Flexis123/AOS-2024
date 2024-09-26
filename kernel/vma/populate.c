@@ -28,10 +28,7 @@ int do_populate_vma(struct task *task, void *base, size_t size,
 	
 	populate_region(task->task_pml4, base, size, flags);
 
-	if(vma->vm_src){//TODO make this work for pages after vma_base
-
-		
-		
+	if(vma->vm_src){		
 		void * write_pos = MAX(vma->vm_base + vma->src_offset, base);
 		void *read_pos = vma->vm_src + (base - vma->vm_base);
 

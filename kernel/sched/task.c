@@ -244,13 +244,6 @@ static void task_load_elf(struct task *task, uint8_t *binary)
 	struct elf_secthdr *sections = (struct elf_secthdr *)(binary + elf->e_shoff);
 	assert(elf->e_phoff != 0);
 
-	/*
-	for(uint16_t i = 0; i < elf->e_shnum; i++){
-		cprintf("section name = %s\n", sections[i].sh_name);
-		cprintf("section type = %s\n", sections[i].sh_type);
-	}
-	*/
-
 	for(uint16_t i = 0; i < elf->e_phnum; i++){
 		struct elf_proghdr *ph = &prog_headers[i];
 		if(!(ph->p_type & ELF_PROG_LOAD)){
@@ -292,8 +285,6 @@ static void task_load_elf(struct task *task, uint8_t *binary)
 			break;
 		}
 
-		//populate_region(task->task_pml4, (void*)ph->p_va, ph->p_memsz, flags);
-		//protect_region(task->task_pml4, (void*)ph->p_va, ph->p_memsz, flags);
 		if(ph->p_filesz > 0){
 			assert(ph->p_filesz == ph->p_memsz);
 			struct vma * vma = add_executable_vma(task, name, (void*)ph->p_va, ph->p_memsz, flags, binary + ph->p_offset, ph->p_filesz);

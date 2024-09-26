@@ -17,7 +17,6 @@ static int populate_pte(physaddr_t *entry, uintptr_t base, uintptr_t end,
 
 	if(!page)return -1;
 	page->pp_ref++;
-	//cprintf("populate va: %p, flags: %p\n", base, info->flags);
 	*entry = page2pa(page) | info->flags;
 	return 0;
 }
@@ -32,7 +31,6 @@ static int populate_pde(physaddr_t *entry, uintptr_t base, uintptr_t end,
 		page = page_alloc(ALLOC_HUGE);
 		if(!page)return -1;
 		page->pp_ref++;
-		//cprintf("populate huge page: %p, flags: %p\n", base, info->flags);
 		*entry = page2pa(page) | info->flags | PAGE_HUGE;
 		return 0;
 	}
@@ -48,7 +46,6 @@ static int populate_pde(physaddr_t *entry, uintptr_t base, uintptr_t end,
 void populate_region(struct page_table *pml4, void *va, size_t size,
 	uint64_t flags)
 {
-	/* LAB 3: your code here. */
 	struct populate_info info = {
 		.flags = flags,
 		.base = ROUNDDOWN((uintptr_t)va, PAGE_SIZE),
@@ -61,6 +58,5 @@ void populate_region(struct page_table *pml4, void *va, size_t size,
 		.pml4e_callback = ptbl_alloc,
 		.udata = &info,
 	};
-	//cprintf("populate va from: %p to %p with flags: %p\n", info.base, info.end, info.flags);
 	walk_page_range(pml4, va, (void *)((uintptr_t)va + size), &walker);
 }

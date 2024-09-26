@@ -93,23 +93,19 @@ void *sys_mmap(void *addr, size_t len, int prot, int flags, int fd,
 	if((flags & (MAP_ANONYMOUS | MAP_PRIVATE)) != (MAP_ANONYMOUS | MAP_PRIVATE)){
         panic("Unsupported flags in sys_mmap: %p", flags);
     }
-	else if(addr >= (void *)USER_LIM || (addr + len) >= (void *)USER_LIM || addr + len < (void*) len || addr == NULL){
-        cprintf("debug invalid addr in sys_mmap: %p\n", addr);    
+	else if(addr >= (void *)USER_LIM || (addr + len) >= (void *)USER_LIM || addr + len < (void*) len || addr == NULL){ 
         return MAP_FAILED;    
     }
     else if(prot & PROT_EXEC){
         if(prot & PROT_WRITE){
-            cprintf("debug invalid prot flags, both write and execute\n");
             return MAP_FAILED;
         }
         if(!(prot & PROT_READ)){
-            cprintf("debug invalid prot flags execute but no read\n");
             return MAP_FAILED;
         }
     }
     else if(prot & PROT_WRITE){
         if(!(prot & PROT_READ)){
-            cprintf("debug invalid prot flags write but no read\n");
             return MAP_FAILED;
         }
     }
@@ -117,7 +113,6 @@ void *sys_mmap(void *addr, size_t len, int prot, int flags, int fd,
 
 	
 	struct vma *vma = add_anonymous_vma(cur_task, "user", addr, len, prot);
-
 	if(flags & MAP_POPULATE) populate_vma_range(cur_task, addr, len, prot);
 	assert(vma);
 	return vma->vm_base;

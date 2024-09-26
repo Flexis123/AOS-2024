@@ -12,16 +12,8 @@ Press Ctrl-B to configure iPXE (PCI 00:03.0)...
 
 Booting from Hard Disk...
 
-map kernel, no exec
-executing boot map region from va 0xffff800000000000 to 0xffff8000007fffff, flags: 0x8000000000000003
-exec flag enabled!
-map region at va 0xffff80000010c000 to 0xffff800000119000 with flags; 0x1
-map region at va 0xffff800000119000 to 0xffff800000121000 with flags; 0x8000000000000001
-map region at va 0xffff800000121000 to 0xffff800000278000 with flags; 0x8000000000000003
 init stack, no exec
-executing boot map region from va 0xfffffe7fffff8000 to 0xfffffe7fffffffff, flags: 0x8000000000000003
 map buddy pages as rw
-executing boot map region from va 0xffffff8000000000 to 0xffffff800000ffff, flags: 0x8000000000000003
 [LAB 2] check_ptbl_flags() succeeded!
 [LAB 2] check_wx() succeeded!
 [LAB 2] check_nx() succeeded!
@@ -56,9 +48,6 @@ INT frame at 0xffff800000368eb8
  RIP 0x0000000000800020 RFL 0x0000000000000002
  CS  0x0023             DS  0x001b             SS  0x001b
 [PID     1] user fault va 0x800020 ip 0x800020
-start task_page_Fault handler, va is: 0x800020
-populate vma range from: 0x800000 to (exclusive) 0x801000
-page fault complete
 continue running
 INT frame at 0xffff800000368eb8
  INT 14: Page Fault (#PF)
@@ -71,11 +60,7 @@ INT frame at 0xffff800000368eb8
  RIP 0x0000000000800042 RFL 0x0000000000000046
  CS  0x0023             DS  0x001b             SS  0x001b
 [PID     1] user fault va 0x7fffffffdff8 ip 0x800042
-start task_page_Fault handler, va is: 0x7fffffffdff8
-populate vma range from: 0x7fffffffd000 to (exclusive) 0x7fffffffe000
-page fault complete
 continue running
-split vmas, vma is 0xffff80000036abf8
 INT frame at 0xffff800000368eb8
  INT 14: Page Fault (#PF)
  CR2 0x801056
@@ -87,9 +72,6 @@ INT frame at 0xffff800000368eb8
  RIP 0x00000000008004f1 RFL 0x0000000000000006
  CS  0x0023             DS  0x001b             SS  0x001b
 [PID     1] user fault va 0x801056 ip 0x8004f1
-start task_page_Fault handler, va is: 0x801056
-populate vma range from: 0x801000 to (exclusive) 0x802000
-page fault complete
 continue running
 0x0000000000000000 - 0x0000000000200000 [---] free
 0x0000000000200000 - 0x0000000000201000 [rw-] .data
@@ -109,4 +91,4 @@ continue running
 Destroyed the only task - nothing more to do!
 Welcome to the OpenLSD kernel monitor!
 Type 'help' for a list of commands.
-qemu-system-x86_64: terminating on signal 15 from pid 238510 (make)
+qemu-system-x86_64: terminating on signal 15 from pid 262209 (make)
