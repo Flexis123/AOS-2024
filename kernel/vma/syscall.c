@@ -90,7 +90,7 @@ int sys_mquery(struct vma_info *info, void *addr)
 void *sys_mmap(void *addr, size_t len, int prot, int flags, int fd,
 	uintptr_t offset)
 {
-	if(flags & ~(MAP_ANONYMOUS | MAP_PRIVATE)){
+	if((flags & (MAP_ANONYMOUS | MAP_PRIVATE)) != (MAP_ANONYMOUS | MAP_PRIVATE)){
         panic("Unsupported flags in sys_mmap: %p", flags);
     }
 	else if(addr >= (void *)USER_LIM || (addr + len) >= (void *)USER_LIM || addr + len < (void*) len || addr == NULL){
@@ -113,11 +113,14 @@ void *sys_mmap(void *addr, size_t len, int prot, int flags, int fd,
             return MAP_FAILED;
         }
     }
+	if(flags & MAP_FIXED) remove_vma_range(cur_task, addr, len);
+
 	
-	if(flags & MAP_FIXED) unmap_vma_range(cur_task, addr, len);
-	
+	struct vma *vma = add_anonymous_vma(cur_task, "user", addr, len, prot);
+
 	if(flags & MAP_POPULATE) populate_vma_range(cur_task, addr, len, prot);
-	return add_anonymous_vma(cur_task, "user anonymous mapping", addr, len, prot)->vm_base;
+	assert(vma);
+	return vma->vm_base;
 }
 
 void sys_munmap(void *addr, size_t len)

@@ -28,24 +28,20 @@ void free_vmas(struct task *task)
 int do_remove_vma(struct task *task, void *base, size_t size, struct vma *vma,
 	void *udata)
 {
-	//checl at if we are at the first or last vma
-	//if we are at the first vma we split at base
-	//if we are at the last vma we split at base + size
-	//else we split at vma->vm_base which should not split the vma!
+	if(!vma)return 0;
+	struct vma *split_vma = NULL;
 
-	void* global_end = base + size;
-	void* curr_base = MAX(base, vma->vm_base);
-	void* curr_end = MIN(global_end, vma->vm_end);
+	if(base >= vma->vm_base && base + size <= vma->vm_end){
+		split_vma = split_vmas(task, vma, base, size);
 
-	void* split_addr;
-	if(curr_end == global_end) split_addr = global_end;
-	else split_addr = curr_base;
+		if(split_vma){
+			vma = split_vma;
+		}
+	}
+	if(base == vma->vm_base && (vma->vm_end - vma->vm_base) == ROUNDUP(size, PAGE_SIZE)){
+		remove_vma(task, vma);
+	}
 
-	//struct vma* new_vma = split_vma(task, vma, split_addr);
-	remove_vma(task, vma);
-	unmap_page_range(task->task_pml4, curr_base, curr_end - curr_base); //remove only mapped pages, so that is from [curr_base, vma->vm_len)
-
-	kfree(vma);
 	return 0;
 }
 
