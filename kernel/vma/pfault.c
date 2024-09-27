@@ -23,9 +23,7 @@ int task_page_fault_handler(struct task *task, void *va, int flags)
 	//this means the page fault was caused because the page is not mapped which is the only legal page fault
 	assert(!(flags & PF_PRESENT));
 
-	//map in missing page
-	//this code may change depending on what bonus we implement
-	//do we map one page at a time or multiple?
+
 	populate_vma_range(task, ROUNDDOWN(va, PAGE_SIZE), PAGE_SIZE, vm->vm_flags);
 	return 0;
 }

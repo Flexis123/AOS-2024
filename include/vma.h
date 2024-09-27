@@ -9,6 +9,8 @@
 #define VM_EXEC  (1 << 2)
 #define VM_DIRTY (1 << 4)
 
+#define WILL_NEED_PAGES 5
+
 /* A Virtual Memory Area (VMA) describes a virtual memory area in the virtual
  * address space of a task.
  */

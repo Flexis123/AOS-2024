@@ -87,39 +87,50 @@ int sys_mquery(struct vma_info *info, void *addr)
 	return 0;
 }
 
+static bool prot_flags_valid(int prot){
+	if(prot & PROT_EXEC){
+        if(prot & PROT_WRITE){
+            return false;
+        }
+        if(!(prot & PROT_READ)){
+            return false;
+        }
+    }
+    else if(prot & PROT_WRITE){
+        if(!(prot & PROT_READ)){
+            return false;
+        }
+    }
+	return true;
+}
+
+static bool is_adress_invalid(void* addr, size_t len){
+	return addr >= (void *)USER_LIM || (addr + len) >= (void *)USER_LIM || addr + len < (void*) len || addr == NULL;
+}
+
+static bool invalid_mapping(void* addr, size_t len, int prot){
+	return !page_aligned((uintptr_t)addr) || is_adress_invalid(addr, len) || !prot_flags_valid(prot);
+}
+
 void *sys_mmap(void *addr, size_t len, int prot, int flags, int fd,
 	uintptr_t offset)
 {
 
-	if(!page_aligned((uintptr_t)addr)) return MAP_FAILED;
+	if(invalid_mapping(addr, len, prot)) return MAP_FAILED;
 	
 
 	if((flags & (MAP_ANONYMOUS | MAP_PRIVATE)) != (MAP_ANONYMOUS | MAP_PRIVATE)){
         panic("Unsupported flags in sys_mmap: %p", flags);
     }
-	else if(addr >= (void *)USER_LIM || (addr + len) >= (void *)USER_LIM || addr + len < (void*) len || addr == NULL){ 
-        return MAP_FAILED;    
-    }
-    else if(prot & PROT_EXEC){
-        if(prot & PROT_WRITE){
-            return MAP_FAILED;
-        }
-        if(!(prot & PROT_READ)){
-            return MAP_FAILED;
-        }
-    }
-    else if(prot & PROT_WRITE){
-        if(!(prot & PROT_READ)){
-            return MAP_FAILED;
-        }
-    }
+
 	if(flags & MAP_FIXED) remove_vma_range(cur_task, addr, len);
 
 	
 	struct vma *vma = add_anonymous_vma(cur_task, "user", addr, len, prot);
 	if(flags & MAP_POPULATE) populate_vma_range(cur_task, addr, len, prot);
-	assert(vma);
-	return vma->vm_base;
+
+	if(vma) return vma->vm_base;
+	return NULL;
 }
 
 void sys_munmap(void *addr, size_t len)
@@ -131,7 +142,7 @@ int sys_mprotect(void *addr, size_t len, int prot)
 {
 	/* LAB 4: your bonus code here. */
 
-	if(!page_aligned((uintptr_t)addr)) return -EINVAL;
+	if(invalid_mapping(addr, len, prot)) return -EINVAL;	
 	protect_vma_range(cur_task, addr, len, prot);
 	return 0;
 }
@@ -139,5 +150,32 @@ int sys_mprotect(void *addr, size_t len, int prot)
 int sys_madvise(void *addr, size_t len, int advise)
 {
 	/* LAB 4: your bonus code here. */
-	return -ENOSYS;
+	if(is_adress_invalid(addr, len) || !page_aligned((uintptr_t)addr)) return -EINVAL;
+
+	struct vma* vma;
+
+	switch (advise)
+	{
+	case MADV_DONTNEED:
+		unmap_page_range_non_dirty(cur_task->task_pml4, addr, len);
+		break;
+
+	case MADV_WILLNEED:
+		//check if vma can be enlarged
+		vma = task_find_vma(cur_task, addr);
+		if(!vma) return -EINVAL;
+
+		void* vma_new_end = vma->vm_base + len;
+		//if(task_find_vma(cur_task, vma_new_end)) return -EINVAL;
+		struct list* next_vma = list_next(&cur_task->task_mmap, &vma->vm_mmap);
+		if(next_vma && vma_new_end >= container_of(next_vma, struct vma, vm_mmap)->vm_base) return -EINVAL;
+
+		vma->vm_end = vma_new_end;
+
+		return populate_vma_range(cur_task, vma->vm_base, len, vma->vm_flags);
+	
+	default:
+		return -EINVAL;
+	}
+	return 0;
 }

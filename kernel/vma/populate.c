@@ -12,7 +12,6 @@
 int do_populate_vma(struct task *task, void *base, size_t size,
 	struct vma *vma, void *udata)
 {
-	assert(size <= PAGE_SIZE);
 	/* LAB 4: your code here. */
 	//should we have check that cheks if base + size fits in this vma?
 

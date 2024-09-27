@@ -16,7 +16,7 @@ static int protect_pte(physaddr_t *entry, uintptr_t base, uintptr_t end,
     struct page_walker *walker)
 {
 	struct protect_info *info = walker->udata;
-	if(*entry == 0) return 0;
+	if(!(*entry & PAGE_PRESENT)) return 0;
 
 	physaddr_t entry_prev_val = *entry;
 	*entry = (PAGE_ADDR(*entry) | info->flags);
@@ -34,7 +34,7 @@ static int protect_pde(physaddr_t *entry, uintptr_t base, uintptr_t end,
     struct page_walker *walker)
 {
 	struct protect_info *info = walker->udata;
-	if(*entry == 0) return 0;
+	if(!(*entry & PAGE_PRESENT)) return 0;
 
 	if(*entry & PAGE_HUGE){
 		physaddr_t entry_prev_val = *entry;

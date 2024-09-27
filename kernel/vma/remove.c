@@ -37,6 +37,7 @@ int do_remove_vma(struct task *task, void *base, size_t size, struct vma *vma,
 	if(actual_end == base + size && actual_base != base) new_vma = container_of(list_prev(&task->task_mmap, &new_vma->vm_mmap), struct vma, vm_mmap);
 	
 	remove_vma(task, new_vma);
+	unmap_page_range(task->task_pml4, actual_base, (size_t) (actual_end - actual_base));
 	kfree(new_vma);
 
 	return 0;
@@ -56,7 +57,13 @@ int remove_vma_range(struct task *task, void *base, size_t size)
 int do_unmap_vma(struct task *task, void *base, size_t size, struct vma *vma,
 	void *udata)
 {
-	unmap_page_range(task->task_pml4, base, size);
+	if(!vma) return 0;
+
+	void* actual_base = MAX(vma->vm_base, base);
+	void* actual_end = MIN(vma->vm_end, base + size);
+
+	unmap_page_range_non_dirty(task->task_pml4, actual_base, (size_t) (actual_end - actual_base));
+
 	return 0;
 }
 

@@ -9,6 +9,7 @@ int main(int argc, char **argv)
 	     MAP_ANONYMOUS | MAP_PRIVATE, -1, 0) == addr);
 	memset(addr, 0xc3, PAGE_SIZE);	
 	assert(mprotect(addr, PAGE_SIZE, PROT_READ | PROT_EXEC) == 0);
+	printf("protection bits set!\n");
 	((void (*)(void))addr)();
 
 	print_vmas();
