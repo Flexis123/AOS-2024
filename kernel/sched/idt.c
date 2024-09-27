@@ -203,12 +203,12 @@ void int_dispatch(struct int_frame *frame)
 		case INT_BREAK:
 			return monitor(frame);
 
+		//now that some page faults are valid do we need to do iret64?
 		case INT_PAGE_FAULT:
 			//print_int_frame(frame);
 			return page_fault_handler(frame);
 
 		case INT_SYSCALL:
-			//print_int_frame(frame);
 			frame->rax = syscall(frame->rdi, frame->rsi, frame->rdx, frame->rcx, frame->r8, frame->r9, frame->rbp);
 			return iret64(frame);
 	

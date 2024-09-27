@@ -90,6 +90,10 @@ int sys_mquery(struct vma_info *info, void *addr)
 void *sys_mmap(void *addr, size_t len, int prot, int flags, int fd,
 	uintptr_t offset)
 {
+
+	if(!page_aligned((uintptr_t)addr)) return MAP_FAILED;
+	
+
 	if((flags & (MAP_ANONYMOUS | MAP_PRIVATE)) != (MAP_ANONYMOUS | MAP_PRIVATE)){
         panic("Unsupported flags in sys_mmap: %p", flags);
     }
@@ -126,6 +130,9 @@ void sys_munmap(void *addr, size_t len)
 int sys_mprotect(void *addr, size_t len, int prot)
 {
 	/* LAB 4: your bonus code here. */
+
+	//if(!page_aligned((uintptr_t)addr)) return -EINVAL;
+	//return mprotect(addr, len, prot);
 	return -ENOSYS;
 }
 

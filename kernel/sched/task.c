@@ -287,9 +287,7 @@ static void task_load_elf(struct task *task, uint8_t *binary)
 
 		if(ph->p_filesz > 0){
 			assert(ph->p_filesz == ph->p_memsz);
-			struct vma * vma = add_executable_vma(task, name, (void*)ph->p_va, ph->p_memsz, flags, binary + ph->p_offset, ph->p_filesz);
-			assert(vma);
-			vma->src_offset = ph->p_va % PAGE_SIZE;
+			add_executable_vma(task, name, (void*)ph->p_va, ph->p_memsz, flags, binary + ph->p_offset, ph->p_filesz);
 		}
 		else{
 			add_anonymous_vma(task, name, (void*)ph->p_va, ph->p_memsz, flags);

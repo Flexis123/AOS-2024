@@ -83,6 +83,7 @@ struct vma *add_executable_vma(struct task *task, char *name, void *addr,
 	vm->vm_name = name;
 	vm->vm_flags = flags;
 	vm->vm_src = src;
+	vm->src_offset = (uintptr_t)addr % PAGE_SIZE;
 	
 	list_init(&vm->vm_mmap);
 	rb_node_init(&vm->vm_rb);

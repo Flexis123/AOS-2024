@@ -28,19 +28,16 @@ void free_vmas(struct task *task)
 int do_remove_vma(struct task *task, void *base, size_t size, struct vma *vma,
 	void *udata)
 {
-	if(!vma)return 0;
-	struct vma *split_vma = NULL;
+	if(!vma) return 0;
 
-	if(base >= vma->vm_base && base + size <= vma->vm_end){
-		split_vma = split_vmas(task, vma, base, size);
+	void* actual_base = MAX(vma->vm_base, base);
+	void* actual_end = MIN(vma->vm_end, base + size);
 
-		if(split_vma){
-			vma = split_vma;
-		}
-	}
-	if(base == vma->vm_base && (vma->vm_end - vma->vm_base) == ROUNDUP(size, PAGE_SIZE)){
-		remove_vma(task, vma);
-	}
+	struct vma* new_vma = split_vmas(task, vma, actual_base, (size_t)(actual_end - actual_base));
+	if(actual_end == base + size && actual_base != base) new_vma = container_of(list_prev(&task->task_mmap, &new_vma->vm_mmap), struct vma, vm_mmap);
+	
+	remove_vma(task, new_vma);
+	kfree(new_vma);
 
 	return 0;
 }

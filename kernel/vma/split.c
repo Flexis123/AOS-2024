@@ -12,9 +12,9 @@
 struct vma *split_vma(struct task *task, struct vma *lhs, void *addr)
 {
 
-	assert((uintptr_t)addr % PAGE_SIZE == 0);
+	assert(page_aligned((uintptr_t) addr));
 	if(addr >= lhs->vm_end || addr <= lhs->vm_base){
-		return NULL;
+		return lhs;
 	}
 	
 	size_t new_lhs_size = addr - lhs->vm_base;
@@ -54,22 +54,12 @@ struct vma *split_vma(struct task *task, struct vma *lhs, void *addr)
  */
 struct vma *split_vmas(struct task *task, struct vma *vma, void *base, size_t size)
 {
-	if(vma->vm_end - vma->vm_base == size){
-		return vma;
-	}
-	if(vma->vm_base == base){
-		split_vma(task, vma, base + size);
-		return vma;
-	}
-	struct vma *mid_and_rhs = split_vma(task, vma, base);
+	struct vma *rhs = split_vma(task, vma, base);
 
-	if(!mid_and_rhs){
+	if(!rhs){
 		return vma;
 	}
-	if(mid_and_rhs->vm_end - mid_and_rhs->vm_base == size){
-		return mid_and_rhs;
-	}
-	split_vma(task, mid_and_rhs, base + size);
-	return mid_and_rhs;
+	split_vma(task, rhs, base + size);
+	return rhs;
 }
 

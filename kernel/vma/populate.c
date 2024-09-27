@@ -26,23 +26,26 @@ int do_populate_vma(struct task *task, void *base, size_t size,
 	if(vma->vm_flags & VM_WRITE) flags |= PAGE_WRITE;
 	if(!(vma->vm_flags & VM_EXEC)) flags |= PAGE_NO_EXEC;
 	
-	populate_region(task->task_pml4, base, size, flags);
+	void* actual_base = MAX(vma->vm_base, base);
+	void* actual_end = MIN(vma->vm_end, base + size);
+	size_t actual_size = actual_end - actual_base;
 
-	if(vma->vm_src){		
-		void * write_pos = MAX(vma->vm_base + vma->src_offset, base);
-		void *read_pos = vma->vm_src + (base - vma->vm_base);
 
-		if(base != vma->vm_base){
+	populate_region(task->task_pml4, actual_base, actual_size, flags);
+
+	cprintf("actual size %lu\n", actual_size);
+	if(vma->vm_src){	
+		void * write_pos = MAX(vma->vm_base + vma->src_offset, actual_base);
+		void *read_pos = vma->vm_src + (actual_base - vma->vm_base);
+
+		if(actual_base != vma->vm_base){
 			read_pos -= vma->src_offset;
+		}else{
+			actual_size -= vma->src_offset;
 		}
 		size_t remaining_in_file = vma->vm_len + (size_t)vma->vm_src - (uintptr_t)read_pos;
-		size_t write_space = PAGE_SIZE - ((uintptr_t)write_pos % PAGE_SIZE);
-		size_t size = MIN(write_space, remaining_in_file);
-
-		memcpy(write_pos, read_pos, size);
+		memcpy(write_pos, read_pos, MIN(actual_size, remaining_in_file));
 	}
-	assert(page_lookup(task->task_pml4, base, NULL));
-
 	return 0;
 }
 
