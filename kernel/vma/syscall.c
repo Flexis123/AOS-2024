@@ -131,9 +131,9 @@ int sys_mprotect(void *addr, size_t len, int prot)
 {
 	/* LAB 4: your bonus code here. */
 
-	//if(!page_aligned((uintptr_t)addr)) return -EINVAL;
-	//return mprotect(addr, len, prot);
-	return -ENOSYS;
+	if(!page_aligned((uintptr_t)addr)) return -EINVAL;
+	protect_vma_range(cur_task, addr, len, prot);
+	return 0;
 }
 
 int sys_madvise(void *addr, size_t len, int advise)

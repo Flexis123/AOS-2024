@@ -94,4 +94,4 @@ continue running
 Destroyed the only task - nothing more to do!
 Welcome to the OpenLSD kernel monitor!
 Type 'help' for a list of commands.
-qemu-system-x86_64: terminating on signal 15 from pid 218832 (make)
+qemu-system-x86_64: terminating on signal 15 from pid 254891 (make)

@@ -16,10 +16,11 @@ int do_protect_vma(struct task *task, void *base, size_t size, struct vma *vma,
 
 	if(vma->vm_flags == flags) return 0;
 
-	//flags are different continue
+	//flags are different so we have to split vma!
 	void* actual_base = MAX(vma->vm_base, base);
+	void* actual_end = MIN(vma->vm_end, base + size);
 	
-	struct vma* new_vma = split_vma(task, vma, actual_base);
+	struct vma* new_vma = split_vmas(task, vma, actual_base, (actual_end - actual_base));
 	if(new_vma) return -1;
 
 	new_vma->vm_flags = flags;
