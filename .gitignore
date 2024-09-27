@@ -1,8 +1,6 @@
 __pycache__/
 jos.out
 jos.out.*
-.gdbrc
-.gdbrc.tmpl
 obj/
 vu-aos-2024.*
 .vscode/
