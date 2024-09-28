@@ -2,6 +2,7 @@
 #include <vma.h>
 
 #include <kernel/vma.h>
+#include <assert.h>
 
 /* Given a task and two VMAs, checks if the VMAs are adjacent and compatible
  * for merging. If they are, then the VMAs are merged by removing the
@@ -10,8 +11,32 @@
  */
 struct vma *merge_vma(struct task *task, struct vma *lhs, struct vma *rhs)
 {
-	/* LAB 4: your code here. */
-	return NULL;
+	if(!lhs){
+		panic("no lhs in merge_vma");
+	}
+	if(!rhs){
+		panic("no rhs in merge_vma");
+	}
+	if(!task){
+		panic("no task in merge_vma");
+	}
+
+	//assert(!lhs || !rhs || !task);
+
+	if(lhs->vm_end != rhs->vm_base){
+		return NULL;
+	}
+	else if(lhs->vm_flags != rhs->vm_flags){
+		return NULL;
+	}
+	else if(lhs->vm_src != NULL && lhs->vm_len < rhs->vm_end - lhs->vm_base){
+		return NULL;
+	}
+
+	lhs->vm_end = rhs->vm_end;
+	remove_vma(task, rhs);
+	
+	return lhs;
 }
 
 /* Given a task and a VMA, this function attempts to merge the given VMA with
@@ -20,7 +45,25 @@ struct vma *merge_vma(struct task *task, struct vma *lhs, struct vma *rhs)
  */
 struct vma *merge_vmas(struct task *task, struct vma *vma)
 {
-	/* LAB 4: your code here. */
+	
+	struct vma *previous = task_find_vma(task, vma->vm_base - 1);
+	if(previous){
+		struct vma *merged_vma = merge_vma(task, previous, vma);
+
+		if(merged_vma){
+			vma = merged_vma;
+		}
+	}
+	
+	struct vma *next = task_find_vma(task, vma->vm_end);
+	if(next){
+		struct vma *merged_vma = merge_vma(task, vma, next);
+
+		if(merged_vma){
+			vma = merged_vma;
+		}
+	}
+
 	return vma;
 }
 

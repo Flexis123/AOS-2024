@@ -6,7 +6,7 @@
 /* Given an address addr, this function returns the sign extended address. */
 static uintptr_t sign_extend(uintptr_t addr)
 {
-	return (addr < USER_LIM) ? addr : (0xffff000000000000ull | addr);
+	return (addr < USER_LIM) ? addr : (0xffff000000000000ull | addr); //TODO check edge case of USER_LIM
 }
 
 /* Given an addresss addr, this function returns the page boundary. */
@@ -33,6 +33,9 @@ static uintptr_t pml4_end(uintptr_t addr)
 	return addr | (PDPT_SPAN - 1);
 }
 
+
+
+
 /* Walks over the page range from base to end iterating over the entries in the
  * given page table ptbl. The user may provide walker->pte_callback() that gets
  * called for every entry in the page table. In addition the user may provide
@@ -44,10 +47,42 @@ static uintptr_t pml4_end(uintptr_t addr)
  * Hint: the next page is at ptbl_end() + 1.
  * Hint: the loop condition is next < end.
  */
+
 static int ptbl_walk_range(struct page_table *ptbl, uintptr_t base,
     uintptr_t end, struct page_walker *walker)
 {
-	/* LAB 2: your code here. */
+	uintptr_t current = sign_extend(base);
+	end = sign_extend(end);
+	uintptr_t next = sign_extend(ptbl_end(current) + 1);
+	if(next < current){
+		next = end;
+	}
+
+	while(current < end){
+		
+		physaddr_t* entry = ptbl->entries + PAGE_TABLE_INDEX(current);
+		assert(PAGE_TABLE_INDEX(current) < 512);
+		if(walker->pte_callback){
+			if(walker->pte_callback(entry, current, MIN(next -1, end), walker) < 0){
+				return -1;
+			}
+		}
+		if(walker->pt_hole_callback && !(*entry & PAGE_PRESENT)){
+			if(walker->pt_hole_callback(current, MIN(next -1, end), walker) < 0){
+				return -1;
+			}
+		}
+		if(walker->pte_unmap){
+			if(walker->pte_unmap(entry, current, MIN(next -1, end), walker) < 0){
+				return -1;
+			}
+		}
+		current = next;
+		next = sign_extend(ptbl_end(next) +1);
+		if(next < current){
+			current = end;
+		}
+	}
 	return 0;
 }
 
@@ -62,10 +97,49 @@ static int ptbl_walk_range(struct page_table *ptbl, uintptr_t base,
  *
  * Hint: see ptbl_walk_range().
  */
+
 static int pdir_walk_range(struct page_table *pdir, uintptr_t base,
     uintptr_t end, struct page_walker *walker)
 {
-	/* LAB 2: your code here. */
+
+	uintptr_t current = sign_extend(base);
+	end = sign_extend(end);
+	uintptr_t next = sign_extend(pdir_end(current) + 1);
+
+	if(next < current){
+		next = end;
+	}
+	while(current < end){
+		physaddr_t* entry = pdir->entries + PAGE_DIR_INDEX(current);
+		assert(PAGE_DIR_INDEX(current) < 512);
+
+
+		if(walker->pde_callback){
+			if(walker->pde_callback(entry, current, MIN(next -1, end), walker) < 0){
+				return -1;
+			}
+		}
+		if(walker->pt_hole_callback && !(*entry & PAGE_PRESENT)){
+			if(walker->pt_hole_callback(current, MIN(next -1, end), walker) < 0){
+				return -1;
+			}
+		}
+		if((*entry & PAGE_PRESENT) && !(*entry & PAGE_HUGE)){
+			if(ptbl_walk_range(KADDR(PAGE_ADDR(*entry)), current, MIN(next -1, end), walker) < 0){
+				return -1;
+			}
+		}
+		if(walker->pde_unmap){
+			if(walker->pde_unmap(entry, current, MIN(next -1, end), walker) < 0){
+				return -1;
+			}
+		}
+		current = next;
+		next = sign_extend(pdir_end(next) +1);
+		if(next < current){
+			current = end;
+		}
+	}
 	return 0;
 }
 
@@ -80,10 +154,47 @@ static int pdir_walk_range(struct page_table *pdir, uintptr_t base,
  *
  * Hint: see ptbl_walk_range().
  */
+
+
 static int pdpt_walk_range(struct page_table *pdpt, uintptr_t base,
     uintptr_t end, struct page_walker *walker)
 {
-	/* LAB 2: your code here. */
+	uintptr_t current = sign_extend(base);
+	end = sign_extend(end);
+	uintptr_t next = sign_extend(pdpt_end(current) + 1);
+
+	if(next < current){
+		next = end;
+	}
+	while(current < end){
+		physaddr_t* entry = pdpt->entries + PDPT_INDEX(current);
+		assert(PDPT_INDEX(current) < 512);
+		if(walker->pdpte_callback){
+			if(walker->pdpte_callback(entry, current, MIN(next -1, end), walker) < 0){
+				return -1;
+			}
+		}
+		if(walker->pt_hole_callback && !(*entry & PAGE_PRESENT)){
+			if(walker->pt_hole_callback(current, MIN(next -1, end), walker) < 0){
+				return -1;
+			}
+		}
+		if((*entry & PAGE_PRESENT) && !(*entry & PAGE_GLOBAL)){
+			if(pdir_walk_range(KADDR(PAGE_ADDR(*entry)), current, MIN(next -1, end), walker) < 0){
+				return -1;
+			}
+		}
+		if(walker->pdpte_unmap){
+			if(walker->pdpte_unmap(entry, current, MIN(next -1, end), walker) < 0){
+				return -1;
+			}
+		}
+		current = next;
+		next = sign_extend(pdpt_end(next) +1);
+		if(next < current){
+			current = end;
+		}
+	}
 	return 0;
 }
 
@@ -97,10 +208,49 @@ static int pdpt_walk_range(struct page_table *pdpt, uintptr_t base,
  *
  * Hint: see ptbl_walk_range().
  */
+
 static int pml4_walk_range(struct page_table *pml4, uintptr_t base, uintptr_t end,
     struct page_walker *walker)
 {
-	/* LAB 2: your code here. */
+
+	uintptr_t current = sign_extend(base);
+	end = sign_extend(end);
+	uintptr_t next = sign_extend(pml4_end(current) + 1);
+
+	if(next < current){
+		next = end;
+	}
+
+	while(current < end){
+		physaddr_t* entry = pml4->entries + PML4_INDEX(current);
+		assert(PML4_INDEX(current) < 512);
+
+		if(walker->pml4e_callback){
+			if(walker->pml4e_callback(entry, current, MIN(next -1, end), walker) < 0){
+				return -1;
+			}
+		}
+		if(walker->pt_hole_callback && !(*entry & PAGE_PRESENT)){
+			if(walker->pt_hole_callback(current, MIN(next -1, end), walker) < 0){
+				return -1;
+			}
+		}
+		if((*entry & PAGE_PRESENT)){
+			if(pdpt_walk_range(KADDR(PAGE_ADDR(*entry)), current, MIN(next -1, end), walker) < 0){
+				return -1;
+			}
+		}
+		if(walker->pml4e_unmap){
+			if(walker->pml4e_unmap(entry, current, MIN(next -1, end), walker) < 0){
+				return -1;
+			}
+		}
+		current = next;
+		next = sign_extend(pml4_end(next) +1);
+		if(next < current){
+			current = end;
+		}
+	}
 	return 0;
 }
 

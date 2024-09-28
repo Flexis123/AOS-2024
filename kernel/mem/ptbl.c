@@ -4,6 +4,8 @@
 
 #include <kernel/mem.h>
 
+extern struct list buddy_free_list[BUDDY_MAX_ORDER];
+
 /* Allocates a page table if none is present for the given entry.
  * If there is already something present in the PTE, then this function simply
  * returns. Otherwise, this function allocates a page using page_alloc(),
@@ -13,7 +15,17 @@
 int ptbl_alloc(physaddr_t *entry, uintptr_t base, uintptr_t end,
     struct page_walker *walker)
 {
-	/* LAB 2: your code here. */
+	if(*entry & PAGE_PRESENT) return 0;
+	struct page_info *new_table = page_alloc(ALLOC_ZERO);
+
+	if(new_table == NULL){
+		panic("unable to alloc new page");
+		return -1;
+	}
+	
+	new_table->pp_ref++;
+	physaddr_t table_addr = page2pa(new_table);
+	*entry = table_addr | PAGE_PRESENT | PAGE_WRITE | PAGE_USER;
 	return 0;
 }
 
@@ -34,10 +46,45 @@ int ptbl_alloc(physaddr_t *entry, uintptr_t base, uintptr_t end,
  * Hint: this function calls ptbl_alloc(), page_alloc(), page2pa() and
  * page2kva().
  */
+
+
+
 int ptbl_split(physaddr_t *entry, uintptr_t base, uintptr_t end,
     struct page_walker *walker)
 {
-	/* LAB 2: your code here. */
+
+	if((*entry & PAGE_PRESENT) == 0){	
+		return ptbl_alloc(entry, base, end, walker);
+	}
+	if((*entry & PAGE_HUGE) == 0){
+		return 0;
+	}
+	struct page_info *new_table = page_alloc(ALLOC_ZERO);
+	struct page_info *old_page = pa2page(PAGE_ADDR(*entry));
+
+	if(new_table == NULL){
+		panic("unable to alloc new page");
+		return -1;
+	}
+	
+	new_table->pp_ref++;
+	physaddr_t *new_table_entries = page2kva(new_table);
+	void *old_data = page2kva(old_page);
+
+	for(int i = 0; i < PAGE_TABLE_ENTRIES; i++){
+		struct page_info *new_page = page_alloc(ALLOC_ZERO);
+
+		if(new_page == NULL){
+			return -1;
+		}
+		new_table_entries[i] = page2pa(new_page) | ((*entry & PAGE_MASK) & ~PAGE_HUGE);
+		memcpy(page2kva(new_page), old_data + i * PAGE_SIZE, PAGE_SIZE);
+		new_page->pp_ref++;
+	}
+	page_decref(old_page);
+	old_page->pp_order = 0;
+	*entry = page2pa(new_table) | PAGE_TABLE_ENTRY_PERMS;
+  
 	return 0;
 }
 
@@ -59,7 +106,33 @@ int ptbl_split(physaddr_t *entry, uintptr_t base, uintptr_t end,
 int ptbl_merge(physaddr_t *entry, uintptr_t base, uintptr_t end,
     struct page_walker *walker)
 {
-	/* LAB 2: your code here. */
+	if(*entry & PAGE_HUGE){
+		return 0;
+	}
+	struct page_table *table = KADDR(PAGE_ADDR(*entry));
+	physaddr_t flags = table->entries[0] & PAGE_MASK;
+
+	if(!(flags & PAGE_PRESENT)) return 0;
+
+	for(int i = 0; i < PAGE_TABLE_ENTRIES; i++){
+		if((table->entries[i] & PAGE_MASK) != flags){
+			 return 0;
+		}
+	}
+	struct page_info *huge_page = page_alloc(ALLOC_HUGE);
+	huge_page->pp_ref++;
+	if(!huge_page) {
+		return -1;
+	}
+	void* huge_page_addr = page2kva(huge_page);
+
+	for(int i = 0; i < PAGE_TABLE_ENTRIES; i++){
+		struct page_info *entry_page = pa2page(PAGE_ADDR(table->entries[i]));
+		memcpy(huge_page_addr + i * PAGE_SIZE, page2kva(entry_page), PAGE_SIZE);
+		page_decref(entry_page);
+	}
+	page_decref(pa2page(PAGE_ADDR(*entry)));
+	*entry = page2pa(huge_page) | flags | PAGE_HUGE;
 	return 0;
 }
 
@@ -72,6 +145,17 @@ int ptbl_merge(physaddr_t *entry, uintptr_t base, uintptr_t end,
 int ptbl_free(physaddr_t *entry, uintptr_t base, uintptr_t end,
     struct page_walker *walker)
 {
-	/* LAB 2: your code here. */
+	if((*entry & PAGE_PRESENT) == 0) return 0;
+	physaddr_t table = PAGE_ADDR(*entry);
+	struct page_info *table_page = pa2page(table);
+	struct page_table *page_table = page2kva(table_page);
+
+	for(int i = 0; i < PAGE_TABLE_ENTRIES; i++){
+		physaddr_t table_entry = page_table->entries[i];
+		
+		if(table_entry & PAGE_PRESENT) return 0;
+	}
+	page_decref(table_page);
+	*entry = 0;
 	return 0;
 }

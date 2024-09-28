@@ -16,9 +16,12 @@ struct boot_map_info {
 static int boot_map_pte(physaddr_t *entry, uintptr_t base, uintptr_t end,
     struct page_walker *walker)
 {
-	struct boot_map_info *info = walker->udata;
 
-	/* LAB 2: your code here. */
+	struct boot_map_info *info = walker->udata;
+	*entry = info->pa | info->flags;
+	info->pa += PAGE_SIZE;
+	tlb_invalidate(info->pml4, (void*)base);
+	
 	return 0;
 }
 
@@ -33,8 +36,18 @@ static int boot_map_pde(physaddr_t *entry, uintptr_t base, uintptr_t end,
 {
 	struct boot_map_info *info = walker->udata;
 
-	/* LAB 2: your code here. */
-	return 0;
+	if(hpage_aligned((uintptr_t)info->pa) && (end - base +1) == HPAGE_SIZE){
+		*entry = info->pa | PAGE_PRESENT | PAGE_HUGE;//fixing this causes problems
+		info->pa += HPAGE_SIZE;
+		return 0;
+	}
+	int ok = ptbl_split(entry, base, end, walker);
+
+	for(uintptr_t i = base; i < end; i += PAGE_SIZE){
+		tlb_invalidate(info->pml4, (void*)i);
+	}
+	return ok;
+
 }
 
 /*
@@ -50,7 +63,9 @@ static int boot_map_pde(physaddr_t *entry, uintptr_t base, uintptr_t end,
 void boot_map_region(struct page_table *pml4, void *va, size_t size,
     physaddr_t pa, uint64_t flags)
 {
+	
 	/* LAB 2: your code here. */
+	assert(flags & PAGE_PRESENT);
 	struct boot_map_info info = {
 		.pa = pa,
 		.flags = flags,
@@ -60,11 +75,15 @@ void boot_map_region(struct page_table *pml4, void *va, size_t size,
 	struct page_walker walker = {
 		.pte_callback = boot_map_pte,
 		.pde_callback = boot_map_pde,
-		/* LAB 2: your code here. */
+		.pdpte_callback = ptbl_alloc,
+		.pml4e_callback = ptbl_alloc,
 		.udata = &info,
 	};
-
 	walk_page_range(pml4, va, (void *)((uintptr_t)va + size), &walker);
+
+	for(size_t i = 0; i < size; i+= PAGE_SIZE){
+		tlb_invalidate(pml4, va + i);
+	}
 }
 
 /* Creates a mapping in the MMIO region to [pa, pa + size) for
@@ -98,12 +117,32 @@ void *mmio_map_region(physaddr_t pa, size_t size)
  * Hint: this function calls boot_map_region().
  * Hint: this function ignores program headers below KERNEL_VMA (e.g. ".boot").
  */
+
+
 void boot_map_kernel(struct page_table *pml4, struct elf *elf_hdr)
 {
-	struct elf_proghdr *prog_hdr =
+	struct elf_proghdr *prog_start =
 	    (struct elf_proghdr *)((char *)elf_hdr + elf_hdr->e_phoff);
-	uint64_t flags;
-	size_t i;
+
+	boot_map_region(pml4, (void*) KERNEL_VMA, BOOT_MAP_LIM, 0, PAGE_PRESENT | PAGE_WRITE | PAGE_NO_EXEC);
+
 
 	/* LAB 2: your code here. */
+	struct elf_proghdr *prog_hdr;
+	uint64_t flags = 0;
+	for(size_t i = 0; i < elf_hdr->e_phnum; i++){
+		prog_hdr = prog_start + i;
+
+		if(prog_hdr->p_va < KERNEL_VMA || prog_hdr->p_type != ELF_PROG_LOAD || !(prog_hdr->p_flags & ELF_PROG_FLAG_READ)) continue;
+
+		//setup flags
+		if(prog_hdr->p_flags & ELF_PROG_FLAG_WRITE) flags |= PAGE_WRITE;
+		if((prog_hdr->p_flags & ELF_PROG_FLAG_EXEC)){
+		}
+		else{
+			flags |= PAGE_NO_EXEC;
+		}
+		flags |= PAGE_PRESENT;
+		flags = 0;
+	}
 }

@@ -3,6 +3,8 @@
 
 #include <kernel/mem.h>
 
+//does this shit need checking for reserved pieces of memory?
+
 /* This simple physical memory allocator is used only while OpenLSD is setting up
  * its virtual memory system.
  *
@@ -16,9 +18,10 @@
  * This function may ONLY be used during initialization, before the buddy
  * allocator has been set up.
  */
+
 void *boot_alloc(uint32_t n)
 {
-	/* Virtual address of the next byte of free memory. */
+	//* Virtual address of the next byte of free memory. */
 	static char *next_free;
 	char *result;
 
@@ -27,18 +30,23 @@ void *boot_alloc(uint32_t n)
 	 * end of the kernel's bss segment: the first virtual address that the
 	 * linker did not assign to any kernel code or global variables.
 	 */
-	if (!next_free) {
+	if (!next_free){
 		extern char end[];
 		next_free = ROUNDUP((char *)end, PAGE_SIZE);
 	}
+    
+	if(n == 0) return next_free;
 
-	/* Allocate a chunk large enough to hold 'n' bytes, then update
-	 * next_free. Make sure next_free is kept aligned to a multiple of
-	 * PAGE_SIZE.
-	 *
-	 * LAB 1: your code here.
-	 */
-	return NULL;
+	uint64_t n_paligned = ROUNDUP(n, PAGE_SIZE);
+
+	//limit to boot map for now
+	if(((uintptr_t) next_free + n_paligned) > ((uintptr_t) KERNEL_VMA + BOOT_MAP_LIM)){
+		panic("OOM in boot loader");
+	}
+	result = next_free;
+	next_free += n_paligned;
+	
+	return result;
 }
 
 /* The addresses and lengths in the memory map provided by the boot loader may

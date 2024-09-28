@@ -11,29 +11,67 @@
 #include <kernel/sched/syscall.h>
 
 #include <kernel/sched/task.h>
+#include <kernel/mem/insert.h>
+#include <kernel/vma/pfault.h>
 
-/* LAB 3: your code here. */
+#define __DEF_INT_HANDLER(int_no) \
+	void isr##int_no();
 
-static const char *int_names[256] = {
-	[INT_DIVIDE] = "Divide-by-Zero Error Exception (#DE)",
-	[INT_DEBUG] = "Debug (#DB)",
-	[INT_NMI] = "Non-Maskable Interrupt",
-	[INT_BREAK] = "Breakpoint (#BP)",
-	[INT_OVERFLOW] = "Overflow (#OF)",
-	[INT_BOUND] = "Bound Range (#BR)",
-	[INT_INVALID_OP] = "Invalid Opcode (#UD)",
-	[INT_DEVICE] = "Device Not Available (#NM)",
-	[INT_DOUBLE_FAULT] = "Double Fault (#DF)",
-	[INT_TSS] = "Invalid TSS (#TS)",
-	[INT_NO_SEG_PRESENT] = "Segment Not Present (#NP)",
-	[INT_SS] = "Stack (#SS)",
-	[INT_GPF] = "General Protection (#GP)",
-	[INT_PAGE_FAULT] = "Page Fault (#PF)",
-	[INT_FPU] = "x86 FPU Floating-Point (#MF)",
-	[INT_ALIGNMENT] = "Alignment Check (#AC)",
-	[INT_MCE] = "Machine Check (#MC)",
-	[INT_SIMD] = "SIMD Floating-Point (#XF)",
-	[INT_SECURITY] = "Security (#SX)",
+#define DEF_INT_HANDLER(int_no) __DEF_INT_HANDLER(int_no)
+
+DEF_INT_HANDLER(INT_DIVIDE)
+DEF_INT_HANDLER(INT_DEBUG)
+DEF_INT_HANDLER(INT_NMI)
+DEF_INT_HANDLER(INT_BREAK)
+DEF_INT_HANDLER(INT_OVERFLOW)
+DEF_INT_HANDLER(INT_BOUND)
+DEF_INT_HANDLER(INT_INVALID_OP)
+DEF_INT_HANDLER(INT_DEVICE)
+DEF_INT_HANDLER(INT_DOUBLE_FAULT)
+DEF_INT_HANDLER(INT_TSS)
+DEF_INT_HANDLER(INT_NO_SEG_PRESENT)
+DEF_INT_HANDLER(INT_SS)
+DEF_INT_HANDLER(INT_GPF)
+DEF_INT_HANDLER(INT_PAGE_FAULT)
+DEF_INT_HANDLER(INT_FPU)
+DEF_INT_HANDLER(INT_ALIGNMENT)
+DEF_INT_HANDLER(INT_MCE)
+DEF_INT_HANDLER(INT_SIMD)
+DEF_INT_HANDLER(INT_SECURITY)
+DEF_INT_HANDLER(INT_SYSCALL)
+
+#define __INT_HANDLER(int_no) isr##int_no
+#define INT_HANDLER(int_no) __INT_HANDLER(int_no)
+
+struct int_info{
+	void (*handler)();
+	char* name;
+};
+
+#define INT_INFO(_int_no, _name) {INT_HANDLER(_int_no), _name}
+
+
+static const struct int_info int_infos[256] = {
+	[INT_DIVIDE] = INT_INFO(INT_DIVIDE,  "Divide-by-Zero Error Exception (#DE)"),
+	[INT_DEBUG] = INT_INFO(INT_DEBUG, "Debug (#DB)"),
+	[INT_NMI] = INT_INFO(INT_NMI, "Non-Maskable Interrupt"),
+	[INT_BREAK] = INT_INFO(INT_BREAK, "Breakpoint (#BP)"),
+	[INT_OVERFLOW] = INT_INFO(INT_OVERFLOW, "Overflow (#OF)"),
+	[INT_BOUND] = INT_INFO(INT_BOUND, "Bound Range (#BR)"),
+	[INT_INVALID_OP] = INT_INFO(INT_INVALID_OP, "Invalid Opcode (#UD)"),
+	[INT_DEVICE] = INT_INFO(INT_DEVICE, "Device Not Available (#NM)"),
+	[INT_DOUBLE_FAULT] = INT_INFO(INT_DOUBLE_FAULT, "Double Fault (#DF)"),
+	[INT_TSS] = INT_INFO(INT_TSS, "Invalid TSS (#TS)"),
+	[INT_NO_SEG_PRESENT] = INT_INFO(INT_NO_SEG_PRESENT, "Segment Not Present (#NP)"),
+	[INT_SS] = INT_INFO(INT_SS, "Stack (#SS)"),
+	[INT_GPF] = INT_INFO(INT_GPF, "General Protection (#GP)"),
+	[INT_PAGE_FAULT] = INT_INFO(INT_PAGE_FAULT, "Page Fault (#PF)"),
+	[INT_FPU] = INT_INFO(INT_FPU, "x86 FPU Floating-Point (#MF)"),
+	[INT_ALIGNMENT] = INT_INFO(INT_ALIGNMENT, "Alignment Check (#AC)"),
+	[INT_MCE] = INT_INFO(INT_MCE, "Machine Check (#MC)"),
+	[INT_SIMD] = INT_INFO(INT_SIMD, "SIMD Floating-Point (#XF)"),
+	[INT_SECURITY] = INT_INFO(INT_SECURITY, "Security (#SX)"),
+	[INT_SYSCALL] = INT_INFO(INT_SYSCALL, "Sys call")
 };
 
 static struct idt_entry entries[256];
@@ -44,10 +82,10 @@ static struct idtr idtr = {
 
 static const char *get_int_name(unsigned int_no)
 {
-	if (!int_names[int_no])
+	if (!int_infos[int_no].name)
 		return "Unknown Interrupt";
 
-	return int_names[int_no];
+	return int_infos[int_no].name;
 }
 
 void print_int_frame(struct int_frame *frame)
@@ -63,11 +101,14 @@ void print_int_frame(struct int_frame *frame)
 	switch (frame->int_no) {
 	case INT_PAGE_FAULT:
 		cprintf(" CR2 %p\n", read_cr2());
-		cprintf(" ERR 0x%016llx (%s, %s, %s)\n",
+		
+		cprintf(" ERR 0x%016llx (%s, %s, %s, %s)\n",
 			frame->err_code,
 			frame->err_code & 4 ? "user" : "kernel",
 			frame->err_code & 2 ? "write" : "read",
-			frame->err_code & 1 ? "protection" : "not present");
+			frame->err_code & 1 ? "protection" : "not present",
+			frame->err_code & PF_IFETCH ? "ifetch" : "not ifetch"
+		);
 		break;
 	default:
 		cprintf(" ERR 0x%016llx\n", frame->err_code);
@@ -107,10 +148,47 @@ void print_int_frame(struct int_frame *frame)
 		frame->cs, frame->ds, frame->ss);
 }
 
+
 /* Set up the interrupt handlers. */
 void idt_init(void)
 {
-	/* LAB 3: your code here. */
+	struct idt_entry* entry;
+	unsigned int flags = 0;
+	struct int_info inf;
+	for(int i = 0; i < 256; i++){
+		inf = int_infos[i];
+		if(inf.handler){
+			entry = entries + i;
+			
+			flags = IDT_PRESENT;
+			switch (i)
+			{
+			case INT_DEBUG:
+			case INT_BREAK:
+			case INT_OVERFLOW:
+				flags |= IDT_TRAP_GATE32;
+				break;
+			
+			default:
+				flags |= IDT_INT_GATE32;
+				break;
+			}
+
+			switch (i)
+			{
+			case INT_SYSCALL:
+			case INT_BREAK:
+			case INT_OVERFLOW:
+				flags |= IDT_PRIVL(3);
+				break;
+			
+			default:
+				flags |= IDT_PRIVL(0);
+				break;
+			}
+			set_idt_entry(entry, inf.handler, flags, GDT_KCODE); 
+		}
+	}
 	load_idt(&idtr);
 }
 
@@ -122,8 +200,20 @@ void int_dispatch(struct int_frame *frame)
 	 *  - Dispatch system calls to syscall().
 	 */
 	switch (frame->int_no) {
-		/* LAB 3: your code here. */
-	default: break;
+
+		case INT_BREAK:
+			return monitor(frame);
+
+		//now that some page faults are valid do we need to do iret64?
+		case INT_PAGE_FAULT:
+			//print_int_frame(frame);
+			return page_fault_handler(frame);
+
+		case INT_SYSCALL:
+			frame->rax = syscall(frame->rdi, frame->rsi, frame->rdx, frame->rcx, frame->r8, frame->r9, frame->rbp);
+			return iret64(frame);
+	
+		default: break;
 	}
 
 	/* Unexpected trap: The user process or the kernel has a bug. */
@@ -147,7 +237,7 @@ void int_handler(struct int_frame *frame)
 	 * "cli" in the interrupt path.
 	 */
 	assert(!(read_rflags() & FLAGS_IF));
-	/* cprintf("Incoming INT frame at %p\n", frame); */
+
 	if ((frame->cs & 3) == 3) {
 		/* Interrupt from user mode. */
 		assert(cur_task);
@@ -168,6 +258,8 @@ void int_handler(struct int_frame *frame)
 	task_run(cur_task);
 }
 
+#include <kernel/vma/show.h>
+
 void page_fault_handler(struct int_frame *frame)
 {
 	void *fault_va;
@@ -177,15 +269,22 @@ void page_fault_handler(struct int_frame *frame)
 	/* Read the CR2 register to find the faulting address. */
 	fault_va = (void *)read_cr2();
 
+	print_int_frame(frame);
+
 	/* Handle kernel-mode page faults. */
-	/* LAB 3: your code here. */
-	/* We have already handled kernel-mode exceptions, so if we get here, the
-	 * page fault has happened in user mode.
-	 */
+	if(!(frame->err_code & PF_USER)){
+		//print_int_frame(frame);
+		panic("Page fault originated from the kernel");
+	}
 
 	/* Destroy the task that caused the fault. */
 	cprintf("[PID %5u] user fault va %p ip %p\n",
 		cur_task->task_pid, fault_va, frame->rip);
-	print_int_frame(frame);
-	task_destroy(cur_task);
+
+	if(task_page_fault_handler(cur_task, fault_va, frame->err_code) < 0){
+		cprintf("[PID %5u] user fault is invalid!\n");
+		print_int_frame(frame);
+		task_destroy(cur_task);
+	}
+	//show_vmas(cur_task);
 }

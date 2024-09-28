@@ -28,7 +28,7 @@ static int lookup_pde(physaddr_t *entry, uintptr_t base, uintptr_t end,
 {
 	struct lookup_info *info = walker->udata;
 
-	if(*entry & (PAGE_HUGE | PAGE_PRESENT)){
+	if((*entry & (PAGE_HUGE | PAGE_PRESENT)) == (PAGE_HUGE | PAGE_PRESENT)){
 		info->entry = entry;
 	}
 	return 0;

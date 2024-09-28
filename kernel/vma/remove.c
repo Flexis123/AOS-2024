@@ -28,11 +28,18 @@ void free_vmas(struct task *task)
 int do_remove_vma(struct task *task, void *base, size_t size, struct vma *vma,
 	void *udata)
 {
-	assert(vma->vm_base == base);
-	assert(vma->vm_end >= base + size -1);
-	struct vma* new_vma =  split_vma(task, vma, base);
+	if(!vma) return 0;
+
+	void* actual_base = MAX(vma->vm_base, base);
+	void* actual_end = MIN(vma->vm_end, base + size);
+
+	struct vma* new_vma = split_vmas(task, vma, actual_base, (size_t)(actual_end - actual_base));
+	if(actual_end == base + size && actual_base != base) new_vma = container_of(list_prev(&task->task_mmap, &new_vma->vm_mmap), struct vma, vm_mmap);
+	
 	remove_vma(task, new_vma);
-	unmap_page_range(task->task_pml4, base, size);
+	unmap_page_range(task->task_pml4, actual_base, (size_t) (actual_end - actual_base));
+	kfree(new_vma);
+
 	return 0;
 }
 
@@ -50,7 +57,13 @@ int remove_vma_range(struct task *task, void *base, size_t size)
 int do_unmap_vma(struct task *task, void *base, size_t size, struct vma *vma,
 	void *udata)
 {
-	/* LAB 4: your code here. */
+	if(!vma) return 0;
+
+	void* actual_base = MAX(vma->vm_base, base);
+	void* actual_end = MIN(vma->vm_end, base + size);
+
+	unmap_page_range_non_dirty(task->task_pml4, actual_base, (size_t) (actual_end - actual_base));
+
 	return 0;
 }
 

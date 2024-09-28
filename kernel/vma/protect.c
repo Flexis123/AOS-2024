@@ -12,7 +12,24 @@
 int do_protect_vma(struct task *task, void *base, size_t size, struct vma *vma,
 	void *udata)
 {
-	/* LAB 4 (bonus): your code here. */
+	int flags = *((int*) udata);
+
+	if(vma->vm_flags == flags) return 0;
+
+	//flags are different so we have to split vma!
+	void* actual_base = MAX(vma->vm_base, base);
+	void* actual_end = MIN(vma->vm_end, base + size);
+	
+	struct vma* new_vma = split_vmas(task, vma, actual_base, (size_t)(actual_end - actual_base));
+	if(!new_vma) return -1;
+
+	uint64_t pflags = PAGE_PRESENT | PAGE_USER;
+	if(flags & VM_WRITE) pflags |= PAGE_WRITE;
+	if(!(flags & VM_EXEC)) pflags |= PAGE_NO_EXEC;
+
+	new_vma->vm_flags = flags;
+
+	protect_region(task->task_pml4, new_vma->vm_base, (size_t)(actual_end - actual_base), pflags);
 	return 0;
 }
 

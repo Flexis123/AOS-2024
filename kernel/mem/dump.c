@@ -3,6 +3,7 @@
 
 #include <kernel/mem.h>
 
+
 struct dump_info {
 	uintptr_t base;
 	uintptr_t end;
@@ -104,8 +105,7 @@ int dump_page_tables(struct page_table *pml4, uint64_t mask)
 	struct dump_info info = {
 		.base = 0,
 		.flags = 0,
-		.mask = mask | PAGE_PRESENT | PAGE_WRITE | PAGE_NO_EXEC |
-		        PAGE_USER,
+		.mask = mask,
 	};
 	struct page_walker walker = {
 		.pte_callback = dump_pte,
@@ -120,5 +120,44 @@ int dump_page_tables(struct page_table *pml4, uint64_t mask)
 	dump_hole(0, 0, &walker);
 
 	return 0;
+}
+
+static void debug_print(struct page_table *pml4){
+
+	for(int i = 0; i < PAGE_TABLE_ENTRIES; i++){
+		physaddr_t entry = pml4->entries[i];
+
+		if(entry == 0)continue;
+
+		cprintf("entry: %d: %p\n", i, entry);
+
+		for(int j = 0; j < PAGE_TABLE_ENTRIES; j++){
+			struct page_table *pdpt = KADDR(PAGE_ADDR(entry));
+			physaddr_t entry2 = pdpt->entries[j];
+
+			if(entry2 == 0)continue;
+
+			cprintf("	entry2: %d %p\n", j, entry2);
+
+			for(int k = 0; k < PAGE_TABLE_ENTRIES; k++){
+				struct page_table *pdir = KADDR(PAGE_ADDR(entry2));
+				physaddr_t entry3 = pdir->entries[k];
+				if(entry3 == 0)continue;
+
+				if(entry3 & PAGE_HUGE){
+					cprintf("		HUGE PAGE %d %p\n", k, entry3);
+					continue;
+				}		
+				cprintf("		entry3 %d %p\n", k, entry3);
+				for(int l = 0; l < PAGE_TABLE_ENTRIES; l++){
+					struct page_table *ptbl = KADDR(PAGE_ADDR(entry3));
+					physaddr_t entry4 = ptbl->entries[l];
+
+					if(entry4 == 0)continue;
+					cprintf("			entry %d %p\n", l, entry4);
+				}
+			}
+		}
+	}
 }
 

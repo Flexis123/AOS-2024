@@ -24,8 +24,12 @@ static int insert_pte(physaddr_t *entry, uintptr_t base, uintptr_t end,
 		page_decref(page);
 		tlb_invalidate(info->pml4, page2kva(page));
 	}
+	if(info->page->pp_order == BUDDY_2M_PAGE){
+		return 0;
+	}
 	info->page->pp_ref++;
-	*entry = page2pa(info->page) | info->flags;
+	assert(!info->page->pp_free);
+	*entry = page2pa(info->page) | info->flags | PAGE_PRESENT;
 	return 0;
 }
 
@@ -45,13 +49,13 @@ static int insert_pde(physaddr_t *entry, uintptr_t base, uintptr_t end,
 	if(*entry & PAGE_HUGE){
 		struct page_info *page = pa2page(PAGE_ADDR(*entry));
 		page_decref(page);
-		tlb_invalidate(info->pml4, page2kva(page));
 	}
-	if((info->flags & PAGE_HUGE) == 0){
+	if((info->flags & PAGE_HUGE) == 0 && info->page->pp_order != BUDDY_2M_PAGE){
 		return ptbl_alloc(entry, base, end, walker);
 	}
 	info->page->pp_ref++;
-	*entry = page2pa(info->page) | info->flags;
+	assert(!info->page->pp_free);
+	*entry = page2pa(info->page) | info->flags | PAGE_HUGE | PAGE_PRESENT;
 	return 0;
 }
 
@@ -84,23 +88,42 @@ int page_insert(struct page_table *pml4, struct page_info *page, void *va,
     uint64_t flags)
 {
 	if((flags & PAGE_PRESENT) == 0){
-		panic("page_insert called with present bit 0");
+		return -1;
 	}
-	if(!page_aligned(va)){
-		panic("page_insert called with non-aligned virtual address");
+	if(!page_aligned((uintptr_t)va)){
+		return -1;
 	}
-	if((flags & PAGE_HUGE) && !hpage_aligned(va)){
-		panic("page_insert called with huge page non-aligned virtual address");
+	if(page == NULL || pml4 == NULL){
+		return -1;
 	}
+	if((flags & PAGE_HUGE) || (page->pp_order == BUDDY_2M_PAGE)){
 
+		if(!hpage_aligned((uintptr_t)va)){
+			return -1;
+		}
+		else{
+			flags |= PAGE_HUGE;
+		}
+	}
 	struct insert_info info = {pml4, page, flags};
 
 	struct page_walker walker = {
 		.pte_callback = insert_pte,
 		.pde_callback = insert_pde,
-		.pt_hole_callback = ptbl_alloc,
-		.udata = &info, 
+		.pde_unmap = ptbl_merge,
+		.pdpte_callback = ptbl_alloc,
+		.pml4e_callback = ptbl_alloc,
+		.udata = &info,
 	};
-	return walk_page_range(pml4, va, (void *)((uintptr_t)va + PAGE_SIZE),
+	int ok;
+	if(flags & PAGE_HUGE){
+		ok = walk_page_range(pml4, va, (void *)((uintptr_t)va + HPAGE_SIZE),
 		&walker);
+	}
+	else{
+		ok = walk_page_range(pml4, va, (void *)((uintptr_t)va + PAGE_SIZE),
+		&walker);
+	}
+	tlb_invalidate(pml4, va);
+	return ok;
 }

@@ -7,8 +7,17 @@
 .global _start
 _start:
 	/* Check if we have any arguments on the stack. */
+	movq %r10, %r11
+	movq %r11, %r10
+
+
 	movabsq $USTACK_TOP, %rax
+	movq %r10, %r11
+
+
 	cmpq %rax, %rsp
+
+	movq %r11, %r10
 	jne args_exist
 
 	/* If there are no arguments on the stack, we have to push dummy
@@ -19,6 +28,7 @@ _start:
 	xorl %esi, %esi
 
 args_exist:
+	movq %r10, %r11
 	call libmain
 1:
 	jmp 1b

@@ -9,13 +9,23 @@ struct user_info {
 	uint64_t flags;
 };
 
-static int check_user_hole(uintptr_t base, uintptr_t end,
+
+static int check_access(physaddr_t *entry, uintptr_t base, uintptr_t end,
 	struct page_walker *walker)
 {
 	struct user_info *info = walker->udata;
 
-	/* LAB 3: your code here. */
+	if(!((*entry & PAGE_MASK) & info->flags)){
+		info->va = base;
+		return -1;
+	}
 	return 0;
+}
+
+static int check_user_hole(uintptr_t base, uintptr_t end,
+	struct page_walker *walker)
+{	
+	return -1;
 }
 
 static int check_user_pte(physaddr_t *entry, uintptr_t base, uintptr_t end,
@@ -23,8 +33,13 @@ static int check_user_pte(physaddr_t *entry, uintptr_t base, uintptr_t end,
 {
 	struct user_info *info = walker->udata;
 
-	/* LAB 3: your code here. */
-	return 0;
+	int ret = 0;
+	uint64_t entry_flags = (*entry & PAGE_MASK);
+	if((info->flags & entry_flags) != info->flags){
+		info->va = base;
+		ret = -1;
+	}
+	return ret;
 }
 
 static int check_user_pde(physaddr_t *entry, uintptr_t base, uintptr_t end,
@@ -32,8 +47,14 @@ static int check_user_pde(physaddr_t *entry, uintptr_t base, uintptr_t end,
 {
 	struct user_info *info = walker->udata;
 
-	/* LAB 3: your code here. */
-	return 0;
+	int ret = 0;
+	uint64_t entry_flags = (*entry & PAGE_MASK);
+	if((info->flags & entry_flags) != info->flags && 
+			((info->flags | PAGE_HUGE) & entry_flags) != info->flags){
+		info->va = base;
+		ret = -1;
+	}
+	return ret;
 }
 
 int check_user_mem(uintptr_t *fault_va, struct page_table *pml4, void *va,
@@ -64,8 +85,10 @@ int check_user_mem(uintptr_t *fault_va, struct page_table *pml4, void *va,
  * If it can, then the function simply returns.
  * If it cannot, the task gets killed and if the task is the current task,
  * this function will not return.
+ * 
+ * 'flags' arethe flags that need to be set for the page to be valid
  */
-void assert_user_mem(struct task *task, void *va, size_t size, int flags)
+void assert_user_mem(struct task *task, void *va, size_t size, uint64_t flags)
 {
 	uintptr_t fault_va;
 
