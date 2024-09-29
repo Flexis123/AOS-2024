@@ -70,7 +70,7 @@ struct task *pid2task(pid_t pid, int check_perm)
 	}
 
 	/* Limit the PID. */
-	if (pid >= pid_max) {
+	if (pid >= pid_max || pid < 1) {
 		return NULL;
 	}
 
@@ -178,6 +178,8 @@ struct task *task_alloc(pid_t ppid)
 	task->task_status = TASK_RUNNABLE;
 	task->task_runs = 0;
 	list_init(&task->task_mmap);
+	list_init(&task->task_children);
+	list_init(&task->task_child);
 
 	memset(&task->task_frame, 0, sizeof task->task_frame);
 
@@ -332,25 +334,34 @@ void task_create(uint8_t *binary, enum task_type type)
 void task_free(struct task *task)
 {
 	struct task *waiting;
-	/*
+	assert(task);
 	struct task *parent = pid2task(task->task_ppid, true);
 	
 	if(parent){
-		parent->task_status = TASK_RUNNABLE;
-		list_add(&runq, &parent->task_node);
+
+		if(parent->task_wait == task){
+			parent->task_status = TASK_RUNNABLE;
+			list_add(&runq, &parent->task_node);
+		}
+		
 	}
 	struct list *current_child = NULL;
-	list_foreach(&task->task_children, current_child){
+	struct list *next = NULL;
+	list_foreach_safe (&task->task_children, current_child, next){
 		struct task *child_task = container_of(current_child, struct task, task_child);
 
-		if(child_task->task_status == TASK_NOT_RUNNABLE){
+		if(child_task->task_status == TASK_DYING){
 			task_destroy(child_task);
+		}
+		else{
+			list_del(&child_task->task_child);
+			child_task->task_ppid = 0;
 		}
 
 
 
 	}
-	*/
+	
 
 	/* If we are freeing the current task, switch to the kernel_pml4
 	 * before freeing the page tables, just in case the page gets re-used.
