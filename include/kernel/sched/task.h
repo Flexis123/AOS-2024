@@ -6,6 +6,7 @@
 #define cur_task (this_cpu->cpu_task)
 
 struct task *pid2task(pid_t pid, int check_perm);
+struct task *task_alloc(pid_t ppid);
 void task_init(void);
 void task_create(uint8_t *binary, enum task_type type);
 void task_free(struct task *task);

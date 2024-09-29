@@ -332,7 +332,26 @@ void task_create(uint8_t *binary, enum task_type type)
 void task_free(struct task *task)
 {
 	struct task *waiting;
-	/* LAB 5: your code here. */
+	/*
+	struct task *parent = pid2task(task->task_ppid, true);
+	
+	if(parent){
+		parent->task_status = TASK_RUNNABLE;
+		list_add(&runq, &parent->task_node);
+	}
+	struct list *current_child = NULL;
+	list_foreach(&task->task_children, current_child){
+		struct task *child_task = container_of(current_child, struct task, task_child);
+
+		if(child_task->task_status == TASK_NOT_RUNNABLE){
+			task_destroy(child_task);
+		}
+
+
+
+	}
+	*/
+
 	/* If we are freeing the current task, switch to the kernel_pml4
 	 * before freeing the page tables, just in case the page gets re-used.
 	 */

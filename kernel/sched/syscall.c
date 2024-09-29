@@ -121,6 +121,15 @@ int64_t syscall(uint64_t syscallno, uint64_t a1, uint64_t a2, uint64_t a3,
 		case SYS_yield:
 			sched_yield();
 			break;
+		case SYS_wait:
+			ret = sys_wait((int *)a1);
+			break;
+		case SYS_waitpid:
+			ret = sys_waitpid(a1, (int *)a2, a3);
+			break;
+		case SYS_fork:
+			ret = sys_fork();
+			break;
 		default:
 			ret = -ENOSYS;
 	}
