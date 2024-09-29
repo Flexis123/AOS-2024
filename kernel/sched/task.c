@@ -15,6 +15,8 @@
 pid_t pid_max = 1 << 16;
 struct task **tasks = (struct task **)PIDMAP_BASE;
 size_t nuser_tasks = 0;
+extern struct list runq;
+
 void debug_print(struct page_table *pml4){
 
 	for(int i = 0; i < PAGE_TABLE_ENTRIES; i++){
@@ -322,6 +324,7 @@ void task_create(uint8_t *binary, enum task_type type)
 
 	if(type == TASK_TYPE_USER)nuser_tasks++;
 	task->task_ppid = 0;
+	list_add(&runq, &task->task_node);
 }
 
 /* Free the task and all of the memory that is used by it.
@@ -439,6 +442,7 @@ void task_run(struct task *task)
 				panic("unknown task state in task_run");
 				break;
 			}
+			list_add(&runq, &cur_task->task_node);
 		}
 
 		cur_task = task;

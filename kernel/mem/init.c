@@ -318,4 +318,5 @@ void page_init_ext(struct boot_info *boot_info)
 		addr += HPAGE_SIZE - PAGE_SIZE;		
 		}
 	}
+	boot_map_region(kernel_pml4, (void *)KERNEL_VMA, npages * PAGE_SIZE, 0, PAGE_PRESENT | PAGE_WRITE);
 }

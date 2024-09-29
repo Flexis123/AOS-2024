@@ -118,6 +118,9 @@ int64_t syscall(uint64_t syscallno, uint64_t a1, uint64_t a2, uint64_t a3,
 		case SYS_madvise:
 			ret = sys_madvise((void *)a1, a2, a3);
 			break;
+		case SYS_yield:
+			sched_yield();
+			break;
 		default:
 			ret = -ENOSYS;
 	}

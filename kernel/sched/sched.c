@@ -20,7 +20,14 @@ void sched_init(void)
 /* Runs the next runnable task. */
 void sched_yield(void)
 {
-	/* LAB 5: your code here. */
+	if(list_is_empty(&runq)){
+		if(!cur_task){
+			monitor(NULL);
+		}
+		task_run(cur_task);
+	}
+	struct task *task = container_of(list_pop_tail(&runq), struct task, task_node);
+	task_run(task);
 }
 
 /* For now jump into the kernel monitor. */
