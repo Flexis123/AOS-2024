@@ -68,11 +68,32 @@ struct copy_info{
 	struct page_table* child_pml4;
 };
 
+static int copy_page_and_setup_cow(physaddr_t *entry, uintptr_t base, uintptr_t end, struct page_walker *walker){
+	struct page_info* parent_page = KADDR(PAGE_ADDR(*entry));
+	parent_page->pp_ref++;
+
+	//inherit the flags from the parent but zap the write flag to setup COW
+	physaddr_t copy_flags = (*entry & PAGE_MASK) & (~PAGE_WRITE);
+
+	//zap the write flag also for the parent
+	*entry &= ~PAGE_WRITE;
+
+	struct copy_info* cpy_inf = (struct copy_info*) walker->udata;
+	return page_insert(cpy_inf->child_pml4, parent_page, (void*) base, copy_flags);
+}
+
 static int copy_pte(physaddr_t *entry, uintptr_t base, uintptr_t end, struct page_walker *walker){
 	if(*entry & PAGE_PRESENT){
-		//clear write permission and dirty bit (dirty bit may be uneccesay)
-		//
+		return copy_page_and_setup_cow(entry, base, end, walker);
 	}
+	return 0;
+}
+
+static int copy_pde(physaddr_t *entry, uintptr_t base, uintptr_t end, struct page_walker *walker){
+	if((*entry & PAGE_HUGE) && (*entry & PAGE_PRESENT)){
+		return copy_page_and_setup_cow(entry, base, end, walker);
+	}
+	return 0;
 }
 
 /*
@@ -82,15 +103,16 @@ the page tables in order to do COW
 static void copy_region(struct page_table *parent_pml4, struct page_table* child_pml4, void *base, size_t size){
 
 	struct copy_info cpy_inf = {
-		
 		.child_pml4 = child_pml4
 	};
 
 	struct page_walker walker = {
+		.pde_callback = copy_pde,
+		.pte_callback = copy_pte,
 		.udata = &cpy_inf
 	};
 
-	walk_page_range(pml4, base, base + size, &walker);
+	walk_page_range(parent_pml4, base, base + size, &walker);
 }
 
 /* Allocates a task struct for the child process and copies the register state,
@@ -110,7 +132,6 @@ struct task *task_clone(struct task *task)
 
 	//we shoul first copy the vma's as those are the valid user land regions of mem
 	//for each vma we map we go over the range of the vma and copy in the pages!
-	task_clone_pml4(child->task_pml4, task->task_pml4);
 	struct list *vma_entry = NULL;
 
 	list_foreach(&task->task_mmap, vma_entry){
@@ -121,22 +142,19 @@ struct task *task_clone(struct task *task)
 
 		if(parent_vma->vm_src){
 			child_vma = add_executable_vma(child, parent_vma->vm_name, parent_vma->vm_base, vma_size, parent_vma->vm_flags, parent_vma->vm_src, parent_vma->vm_len);
-
-			if(!child_vma){
-				panic("unable to create executable vma in task_clone");
-				task_free(child);
-				return NULL;
-			}
 		}
 		else{
 			child_vma = add_anonymous_vma(child, parent_vma->vm_name, parent_vma->vm_base, vma_size, parent_vma->vm_flags);
-
-			if(!child_vma){
-				panic("unable to create anonymous vma in task_clone");
-				task_free(child);
-				return NULL;
-			}
 		}
+
+		if(!child_vma){
+			panic("unable to create vma in task_clone");
+			task_free(child);
+			return NULL;
+		}
+
+		//do we need to check for shared mappings??
+		copy_region(task->task_pml4, child->task_pml4, child_vma->vm_base, vma_size);
 	}
 
 	//add child to run queue and to the list of children of the parent

@@ -403,10 +403,14 @@ void task_free(struct task *task)
  */
 void task_destroy(struct task *task)
 {
+	//todo if we free a task shouuld the children also be freed?
 	task_free(task);
 	nuser_tasks--;
 
-	if(task == cur_task) sched_yield();
+	if(task == cur_task) {
+		cprintf("Destroyed the only task - nothing more to do!");
+		sched_yield();
+	}
 }
 
 /*
