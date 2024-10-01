@@ -41,7 +41,7 @@ void task_clone_pml4(struct page_table *child_pml4, struct page_table *parent_pm
 
 				if(pdir_entry & PAGE_HUGE){
 					void* va = table_index_to_va(i, j, k, 0);
-					struct page_info *huge_page = page_lookup(parent_pml4, va, NULL);
+					struct page_info *huge_page = page_lookup(parent_pml4, va, NULL);// we could make a lookup function with indexing instead of va
 					assert(huge_page);
 					huge_page->pp_ref++;
 					assert(page_insert(child_pml4, huge_page, va, PAGE_PRESENT));
@@ -64,6 +64,35 @@ void task_clone_pml4(struct page_table *child_pml4, struct page_table *parent_pm
 	}
 }
 
+struct copy_info{
+	struct page_table* child_pml4;
+};
+
+static int copy_pte(physaddr_t *entry, uintptr_t base, uintptr_t end, struct page_walker *walker){
+	if(*entry & PAGE_PRESENT){
+		//clear write permission and dirty bit (dirty bit may be uneccesay)
+		//
+	}
+}
+
+/*
+copies the region of memory from [base, base + size) from parent_pml4 into child_pml4 and also set's up
+the page tables in order to do COW
+*/
+static void copy_region(struct page_table *parent_pml4, struct page_table* child_pml4, void *base, size_t size){
+
+	struct copy_info cpy_inf = {
+		
+		.child_pml4 = child_pml4
+	};
+
+	struct page_walker walker = {
+		.udata = &cpy_inf
+	};
+
+	walk_page_range(pml4, base, base + size, &walker);
+}
+
 /* Allocates a task struct for the child process and copies the register state,
  * the VMAs and the page tables. Once the child task has been set up, it is
  * added to the run queue.
@@ -78,6 +107,9 @@ struct task *task_clone(struct task *task)
 	}
 	memcpy(&child->task_frame, &task->task_frame, sizeof(task->task_frame));
 
+
+	//we shoul first copy the vma's as those are the valid user land regions of mem
+	//for each vma we map we go over the range of the vma and copy in the pages!
 	task_clone_pml4(child->task_pml4, task->task_pml4);
 	struct list *vma_entry = NULL;
 
@@ -106,12 +138,15 @@ struct task *task_clone(struct task *task)
 			}
 		}
 	}
+
+	//add child to run queue and to the list of children of the parent
 	list_add(&runq, &child->task_node);
+	list_add(&task->task_children, &child->task_child);
 	return child;
 }
 
 pid_t sys_fork(void)
 {
-	/* LAB 5: your code here. */
-	return -ENOSYS;
+	if (!task_clone(cur_task)) return -ENOMEM;
+	return 0;
 }

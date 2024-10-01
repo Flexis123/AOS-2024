@@ -39,6 +39,7 @@ DEF_INT_HANDLER(INT_MCE)
 DEF_INT_HANDLER(INT_SIMD)
 DEF_INT_HANDLER(INT_SECURITY)
 DEF_INT_HANDLER(INT_SYSCALL)
+DEF_INT_HANDLER(IRQ_TIMER)
 
 #define __INT_HANDLER(int_no) isr##int_no
 #define INT_HANDLER(int_no) __INT_HANDLER(int_no)
@@ -71,7 +72,8 @@ static const struct int_info int_infos[256] = {
 	[INT_MCE] = INT_INFO(INT_MCE, "Machine Check (#MC)"),
 	[INT_SIMD] = INT_INFO(INT_SIMD, "SIMD Floating-Point (#XF)"),
 	[INT_SECURITY] = INT_INFO(INT_SECURITY, "Security (#SX)"),
-	[INT_SYSCALL] = INT_INFO(INT_SYSCALL, "Sys call")
+	[INT_SYSCALL] = INT_INFO(INT_SYSCALL, "Sys call"),
+	[IRQ_TIMER] = INT_INFO(IRQ_TIMER, "hardware timer interrupt")
 };
 
 static struct idt_entry entries[256];
@@ -207,11 +209,15 @@ void int_dispatch(struct int_frame *frame)
 		//now that some page faults are valid do we need to do iret64?
 		case INT_PAGE_FAULT:
 			//print_int_frame(frame);
-			return page_fault_handler(frame);
+			page_fault_handler(frame);
+			return iret64(frame);
 
 		case INT_SYSCALL:
 			frame->rax = syscall(frame->rdi, frame->rsi, frame->rdx, frame->rcx, frame->r8, frame->r9, frame->rbp);
 			return iret64(frame);
+
+		case IRQ_TIMER:
+			return irq_timer_handler(frame);
 	
 		default: break;
 	}
@@ -258,8 +264,6 @@ void int_handler(struct int_frame *frame)
 	task_run(cur_task);
 }
 
-#include <kernel/vma/show.h>
-
 void page_fault_handler(struct int_frame *frame)
 {
 	void *fault_va;
@@ -287,4 +291,9 @@ void page_fault_handler(struct int_frame *frame)
 		task_destroy(cur_task);
 	}
 	//show_vmas(cur_task);
+}
+
+void irq_timer_handler(struct int_frame *frame){
+	lapic_eoi();
+	sched_yield();
 }

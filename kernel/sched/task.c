@@ -124,6 +124,7 @@ static int task_setup_vas(struct task *task)
 	/* Now set task->task_pml4 and initialize the page table.
 	 * Can you use kernel_pml4 as a template?
 	 */
+
 	struct page_table *pml4 = (struct page_table *)page2kva(page);
 
 	for(int i = PML4_INDEX(KERNEL_VMA); i < PAGE_TABLE_ENTRIES; i++){
@@ -173,25 +174,35 @@ struct task *task_alloc(pid_t ppid)
 	}
 
 	/* Set up the task. */
-	task->task_ppid = ppid;
-	task->task_type = TASK_TYPE_USER;
-	task->task_status = TASK_RUNNABLE;
-	task->task_runs = 0;
-	list_init(&task->task_mmap);
-	list_init(&task->task_children);
-	list_init(&task->task_child);
 
+	//setup task frame
 	memset(&task->task_frame, 0, sizeof task->task_frame);
-
 	task->task_frame.ds = GDT_UDATA | 3;
 	task->task_frame.ss = GDT_UDATA | 3;
 	task->task_frame.rsp = USTACK_TOP;
 	task->task_frame.cs = GDT_UCODE | 3;
 	/* You will set task->task_frame.rip later. */
+
+	task->task_wait = NULL;
+	task->task_ppid = ppid;
+	task->task_type = TASK_TYPE_USER;
+	task->task_status = TASK_RUNNABLE;
+	task->task_runs = 0;
+	task->task_cpunum = this_cpu->cpu_id; // here may neeed change for assig 6
+	
+	//init vma stuff
+	rb_init(&task->task_rb); 
+	list_init(&task->task_mmap);
+
+	//init scheduling stuff
+	list_init(&task->task_children);
+	list_init(&task->task_child);
+	list_init(&task->task_zombies);
+	list_init(&task->task_node);
+
 	cprintf("[PID %5u] New task with PID %u\n",
 	        cur_task ? cur_task->task_pid : 0, task->task_pid);
 
-	task->task_wait = NULL;
 	return task;
 }
 
@@ -393,12 +404,9 @@ void task_free(struct task *task)
 void task_destroy(struct task *task)
 {
 	task_free(task);
-	/* LAB 5: your code here. */
-	cprintf("Destroyed the only task - nothing more to do!\n");
+	nuser_tasks--;
 
-	while (1) {
-		monitor(NULL);
-	}
+	if(task == cur_task) sched_yield();
 }
 
 /*

@@ -8,3 +8,4 @@ void print_int_frame(struct int_frame *frame);
 void idt_init(void);
 void int_handler(struct int_frame *frame);
 void page_fault_handler(struct int_frame *frame);
+void irq_timer_handler(struct int_frame *frame);

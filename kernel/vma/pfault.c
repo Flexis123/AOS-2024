@@ -21,6 +21,7 @@ int task_page_fault_cow_handler(struct task *task, void *va, int pf_flags){
 	}
 	size_t page_size = (existing_page->pp_order == BUDDY_2M_PAGE)? HPAGE_SIZE : PAGE_SIZE;
 	memcpy(page2kva(copy_page), page2kva(existing_page), page_size);
+	//todo maybe remove this when we are done testing
 	assert(page_insert(task->task_pml4, copy_page, ROUNDDOWN(va, page_size), (*entry | PAGE_WRITE) & PAGE_MASK));
 	return 0;
 }

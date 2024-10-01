@@ -8,9 +8,11 @@
 #include <kernel/monitor.h>
 #include <kernel/sched.h>
 
+//struct list runq;
 struct list runq;
 
 extern size_t nuser_tasks;
+uint64_t meanCpuTime;
 
 void sched_init(void)
 {
