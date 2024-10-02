@@ -215,10 +215,9 @@ void int_dispatch(struct int_frame *frame)
 			return iret64(frame);
 
 		case INT_SYSCALL:
-			cprintf("Got syscall from pid: %d\n", cur_task->task_pid);
 			//print_int_frame(frame);
 			frame->rax = syscall(frame->rdi, frame->rsi, frame->rdx, frame->rcx, frame->r8, frame->r9, frame->rbp);
-			return iret64(frame);
+			return;
 	
 		default: break;
 	}
@@ -277,19 +276,13 @@ void page_fault_handler(struct int_frame *frame)
 	/* Read the CR2 register to find the faulting address. */
 	fault_va = (void *)read_cr2();
 
-	print_int_frame(frame);
 
 	/* Handle kernel-mode page faults. */
 	if(!(frame->err_code & PF_USER)){
-		//print_int_frame(frame);
+		print_int_frame(frame);
+		cprintf("using pml4: pa:%p, kernel pml4: pa %p\n", read_cr3(), PADDR(kernel_pml4));
 		panic("Page fault originated from the kernel");
 	}
-
-	/* Destroy the task that caused the fault. */
-	cprintf("[PID %5u] user fault va %p ip %p\n",
-		cur_task->task_pid, fault_va, frame->rip);
-
-
 
 	if(task_page_fault_handler(cur_task, fault_va, frame->err_code) < 0){
 	//	cprintf("entry pa: %p\n", page2pa(page));

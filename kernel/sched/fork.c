@@ -104,10 +104,24 @@ struct task *task_clone(struct task *task)
 	}
 
 	//add child to run queue and to the list of children of the parent
+	assert(child != task);
 	list_add(&runq, &child->task_node);
 	list_add(&task->task_children, &child->task_child);
 	nuser_tasks++;
 	return child;
+}
+void debug_print_task_list(struct list *list){
+
+	if(list_is_empty(list)){
+		cprintf("there are no tasks in the list\n");
+		return;
+	}
+	struct list *node = NULL;
+
+	list_foreach(list, node){
+		struct task *task = container_of(node, struct task, task_node);
+		cprintf("task: pid: %p, parent ppid: %d, waiting on: %p, status code: %d\n", task->task_pid, task->task_ppid, task->task_wait, task->task_status);
+	}
 }
 
 pid_t sys_fork(void)
@@ -120,12 +134,5 @@ pid_t sys_fork(void)
 
 	struct list* node;
 	struct task* task;
-	cprintf("runq in sys_fork: ");
-	list_foreach(&runq, node){
-		task = container_of(node, struct task, task_node);
-		cprintf("%d(rax=%p, rip=%p),", task->task_pid, task->task_frame.rax, task->task_frame.rip);
-	}
-	cprintf("\n");
-	
-	return cur_task->task_pid;
+	return child->task_pid;
 }

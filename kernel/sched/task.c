@@ -17,44 +17,7 @@ struct task **tasks = (struct task **)PIDMAP_BASE;
 size_t nuser_tasks = 0;
 extern struct list runq;
 
-void debug_print(struct page_table *pml4){
 
-	for(int i = 0; i < PAGE_TABLE_ENTRIES; i++){
-		physaddr_t entry = pml4->entries[i];
-
-		if(entry == 0)continue;
-
-		cprintf("entry: %d: %p\n", i, entry);
-
-		for(int j = 0; j < PAGE_TABLE_ENTRIES; j++){
-			struct page_table *pdpt = KADDR(PAGE_ADDR(entry));
-			physaddr_t entry2 = pdpt->entries[j];
-
-			if(entry2 == 0)continue;
-
-			cprintf("	entry2: %d %p\n", j, entry2);
-
-			for(int k = 0; k < PAGE_TABLE_ENTRIES; k++){
-				struct page_table *pdir = KADDR(PAGE_ADDR(entry2));
-				physaddr_t entry3 = pdir->entries[k];
-				if(entry3 == 0)continue;
-
-				if(entry3 & PAGE_HUGE){
-					cprintf("		HUGE PAGE %d %p\n", k, entry3);
-					continue;
-				}		
-				cprintf("		entry3 %d %p\n", k, entry3);
-				for(int l = 0; l < PAGE_TABLE_ENTRIES; l++){
-					struct page_table *ptbl = KADDR(PAGE_ADDR(entry3));
-					physaddr_t entry4 = ptbl->entries[l];
-
-					if(entry4 == 0)continue;
-					cprintf("			entry %d %p\n", l, entry4);
-				}
-			}
-		}
-	}
-}
 /* Looks up the respective task for a given PID.
  * If check_perm is non-zero, this function checks if the PID maps to the
  * current task or if the current task is the parent of the task that the PID
@@ -366,9 +329,6 @@ void task_free(struct task *task)
 			list_del(&child_task->task_child);
 			child_task->task_ppid = 0;
 		}
-
-
-
 	}
 	
 
@@ -407,6 +367,7 @@ void task_destroy(struct task *task)
 	if(task == cur_task) {
 		cprintf("Destroyed the only task - nothing more to do!\n");
 		cur_task = NULL;
+		load_pml4((struct page_table *)PADDR(kernel_pml4));
 		sched_yield();
 	}
 }
@@ -489,7 +450,6 @@ void task_run(struct task *task)
 		cur_task->task_status = TASK_RUNNING;
 		cur_task->task_runs++;
 	}
-	cprintf("continue running\n");
 	load_pml4((struct page_table*)PADDR(cur_task->task_pml4));
 	task_pop_frame(&cur_task->task_frame);
 }

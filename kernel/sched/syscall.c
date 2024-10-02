@@ -84,50 +84,63 @@ int64_t syscall(uint64_t syscallno, uint64_t a1, uint64_t a2, uint64_t a3,
 
 	switch (syscallno) {
 		case SYS_cputs:
+			cprintf("executing syscall cputs\n");
 			sys_cputs((void*) a1, a2);
 			break;
 
 		case SYS_cgetc:
+		cprintf("executing syscall cgetc\n");
 			ret = sys_cgetc();
 			break;
 
 		case SYS_getpid:
+		cprintf("executing syscall getpid\n");
 			ret = sys_getpid();
 			break;
 
 		case SYS_kill:
+		cprintf("executing syscall kill\n");
 			ret = sys_kill(a1);
 			break;
 		
 		case SYS_mquery:
+			cprintf("executing syscall mquery\n");
 			ret = sys_mquery((void *)a1, (void *)a2);
 			break;
 
 		case SYS_mmap:
+			cprintf("executing syscall mmap\n");
 			ret = (int64_t)sys_mmap((void *)a1, a2, a3, a4, a5, a6);
 			break;
 
 		case SYS_munmap:
+			cprintf("executing syscall munmap\n");
 			sys_munmap((void *)a1, a2);
 			break;
 
 		case SYS_mprotect:
+			cprintf("executing syscall mprotect\n");
 			ret = sys_mprotect((void *)a1, a2, a3);
 			break;
 		
 		case SYS_madvise:
+			cprintf("executing syscall madvice\n");
 			ret = sys_madvise((void *)a1, a2, a3);
 			break;
 		case SYS_yield:
+			cprintf("executing syscall yield\n");
 			sched_yield();
 			break;
 		case SYS_wait:
+			cprintf("executing syscall wait\n");
 			ret = sys_wait((int *)a1);
 			break;
 		case SYS_waitpid:
+			cprintf("executing syscall waitpid\n");
 			ret = sys_waitpid(a1, (int *)a2, a3);
 			break;
 		case SYS_fork:
+			cprintf("executing syscall fork\n");
 			ret = sys_fork();
 			break;
 		default:

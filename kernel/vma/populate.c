@@ -32,7 +32,6 @@ int do_populate_vma(struct task *task, void *base, size_t size,
 
 	populate_region(task->task_pml4, actual_base, actual_size, flags);
 
-	cprintf("actual size %lu\n", actual_size);
 	if(vma->vm_src){	
 		void * write_pos = MAX(vma->vm_base + vma->src_offset, actual_base);
 		void *read_pos = vma->vm_src + (actual_base - vma->vm_base);

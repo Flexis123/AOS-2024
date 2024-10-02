@@ -8,7 +8,6 @@
 #include <kernel/monitor.h>
 #include <kernel/sched.h>
 
-//struct list runq;
 struct list runq;
 
 extern size_t nuser_tasks;
@@ -26,8 +25,9 @@ void sched_yield(void)
 	struct task* task;
 
 	cprintf("runq in sched_yield: ");
-	list_foreach(&runq, node){
+	list_foreach(&runq, node){	
 		task = container_of(node, struct task, task_node);
+		assert(task != cur_task);
 		cprintf("%d(rax=%p, rip=%p),", task->task_pid, task->task_frame.rax, task->task_frame.rip);
 	}
 	cprintf("\n");

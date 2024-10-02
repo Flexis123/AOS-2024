@@ -47,7 +47,6 @@ int task_page_fault_handler(struct task *task, void *va, int flags)
 		return task_page_fault_cow_handler(task, va, flags);
 	}
 
-	cprintf("normal page fault, mapping page at address: %p\n", ROUNDDOWN(va, PAGE_SIZE));
 	populate_vma_range(task, ROUNDDOWN(va, PAGE_SIZE), PAGE_SIZE, vm->vm_flags);
 	return 0;
 }
