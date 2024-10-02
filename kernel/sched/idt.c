@@ -108,7 +108,7 @@ void print_int_frame(struct int_frame *frame)
 			frame->err_code,
 			frame->err_code & 4 ? "user" : "kernel",
 			frame->err_code & 2 ? "write" : "read",
-			frame->err_code & 1 ? "protection" : "not present",
+			frame->err_code & 1 ? "present" : "not present",
 			frame->err_code & PF_IFETCH ? "ifetch" : "not ifetch"
 		);
 		break;
@@ -201,6 +201,8 @@ void int_dispatch(struct int_frame *frame)
 	 *  - Dispatch page faults to page_fault_handler().
 	 *  - Dispatch system calls to syscall().
 	 */
+
+
 	switch (frame->int_no) {
 
 		case INT_BREAK:
@@ -213,16 +215,16 @@ void int_dispatch(struct int_frame *frame)
 			return iret64(frame);
 
 		case INT_SYSCALL:
+			cprintf("Got syscall from pid: %d\n", cur_task->task_pid);
+			//print_int_frame(frame);
 			frame->rax = syscall(frame->rdi, frame->rsi, frame->rdx, frame->rcx, frame->r8, frame->r9, frame->rbp);
 			return iret64(frame);
-
-		case IRQ_TIMER:
-			return irq_timer_handler(frame);
 	
 		default: break;
 	}
 
 	/* Unexpected trap: The user process or the kernel has a bug. */
+	cprintf("Unxpected intterupt\n");
 	print_int_frame(frame);
 
 	if (frame->cs == GDT_KCODE) {
@@ -264,6 +266,8 @@ void int_handler(struct int_frame *frame)
 	task_run(cur_task);
 }
 
+#include <kernel/mem.h>
+
 void page_fault_handler(struct int_frame *frame)
 {
 	void *fault_va;
@@ -285,8 +289,12 @@ void page_fault_handler(struct int_frame *frame)
 	cprintf("[PID %5u] user fault va %p ip %p\n",
 		cur_task->task_pid, fault_va, frame->rip);
 
+
+
 	if(task_page_fault_handler(cur_task, fault_va, frame->err_code) < 0){
-		cprintf("[PID %5u] user fault is invalid!\n");
+	//	cprintf("entry pa: %p\n", page2pa(page));
+
+		cprintf("[PID %5u] user fault is invalid!\n", cur_task->task_pid);
 		print_int_frame(frame);
 		task_destroy(cur_task);
 	}

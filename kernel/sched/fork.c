@@ -9,77 +9,25 @@
 #include <kernel/sched/task.h>
 
 extern struct list runq;
-
-void *table_index_to_va(int pml4_index, int pdpt_index, int pdir_index, int ptbl_index){
-	return (void *)((uintptr_t)pml4_index * PDPT_SPAN
-	+ (uintptr_t)pdpt_index * PAGE_DIR_SPAN
-	+ (uintptr_t)pdir_index * PAGE_TABLE_SPAN
-	+ (uintptr_t)ptbl_index * PAGE_SIZE);
-}
-
-
-//helper function to COW the 
-void task_clone_pml4(struct page_table *child_pml4, struct page_table *parent_pml4){
-
-	for(int i = 0; i < PML4_INDEX(USER_LIM); i++){
-		physaddr_t pml4_entry = parent_pml4->entries[i];
-
-		if(!pml4_entry)continue;
-		struct page_table *pdpt = (struct page_table *)(KADDR(pml4_entry));
-
-		for(int j = 0; j < PAGE_TABLE_ENTRIES; j++){
-			
-			physaddr_t pdpt_entry = pdpt->entries[j];
-
-			if(!pdpt_entry)continue;
-			struct page_table *pdir = (struct page_table *)(KADDR(pdpt_entry));
-
-			for(int k = 0; k < PAGE_TABLE_ENTRIES; k++){
-				physaddr_t pdir_entry = pdir->entries[k];
-
-				if(!pdir_entry)continue;
-
-				if(pdir_entry & PAGE_HUGE){
-					void* va = table_index_to_va(i, j, k, 0);
-					struct page_info *huge_page = page_lookup(parent_pml4, va, NULL);// we could make a lookup function with indexing instead of va
-					assert(huge_page);
-					huge_page->pp_ref++;
-					assert(page_insert(child_pml4, huge_page, va, PAGE_PRESENT));
-				}
-				else{
-					struct page_table *ptbl = (struct page_table *)(KADDR(pdir_entry));
-					for(int l = 0; l < PAGE_TABLE_ENTRIES; l++){
-						physaddr_t ptbl_entry = ptbl->entries[k];
-
-						if(!ptbl_entry)continue;
-						void* va = table_index_to_va(i, j, k, l);
-						struct page_info *page = page_lookup(parent_pml4, va, NULL);
-						assert(page);
-						page->pp_ref++;
-						assert(page_insert(child_pml4, page, va, PAGE_PRESENT));
-					}
-				}
-			}
-		}
-	}
-}
+extern size_t nuser_tasks;
 
 struct copy_info{
 	struct page_table* child_pml4;
 };
 
 static int copy_page_and_setup_cow(physaddr_t *entry, uintptr_t base, uintptr_t end, struct page_walker *walker){
-	struct page_info* parent_page = KADDR(PAGE_ADDR(*entry));
-	parent_page->pp_ref++;
+	struct page_info* parent_page = pa2page(PAGE_ADDR(*entry));
 
 	//inherit the flags from the parent but zap the write flag to setup COW
-	physaddr_t copy_flags = (*entry & PAGE_MASK) & (~PAGE_WRITE);
+	physaddr_t copy_flags = (*entry & PAGE_MASK) & ~(PAGE_WRITE | PAGE_DIRTY | PAGE_ACCESSED);
 
 	//zap the write flag also for the parent
-	*entry &= ~PAGE_WRITE;
+	*entry &= ~(PAGE_WRITE | PAGE_DIRTY | PAGE_ACCESSED);
 
 	struct copy_info* cpy_inf = (struct copy_info*) walker->udata;
-	return page_insert(cpy_inf->child_pml4, parent_page, (void*) base, copy_flags);
+	int res = page_insert(cpy_inf->child_pml4, parent_page, (void*) base, copy_flags);
+	assert(page_lookup(cpy_inf->child_pml4, (void*) base, NULL));
+	return res;
 }
 
 static int copy_pte(physaddr_t *entry, uintptr_t base, uintptr_t end, struct page_walker *walker){
@@ -91,6 +39,7 @@ static int copy_pte(physaddr_t *entry, uintptr_t base, uintptr_t end, struct pag
 
 static int copy_pde(physaddr_t *entry, uintptr_t base, uintptr_t end, struct page_walker *walker){
 	if((*entry & PAGE_HUGE) && (*entry & PAGE_PRESENT)){
+		cprintf("you have a huge page you retard\n");
 		return copy_page_and_setup_cow(entry, base, end, walker);
 	}
 	return 0;
@@ -100,7 +49,7 @@ static int copy_pde(physaddr_t *entry, uintptr_t base, uintptr_t end, struct pag
 copies the region of memory from [base, base + size) from parent_pml4 into child_pml4 and also set's up
 the page tables in order to do COW
 */
-static void copy_region(struct page_table *parent_pml4, struct page_table* child_pml4, void *base, size_t size){
+static int copy_region(struct page_table *parent_pml4, struct page_table* child_pml4, void *base, size_t size){
 
 	struct copy_info cpy_inf = {
 		.child_pml4 = child_pml4
@@ -112,7 +61,7 @@ static void copy_region(struct page_table *parent_pml4, struct page_table* child
 		.udata = &cpy_inf
 	};
 
-	walk_page_range(parent_pml4, base, base + size, &walker);
+	return walk_page_range(parent_pml4, base, base + size, &walker);
 }
 
 /* Allocates a task struct for the child process and copies the register state,
@@ -130,10 +79,7 @@ struct task *task_clone(struct task *task)
 	memcpy(&child->task_frame, &task->task_frame, sizeof(task->task_frame));
 
 
-	//we shoul first copy the vma's as those are the valid user land regions of mem
-	//for each vma we map we go over the range of the vma and copy in the pages!
 	struct list *vma_entry = NULL;
-
 	list_foreach(&task->task_mmap, vma_entry){
 
 		struct vma *parent_vma = container_of(vma_entry, struct vma, vm_mmap);
@@ -154,17 +100,32 @@ struct task *task_clone(struct task *task)
 		}
 
 		//do we need to check for shared mappings??
-		copy_region(task->task_pml4, child->task_pml4, child_vma->vm_base, vma_size);
+		assert(copy_region(task->task_pml4, child->task_pml4, child_vma->vm_base, vma_size) == 0);
 	}
 
 	//add child to run queue and to the list of children of the parent
 	list_add(&runq, &child->task_node);
 	list_add(&task->task_children, &child->task_child);
+	nuser_tasks++;
 	return child;
 }
 
 pid_t sys_fork(void)
 {
-	if (!task_clone(cur_task)) return -ENOMEM;
-	return 0;
+	struct task* child = task_clone(cur_task);
+	if (!child) return -ENOMEM;
+
+	child->task_frame.rax = 0;
+	//cur_task->task_frame.rax = cur_task->task_pid;
+
+	struct list* node;
+	struct task* task;
+	cprintf("runq in sys_fork: ");
+	list_foreach(&runq, node){
+		task = container_of(node, struct task, task_node);
+		cprintf("%d(rax=%p, rip=%p),", task->task_pid, task->task_frame.rax, task->task_frame.rip);
+	}
+	cprintf("\n");
+	
+	return cur_task->task_pid;
 }

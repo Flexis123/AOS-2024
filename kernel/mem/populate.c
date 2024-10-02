@@ -11,9 +11,16 @@ struct populate_info {
 static int populate_pte(physaddr_t *entry, uintptr_t base, uintptr_t end,
     struct page_walker *walker)
 {
+
+	if(*entry & PAGE_PRESENT){
+		return 0;
+	}
+
 	struct page_info *page;
 	struct populate_info *info = walker->udata;
 	page = page_alloc(ALLOC_ZERO);
+
+	assert(page >= (struct page_info *) KPAGES);
 
 	if(!page)return -1;
 	page->pp_ref++;

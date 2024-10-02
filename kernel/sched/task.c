@@ -303,7 +303,6 @@ static void task_load_elf(struct task *task, uint8_t *binary)
 		}
 
 		if(ph->p_filesz > 0){
-			assert(ph->p_filesz == ph->p_memsz);
 			add_executable_vma(task, name, (void*)ph->p_va, ph->p_memsz, flags, binary + ph->p_offset, ph->p_filesz);
 		}
 		else{
@@ -335,8 +334,7 @@ void task_create(uint8_t *binary, enum task_type type)
 	task_load_elf(task, binary);
 	task->task_type = type;
 
-	if(type == TASK_TYPE_USER)nuser_tasks++;
-	task->task_ppid = 0;
+	if(type == TASK_TYPE_USER) nuser_tasks++;
 	list_add(&runq, &task->task_node);
 }
 
@@ -403,12 +401,12 @@ void task_free(struct task *task)
  */
 void task_destroy(struct task *task)
 {
-	//todo if we free a task shouuld the children also be freed?
 	task_free(task);
 	nuser_tasks--;
 
 	if(task == cur_task) {
-		cprintf("Destroyed the only task - nothing more to do!");
+		cprintf("Destroyed the only task - nothing more to do!\n");
+		cur_task = NULL;
 		sched_yield();
 	}
 }

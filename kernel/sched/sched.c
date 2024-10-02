@@ -21,14 +21,26 @@ void sched_init(void)
 
 /* Runs the next runnable task. */
 void sched_yield(void)
-{
+{	
+	struct list* node;
+	struct task* task;
+
+	cprintf("runq in sched_yield: ");
+	list_foreach(&runq, node){
+		task = container_of(node, struct task, task_node);
+		cprintf("%d(rax=%p, rip=%p),", task->task_pid, task->task_frame.rax, task->task_frame.rip);
+	}
+	cprintf("\n");
+	
+
 	if(list_is_empty(&runq)){
 		if(!cur_task){
 			monitor(NULL);
 		}
 		task_run(cur_task);
 	}
-	struct task *task = container_of(list_pop_tail(&runq), struct task, task_node);
+	task = container_of(list_pop_tail(&runq), struct task, task_node);
+	cprintf("%d(rax=%p, rip=%p),", task->task_pid, task->task_frame.rax, task->task_frame.rip);
 	task_run(task);
 }
 

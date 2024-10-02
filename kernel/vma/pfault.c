@@ -22,7 +22,7 @@ int task_page_fault_cow_handler(struct task *task, void *va, int pf_flags){
 	size_t page_size = (existing_page->pp_order == BUDDY_2M_PAGE)? HPAGE_SIZE : PAGE_SIZE;
 	memcpy(page2kva(copy_page), page2kva(existing_page), page_size);
 	//todo maybe remove this when we are done testing
-	assert(page_insert(task->task_pml4, copy_page, ROUNDDOWN(va, page_size), (*entry | PAGE_WRITE) & PAGE_MASK));
+	assert(page_insert(task->task_pml4, copy_page, ROUNDDOWN(va, page_size), (*entry | PAGE_WRITE) & PAGE_MASK) == 0);
 	return 0;
 }
 
@@ -32,11 +32,8 @@ int task_page_fault_cow_handler(struct task *task, void *va, int pf_flags){
 /* Handles the page fault for a given task. */
 int task_page_fault_handler(struct task *task, void *va, int flags)
 {
-	/* LAB 4: your code here. */
-	//assert that this isnt caused by kernel!
     struct vma* vm = task_find_vma(task, va);
 
-	//CHECK for case where adress is out of vma but still legal
 	if(!vm)return -1;
 
 	bool illegal_write = !(vm->vm_flags & VM_WRITE) && (flags & PF_WRITE) && !(vm->vm_flags & VM_WRITE);
@@ -50,6 +47,7 @@ int task_page_fault_handler(struct task *task, void *va, int flags)
 		return task_page_fault_cow_handler(task, va, flags);
 	}
 
+	cprintf("normal page fault, mapping page at address: %p\n", ROUNDDOWN(va, PAGE_SIZE));
 	populate_vma_range(task, ROUNDDOWN(va, PAGE_SIZE), PAGE_SIZE, vm->vm_flags);
 	return 0;
 }
