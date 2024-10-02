@@ -18,6 +18,7 @@ int main(void)
 	pid_t child;
 	void *page;
 
+	//why mmap at NULL?!?1
 	page = mmap(NULL, 4096, PROT_READ | PROT_WRITE,
 		MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
 	memset(page, 0x42, 4096);

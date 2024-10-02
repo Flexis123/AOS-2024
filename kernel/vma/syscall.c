@@ -105,7 +105,7 @@ static bool prot_flags_valid(int prot){
 }
 
 static bool is_adress_invalid(void* addr, size_t len){
-	return addr >= (void *)USER_LIM || (addr + len) >= (void *)USER_LIM || addr + len < (void*) len || addr == NULL;
+	return addr >= (void *)USER_LIM || (addr + len) >= (void *)USER_LIM || addr + len < (void*) len /*|| addr == NULL*/;
 }
 
 static bool invalid_mapping(void* addr, size_t len, int prot){
@@ -130,7 +130,7 @@ void *sys_mmap(void *addr, size_t len, int prot, int flags, int fd,
 	if(flags & MAP_POPULATE) populate_vma_range(cur_task, addr, len, prot);
 
 	if(vma) return vma->vm_base;
-	return NULL;
+	return MAP_FAILED;
 }
 
 void sys_munmap(void *addr, size_t len)

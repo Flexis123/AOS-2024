@@ -10,14 +10,12 @@ extern size_t nuser_tasks;
 
 pid_t sys_wait(int *rstatus)
 {	
-	cprintf("starting sys wait\n");
-	//TODO find out what rstatus means
+	/*
 	struct list *current_child = NULL;
 	if(list_is_empty(&cur_task->task_children)){
 		return -ECHILD;
 	}
 	list_foreach(&cur_task->task_children, current_child){
-		assert(false);
 		struct task *child = container_of(current_child, struct task, task_children);
 		assert(child);
 		cprintf("child found at: %p\n", child);
@@ -32,25 +30,22 @@ pid_t sys_wait(int *rstatus)
 		}
 	}
 	cur_task->task_status = TASK_NOT_RUNNABLE;
-	return -1;
+	return -1
+	*/
+	return sys_waitpid(-1, rstatus, 0);
 }
 
 pid_t sys_waitpid(pid_t pid, int *rstatus, int opts)
 {
-	if(pid == -1){
-		if(opts){
-			panic("waitpid options are not supported (yet)");
-		}
-		else{
-			return sys_wait(rstatus);
-		}
-	}
+	assert(!opts); // we dont support opts for now
 
 	if(list_is_empty(&cur_task->task_children)){
 		return -ECHILD;
 	}
 	cprintf("running sys_waitpid on pid: %d\n", pid);
-	struct task *task = pid2task(pid, true);
+
+	struct task *task = pid == -1 ? list_head(&cur_task->task_children) : pid2task(pid, true);
+
 	if(task){
 		if(task->task_status == TASK_DYING){
 			task_destroy(task);

@@ -317,6 +317,9 @@ void task_free(struct task *task)
 		}
 		
 	}
+
+	list_del(&task->task_children);
+
 	struct list *current_child = NULL;
 	struct list *next = NULL;
 	list_foreach_safe (&task->task_children, current_child, next){
@@ -367,7 +370,7 @@ void task_destroy(struct task *task)
 	if(task == cur_task) {
 		cprintf("Destroyed the only task - nothing more to do!\n");
 		cur_task = NULL;
-		load_pml4((struct page_table *)PADDR(kernel_pml4));
+		//load_pml4((struct page_table *)PADDR(kernel_pml4));
 		sched_yield();
 	}
 }
