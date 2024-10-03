@@ -663,7 +663,6 @@ void idt_init(void)
 
 void int_dispatch(struct int_frame *frame)
 {
-	print_int_frame(frame);
 	switch (frame->int_no) {
 
 		case INT_BREAK:
@@ -673,13 +672,11 @@ void int_dispatch(struct int_frame *frame)
 		case INT_PAGE_FAULT:
 			//print_int_frame(frame);
 			page_fault_handler(frame);
-			lapic_eoi(); //here for debugging
 			iret64(frame);
 
 		case INT_SYSCALL:
 			//print_int_frame(frame);
 			frame->rax = syscall(frame->rdi, frame->rsi, frame->rdx, frame->rcx, frame->r8, frame->r9, frame->rbp);
-			lapic_eoi(); //here for debugging
 			return;
 
 		case IRQ_TIMER:
@@ -727,6 +724,7 @@ void int_handler(struct int_frame *frame)
 	}
 
 	/* Dispatch based on the type of interrupt that occurred. */
+	cur_task->task_frame.rflags |= FLAGS_IF;
 	int_dispatch(frame);
 
 	/* Return to the current task, which should be running. */

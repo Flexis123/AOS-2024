@@ -307,7 +307,6 @@ void task_free(struct task *task)
 {
 	nuser_tasks--;
 	assert(nuser_tasks >= 0);
-	assert(runq.next != NULL);
 	struct task *waiting;
 	assert(task);
 	struct task *parent = pid2task(task->task_ppid, false);
@@ -325,6 +324,10 @@ void task_free(struct task *task)
 		task_free(zombie);
 	}
 
+	list_foreach(&runq, current_zombie){
+		assert(current_zombie != &task->task_node);
+
+	}
 
 	/* If we are freeing the current task, switch to the kernel_pml4
 	 * before freeing the page tables, just in case the page gets re-used.
