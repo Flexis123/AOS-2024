@@ -16,7 +16,7 @@ struct boot_map_info {
 static int boot_map_pte(physaddr_t *entry, uintptr_t base, uintptr_t end,
     struct page_walker *walker)
 {
-
+	//assert(!(*entry & PAGE_PRESENT));
 	struct boot_map_info *info = walker->udata;
 	*entry = info->pa | info->flags;
 	info->pa += PAGE_SIZE;
@@ -37,6 +37,7 @@ static int boot_map_pde(physaddr_t *entry, uintptr_t base, uintptr_t end,
 	struct boot_map_info *info = walker->udata;
 
 	if(hpage_aligned((uintptr_t)info->pa) && (end - base +1) == HPAGE_SIZE){
+		//assert(!(*entry & PAGE_PRESENT));
 		*entry = info->pa | PAGE_PRESENT | PAGE_HUGE;//fixing this causes problems
 		info->pa += HPAGE_SIZE;
 		return 0;

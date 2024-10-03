@@ -244,9 +244,11 @@ void page_init(struct boot_info *boot_info)
 	 */
 	for (i = 0; i < boot_info->mmap_len; ++i, ++entry) {
 
-		if((entry->type & MMAP_FREE) == 0){
+		if(entry->type != MMAP_FREE){
+			cprintf("RESERVED addr space from %p to %p made up of %lu pages\n", entry->addr, entry->addr + entry->len, entry->len / PAGE_SIZE);
 			continue;
 		}
+
 		for(physaddr_t i = entry->addr; i < ROUNDDOWN(entry->addr + entry->len, PAGE_SIZE); i += PAGE_SIZE){
 			
 			if(i + PAGE_SIZE > BOOT_MAP_LIM){
@@ -291,9 +293,12 @@ void page_init_ext(struct boot_info *boot_info)
 	 */
 	
 	for (i = 0; i < boot_info->mmap_len; ++i, ++entry) {
-		if(entry->type != MMAP_FREE) continue;
+		if(entry->type != MMAP_FREE){
+			cprintf("RESERVED addr space from %p to %p made up of %lu pages\n", entry->addr, entry->addr + entry->len, entry->len / PAGE_SIZE);
+			continue;
+		}
 
-		cprintf("free addr space from %p to %p made up of %lu pages\n", entry->addr, entry->addr + entry->len, entry->len / PAGE_SIZE);
+		//cprintf("free addr space from %p to %p made up of %lu pages\n", entry->addr, entry->addr + entry->len, entry->len / PAGE_SIZE);
 
 		for(physaddr_t addr = entry->addr; addr < entry->addr + entry->len; addr += PAGE_SIZE){
 			if(addr < BOOT_MAP_LIM) continue;
