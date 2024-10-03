@@ -44,16 +44,24 @@ pid_t sys_waitpid(pid_t pid, int *rstatus, int opts)
 	}
 	cprintf("running sys_waitpid on pid: %d\n", pid);
 
-	struct task *task = pid == -1 ? list_head(&cur_task->task_children) : pid2task(pid, true);
-
-	if(task){
-		if(task->task_status == TASK_DYING){
-			task_destroy(task);
-			list_add(&runq, &cur_task->task_node);
-			return pid;
-			
-		}
+	if(pid != 0 && !pid2task(pid, true)){
+		return -ECHILD;
 	}
-	cur_task->task_status = TASK_NOT_RUNNABLE;
-	return cur_task->task_pid;
+	struct task *zombie = (pid == -1)? container_of(list_head(&cur_task->task_zombies), struct task, task_node) : pid2task(pid, true);
+
+	if(zombie && zombie->task_status == TASK_DYING){
+		assert(zombie->task_ppid == cur_task->task_pid);
+		int zombie_pid = zombie->task_pid;
+		list_del(&zombie->task_node);
+		list_del(&zombie->task_child);
+		task_destroy(zombie);
+		return zombie_pid;
+	}
+	if(!zombie){
+		assert(pid == -1);
+		zombie = container_of(list_head(&cur_task->task_children), struct task, task_child);
+	}
+	cur_task->task_status = TASK_NOT_RUNNABLE;//the child is not a zombie yet
+	cur_task->task_wait = zombie;
+	return zombie->task_pid;	
 }

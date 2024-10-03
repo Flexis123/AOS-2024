@@ -40,7 +40,7 @@ void sched_yield(void)
 		task_run(cur_task);
 	}
 	task = container_of(list_pop_tail(&runq), struct task, task_node);
-	cprintf("%d(rax=%p, rip=%p),", task->task_pid, task->task_frame.rax, task->task_frame.rip);
+	cprintf("running task: %d\n", task->task_pid);
 	task_run(task);
 }
 

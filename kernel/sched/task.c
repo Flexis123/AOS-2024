@@ -305,35 +305,26 @@ void task_create(uint8_t *binary, enum task_type type)
  */
 void task_free(struct task *task)
 {
+	nuser_tasks--;
+	assert(nuser_tasks >= 0);
+	assert(runq.next != NULL);
 	struct task *waiting;
 	assert(task);
-	struct task *parent = pid2task(task->task_ppid, true);
-	
-	if(parent){
-
-		if(parent->task_wait == task){
-			parent->task_status = TASK_RUNNABLE;
-			list_add(&runq, &parent->task_node);
-		}
-		
-	}
-
-	list_del(&task->task_children);
+	struct task *parent = pid2task(task->task_ppid, false);
 
 	struct list *current_child = NULL;
 	struct list *next = NULL;
 	list_foreach_safe (&task->task_children, current_child, next){
 		struct task *child_task = container_of(current_child, struct task, task_child);
-
-		if(child_task->task_status == TASK_DYING){
-			task_destroy(child_task);
-		}
-		else{
-			list_del(&child_task->task_child);
-			child_task->task_ppid = 0;
-		}
+		list_del(&child_task->task_child);
+		child_task->task_ppid = 0;
 	}
-	
+	struct list *current_zombie = NULL;
+	list_foreach_safe (&task->task_zombies, current_zombie, next){
+		struct task *zombie = container_of(current_zombie, struct task, task_node);
+		task_free(zombie);
+	}
+
 
 	/* If we are freeing the current task, switch to the kernel_pml4
 	 * before freeing the page tables, just in case the page gets re-used.
@@ -365,12 +356,13 @@ void task_free(struct task *task)
 void task_destroy(struct task *task)
 {
 	task_free(task);
-	nuser_tasks--;
 
-	if(task == cur_task) {
-		cprintf("Destroyed the only task - nothing more to do!\n");
+	if(task == cur_task){
+		if(nuser_tasks == 0){
+			cprintf("Destroyed the only task - nothing more to do!\n");
+		}
 		cur_task = NULL;
-		//load_pml4((struct page_table *)PADDR(kernel_pml4));
+		load_pml4((struct page_table *)PADDR(kernel_pml4));
 		sched_yield();
 	}
 }
@@ -428,7 +420,7 @@ void task_run(struct task *task)
 			switch (cur_task->task_status)
 			{
 			case TASK_DYING:{
-				task_destroy(cur_task);
+				//parent destroys dying tasks
 				break;
 			}
 			case TASK_RUNNABLE:{
@@ -440,13 +432,15 @@ void task_run(struct task *task)
 				break;
 			}
 			case TASK_NOT_RUNNABLE:{
-				panic("cant get here in lab3");
+				panic("not runnable task is running");
 			}		
 			default:
 				panic("unknown task state in task_run");
 				break;
 			}
-			list_add(&runq, &cur_task->task_node);
+			if(cur_task->task_status == TASK_RUNNABLE){
+				list_add(&runq, &cur_task->task_node);
+			}
 		}
 
 		cur_task = task;

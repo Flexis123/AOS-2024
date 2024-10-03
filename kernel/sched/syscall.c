@@ -11,6 +11,7 @@
 #include <kernel/vma/syscall.h>
 
 extern void syscall64(void);
+extern struct list runq;
 
 void syscall_init(void)
 {
@@ -64,6 +65,19 @@ static int sys_kill(pid_t pid)
 
 	if (!task) {
 		return -1;
+	}
+	if(task->task_ppid != 0){
+		struct task *parent = pid2task(task->task_ppid, false);
+		assert(parent);
+		task->task_status = TASK_DYING;
+		list_add(&parent->task_zombies, &task->task_node);
+
+		if(parent->task_wait == task){
+			parent->task_status = TASK_RUNNABLE;
+			list_add(&runq, &parent->task_node);
+		}
+		sched_yield();
+		return 0;
 	}
 
 	cprintf("[PID %5u] Exiting gracefully\n", task->task_pid);
