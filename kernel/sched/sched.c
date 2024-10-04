@@ -20,6 +20,14 @@ struct spinlock global_runq_lock = {
 
 #endif
 
+#ifndef USE_BIG_KERNEL_LOCK
+struct spinlock runq_lock = {
+#ifdef DBEUG_SPINLOCK
+	.name = "runq_lock",
+#endif
+};
+#endif
+
 extern size_t nuser_tasks;
 extern struct spinlock kernel_lock;
 size_t runq_len = 0;//every core attempts to hold runq_len / ncpus tasks in their local runq.
@@ -153,6 +161,11 @@ void deschedule_task(struct task *task){
 		LOCAL_RUNQ_UNLOCK;
 	}
 
+}
+
+void sched_init_mp(void)
+{
+	/* LAB 6: your code here. */
 }
 
 /* Runs the next runnable task. */

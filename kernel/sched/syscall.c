@@ -24,10 +24,16 @@ void syscall_init(void)
 	write_msr(MSR_SFMASK, ((0 & 0x3) << 12) | FLAGS_TF | FLAGS_IF | FLAGS_AC | FLAGS_NT);
 
 
+
 	uint64_t msr_efer = read_msr(MSR_EFER);
 	write_msr(MSR_EFER, msr_efer | MSR_EFER_SCE);
 
 	write_msr(MSR_KERNEL_GS_BASE, (uintptr_t) this_cpu); //this may need chaning in lab 5 or just disable syscalls
+}
+
+void syscall_init_mp(void)
+{
+	/* LAB 6: your code here. */
 }
 
 void syscall_init_mp(void)
