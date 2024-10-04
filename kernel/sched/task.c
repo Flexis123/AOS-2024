@@ -444,7 +444,7 @@ void task_run(struct task *task)
 				break;
 			}
 
-			cur_task->task_cpu_time = curr_time - cur_task->task_start_time;
+			cur_task->task_cpu_time += curr_time - cur_task->task_start_time;
 			cur_task->task_start_waiting = curr_time;
 			
 			if(cur_task->task_status == TASK_RUNNABLE){
