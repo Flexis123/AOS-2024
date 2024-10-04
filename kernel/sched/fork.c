@@ -8,7 +8,7 @@
 #include <kernel/vma.h>
 #include <kernel/sched/task.h>
 
-extern struct list runq;
+extern struct rb_tree runq;
 extern size_t nuser_tasks;
 
 struct copy_info{
@@ -25,9 +25,7 @@ static int copy_page_and_setup_cow(physaddr_t *entry, uintptr_t base, uintptr_t 
 	*entry &= ~(PAGE_WRITE | PAGE_DIRTY | PAGE_ACCESSED);
 
 	struct copy_info* cpy_inf = (struct copy_info*) walker->udata;
-	int res = page_insert(cpy_inf->child_pml4, parent_page, (void*) base, copy_flags);
-	assert(page_lookup(cpy_inf->child_pml4, (void*) base, NULL));
-	return res;
+	return page_insert(cpy_inf->child_pml4, parent_page, (void*) base, copy_flags);
 }
 
 static int copy_pte(physaddr_t *entry, uintptr_t base, uintptr_t end, struct page_walker *walker){
@@ -39,7 +37,6 @@ static int copy_pte(physaddr_t *entry, uintptr_t base, uintptr_t end, struct pag
 
 static int copy_pde(physaddr_t *entry, uintptr_t base, uintptr_t end, struct page_walker *walker){
 	if((*entry & PAGE_HUGE) && (*entry & PAGE_PRESENT)){
-		cprintf("you have a huge page you retard\n");
 		return copy_page_and_setup_cow(entry, base, end, walker);
 	}
 	return 0;
@@ -105,24 +102,12 @@ struct task *task_clone(struct task *task)
 
 	//add child to run queue and to the list of children of the parent
 	assert(child != task);
-	list_add(&runq, &child->task_node);
+	runq_add(child);
 	list_add(&task->task_children, &child->task_child);
 	nuser_tasks++;
 	return child;
 }
-void debug_print_task_list(struct list *list){
 
-	if(list_is_empty(list)){
-		cprintf("there are no tasks in the list\n");
-		return;
-	}
-	struct list *node = NULL;
-
-	list_foreach(list, node){
-		struct task *task = container_of(node, struct task, task_node);
-		cprintf("task: pid: %p, parent ppid: %d, waiting on: %p, status code: %d\n", task->task_pid, task->task_ppid, task->task_wait, task->task_status);
-	}
-}
 
 pid_t sys_fork(void)
 {
@@ -130,9 +115,6 @@ pid_t sys_fork(void)
 	if (!child) return -ENOMEM;
 
 	child->task_frame.rax = 0;
-	//cur_task->task_frame.rax = cur_task->task_pid;
-
-	struct list* node;
-	struct task* task;
+	
 	return child->task_pid;
 }

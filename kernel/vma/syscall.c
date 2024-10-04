@@ -105,7 +105,7 @@ static bool prot_flags_valid(int prot){
 }
 
 static bool is_adress_invalid(void* addr, size_t len){
-	return addr >= (void *)USER_LIM || (addr + len) >= (void *)USER_LIM || addr + len < (void*) len /*|| addr == NULL*/;
+	return addr >= (void *)USER_LIM || (addr + len) >= (void *)USER_LIM || addr + len < (void*) len;
 }
 
 static bool invalid_mapping(void* addr, size_t len, int prot){
@@ -115,7 +115,6 @@ static bool invalid_mapping(void* addr, size_t len, int prot){
 void *sys_mmap(void *addr, size_t len, int prot, int flags, int fd,
 	uintptr_t offset)
 {
-
 	if(invalid_mapping(addr, len, prot)) return MAP_FAILED;
 	
 

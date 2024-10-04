@@ -11,7 +11,7 @@
 #include <kernel/vma/syscall.h>
 
 extern void syscall64(void);
-extern struct list runq;
+extern struct rb_tree runq;
 
 void syscall_init(void)
 {
@@ -65,18 +65,21 @@ static int sys_kill(pid_t pid)
 	if (!task) {
 		return -1;
 	}
+
 	if(task->task_ppid != 0){
 		struct task *parent = pid2task(task->task_ppid, false);
 		assert(parent);
 		assert(parent->task_pid == task->task_ppid);
 		task->task_status = TASK_DYING;
-		list_del(&task->task_node);
-		list_add(&parent->task_zombies, &task->task_node);
+		
+		if(task->is_in_runq) rb_remove(&runq, &task->task_runq_node);
+
+		list_add(&parent->task_zombies, &task->task_zombie_node);
 		cprintf("[PID %5u] Reaping task with PID %u\n", cur_task->task_pid, task->task_pid);
 
 		if(parent->task_wait == task){
 			parent->task_status = TASK_RUNNABLE;
-			list_add(&runq, &parent->task_node);
+			runq_add(parent);
 		}
 		sched_yield();
 		return 0;

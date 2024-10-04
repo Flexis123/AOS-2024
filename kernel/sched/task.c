@@ -15,7 +15,7 @@
 pid_t pid_max = 1 << 16;
 struct task **tasks = (struct task **)PIDMAP_BASE;
 size_t nuser_tasks = 0;
-extern struct list runq;
+extern struct rb_tree runq;
 
 
 /* Looks up the respective task for a given PID.
@@ -152,6 +152,9 @@ struct task *task_alloc(pid_t ppid)
 	task->task_status = TASK_RUNNABLE;
 	task->task_runs = 0;
 	task->task_cpunum = this_cpu->cpu_id; // here may neeed change for assig 6
+
+	task->task_start_time = 0;
+	task->task_cpu_time = 0;
 	
 	//init vma stuff
 	rb_init(&task->task_rb); 
@@ -161,7 +164,8 @@ struct task *task_alloc(pid_t ppid)
 	list_init(&task->task_children);
 	list_init(&task->task_child);
 	list_init(&task->task_zombies);
-	list_init(&task->task_node);
+	list_init(&task->task_zombie_node);
+	rb_node_init(&task->task_runq_node);
 
 	cprintf("[PID %5u] New task with PID %u\n",
 	        cur_task ? cur_task->task_pid : 0, task->task_pid);
@@ -298,7 +302,7 @@ void task_create(uint8_t *binary, enum task_type type)
 	task->task_type = type;
 
 	if(type == TASK_TYPE_USER) nuser_tasks++;
-	list_add(&runq, &task->task_node);
+	runq_add(task);
 }
 
 /* Free the task and all of the memory that is used by it.
@@ -317,16 +321,13 @@ void task_free(struct task *task)
 		struct task *child_task = container_of(current_child, struct task, task_child);
 		list_del(&child_task->task_child);
 		child_task->task_ppid = 0;
+
+		//if(child_task->task_status == TASK_DYING) task_free(child_task);
 	}
 	struct list *current_zombie = NULL;
 	list_foreach_safe (&task->task_zombies, current_zombie, next){
-		struct task *zombie = container_of(current_zombie, struct task, task_node);
+		struct task *zombie = container_of(current_zombie, struct task, task_zombie_node);
 		task_free(zombie);
-	}
-
-	list_foreach(&runq, current_zombie){
-		assert(current_zombie != &task->task_node);
-
 	}
 
 	/* If we are freeing the current task, switch to the kernel_pml4
@@ -417,39 +418,46 @@ void task_run(struct task *task)
 	 */
 	if(cur_task != task){
 		assert(task->task_status == TASK_RUNNABLE);
-		struct task * old_task = cur_task;
-		
+		uint64_t curr_time = read_tsc();
+
 		if(cur_task){
+
 			switch (cur_task->task_status)
 			{
 			case TASK_DYING:{
 				//parent destroys dying tasks
 				break;
 			}
-			case TASK_RUNNABLE:{
-				panic("runnable task running! forgot to set to running?");
-				break;
-			}
+	
 			case TASK_RUNNING:{
 				cur_task->task_status = TASK_RUNNABLE;
 				break;
 			}
+
+			case TASK_RUNNABLE:
 			case TASK_NOT_RUNNABLE:{
-				panic("not runnable task is running");
+				assert(cur_task->task_wait && cur_task->task_wait->task_pid == task->task_pid);
+				break;
 			}		
 			default:
 				panic("unknown task state in task_run");
 				break;
 			}
+
+			cur_task->task_cpu_time = curr_time - cur_task->task_start_time;
+			cur_task->task_start_waiting = curr_time;
+			
 			if(cur_task->task_status == TASK_RUNNABLE){
-				list_add(&runq, &cur_task->task_node);
+				runq_add(cur_task);
 			}
 		}
 
 		cur_task = task;
 		cur_task->task_status = TASK_RUNNING;
 		cur_task->task_runs++;
+		cur_task->task_start_time = curr_time;
 	}
+
 	load_pml4((struct page_table*)PADDR(cur_task->task_pml4));
 	task_pop_frame(&cur_task->task_frame);
 }

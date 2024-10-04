@@ -65,6 +65,16 @@ struct task {
 	/* The zombies */
 	struct list task_zombies;
 
-	/* The anchor node (for zombies or the run queue) */
-	struct list task_node;
+	/* The anchor node for runq */
+	struct rb_node task_runq_node;
+
+	/* The anchor node for zombie */
+	struct list task_zombie_node;
+
+	uint64_t task_cpu_time;
+	uint64_t task_start_time;
+
+	uint64_t task_start_waiting;
+
+	bool is_in_runq : 1;
 };

@@ -103,6 +103,8 @@ struct vma *add_executable_vma(struct task *task, char *name, void *addr,
 		return vm;
 	}
 
+	kfree(vm);
+
 	return NULL;
 }
 
