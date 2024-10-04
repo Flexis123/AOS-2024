@@ -3,6 +3,7 @@
 #include <types.h>
 #include <list.h>
 #include <rbtree.h>
+#include <spinlock.h>
 
 #include <x86-64/idt.h>
 #include <x86-64/memory.h>
@@ -77,4 +78,9 @@ struct task {
 	uint64_t task_start_waiting;
 
 	bool is_in_runq : 1;
+
+#ifndef USE_BIG_KERNEL_LOCK
+	/* Per-task lock */
+	struct spinlock task_lock;
+#endif
 };

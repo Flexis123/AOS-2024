@@ -207,6 +207,11 @@ void idt_init(void)
 	load_idt(&idtr);
 }
 
+void idt_init_mp(void)
+{
+	/* LAB 6: your code here. */
+}
+
 void int_dispatch(struct int_frame *frame)
 {
 	switch (frame->int_no) {

@@ -1,10 +1,12 @@
 #include <error.h>
 #include <string.h>
 #include <assert.h>
+#include <cpu.h>
 
 #include <x86-64/asm.h>
 #include <x86-64/gdt.h>
 
+#include <kernel/acpi.h>
 #include <kernel/console.h>
 #include <kernel/mem.h>
 #include <kernel/sched.h>
@@ -24,6 +26,11 @@ void syscall_init(void)
 	write_msr(MSR_EFER, msr_efer | MSR_EFER_SCE);
 
 	write_msr(MSR_KERNEL_GS_BASE, (uintptr_t) this_cpu); //this may need chaning in lab 5 or just disable syscalls
+}
+
+void syscall_init_mp(void)
+{
+	/* LAB 6: your code here. */
 }
 
 /*
@@ -88,6 +95,12 @@ static int sys_kill(pid_t pid)
 	cprintf("[PID %5u] Exiting gracefully\n", task->task_pid);
 	task_destroy(task);
 
+	return 0;
+}
+
+static int sys_getcpuid(void)
+{
+	/* LAB 6: your code here. */
 	return 0;
 }
 
