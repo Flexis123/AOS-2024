@@ -30,13 +30,62 @@ static inline int64_t vruntime(struct task* task){
 
 void sched_init(void)
 {
-	list_init(&runq);
+	rb_init(&runq);
 }
 
 void sched_init_mp(void)
 {
 	/* LAB 6: your code here. */
 }
+
+
+int runq_add(struct task* task){
+	assert(task);
+	struct rb_node *node, *parent = NULL;
+    struct task *task_tmp = NULL;
+	int dir;
+
+	node = runq.root;
+
+	int64_t vruntime_task = vruntime(task);
+
+	while (node) {
+		task_tmp = container_of(node, struct task, task_runq_node);
+		parent = node;
+		dir = (vruntime_task >= vruntime(task_tmp));
+		node = node->child[dir];
+	}
+
+	if (!parent){
+		runq.root = &task->task_runq_node;
+	} else {
+		parent->child[dir] = &task->task_runq_node;
+		task->task_runq_node.parent = parent;
+	}
+
+	if (rb_balance(&runq, &task->task_runq_node) < 0) {
+		return -1;
+	}
+
+	task->is_in_runq = true;
+	runq_len++;
+	return 0;
+}
+
+struct task* runq_pop(){
+	struct rb_node* node = rb_first(&runq);
+	if(!node) return NULL;
+
+	struct task* task = container_of(node, struct task, task_runq_node);
+	rb_remove(&runq, &task->task_runq_node);
+
+	rb_node_init(&task->task_runq_node);
+
+	task->is_in_runq = false;
+	runq_len--;
+	return task;
+}
+
 
 /* Runs the next runnable task. */
 void sched_yield(void)
