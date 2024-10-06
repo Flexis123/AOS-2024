@@ -4,7 +4,7 @@
 #include <paging.h>
 
 #include <x86-64/asm.h>
-
+#include <cpu.h>
 #include <kernel/mem.h>
 #include <kernel/tests.h>
 
@@ -201,10 +201,17 @@ void mem_init(struct boot_info *boot_info)
 
 void mem_init_mp(void)
 {
+	const int KERNEL_RING = 0;
 	/* Set up kernel stacks for each CPU here. Make sure they have a guard
 	 * page.
 	 */
-	/* LAB 6: your code here. */
+	assert(ncpus <= NCPUS);
+
+	for(int i = 1; i < ncpus; i++){
+		void *kernel_stack_top = (void*)KSTACK_TOP - i * (KSTACK_SIZE + KSTACK_GAP);
+		populate_region(kernel_pml4, kernel_stack_top - KSTACK_SIZE, KSTACK_SIZE, PAGE_PRESENT | PAGE_WRITE | PAGE_NO_EXEC);
+		this_cpu->cpu_tss.rsp[KERNEL_RING] = (uint64_t)kernel_stack_top;//the stack grows down
+	}
 }
 
 /*

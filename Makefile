@@ -188,7 +188,7 @@ include kernel/Makefile
 include user/Makefile
 include lib/Makefile
 
-CPUS ?= 1
+CPUS ?= 2
 
 ifneq ($(LAB),7)
 	QEMUOPTS = -drive format=raw,file=$(OBJDIR)/kernel/kernel.img -serial mon:stdio -gdb tcp::$(GDBPORT)

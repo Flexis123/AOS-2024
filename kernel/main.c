@@ -13,6 +13,8 @@
 #include <stdio.h>
 #include <string.h>
 
+extern int mem_init_mp(void);
+
 void kmain(struct boot_info *boot_info)
 {
 	extern char edata[], end[];
@@ -46,6 +48,7 @@ void kmain(struct boot_info *boot_info)
 	madt_init(rsdp);
 	lapic_init();
 	hpet_init(rsdp);
+	mem_init_mp();//initialize all kernel stacks
 
 	/* Set up the tasks. */
 	task_init();

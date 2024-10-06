@@ -10,6 +10,7 @@
  * pointer that should be loaded by boot_ap().
  */
 void *mpentry_kstack;
+extern int mem_init_mp(void);
 
 void boot_cpus(void)
 {
@@ -52,14 +53,19 @@ void mp_main(void)
 
 	cprintf("SMP: CPU %d starting\n", lapic_cpunum());
 
-	/* LAB 6: your code here. */
 	/* Initialize the local APIC. */
+	lapic_init();
 
 	/* Set up segmentation, interrupts, system call support. */
+	gdt_init_mp();
+	idt_init_mp();
 
 	/* Set up the per-CPU slab allocator. */
+	kmem_init_mp();
 
 	/* Set up the per-CPU scheduler. */
+	sched_init_mp();
+
 	/* Notify the main CPU that we started up. */
 	xchg(&this_cpu->cpu_status, CPU_STARTED);
 
