@@ -89,22 +89,12 @@ struct vma *add_executable_vma(struct task *task, char *name, void *addr,
 	rb_node_init(&vm->vm_rb);
 
 	int ret = insert_vma(task, vm);
+
 	if(ret >= 0){
-		
-		struct vma* prev_vma = vm;
-		
-		do{
-			prev_vma = merge_vmas(task, vm);
-
-			if(prev_vma){
-				vm = prev_vma;
-			}
-		}while(prev_vma && (prev_vma->vm_end - prev_vma->vm_base) > (vm->vm_end - vm->vm_base));
-		return vm;
+		struct vma* merged_vma = merge_vmas(task, vm);
+		return (merged_vma)? merged_vma : vm;
 	}
-
 	kfree(vm);
-
 	return NULL;
 }
 
@@ -142,7 +132,7 @@ struct vma *add_vma(struct task *task, char *name, void *addr, size_t size,
 			return NULL;
 		}
 		if(base + size < vma->vm_base && base < vma->vm_base){
-			return add_anonymous_vma(task, name, addr, size, flags);
+			return add_anonymous_vma(task, name, base, size, flags);
 		}
 	}
 	for(void* base = (void *)(KERNEL_LIM - size); base - size < base && base - size >= addr; base -= size){
@@ -152,7 +142,7 @@ struct vma *add_vma(struct task *task, char *name, void *addr, size_t size,
 			return NULL;
 		}
 		if(base + size < vma->vm_base && base < vma->vm_base){
-			return add_anonymous_vma(task, name, addr, size, flags);
+			return add_anonymous_vma(task, name, base, size, flags);
 		}
 	}
 	return NULL;

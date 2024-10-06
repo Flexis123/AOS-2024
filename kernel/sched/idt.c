@@ -13,6 +13,7 @@
 #include <kernel/sched/task.h>
 #include <kernel/mem/insert.h>
 #include <kernel/vma/pfault.h>
+#include <kernel/vma.h>
 
 #define __DEF_INT_HANDLER(int_no) \
 	void isr##int_no();
@@ -295,7 +296,7 @@ void page_fault_handler(struct int_frame *frame)
 
 
 	/* Handle kernel-mode page faults. */
-	if(!(frame->err_code & PF_USER)){
+	if(!(frame->err_code & PF_USER) && cur_task && task_page_fault_handler(cur_task, fault_va, frame->err_code) < 0){
 		print_int_frame(frame);
 		cprintf("using pml4: pa:%p, kernel pml4: pa %p\n", read_cr3(), PADDR(kernel_pml4));
 		panic("Page fault originated from the kernel");

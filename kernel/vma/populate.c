@@ -44,6 +44,7 @@ int do_populate_vma(struct task *task, void *base, size_t size,
 		size_t remaining_in_file = vma->vm_len + (size_t)vma->vm_src - (uintptr_t)read_pos;
 		memcpy(write_pos, read_pos, MIN(actual_size, remaining_in_file));
 	}
+	populate_region(task->task_pml4, actual_base, actual_size, flags);
 	return 0;
 }
 

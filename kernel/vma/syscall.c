@@ -126,12 +126,12 @@ void *sys_mmap(void *addr, size_t len, int prot, int flags, int fd,
 
 	if(flags & MAP_FIXED) remove_vma_range(cur_task, addr, len);
 
-	
-	struct vma *vma = add_anonymous_vma(cur_task, "user", addr, len, prot);
-	if(flags & MAP_POPULATE) populate_vma_range(cur_task, addr, len, prot);
+	struct vma *vma = add_vma(cur_task, "user", addr, len, prot);
 
-	if(vma) return vma->vm_base;
-	return MAP_FAILED;
+	if(!vma)return MAP_FAILED;
+	if(flags & MAP_POPULATE) populate_vma_range(cur_task, vma->vm_base, len, prot);
+
+	return vma->vm_base;
 }
 
 void sys_munmap(void *addr, size_t len)
@@ -162,17 +162,8 @@ int sys_madvise(void *addr, size_t len, int advise)
 		break;
 
 	case MADV_WILLNEED:
-		//check if vma can be enlarged
 		vma = task_find_vma(cur_task, addr);
 		if(!vma) return -EINVAL;
-
-		void* vma_new_end = vma->vm_base + len;
-		//if(task_find_vma(cur_task, vma_new_end)) return -EINVAL;
-		struct list* next_vma = list_next(&cur_task->task_mmap, &vma->vm_mmap);
-		if(next_vma && vma_new_end >= container_of(next_vma, struct vma, vm_mmap)->vm_base) return -EINVAL;
-
-		vma->vm_end = vma_new_end;
-
 		return populate_vma_range(cur_task, vma->vm_base, len, vma->vm_flags);
 	
 	default:

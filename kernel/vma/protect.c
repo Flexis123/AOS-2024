@@ -30,6 +30,7 @@ int do_protect_vma(struct task *task, void *base, size_t size, struct vma *vma,
 	new_vma->vm_flags = flags;
 
 	protect_region(task->task_pml4, new_vma->vm_base, (size_t)(actual_end - actual_base), pflags);
+	merge_vmas(task, vma);
 	return 0;
 }
 

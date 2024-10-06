@@ -29,7 +29,7 @@ struct vma *merge_vma(struct task *task, struct vma *lhs, struct vma *rhs)
 	else if(lhs->vm_flags != rhs->vm_flags){
 		return NULL;
 	}
-	else if(lhs->vm_src != NULL && lhs->vm_len < rhs->vm_end - lhs->vm_base){
+	else if(lhs->vm_src != NULL || rhs->vm_src != NULL){
 		return NULL;
 	}
 
@@ -45,19 +45,21 @@ struct vma *merge_vma(struct task *task, struct vma *lhs, struct vma *rhs)
  */
 struct vma *merge_vmas(struct task *task, struct vma *vma)
 {
-	
-	struct vma *previous = task_find_vma(task, vma->vm_base - 1);
-	if(previous){
-		struct vma *merged_vma = merge_vma(task, previous, vma);
+	struct list *previous = list_prev(&task->task_mmap, &vma->vm_mmap);
+	struct vma *previous_vma = (previous)? container_of(previous, struct vma, vm_mmap) : NULL;
+
+	if(previous_vma){
+		struct vma *merged_vma = merge_vma(task, previous_vma, vma);
 
 		if(merged_vma){
 			vma = merged_vma;
 		}
 	}
-	
-	struct vma *next = task_find_vma(task, vma->vm_end);
-	if(next){
-		struct vma *merged_vma = merge_vma(task, vma, next);
+	struct list *next = list_next(&task->task_mmap, &vma->vm_mmap);
+	struct vma *next_vma = (next)? container_of(next, struct vma, vm_mmap) : NULL;
+
+	if(next_vma){
+		struct vma *merged_vma = merge_vma(task, vma, next_vma);
 
 		if(merged_vma){
 			vma = merged_vma;

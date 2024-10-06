@@ -57,7 +57,7 @@ struct vma *split_vmas(struct task *task, struct vma *vma, void *base, size_t si
 	struct vma *rhs = split_vma(task, vma, base);
 
 	if(!rhs){
-		return vma;
+		rhs = vma;
 	}
 	split_vma(task, rhs, base + size);
 	return rhs;
