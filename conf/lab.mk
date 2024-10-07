@@ -4,4 +4,4 @@ LAB=6
 PATCH_PREFIX=vu-aos-$(shell date +%Y)
 TAG_LAB_SOLN=handin-lab${LAB}
 TAG_LAB_BONUS=handin-lab${LAB}-bonus
-#DEFS = -DLAB3_SYSCALL
+DEFS = -DUSE_BIG_KERNEL_LOCK

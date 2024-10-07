@@ -14,6 +14,7 @@
 #include <kernel/mem/insert.h>
 #include <kernel/vma/pfault.h>
 #include <kernel/vma.h>
+#include <spinlock.h>
 
 #define __DEF_INT_HANDLER(int_no) \
 	void isr##int_no();
@@ -94,6 +95,8 @@ static struct idtr idtr = {
 	.limit = sizeof(entries) - 1,
 	.entries = entries,
 };
+
+extern struct spinlock kernel_lock;
 
 static const char *get_int_name(unsigned int_no)
 {
@@ -215,25 +218,22 @@ void idt_init_mp(void)
 
 void int_dispatch(struct int_frame *frame)
 {
+	//print_int_frame(frame);
 	switch (frame->int_no) {
 
 		case INT_BREAK:
 			return monitor(frame);
 
-		//now that some page faults are valid do we need to do iret64?
 		case INT_PAGE_FAULT:
-			//print_int_frame(frame);
-			page_fault_handler(frame);
-			iret64(frame);
+			return page_fault_handler(frame);
 
 		case INT_SYSCALL:
-			//print_int_frame(frame);
 			frame->rax = syscall(frame->rdi, frame->rsi, frame->rdx, frame->rcx, frame->r8, frame->r9, frame->rbp);
 			return;
 
 		case IRQ_TIMER:
 			cprintf("IRQ timer received\n");
-			irq_timer_handler(frame);
+			irq_timer_handler(frame); // this should not return and either call task_run or monitor!
 	
 		default: break;
 	}
@@ -275,15 +275,17 @@ void int_handler(struct int_frame *frame)
 		frame = &cur_task->task_frame;
 	}
 
+
 	/* Dispatch based on the type of interrupt that occurred. */
 	cur_task->task_frame.rflags |= FLAGS_IF;
+	#ifdef USE_BIG_KERNEL_LOCK
+	spin_lock(&kernel_lock); //can lock further down
+	#endif
 	int_dispatch(frame);
 
 	/* Return to the current task, which should be running. */
 	task_run(cur_task);
 }
-
-#include <kernel/mem.h>
 
 void page_fault_handler(struct int_frame *frame)
 {
@@ -298,7 +300,6 @@ void page_fault_handler(struct int_frame *frame)
 	/* Handle kernel-mode page faults. */
 	if(!(frame->err_code & PF_USER) && cur_task && task_page_fault_handler(cur_task, fault_va, frame->err_code) < 0){
 		print_int_frame(frame);
-		cprintf("using pml4: pa:%p, kernel pml4: pa %p\n", read_cr3(), PADDR(kernel_pml4));
 		panic("Page fault originated from the kernel");
 	}
 
@@ -310,10 +311,10 @@ void page_fault_handler(struct int_frame *frame)
 		task_destroy(cur_task);
 	}
 	//show_vmas(cur_task);
+	//task_pop_frame(frame);
 }
 
 void irq_timer_handler(struct int_frame *frame){
-	cprintf("got an irq timer\n");
 	lapic_eoi();
 	sched_yield();
 }

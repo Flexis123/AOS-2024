@@ -18,6 +18,7 @@ extern int mem_init_mp(void);
 void kmain(struct boot_info *boot_info)
 {
 	extern char edata[], end[];
+	extern struct spinlock kernel_lock;
 	struct rsdp *rsdp;
 
 	/* Before doing anything else, complete the ELF loading process.
@@ -52,6 +53,12 @@ void kmain(struct boot_info *boot_info)
 
 	/* Set up the tasks. */
 	task_init();
+
+	#ifdef USE_BIG_KERNEL_LOCK
+	spin_init(&kernel_lock, NULL);
+	spin_lock(&kernel_lock);
+	#endif
+
 	sched_init();
 #if defined(TEST)
 	TASK_CREATE(TEST, TASK_TYPE_USER);

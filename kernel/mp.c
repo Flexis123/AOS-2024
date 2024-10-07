@@ -5,12 +5,15 @@
 #include <kernel/acpi.h>
 #include <kernel/mem.h>
 #include <kernel/sched.h>
+#include <spinlock.h>
 
 /* While boot_cpus() is booting a given CPU, it communicates the per-core stack
  * pointer that should be loaded by boot_ap().
  */
 void *mpentry_kstack;
 extern int mem_init_mp(void);
+
+extern struct spinlock kernel_lock;
 
 void boot_cpus(void)
 {
@@ -71,8 +74,13 @@ void mp_main(void)
 
 	/* Schedule tasks. */
 	/* LAB 6: remove this code when you are ready */
+	/* 
 	asm volatile(
 		"cli\n"
 		"hlt\n");
+	*/
+	#ifdef USE_BIG_KERNEL_LOCK
+	spin_lock(&kernel_lock);
+	#endif
 	sched_yield();
 }
