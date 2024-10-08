@@ -127,3 +127,41 @@ void __spin_unlock(struct spinlock *lock, const char *file, int line)
 	atomic_barrier();
 }
 
+void kspin_init(){
+	#ifdef USE_BIG_KERNEL_LOCK
+	extern struct spinlock kernel_lock;
+	spin_init(&kernel_lock, "BKL");
+	#endif
+}
+
+void kspin_lock(){
+	#ifdef USE_BIG_KERNEL_LOCK
+	spin_lock(&kernel_lock);
+	#endif
+}
+
+void kspin_unlock(){
+	#ifdef USE_BIG_KERNEL_LOCK
+	spin_unlock(&kernel_lock);
+	#endif
+}
+
+void fgspin_init(struct spinlock *lock, const char *name){
+	#ifndef USE_BIG_KERNEL_LOCK
+	spin_init(lock, name);
+	#endif
+}
+
+void fgspin_lock(struct spinlock *lock){
+	#ifndef USE_BIG_KERNEL_LOCK
+	spin_lock(lock);
+	#endif
+}
+
+void fgspin_unlock(struct spinlock *lock){
+	#ifndef USE_BIG_KERNEL_LOCK
+	spin_unlock(lock);
+	#endif
+}
+
+

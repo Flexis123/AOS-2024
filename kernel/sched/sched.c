@@ -92,9 +92,21 @@ void sched_yield(void)
 {	
 	struct task* task;
 
+	//if global runq is empty wait for it to be filled
+	//but the problem is that we cant sleep
+	
 	if(runq.root == NULL){
-		if(!cur_task) sched_halt();
-		task_run(cur_task);
+		if(nuser_tasks == 0) monitor(NULL);
+		else if(cur_task) task_run(cur_task);
+
+
+		//this is just for BKL i think
+		kspin_unlock();
+		while(true){
+			kspin_lock();
+			if(runq.root) break;
+			kspin_unlock();
+		}
 	}
 
 	task = runq_pop();

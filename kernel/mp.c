@@ -13,8 +13,6 @@
 void *mpentry_kstack;
 extern int mem_init_mp(void);
 
-extern struct spinlock kernel_lock;
-
 void boot_cpus(void)
 {
 	extern unsigned char boot_ap16[], boot_ap_end[];
@@ -79,8 +77,7 @@ void mp_main(void)
 		"cli\n"
 		"hlt\n");
 	*/
-	#ifdef USE_BIG_KERNEL_LOCK
-	spin_lock(&kernel_lock);
-	#endif
+	kspin_lock();
+	
 	sched_yield();
 }

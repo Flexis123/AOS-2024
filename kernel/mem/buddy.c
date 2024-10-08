@@ -235,7 +235,7 @@ struct page_info *page_alloc(int alloc_flags)
 {
 	struct page_info* page;
 
-
+	
 	if (alloc_flags & ALLOC_HUGE) page = buddy_find(BUDDY_2M_PAGE);
 	else page = buddy_find(0);
 
@@ -278,18 +278,8 @@ void page_free(struct page_info *pp)
 #endif
 	pp->pp_free = true;
 
-	//struct list *entry;
-	int size = 0;
-	list_foreach(&buddy_free_list[pp->pp_order], entry){
-		size++;
-	}
-
 	list_insert_before(&buddy_free_list[pp->pp_order], &pp->pp_node);
-	size = 0;
-	list_foreach(&buddy_free_list[pp->pp_order], entry){
-		size++;
-	}
-
+	
 	buddy_merge(pp);
 }
 

@@ -101,7 +101,7 @@ static int sys_kill(pid_t pid)
 static int sys_getcpuid(void)
 {
 	/* LAB 6: your code here. */
-	return 0;
+	return this_cpu->cpu_id;
 }
 
 /* Dispatches to the correct kernel function, passing the arguments. */
@@ -174,6 +174,10 @@ int64_t syscall(uint64_t syscallno, uint64_t a1, uint64_t a2, uint64_t a3,
 		case SYS_fork:
 			cprintf("executing syscall fork\n");
 			ret = sys_fork();
+			break;
+
+		case SYS_getcpuid:
+			ret = sys_getcpuid();
 			break;
 		default:
 			ret = -ENOSYS;

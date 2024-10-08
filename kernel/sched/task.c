@@ -16,7 +16,7 @@ pid_t pid_max = 1 << 16;
 struct task **tasks = (struct task **)PIDMAP_BASE;
 size_t nuser_tasks = 0;
 extern struct rb_tree runq;
-extern struct spinlock kernel_lock;
+
 
 
 /* Looks up the respective task for a given PID.
@@ -379,9 +379,7 @@ void task_destroy(struct task *task)
  */
 void task_pop_frame(struct int_frame *frame)
 {
-	#ifdef USE_BIG_KERNEL_LOCK
-	spin_unlock(&kernel_lock);
-	#endif
+	kspin_unlock();
 
 	switch (frame->int_no) {
 #ifdef LAB3_SYSCALL

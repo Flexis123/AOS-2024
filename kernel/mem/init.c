@@ -82,7 +82,8 @@ int pml4_setup(struct boot_info *boot_info)
 	 * Map 'bootstack' to [KSTACK_TOP - KSTACK_SIZE, KSTACK_TOP).
 	 */
 	cprintf("init stack, no exec\n");
-	boot_map_region(kernel_pml4, (void*)(KSTACK_TOP - KSTACK_SIZE), KSTACK_SIZE, (physaddr_t) bootstack, PAGE_PRESENT | PAGE_WRITE | PAGE_NO_EXEC);
+
+	boot_map_region(kernel_pml4, (void*)KSTACK_TOP_FOR(this_cpu->cpu_id) - KSTACK_SIZE, KSTACK_SIZE, (physaddr_t) bootstack, PAGE_PRESENT | PAGE_WRITE | PAGE_NO_EXEC);
 
 
 	/* Map in the pages from the buddy allocator as RW-. */
@@ -207,10 +208,13 @@ void mem_init_mp(void)
 	 */
 	assert(ncpus <= NCPUS);
 
-	for(int i = 1; i < ncpus; i++){
-		void *kernel_stack_top = (void*)KSTACK_TOP - i * (KSTACK_SIZE + KSTACK_GAP);
-		populate_region(kernel_pml4, kernel_stack_top - KSTACK_SIZE, KSTACK_SIZE, PAGE_PRESENT | PAGE_WRITE | PAGE_NO_EXEC);
-		this_cpu->cpu_tss.rsp[KERNEL_RING] = (uint64_t)kernel_stack_top;//the stack grows down
+	for(int i = 0; i < ncpus; i++){
+
+		if(boot_cpu->cpu_id == i) continue;
+
+		uint64_t kernel_stack_top = KSTACK_TOP_FOR(i);
+		populate_region(kernel_pml4, (void*)kernel_stack_top - KSTACK_SIZE, KSTACK_SIZE, PAGE_PRESENT | PAGE_WRITE | PAGE_NO_EXEC);
+		(cpus + i)->cpu_tss.rsp[KERNEL_RING] = kernel_stack_top;//the stack grows down
 	}
 }
 

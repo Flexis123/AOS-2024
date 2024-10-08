@@ -96,8 +96,6 @@ static struct idtr idtr = {
 	.entries = entries,
 };
 
-extern struct spinlock kernel_lock;
-
 static const char *get_int_name(unsigned int_no)
 {
 	if (!int_infos[int_no].name)
@@ -218,6 +216,7 @@ void idt_init_mp(void)
 
 void int_dispatch(struct int_frame *frame)
 {
+	kspin_lock();
 	//print_int_frame(frame);
 	switch (frame->int_no) {
 
@@ -278,9 +277,6 @@ void int_handler(struct int_frame *frame)
 
 	/* Dispatch based on the type of interrupt that occurred. */
 	cur_task->task_frame.rflags |= FLAGS_IF;
-	#ifdef USE_BIG_KERNEL_LOCK
-	spin_lock(&kernel_lock); //can lock further down
-	#endif
 	int_dispatch(frame);
 
 	/* Return to the current task, which should be running. */

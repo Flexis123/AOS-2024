@@ -23,7 +23,7 @@ void gdt_init(void)
 	 * Load the GDT and the task selector.
 	 */
 	/* LAB 6: your code here. */
-	this_cpu->cpu_tss.rsp[0] = KSTACK_TOP;
+	this_cpu->cpu_tss.rsp[0] = KSTACK_TOP_FOR(this_cpu->cpu_id);
 
 	set_tss_entry((struct tss_entry *)(gdt_entries + (GDT_TSS0 >> 3)),
 	    &this_cpu->cpu_tss);

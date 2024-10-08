@@ -38,6 +38,8 @@
 #define KSTACK_SIZE (31 * PAGE_SIZE)
 #define KSTACK_GAP (PAGE_SIZE)
 
+#define KSTACK_TOP_FOR(cpu_id) (cpu_id == 0 ? KSTACK_TOP : KSTACK_TOP - cpu_id * (KSTACK_SIZE + KSTACK_GAP))
+
 /* User address space limit. */
 #ifdef __ASSEMBLER__
 #define USER_LIM 0x800000000000
