@@ -14,6 +14,7 @@
 #include <string.h>
 
 extern int mem_init_mp(void);
+extern struct spinlock kernel_lock;
 
 void kmain(struct boot_info *boot_info)
 {
@@ -54,10 +55,17 @@ void kmain(struct boot_info *boot_info)
 	task_init();
 	sched_init();
 
-	kspin_init();
-	kspin_lock();
+	#ifdef USE_BIG_KERNEL_LOCK
+	//cprintf("DEBUG, lock lock is at: %p\n", &kernel_lock);
+	spin_init(&kernel_lock, "BKL");
+	spin_lock(&kernel_lock);
+	#endif
 
 	boot_cpus();
+
+#ifdef USE_BIG_KERNEL_LOCK
+	cprintf("BIG KERNEL LOCK IN USE!\n");
+#endif
 
 #if defined(TEST)
 	TASK_CREATE(TEST, TASK_TYPE_USER);

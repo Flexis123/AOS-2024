@@ -1,0 +1,256 @@
+
+RESERVED addr space from 0x9f000 to 0xa0000 made up of 1 pages
+RESERVED addr space from 0xf0000 to 0x100000 made up of 16 pages
+RESERVED addr space from 0x7fe0000 to 0x8000000 made up of 32 pages
+RESERVED addr space from 0xfffc0000 to 0x100000000 made up of 64 pages
+RESERVED addr space from 0xfd00000000 to 0x10000000000 made up of 3145728 pages
+init stack, no exec
+map buddy pages as rw
+[LAB 2] check_ptbl_flags() succeeded!
+[LAB 2] check_wx() succeeded!
+[LAB 2] check_nx() succeeded!
+[LAB 2] check_4k_paging() succeeded!
+starting page init ext
+[LAB 2] check_free_list_order() succeeded!
+[LAB 2] check_memory_layout() succeeded!
+[LAB 2] check_buddy_consistency() succeeded!
+[LAB 2] check_vas() succeeded!
+RESERVED addr space from 0x9f000 to 0xa0000 made up of 1 pages
+RESERVED addr space from 0xf0000 to 0x100000 made up of 16 pages
+RESERVED addr space from 0x7fe0000 to 0x8000000 made up of 32 pages
+RESERVED addr space from 0xfffc0000 to 0x100000000 made up of 64 pages
+RESERVED addr space from 0xfd00000000 to 0x10000000000 made up of 3145728 pages
+page init ext complete
+[LAB 2] check_free_list_order() succeeded!
+[LAB 2] check_memory_layout() succeeded!
+[LAB 2] check_buddy_consistency() succeeded!
+[LAB 2] check_vas() succeeded!
+I/O APIC with base=0xfec00000
+SMP: setting IMCR to switch from PIC mode to symmetric I/O mode
+SMP: CPU 1 starting
+SMP: CPU 2 starting
+SMP: CPU 3 starting
+SMP: CPU 4 starting
+SMP: CPU 5 starting
+SMP: CPU 6 starting
+SMP: CPU 7 starting
+SMP: CPU 8 starting
+SMP: CPU 9 starting
+SMP: CPU 10 starting
+SMP: CPU 11 starting
+SMP: CPU 12 starting
+SMP: CPU 13 starting
+SMP: CPU 14 starting
+SMP: CPU 15 starting
+SMP: CPU 16 starting
+SMP: CPU 17 starting
+SMP: CPU 18 starting
+SMP: CPU 19 starting
+SMP: CPU 20 starting
+SMP: CPU 21 starting
+SMP: CPU 22 starting
+SMP: CPU 23 starting
+SMP: CPU 24 starting
+SMP: CPU 25 starting
+SMP: CPU 26 starting
+SMP: CPU 27 starting
+SMP: CPU 28 starting
+SMP: CPU 29 starting
+SMP: CPU 30 starting
+SMP: CPU 31 starting
+SMP: CPU 32 starting
+SMP: CPU 33 starting
+SMP: CPU 34 starting
+SMP: CPU 35 starting
+SMP: CPU 36 starting
+SMP: CPU 37 starting
+SMP: CPU 38 starting
+SMP: CPU 39 starting
+SMP: CPU 40 starting
+SMP: CPU 41 starting
+SMP: CPU 42 starting
+SMP: CPU 43 starting
+SMP: CPU 44 starting
+SMP: CPU 45 starting
+SMP: CPU 46 starting
+SMP: CPU 47 starting
+SMP: CPU 48 starting
+SMP: CPU 49 starting
+SMP: CPU 50 starting
+SMP: CPU 51 starting
+SMP: CPU 52 starting
+SMP: CPU 53 starting
+SMP: CPU 54 starting
+SMP: CPU 55 starting
+SMP: CPU 56 starting
+SMP: CPU 57 starting
+SMP: CPU 58 starting
+SMP: CPU 59 starting
+SMP: CPU 60 starting
+SMP: CPU 61 starting
+SMP: CPU 62 starting
+SMP: CPU 63 starting
+BIG KERNEL LOCK IN USE!
+[PID     0] New task with PID 1
+[PID     1] VMAs:
+  0x0000000000200000 - 0x0000000000201000 [rw-] 0xffff8000002e49a8 - 0x0000000000000068 ".data"
+  0x0000000000800000 - 0x0000000000802000 [r-x] 0xffff8000002e1af8 - 0x0000000000000fee ".text"
+  0x0000000000802000 - 0x0000000000803000 [r--] 0xffff8000002e3998 - 0x00000000000002cc ".rodata"
+  0x0000000000803000 - 0x0000000000804000 [rw-] 0xffff8000002e4998 - 0x0000000000000008 ".data"
+  0x00007fffffffd000 - 0x00007fffffffe000 [rw-] "stack"
+running task: 1, runq: 0xffff80000030b130
+executing syscall fork
+[PID     1] New task with PID 2
+running task: 2, runq: 0xffff80000030b130
+executing syscall getpid
+executing syscall cputs
+[PID     2] Running on CPU 52
+executing syscall kill
+[PID     2] Reaping task with PID 2
+executing syscall fork
+[PID     1] New task with PID 3
+running task: 3, runq: 0xffff80000030b130
+executing syscall getpid
+executing syscall cputs
+[PID     3] Running on CPU 53
+executing syscall fork
+[PID     1] New task with PID 4
+running task: 4, runq: 0xffff80000030b130
+executing syscall kill
+[PID     3] Reaping task with PID 3
+executing syscall fork
+[PID     1] New task with PID 5
+running task: 5, runq: 0xffff80000030b130
+executing syscall fork
+[PID     1] New task with PID 6
+running task: 6, runq: 0xffff80000030b130
+executing syscall getpid
+executing syscall getpid
+executing syscall cputs
+[PID     4] Running on CPU 59
+executing syscall fork
+[PID     1] New task with PID 7
+running task: 7, runq: 0xffff80000030b130
+executing syscall fork
+[PID     1] New task with PID 8
+running task: 8, runq: 0xffff80000030b130
+executing syscall fork
+[PID     1] New task with PID 9
+running task: 9, runq: 0xffff80000030b130
+executing syscall kill
+[PID     4] Reaping task with PID 4
+executing syscall getpid
+executing syscall cputs
+[PID     5] Running on CPU 38
+executing syscall kill
+[PID     5] Reaping task with PID 5
+executing syscall getpid
+executing syscall getpid
+executing syscall cputs
+[PID     9] Running on CPU 31
+executing syscall cputs
+[PID     7] Running on CPU 32
+executing syscall kill
+[PID     7] Reaping task with PID 7
+executing syscall fork
+[PID     1] New task with PID 10
+running task: 10, runq: 0xffff80000030b130
+executing syscall getpid
+executing syscall cputs
+[PID    10] Running on CPU 56
+executing syscall kill
+[PID     9] Reaping task with PID 9
+executing syscall fork
+[PID     1] New task with PID 11
+running task: 11, runq: 0xffff80000030b130
+executing syscall kill
+[PID    10] Reaping task with PID 10
+executing syscall cputs
+[PID     8] Running on CPU 5
+executing syscall kill
+[PID     8] Reaping task with PID 8
+executing syscall fork
+[PID     1] New task with PID 12
+running task: 12, runq: 0xffff80000030b130
+executing syscall getpid
+executing syscall getpid
+executing syscall cputs
+[PID    11] Running on CPU 59
+executing syscall fork
+[PID     1] New task with PID 13
+running task: 13, runq: 0xffff80000030b130
+executing syscall kill
+[PID    11] Reaping task with PID 11
+executing syscall getpid
+executing syscall fork
+[PID     1] New task with PID 14
+running task: 14, runq: 0xffff80000030b130
+executing syscall getpid
+executing syscall cputs
+[PID     6] Running on CPU 3
+executing syscall getpid
+executing syscall fork
+[PID     1] New task with PID 15
+running task: 15, runq: 0xffff80000030b130
+executing syscall cputs
+[PID    14] Running on CPU 32
+executing syscall kill
+[PID    14] Reaping task with PID 14
+executing syscall getpid
+executing syscall kill
+[PID     6] Reaping task with PID 6
+executing syscall cputs
+[PID    15] Running on CPU 50
+executing syscall cputs
+[PID    12] Running on CPU 52
+executing syscall kill
+[PID    12] Reaping task with PID 12
+executing syscall cputs
+[PID    13] Running on CPU 26
+executing syscall fork
+[PID     1] New task with PID 16
+running task: 16, runq: 0xffff80000030b130
+executing syscall kill
+[PID    15] Reaping task with PID 15
+executing syscall getpid
+executing syscall fork
+[PID     1] New task with PID 17
+running task: 17, runq: 0xffff80000030b130
+executing syscall getpid
+executing syscall kill
+[PID    13] Reaping task with PID 13
+executing syscall getpid
+executing syscall cputs
+[PID    16] Running on CPU 31
+executing syscall kill
+[PID    16] Reaping task with PID 16
+executing syscall cputs
+[PID    17] Running on CPU 60
+executing syscall kill
+[PID    17] Reaping task with PID 17
+executing syscall cputs
+[PID     1] Running on CPU 0
+executing syscall kill
+[PID     1] Exiting gracefully
+[PID     1] Freed task with PID 17
+[PID     1] Freed task with PID 16
+[PID     1] Freed task with PID 13
+[PID     1] Freed task with PID 15
+[PID     1] Freed task with PID 12
+[PID     1] Freed task with PID 6
+[PID     1] Freed task with PID 14
+[PID     1] Freed task with PID 11
+[PID     1] Freed task with PID 8
+[PID     1] Freed task with PID 10
+[PID     1] Freed task with PID 9
+[PID     1] Freed task with PID 7
+[PID     1] Freed task with PID 5
+[PID     1] Freed task with PID 4
+[PID     1] Freed task with PID 3
+[PID     1] Freed task with PID 2
+[PID     1] Freed task with PID 1
+Destroyed the only task - nothing more to do!
+Welcome to the OpenLSD kernel monitor!
+Type 'help' for a list of commands.
+K> QEMU: Terminated
+

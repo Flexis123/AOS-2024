@@ -12,6 +12,7 @@
  */
 void *mpentry_kstack;
 extern int mem_init_mp(void);
+extern struct spinlock kernel_lock;
 
 void boot_cpus(void)
 {
@@ -77,7 +78,10 @@ void mp_main(void)
 		"cli\n"
 		"hlt\n");
 	*/
-	kspin_lock();
+	#ifdef USE_BIG_KERNEL_LOCK
+	//cprintf("DEBUG, lock lock is at: %p\n", &kernel_lock);
+	spin_lock(&kernel_lock);
+	#endif
 	
 	sched_yield();
 }

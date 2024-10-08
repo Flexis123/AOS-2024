@@ -90,6 +90,8 @@ static const struct int_info int_infos[256] = {
 	[IRQ_ERROR] = INT_INFO(IRQ_ERROR, "error irq"),
 };
 
+extern struct spinlock kernel_lock;
+
 static struct idt_entry entries[256];
 static struct idtr idtr = {
 	.limit = sizeof(entries) - 1,
@@ -216,7 +218,10 @@ void idt_init_mp(void)
 
 void int_dispatch(struct int_frame *frame)
 {
-	kspin_lock();
+	#ifdef USE_BIG_KERNEL_LOCK
+	spin_lock(&kernel_lock);
+	#endif
+	cprintf("interrupt received by cpu: %d, int no: %d\n", this_cpu->cpu_id, frame->int_no);
 	//print_int_frame(frame);
 	switch (frame->int_no) {
 
@@ -231,16 +236,15 @@ void int_dispatch(struct int_frame *frame)
 			return;
 
 		case IRQ_TIMER:
-			cprintf("IRQ timer received\n");
+			cprintf("IRQ timer received for cpu: %d\n", this_cpu->cpu_id);
 			irq_timer_handler(frame); // this should not return and either call task_run or monitor!
 	
 		default: break;
 	}
 
 	/* Unexpected trap: The user process or the kernel has a bug. */
-	cprintf("Unxpected intterupt with id\n");
+	cprintf("Unxpected intterupt with id\n cur task: %d cpu: %d\n", cur_task->task_pid, this_cpu->cpu_id);
 	print_int_frame(frame);
-	lapic_eoi();
 
 	if (frame->cs == GDT_KCODE) {
 		panic("unhandled interrupt in kernel");

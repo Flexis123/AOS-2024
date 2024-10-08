@@ -19,6 +19,7 @@ struct spinlock runq_lock = {
 };
 #endif
 extern size_t nuser_tasks;
+extern struct spinlock kernel_lock;
 size_t runq_len = 0;
 
 
@@ -97,20 +98,26 @@ void sched_yield(void)
 	
 	if(runq.root == NULL){
 		if(nuser_tasks == 0) monitor(NULL);
-		else if(cur_task) task_run(cur_task);
+		else if(cur_task && cur_task->task_status == TASK_RUNNING) task_run(cur_task);
 
 
-		//this is just for BKL i think
-		kspin_unlock();
+		//this is just for BKL i thinktask_run(
+		#ifdef USE_BIG_KERNEL_LOCK
+		spin_unlock(&kernel_lock);
+		#endif
 		while(true){
-			kspin_lock();
+			#ifdef USE_BIG_KERNEL_LOCK
+			spin_lock(&kernel_lock);
+			#endif
 			if(runq.root) break;
-			kspin_unlock();
+			#ifdef USE_BIG_KERNEL_LOCK
+			spin_unlock(&kernel_lock);
+			#endif
 		}
 	}
 
 	task = runq_pop();
-	cprintf("running task: %d\n", task->task_pid);
+	cprintf("running task: %d, runq: %p cpu: %d\n", task->task_pid, &runq, this_cpu->cpu_id);
 	task_run(task);
 }
 /* For now jump into the kernel monitor. */

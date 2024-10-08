@@ -88,6 +88,9 @@ static int sys_kill(pid_t pid)
 			parent->task_status = TASK_RUNNABLE;
 			runq_add(parent);
 		}
+		if(task != cur_task){
+			lapic_ipi(IRQ_TIMER);//force other cores to reschedule in case the child process is still running.
+		}
 		sched_yield();
 		return 0;
 	}

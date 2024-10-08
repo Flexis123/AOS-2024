@@ -16,7 +16,7 @@ pid_t pid_max = 1 << 16;
 struct task **tasks = (struct task **)PIDMAP_BASE;
 size_t nuser_tasks = 0;
 extern struct rb_tree runq;
-
+extern struct spinlock kernel_lock;
 
 
 /* Looks up the respective task for a given PID.
@@ -379,7 +379,9 @@ void task_destroy(struct task *task)
  */
 void task_pop_frame(struct int_frame *frame)
 {
-	kspin_unlock();
+	#ifdef USE_BIG_KERNEL_LOCK
+	spin_unlock(&kernel_lock);
+	#endif
 
 	switch (frame->int_no) {
 #ifdef LAB3_SYSCALL
@@ -414,11 +416,15 @@ void task_run(struct task *task)
 	 *
 	 * Hint: This function loads the new task's state from
 	 *  e->task_frame.  Go back through the code you wrote above
-	 *  and make sure you have set the relevant parts of
+	 *  and make sure you have set the relevant parts ofcur_task
 	 *  e->task_frame to sensible values.
 	 */
+	if(task->task_status == TASK_DYING || task->task_status == TASK_NOT_RUNNABLE){
+		sched_yield();
+	}
+	assert(task->task_status == TASK_RUNNABLE || task->task_status == TASK_RUNNING);
+
 	if(cur_task != task){
-		assert(task->task_status == TASK_RUNNABLE);
 		uint64_t curr_time = read_tsc();
 
 		if(cur_task){
@@ -426,15 +432,14 @@ void task_run(struct task *task)
 			switch (cur_task->task_status)
 			{
 			case TASK_DYING:{
+				assert(cur_task->task_ppid != 0);
 				//parent destroys dying tasks
 				break;
 			}
-	
 			case TASK_RUNNING:{
 				cur_task->task_status = TASK_RUNNABLE;
 				break;
 			}
-
 			case TASK_RUNNABLE:
 			case TASK_NOT_RUNNABLE:{
 				assert(cur_task->task_wait && cur_task->task_wait->task_pid == task->task_pid);
@@ -444,7 +449,6 @@ void task_run(struct task *task)
 				panic("unknown task state in task_run");
 				break;
 			}
-
 			cur_task->task_cpu_time += curr_time - cur_task->task_start_time;
 			cur_task->task_start_waiting = curr_time;
 			
@@ -452,13 +456,12 @@ void task_run(struct task *task)
 				runq_add(cur_task);
 			}
 		}
-
 		cur_task = task;
 		cur_task->task_status = TASK_RUNNING;
 		cur_task->task_runs++;
 		cur_task->task_start_time = curr_time;
 	}
-
+	assert(cur_task);
 	load_pml4((struct page_table*)PADDR(cur_task->task_pml4));
 	task_pop_frame(&cur_task->task_frame);
 }
