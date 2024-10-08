@@ -8,6 +8,7 @@
 extern struct rb_tree runq;
 extern struct task **tasks;
 extern size_t nuser_tasks;
+extern struct spinlock kernel_lock;
 
 pid_t sys_wait(int *rstatus)
 {	
@@ -30,9 +31,29 @@ pid_t sys_waitpid(pid_t pid, int *rstatus, int opts)
 
 	if(zombie && zombie->task_status == TASK_DYING){
 		assert(zombie->task_ppid == cur_task->task_pid);
+		assert(zombie != cur_task);
 		int zombie_pid = zombie->task_pid;
 		list_del(&zombie->task_zombie_node);
 		list_del(&zombie->task_child);
+
+		for(int i = 0; i < ncpus; i++){
+			while(cpus[i].cpu_task == zombie){
+				cprintf("Oh no! the zombie is still begin run on cpu: %d\n", cpus[i].cpu_id);
+				#ifdef USE_BIG_KERNEL_LOCK
+				spin_unlock(&kernel_lock);
+				#endif
+				lapic_ipi(IRQ_TIMER);
+				#ifdef USE_BIG_KERNEL_LOCK
+				spin_lock(&kernel_lock);
+				#endif
+
+
+				lapic_ipi(IRQ_TIMER);
+			}//busy wait for the zombie task to be descheduled by cores who
+												//did not notice the state change to DYING
+		}
+
+
 		task_destroy(zombie);
 		return zombie_pid;
 	}

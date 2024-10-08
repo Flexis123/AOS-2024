@@ -98,8 +98,11 @@ void sched_yield(void)
 	
 	if(runq.root == NULL){
 		if(nuser_tasks == 0) monitor(NULL);
-		else if(cur_task && cur_task->task_status == TASK_RUNNING) task_run(cur_task);
-
+		else if(cur_task && cur_task->task_status == TASK_RUNNING){
+			cprintf("running only task available: %d,cpu: %d\n", cur_task->task_pid, this_cpu->cpu_id);	
+			task_run(cur_task);
+		}
+		cur_task = NULL;
 
 		//this is just for BKL i thinktask_run(
 		#ifdef USE_BIG_KERNEL_LOCK

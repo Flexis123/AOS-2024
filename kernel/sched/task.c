@@ -326,6 +326,7 @@ void task_free(struct task *task)
 	struct list *current_zombie = NULL;
 	list_foreach_safe (&task->task_zombies, current_zombie, next){
 		struct task *zombie = container_of(current_zombie, struct task, task_zombie_node);
+		cprintf("task: %d freeing a zombie: %d, on cpu %d\n", task->task_pid, zombie->task_pid, this_cpu->cpu_id);
 		task_free(zombie);
 	}
 
@@ -358,6 +359,7 @@ void task_free(struct task *task)
  */
 void task_destroy(struct task *task)
 {
+	cprintf("in task destroy, calling task_free on task: %d by cpu %d\n", task->task_pid, this_cpu->cpu_id);
 	task_free(task);
 
 	if(task == cur_task){
@@ -420,6 +422,8 @@ void task_run(struct task *task)
 	 *  e->task_frame to sensible values.
 	 */
 	if(task->task_status == TASK_DYING || task->task_status == TASK_NOT_RUNNABLE){
+		cprintf("dying or unrunnable task in task_run: %d, calling sched_yield\n", task->task_pid);
+		if(task == cur_task)cur_task = NULL;
 		sched_yield();
 	}
 	assert(task->task_status == TASK_RUNNABLE || task->task_status == TASK_RUNNING);
