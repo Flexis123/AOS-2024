@@ -8,8 +8,7 @@
 #include <kernel/monitor.h>
 #include <kernel/sched.h>
 
-struct rb_tree runq;
-
+struct rb_tree runq;//the global runq, used by cores to balance tasks
 
 #ifndef USE_BIG_KERNEL_LOCK
 struct spinlock runq_lock = {
@@ -20,7 +19,7 @@ struct spinlock runq_lock = {
 #endif
 extern size_t nuser_tasks;
 extern struct spinlock kernel_lock;
-size_t runq_len = 0;
+size_t runq_len = 0;//every core attempts to hold runq_len / ncpus tasks in their local runq.
 
 
 //give priority that wait for a longer time
@@ -36,11 +35,13 @@ void sched_init(void)
 
 void sched_init_mp(void)
 {
-	/* LAB 6: your code here. */
+	list_init(&this_cpu->runq);
+	list_init(&this_cpu->nextq);
+	this_cpu->runq_len = 0;
 }
 
 
-int runq_add(struct task* task){
+int runq_add(struct task* task){//add to global runq
 	assert(task);
 	struct rb_node *node, *parent = NULL;
     struct task *task_tmp = NULL;
@@ -73,9 +74,15 @@ int runq_add(struct task* task){
 	return 0;
 }
 
-struct task* runq_pop(){
+struct task* runq_pop(){//for global runq
+
+	if(runq_len == 0){
+		return NULL;
+	}
 	struct rb_node* node = rb_first(&runq);
-	if(!node) return NULL;
+	if(!node){
+		return NULL;
+	}
 
 	struct task* task = container_of(node, struct task, task_runq_node);
 	rb_remove(&runq, &task->task_runq_node);
@@ -92,10 +99,7 @@ struct task* runq_pop(){
 void sched_yield(void)
 {	
 	struct task* task;
-
-	//if global runq is empty wait for it to be filled
-	//but the problem is that we cant sleep
-	
+#ifdef USE_BIG_KERNEL_LOCK
 	if(runq.root == NULL){
 		if(nuser_tasks == 0) monitor(NULL);
 		else if(cur_task && cur_task->task_status == TASK_RUNNING){
@@ -105,23 +109,62 @@ void sched_yield(void)
 		cur_task = NULL;
 
 		//this is just for BKL i thinktask_run(
-		#ifdef USE_BIG_KERNEL_LOCK
 		spin_unlock(&kernel_lock);
-		#endif
 		while(true){
-			#ifdef USE_BIG_KERNEL_LOCK
 			spin_lock(&kernel_lock);
-			#endif
 			if(runq.root) break;
-			#ifdef USE_BIG_KERNEL_LOCK
 			spin_unlock(&kernel_lock);
-			#endif
 		}
 	}
 
 	task = runq_pop();
 	cprintf("running task: %d, runq: %p cpu: %d\n", task->task_pid, &runq, this_cpu->cpu_id);
 	task_run(task);
+
+#else
+	if(cur_task && (cur_task->task_status == TASK_RUNNABLE || cur_task->task_status == TASK_RUNNING)){
+		list_add(&this_cpu->nextq, &cur_task->task_local_runq_node);
+	}
+
+	if(!list_is_empty(&this_cpu->runq)){
+		struct task *task = container_of(list_pop(&this_cpu->runq), struct task, task_local_runq_node);
+		assert(task);
+		this_cpu->runq_len++;
+		cprintf("running task: %d, runq: cpu: %d\n", task->task_pid, this_cpu->cpu_id);
+		task_run(task);
+	}
+	if(spin_trylock(&runq_lock)){
+		//do migration
+		size_t target_runq_len = (runq_len + this_cpu->runq_len) / ncpus;
+		if(target_runq_len == 0 && runq_len > 0){
+			target_runq_len = 1;
+		}
+		while(this_cpu->runq_len < target_runq_len && runq_len > 0){
+			struct task *task = runq_pop();
+			assert(task);
+			list_add(&this_cpu->nextq, &task->task_local_runq_node);
+			this_cpu->runq_len++;
+		}
+		while(this_cpu->runq_len > target_runq_len){
+			assert(!list_is_empty(&this_cpu->runq));
+			struct task *task = container_of(list_pop(&this_cpu->nextq), struct task, task_local_runq_node);
+			assert(task);
+			runq_add(task);
+			this_cpu->runq_len--;
+		}
+		spin_unlock(&runq_lock);
+	}
+	//swap the next queue with the run queue
+	struct list *tmp = list_head(&this_cpu->nextq);
+	list_del(&this_cpu->nextq);
+	list_add(&this_cpu->runq, tmp);
+	this_cpu->runq_len = 0;
+
+	if(list_is_empty(&this_cpu->runq)){
+		sched_halt();
+	}
+	sched_yield();
+#endif
 }
 /* For now jump into the kernel monitor. */
 void sched_halt()

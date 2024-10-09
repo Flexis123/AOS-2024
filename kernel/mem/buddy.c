@@ -233,9 +233,12 @@ struct page_info *buddy_find(size_t req_order)
  */
 struct page_info *page_alloc(int alloc_flags)
 {
+	#ifndef USE_BIG_KERNEL_LOCK
+	spin_lock(&buddy_lock);
+	#endif
 	struct page_info* page;
 
-	
+
 	if (alloc_flags & ALLOC_HUGE) page = buddy_find(BUDDY_2M_PAGE);
 	else page = buddy_find(0);
 
@@ -246,6 +249,9 @@ struct page_info *page_alloc(int alloc_flags)
 		}
 	}
 	assert(page != NULL);
+	#ifndef USE_BIG_KERNEL_LOCK
+	spin_unlock(&buddy_lock);
+	#endif
 	return page;
 }
 
@@ -289,9 +295,16 @@ void page_free(struct page_info *pp)
  */
 void page_decref(struct page_info *pp)
 {
+	#ifndef USE_BIG_KERNEL_LOCK
+	spin_lock(&buddy_lock);
+	#endif
+
 	if (--pp->pp_ref == 0) {
 		page_free(pp);
 	}
+	#ifndef USE_BIG_KERNEL_LOCK
+	spin_unlock(&buddy_lock);
+	#endif
 }
 
 static int in_page_range(void *p)

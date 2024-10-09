@@ -36,22 +36,20 @@ pid_t sys_waitpid(pid_t pid, int *rstatus, int opts)
 		list_del(&zombie->task_zombie_node);
 		list_del(&zombie->task_child);
 
-		for(int i = 0; i < ncpus; i++){
-			while(cpus[i].cpu_task == zombie){
-				cprintf("Oh no! the zombie is still begin run on cpu: %d\n", cpus[i].cpu_id);
-				#ifdef USE_BIG_KERNEL_LOCK
-				spin_unlock(&kernel_lock);
-				#endif
-				lapic_ipi(IRQ_TIMER);
-				#ifdef USE_BIG_KERNEL_LOCK
-				spin_lock(&kernel_lock);
-				#endif
+		while(cpus[zombie->task_cpunum].cpu_task == zombie){
+			cprintf("Oh no! the zombie is still begin run on cpu: %d\n", zombie->task_cpunum);
+			#ifdef USE_BIG_KERNEL_LOCK
+			spin_unlock(&kernel_lock);
+			#endif
+			lapic_ipi(IRQ_TIMER);
+			#ifdef USE_BIG_KERNEL_LOCK
+			spin_lock(&kernel_lock);
+			#endif
 
-
-				lapic_ipi(IRQ_TIMER);
-			}//busy wait for the zombie task to be descheduled by cores who
-												//did not notice the state change to DYING
-		}
+			lapic_ipi(IRQ_TIMER);
+		}//busy wait for the zombie task to be descheduled by cores who
+											//did not notice the state change to DYING
+		
 
 
 		task_destroy(zombie);

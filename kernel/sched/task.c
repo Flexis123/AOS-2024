@@ -150,7 +150,7 @@ struct task *task_alloc(pid_t ppid)
 	task->task_type = TASK_TYPE_USER;
 	task->task_status = TASK_RUNNABLE;
 	task->task_runs = 0;
-	task->task_cpunum = this_cpu->cpu_id; // here may neeed change for assig 6
+	task->task_cpunum = this_cpu->cpu_id;
 
 	task->task_start_time = 0;
 	task->task_cpu_time = 0;
@@ -165,6 +165,10 @@ struct task *task_alloc(pid_t ppid)
 	list_init(&task->task_zombies);
 	list_init(&task->task_zombie_node);
 	rb_node_init(&task->task_runq_node);
+	list_init(&task->task_local_runq_node);
+	#ifndef USE_BIG_KERNEL_LOCK
+	spin_init(&task->task_lock, "task_lock");
+	#endif
 
 	cprintf("[PID %5u] New task with PID %u\n",
 	        cur_task ? cur_task->task_pid : 0, task->task_pid);
@@ -464,6 +468,7 @@ void task_run(struct task *task)
 		cur_task->task_status = TASK_RUNNING;
 		cur_task->task_runs++;
 		cur_task->task_start_time = curr_time;
+		cur_task->task_cpunum = this_cpu->cpu_id;
 	}
 	assert(cur_task);
 	load_pml4((struct page_table*)PADDR(cur_task->task_pml4));

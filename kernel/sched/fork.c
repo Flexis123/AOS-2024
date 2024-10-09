@@ -11,7 +11,7 @@
 
 extern struct rb_tree runq;
 extern size_t nuser_tasks;
-
+extern struct spinlock runq_lock;
 struct copy_info{
 	struct page_table* child_pml4;
 };
@@ -103,7 +103,14 @@ struct task *task_clone(struct task *task)
 
 	//add child to run queue and to the list of children of the parent
 	assert(child != task);
+
+	#ifndef USE_BIG_KERNEL_LOCK
+	spin_lock(&runq_lock);
+	#endif
 	runq_add(child);
+	#ifndef USE_BIG_KERNEL_LOCK
+	spin_unlock(&runq_lock);
+	#endif
 	list_add(&task->task_children, &child->task_child);
 	nuser_tasks++;
 	return child;

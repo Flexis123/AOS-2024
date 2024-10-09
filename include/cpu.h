@@ -49,7 +49,7 @@ struct cpuinfo {
 
 	/* Per-CPU run queue */
 	struct list runq, nextq;
-	size_t runq_len;
+	size_t runq_len;//this holds the length of nextq after runq has been depleted.
 };
 
 #define NCPUS 64

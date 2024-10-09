@@ -16,6 +16,11 @@
 extern int mem_init_mp(void);
 extern struct spinlock kernel_lock;
 
+#ifndef USE_BIG_KERNEL_LOCK
+extern struct spinlock buddy_lock;
+extern struct spinlock console_lock;
+#endif
+
 void kmain(struct boot_info *boot_info)
 {
 	extern char edata[], end[];
@@ -59,6 +64,9 @@ void kmain(struct boot_info *boot_info)
 	//cprintf("DEBUG, lock lock is at: %p\n", &kernel_lock);
 	spin_init(&kernel_lock, "BKL");
 	spin_lock(&kernel_lock);
+	#else
+	spin_init(&buddy_lock, "buddy_lock");
+	spin_init(&console_lock, "console_lock");
 	#endif
 
 	boot_cpus();
