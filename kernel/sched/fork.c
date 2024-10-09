@@ -9,7 +9,6 @@
 #include <kernel/vma.h>
 #include <kernel/sched/task.h>
 
-extern struct rb_tree runq;
 extern size_t nuser_tasks;
 extern struct spinlock runq_lock;
 struct copy_info{

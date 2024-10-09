@@ -66,6 +66,7 @@ pid_t sys_waitpid(pid_t pid, int *rstatus, int opts)
 											//did not notice the state change to DYING
 		#ifndef USE_BIG_KERNEL_LOCK
 		if(zombie)spin_unlock(&zombie->task_lock);
+		spin_unlock(&cur_task->task_lock);
 		#endif
 
 

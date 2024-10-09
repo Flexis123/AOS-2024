@@ -394,6 +394,7 @@ void task_destroy(struct task *task)
 	if(task == cur_task){
 		if(nuser_tasks == 0){
 			cprintf("Destroyed the only task - nothing more to do!\n");
+			monitor(NULL);
 		}
 		cur_task = NULL;
 		load_pml4((struct page_table *)PADDR(kernel_pml4));

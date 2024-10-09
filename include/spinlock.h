@@ -28,8 +28,7 @@ void spin_init(struct spinlock *lock, const char *name);
 void __spin_lock(struct spinlock *lock, const char *file, int line);
 int __spin_trylock(struct spinlock *lock, const char *file, int line);
 void __spin_unlock(struct spinlock *lock, const char *file, int line);
-
-void kspin_init();
+int holding(struct spinlock *lock);
 
 void fgspin_init(struct spinlock *lock, const char *name);
 void fgspin_lock(struct spinlock *lock);

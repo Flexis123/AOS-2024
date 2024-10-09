@@ -17,6 +17,7 @@ extern struct rb_tree runq;
 
 #ifndef USE_BIG_KERNEL_LOCK
 extern struct spinlock runq_lock;
+extern size_t runq_len;
 #endif
 
 void syscall_init(void)
@@ -96,7 +97,16 @@ static int sys_kill(pid_t pid)
 		assert(parent->task_pid == task->task_ppid);
 		task->task_status = TASK_DYING;
 		
-		if(task->is_in_runq) rb_remove(&runq, &task->task_runq_node);
+		if(task->is_in_runq){
+			#ifndef USE_BIG_KERNEL_LOCK
+			spin_lock(&runq_lock);
+			#endif
+			rb_remove(&runq, &task->task_runq_node);
+			runq_len--;
+			#ifndef USE_BIG_KERNEL_LOCK
+			spin_unlock(&runq_lock);
+			#endif
+		}
 
 		list_add(&parent->task_zombies, &task->task_zombie_node);
 		cprintf("[PID %5u] Reaping task with PID %u\n", cur_task->task_pid, task->task_pid);

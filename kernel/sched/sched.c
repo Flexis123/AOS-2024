@@ -44,6 +44,7 @@ void sched_init_mp(void)
 
 int runq_add(struct task* task){//add to global runq
 	assert(task);
+	assert(holding(&runq_lock));
 	struct rb_node *node, *parent = NULL;
     struct task *task_tmp = NULL;
 	int dir;
@@ -98,10 +99,8 @@ int runq_add(struct task* task){//add to global runq
 }
 
 struct task* runq_pop(){//for global runq
-
-	if(runq_len == 0){
-		return NULL;
-	}
+	assert(runq_len > 0);
+	assert(holding(&runq_lock));
 	struct rb_node* node = rb_first(&runq);
 	if(!node){
 		return NULL;
@@ -156,17 +155,19 @@ void sched_yield(void)
 
 #else
 	if(cur_task){
-		#ifndef USE_BIG_KERNEL_LOCK
-		spin_lock(&cur_task->task_lock);
-		#endif
+		if(cur_task->task_status == TASK_RUNNABLE || cur_task->task_status == TASK_RUNNING){
+			spin_lock(&cur_task->task_lock);
+			list_add(&this_cpu->nextq, &cur_task->task_local_runq_node);
+			spin_unlock(&cur_task->task_lock);
+		}
+		else{
+			spin_lock(&cur_task->task_lock);
+			struct task *old_task = cur_task;
+			spin_unlock(&cur_task->task_lock);
+			cur_task = NULL;
+		}
 	}
-	if(cur_task && (cur_task->task_status == TASK_RUNNABLE || cur_task->task_status == TASK_RUNNING)){
-		list_add(&this_cpu->nextq, &cur_task->task_local_runq_node);
-	}
-	#ifndef USE_BIG_KERNEL_LOCK
-	if(cur_task)spin_unlock(&cur_task->task_lock);
-	#endif
-
+	
 	if(list_is_empty(&this_cpu->runq)){
 		if(spin_trylock(&runq_lock)){
 			//do migration
@@ -229,10 +230,15 @@ void sched_halt()
 {
 	#ifndef USE_BIG_KERNEL_LOCK
 	while(true){
+		//cprintf("cpu: %d waiting for work in sched_halt\n", this_cpu->cpu_id);
 		spin_lock(&runq_lock);
 
 		if(runq_len > 0){
 			struct task *task = runq_pop();
+
+			if(!task){
+				cprintf("you fucked up bigtime. cpu is %d\n", this_cpu->cpu_id);
+			}
 			assert(task);
 
 			spin_lock(&task->task_lock);
@@ -245,17 +251,18 @@ void sched_halt()
 		if(nuser_tasks == 0){
 
 			if(this_cpu == boot_cpu){
-				spin_unlock(&runq_lock);
-				monitor(NULL);
+				//spin_unlock(&runq_lock);
+				//monitor(NULL);
 			}
 			else{
-				xchg(&this_cpu->cpu_status, CPU_HALTED);
-				spin_unlock(&runq_lock);
-				asm volatile(
-				"cli\n"
-				"hlt\n");
+				//cprintf("cpu: %d halting, nothing more to do\n", this_cpu->cpu_id);
+				//xchg(&this_cpu->cpu_status, CPU_HALTED);
+				//spin_unlock(&runq_lock);
+				//asm volatile(
+				//"cli\n"
+				//"hlt\n");
 			}
-			assert(false);
+			//assert(false);
 		}
 		spin_unlock(&runq_lock);
 	}
