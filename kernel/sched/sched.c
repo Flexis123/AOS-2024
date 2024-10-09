@@ -113,6 +113,8 @@ void sched_yield(void)
 		while(true){
 			spin_lock(&kernel_lock);
 			if(runq.root) break;
+
+			if(nuser_tasks == 0) monitor(NULL);
 			spin_unlock(&kernel_lock);
 		}
 	}
@@ -126,44 +128,49 @@ void sched_yield(void)
 		list_add(&this_cpu->nextq, &cur_task->task_local_runq_node);
 	}
 
-	if(!list_is_empty(&this_cpu->runq)){
-		struct task *task = container_of(list_pop(&this_cpu->runq), struct task, task_local_runq_node);
-		assert(task);
-		this_cpu->runq_len++;
-		cprintf("running task: %d, runq: cpu: %d\n", task->task_pid, this_cpu->cpu_id);
-		task_run(task);
+	if(list_is_empty(&this_cpu->runq)){
+		if(spin_trylock(&runq_lock)){
+			//do migration
+			size_t target_runq_len = (global_runq_len + this_cpu->runq_len) / ncpus;
+			if(target_runq_len == 0 && global_runq_len > 0){
+				target_runq_len = 1;
+			}
+			while(this_cpu->runq_len < target_runq_len && global_runq_len > 0){
+				struct task *task = runq_pop();
+				assert(task);
+				list_add(&this_cpu->nextq, &task->task_local_runq_node);
+				this_cpu->runq_len++;
+			}
+			while(this_cpu->runq_len > target_runq_len){
+				assert(!list_is_empty(&this_cpu->runq));
+				struct task *task = container_of(list_pop(&this_cpu->nextq), struct task, task_local_runq_node);
+				assert(task);
+				runq_add(task);
+				this_cpu->runq_len--;
+			}
+			spin_unlock(&runq_lock);
+		}
+		//swap the next queue with the run queue
+		struct list *tmp = list_head(&this_cpu->nextq);
+		list_del(&this_cpu->nextq);
+		list_add(&this_cpu->runq, tmp);
+		this_cpu->runq_len = 0;
 	}
-	if(spin_trylock(&runq_lock)){
-		//do migration
-		size_t target_runq_len = (runq_len + this_cpu->runq_len) / ncpus;
-		if(target_runq_len == 0 && runq_len > 0){
-			target_runq_len = 1;
-		}
-		while(this_cpu->runq_len < target_runq_len && runq_len > 0){
-			struct task *task = runq_pop();
-			assert(task);
-			list_add(&this_cpu->nextq, &task->task_local_runq_node);
-			this_cpu->runq_len++;
-		}
-		while(this_cpu->runq_len > target_runq_len){
-			assert(!list_is_empty(&this_cpu->runq));
-			struct task *task = container_of(list_pop(&this_cpu->nextq), struct task, task_local_runq_node);
-			assert(task);
-			runq_add(task);
-			this_cpu->runq_len--;
-		}
-		spin_unlock(&runq_lock);
-	}
-	//swap the next queue with the run queue
-	struct list *tmp = list_head(&this_cpu->nextq);
-	list_del(&this_cpu->nextq);
-	list_add(&this_cpu->runq, tmp);
-	this_cpu->runq_len = 0;
 
 	if(list_is_empty(&this_cpu->runq)){
+		/*
+		we get here if the nextq is empty even after checking the global queue as the lobal queue is empty
+		so we halt the scheduling
+
+		*/
 		sched_halt();
 	}
-	sched_yield();
+	
+	task = container_of(list_pop(&this_cpu->runq), struct task, task_local_runq_node);
+	assert(task);
+	this_cpu->runq_len++;
+	cprintf("running task: %d, runq: cpu: %d\n", task->task_pid, this_cpu->cpu_id);
+	task_run(task);
 #endif
 }
 /* For now jump into the kernel monitor. */
