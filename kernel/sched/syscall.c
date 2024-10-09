@@ -15,6 +15,10 @@
 extern void syscall64(void);
 extern struct rb_tree runq;
 
+#ifndef USE_BIG_KERNEL_LOCK
+extern struct spinlock runq_lock;
+#endif
+
 void syscall_init(void)
 {
 	write_msr(MSR_LSTAR, (uintptr_t) syscall64);
@@ -86,7 +90,13 @@ static int sys_kill(pid_t pid)
 
 		if(parent->task_wait == task){
 			parent->task_status = TASK_RUNNABLE;
+			#ifndef USE_BIG_KERNEL_LOCK
+			spin_lock(&runq_lock);
+			#endif
 			runq_add(parent);
+			#ifndef USE_BIG_KERNEL_LOCK
+			spin_unlock(&runq_lock);
+			#endif
 		}
 		if(task != cur_task){
 			lapic_ipi(IRQ_TIMER);//force other cores to reschedule in case the child process is still running.

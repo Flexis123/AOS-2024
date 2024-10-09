@@ -114,7 +114,10 @@ void sched_yield(void)
 			spin_lock(&kernel_lock);
 			if(runq.root) break;
 
-			if(nuser_tasks == 0) monitor(NULL);
+			if(nuser_tasks == 0) {
+				spin_unlock(&kernel_lock);
+				monitor(NULL);
+			}
 			spin_unlock(&kernel_lock);
 		}
 	}
@@ -131,11 +134,11 @@ void sched_yield(void)
 	if(list_is_empty(&this_cpu->runq)){
 		if(spin_trylock(&runq_lock)){
 			//do migration
-			size_t target_runq_len = (global_runq_len + this_cpu->runq_len) / ncpus;
-			if(target_runq_len == 0 && global_runq_len > 0){
+			size_t target_runq_len = (runq_len + this_cpu->runq_len) / ncpus;
+			if(target_runq_len == 0 &&runq_len > 0){
 				target_runq_len = 1;
 			}
-			while(this_cpu->runq_len < target_runq_len && global_runq_len > 0){
+			while(this_cpu->runq_len < target_runq_len && runq_len > 0){
 				struct task *task = runq_pop();
 				assert(task);
 				list_add(&this_cpu->nextq, &task->task_local_runq_node);

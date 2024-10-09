@@ -16,7 +16,14 @@ pid_t pid_max = 1 << 16;
 struct task **tasks = (struct task **)PIDMAP_BASE;
 size_t nuser_tasks = 0;
 extern struct rb_tree runq;
+
+#ifdef USE_BIG_KERNEL_LOCK
 extern struct spinlock kernel_lock;
+#endif
+
+#ifndef USE_BIG_KERNEL_LOCK
+extern struct spinlock runq_lock;
+#endif
 
 
 /* Looks up the respective task for a given PID.
@@ -305,7 +312,13 @@ void task_create(uint8_t *binary, enum task_type type)
 	task->task_type = type;
 
 	if(type == TASK_TYPE_USER) nuser_tasks++;
+	#ifndef USE_BIG_KERNEL_LOCK
+	spin_lock(&runq_lock);
+	#endif
 	runq_add(task);
+	#ifndef USE_BIG_KERNEL_LOCK
+	spin_unlock(&runq_lock);
+	#endif
 }
 
 /* Free the task and all of the memory that is used by it.
@@ -461,7 +474,9 @@ void task_run(struct task *task)
 			cur_task->task_start_waiting = curr_time;
 			
 			if(cur_task->task_status == TASK_RUNNABLE){
+				#ifdef USE_BIG_KERNEL_LOCK
 				runq_add(cur_task);
+				#endif
 			}
 		}
 		cur_task = task;

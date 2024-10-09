@@ -67,7 +67,11 @@ void kmain(struct boot_info *boot_info)
 	#else
 	spin_init(&buddy_lock, "buddy_lock");
 	spin_init(&console_lock, "console_lock");
+	//intializie runq lock
 	#endif
+
+	assert(this_cpu->cpu_id == boot_cpu->cpu_id);
+	cprintf("boot processor is: %d\n", this_cpu->cpu_id);
 
 	boot_cpus();
 

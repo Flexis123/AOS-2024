@@ -1,0 +1,167 @@
++ ld obj/kernel/kernel
++ mk obj/kernel/kernel.img
+***
+*** Now run 'make gdb'.
+***
+c[?7l[2J[0mSeaBIOS (version 1.15.0-1)
+
+
+iPXE (https://ipxe.org) 00:03.0 CA00 PCI2.10 PnP PMM+07F8B4A0+07ECB4A0 CA00
+Press Ctrl-B to configure iPXE (PCI 00:03.0)...                                                                               
+
+
+Booting from Hard Disk...
+
+RESERVED addr space from 0x9f000 to 0xa0000 made up of 1 pages
+RESERVED addr space from 0xf0000 to 0x100000 made up of 16 pages
+RESERVED addr space from 0x7fe0000 to 0x8000000 made up of 32 pages
+RESERVED addr space from 0xfffc0000 to 0x100000000 made up of 64 pages
+init stack, no exec
+map buddy pages as rw
+[LAB 2] check_ptbl_flags() succeeded!
+[LAB 2] check_wx() succeeded!
+[LAB 2] check_nx() succeeded!
+[LAB 2] check_4k_paging() succeeded!
+starting page init ext
+[LAB 2] check_free_list_order() succeeded!
+[LAB 2] check_memory_layout() succeeded!
+[LAB 2] check_buddy_consistency() succeeded!
+[LAB 2] check_vas() succeeded!
+RESERVED addr space from 0x9f000 to 0xa0000 made up of 1 pages
+RESERVED addr space from 0xf0000 to 0x100000 made up of 16 pages
+RESERVED addr space from 0x7fe0000 to 0x8000000 made up of 32 pages
+RESERVED addr space from 0xfffc0000 to 0x100000000 made up of 64 pages
+page init ext complete
+[LAB 2] check_free_list_order() succeeded!
+[LAB 2] check_memory_layout() succeeded!
+[LAB 2] check_buddy_consistency() succeeded!
+[LAB 2] check_vas() succeeded!
+I/O APIC with base=0xfec00000
+SMP: setting IMCR to switch from PIC mode to symmetric I/O mode
+boot processor is: 0
+SMP: CPU 1 starting
+SMP: CPU 2 starting
+SMP: CPU 3 starting
+SMP: CPU 4 starting
+SMP: CPU 5 starting
+SMP: CPU 6 starting
+SMP: CPU 7 starting
+SMP: CPU 8 starting
+SMP: CPU 9 starting
+SMP: CPU 10 starting
+SMP: CPU 11 starting
+SMP: CPU 12 starting
+SMP: CPU 13 starting
+SMP: CPU 14 starting
+SMP: CPU 15 starting
+BIG KERNEL LOCK IN USE!
+[PID     0] New task with PID 1
+[PID     1] VMAs:
+  0x0000000000200000 - 0x0000000000201000 [rw-] 0xffff8000002af358 - 0x0000000000000068 ".data"
+  0x0000000000800000 - 0x0000000000802000 [r-x] 0xffff8000002ac4a8 - 0x00000000000010de ".text"
+  0x0000000000802000 - 0x0000000000803000 [r--] 0xffff8000002ae348 - 0x0000000000000360 ".rodata"
+  0x0000000000803000 - 0x0000000000804000 [rw-] 0xffff8000002af348 - 0x0000000000000008 ".data"
+  0x00007fffffffd000 - 0x00007fffffffe000 [rw-] "stack"
+running task: 1, runq: 0xffff80000030a130 cpu: 0
+interrupt received by cpu: 0, int no: 14
+interrupt received by cpu: 0, int no: 32
+IRQ timer received for cpu: 0
+running only task available: 1,cpu: 0
+interrupt received by cpu: 0, int no: 14
+interrupt received by cpu: 0, int no: 32
+IRQ timer received for cpu: 0
+running only task available: 1,cpu: 0
+interrupt received by cpu: 0, int no: 32
+IRQ timer received for cpu: 0
+running only task available: 1,cpu: 0
+interrupt received by cpu: 0, int no: 32
+IRQ timer received for cpu: 0
+running only task available: 1,cpu: 0
+interrupt received by cpu: 0, int no: 14
+interrupt received by cpu: 0, int no: 32
+IRQ timer received for cpu: 0
+running only task available: 1,cpu: 0
+interrupt received by cpu: 0, int no: 32
+IRQ timer received for cpu: 0
+running only task available: 1,cpu: 0
+interrupt received by cpu: 0, int no: 128
+executing syscall fork
+[PID     1] New task with PID 2
+running task: 2, runq: 0xffff80000030a130 cpu: 12
+interrupt received by cpu: 0, int no: 14
+interrupt received by cpu: 0, int no: 32
+IRQ timer received for cpu: 0
+running only task available: 1,cpu: 0
+interrupt received by cpu: 0, int no: 14
+interrupt received by cpu: 0, int no: 128
+executing syscall cputs
+Child is 0x2
+interrupt received by cpu: 0, int no: 32
+IRQ timer received for cpu: 0
+running only task available: 1,cpu: 0
+interrupt received by cpu: 0, int no: 128
+executing syscall yield
+running only task available: 1,cpu: 0
+interrupt received by cpu: 0, int no: 32
+IRQ timer received for cpu: 0
+running only task available: 1,cpu: 0
+interrupt received by cpu: 12, int no: 32
+IRQ timer received for cpu: 12
+running only task available: 2,cpu: 12
+interrupt received by cpu: 0, int no: 128
+executing syscall yield
+running only task available: 1,cpu: 0
+interrupt received by cpu: 12, int no: 32
+IRQ timer received for cpu: 12
+running only task available: 2,cpu: 12
+interrupt received by cpu: 0, int no: 128
+executing syscall yield
+running only task available: 1,cpu: 0
+interrupt received by cpu: 12, int no: 32
+IRQ timer received for cpu: 12
+running only task available: 2,cpu: 12
+interrupt received by cpu: 0, int no: 32
+IRQ timer received for cpu: 0
+running only task available: 1,cpu: 0
+interrupt received by cpu: 12, int no: 14
+interrupt received by cpu: 0, int no: 128
+executing syscall kill
+[PID     1] Reaping task with PID 2
+running only task available: 1,cpu: 0
+interrupt received by cpu: 12, int no: 128
+executing syscall getpid
+dying or unrunnable task in task_run: 2, calling sched_yield
+interrupt received by cpu: 0, int no: 32
+IRQ timer received for cpu: 0
+running only task available: 1,cpu: 0
+interrupt received by cpu: 0, int no: 32
+IRQ timer received for cpu: 0
+running only task available: 1,cpu: 0
+interrupt received by cpu: 0, int no: 128
+executing syscall waitpid
+running sys_waitpid on pid: 2
+in task destroy, calling task_free on task: 2 by cpu 0
+[PID     1] Freed task with PID 2
+interrupt received by cpu: 0, int no: 32
+IRQ timer received for cpu: 0
+running only task available: 1,cpu: 0
+interrupt received by cpu: 0, int no: 32
+IRQ timer received for cpu: 0
+running only task available: 1,cpu: 0
+interrupt received by cpu: 0, int no: 128
+executing syscall getpid
+interrupt received by cpu: 0, int no: 128
+executing syscall cputs
+[PID     1] I am the parent!
+interrupt received by cpu: 0, int no: 32
+IRQ timer received for cpu: 0
+running only task available: 1,cpu: 0
+interrupt received by cpu: 0, int no: 128
+executing syscall kill
+[PID     1] Exiting gracefully
+in task destroy, calling task_free on task: 1 by cpu 0
+[PID     1] Freed task with PID 1
+Destroyed the only task - nothing more to do!
+Welcome to the OpenLSD kernel monitor!
+Type 'help' for a list of commands.
+qemu-system-x86_64: terminating on signal 15 from pid 118668 (make)
