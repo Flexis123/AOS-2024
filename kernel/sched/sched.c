@@ -24,15 +24,8 @@ size_t runq_len = 0;//every core attempts to hold runq_len / ncpus tasks in thei
 
 //give priority that wait for a longer time
 static inline int64_t vruntime(struct task* task){
-	#ifndef USE_BIG_KERNEL_LOCK
-	spin_lock(&task->task_lock);
-	#endif
 	uint64_t waiting_time = task->task_start_waiting ? read_tsc() - task->task_start_waiting : 0;
-	int64_t vruntime = (int64_t)task->task_cpu_time - (int64_t)(waiting_time / (runq_len + 1));
-	#ifndef USE_BIG_KERNEL_LOCK
-	spin_unlock(&task->task_lock);
-	#endif
-	return vruntime;
+	return(int64_t)task->task_cpu_time - (int64_t)(waiting_time / (runq_len + 1));
 }
 
 void sched_init(void)
@@ -56,13 +49,25 @@ int runq_add(struct task* task){//add to global runq
 	int dir;
 
 	node = runq.root;
-
+	#ifndef USE_BIG_KERNEL_LOCK
+	spin_lock(&task->task_lock);
+	#endif
 	int64_t vruntime_task = vruntime(task);
+	#ifndef USE_BIG_KERNEL_LOCK
+	spin_unlock(&task->task_lock);
+	#endif
 
 	while (node) {
 		task_tmp = container_of(node, struct task, task_runq_node);
 		parent = node;
+
+		#ifndef USE_BIG_KERNEL_LOCK
+		if(task_tmp != task)spin_lock(&task->task_lock);
+		#endif
 		dir = (vruntime_task >= vruntime(task_tmp));
+		#ifndef USE_BIG_KERNEL_LOCK
+		if(task_tmp != task)spin_unlock(&task->task_lock);
+		#endif
 		node = node->child[dir];
 	}
 	#ifndef USE_BIG_KERNEL_LOCK
@@ -157,10 +162,10 @@ void sched_yield(void)
 	}
 	if(cur_task && (cur_task->task_status == TASK_RUNNABLE || cur_task->task_status == TASK_RUNNING)){
 		list_add(&this_cpu->nextq, &cur_task->task_local_runq_node);
-		#ifndef USE_BIG_KERNEL_LOCK
-		spin_unlock(&cur_task->task_lock);
-		#endif
 	}
+	#ifndef USE_BIG_KERNEL_LOCK
+	if(cur_task)spin_unlock(&cur_task->task_lock);
+	#endif
 
 	if(list_is_empty(&this_cpu->runq)){
 		if(spin_trylock(&runq_lock)){

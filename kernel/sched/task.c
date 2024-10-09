@@ -64,28 +64,9 @@ struct task *pid2task(pid_t pid, int check_perm)
 	 * parent. If not, then the current task has insufficient permissions.
 	 */
 
-	#ifndef USE_BIG_KERNEL_LOCK
-	spin_lock(&cur_task->task_lock);
-	
-	if(task != cur_task){
-		spin_lock(&task->task_lock);
-	}
-	#endif
 	if (task != cur_task && task->task_ppid != cur_task->task_pid) {
-		#ifndef USE_BIG_KERNEL_LOCK
-		spin_unlock(&cur_task->task_lock);
-		spin_unlock(&task->task_lock);
-		#endif
 		return NULL;
 	}
-	#ifndef USE_BIG_KERNEL_LOCK
-	spin_unlock(&cur_task->task_lock);
-	
-	if(task != cur_task){
-		spin_unlock(&task->task_lock);
-	}
-	#endif
-
 	return task;
 }
 
