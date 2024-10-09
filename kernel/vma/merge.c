@@ -45,6 +45,10 @@ struct vma *merge_vma(struct task *task, struct vma *lhs, struct vma *rhs)
  */
 struct vma *merge_vmas(struct task *task, struct vma *vma)
 {
+	#ifndef USE_BIG_KERNEL_LOCK
+	spin_lock(&task->task_lock);
+	#endif
+
 	struct list *previous = list_prev(&task->task_mmap, &vma->vm_mmap);
 	struct vma *previous_vma = (previous)? container_of(previous, struct vma, vm_mmap) : NULL;
 
@@ -65,7 +69,9 @@ struct vma *merge_vmas(struct task *task, struct vma *vma)
 			vma = merged_vma;
 		}
 	}
-
+	#ifndef USE_BIG_KERNEL_LOCK
+	spin_unlock(&task->task_lock);
+	#endif
 	return vma;
 }
 

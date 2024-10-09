@@ -5,7 +5,16 @@
 
 int task_page_fault_cow_handler(struct task *task, void *va, int pf_flags){
 	physaddr_t *entry = NULL;
+
+	#ifndef USE_BIG_KERNEL_LOCK
+	spin_lock(&task->task_lock);
+	#endif
+
+
 	struct page_info *existing_page = page_lookup(task->task_pml4, va, &entry);
+	#ifndef USE_BIG_KERNEL_LOCK
+	spin_unlock(&task->task_lock);
+	#endif
 	assert(existing_page);
 	assert(existing_page->pp_ref > 0);
 	
@@ -21,8 +30,14 @@ int task_page_fault_cow_handler(struct task *task, void *va, int pf_flags){
 	}
 	size_t page_size = (existing_page->pp_order == BUDDY_2M_PAGE)? HPAGE_SIZE : PAGE_SIZE;
 	memcpy(page2kva(copy_page), page2kva(existing_page), page_size);
-	//todo maybe remove this when we are done testing
+	
+	#ifndef USE_BIG_KERNEL_LOCK
+	spin_lock(&task->task_lock);
+	#endif
 	assert(page_insert(task->task_pml4, copy_page, ROUNDDOWN(va, page_size), (*entry | PAGE_WRITE) & PAGE_MASK) == 0);
+	#ifndef USE_BIG_KERNEL_LOCK
+	spin_unlock(&task->task_lock);
+	#endif
 	return 0;
 }
 

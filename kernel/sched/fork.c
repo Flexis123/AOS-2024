@@ -74,6 +74,9 @@ struct task *task_clone(struct task *task)
 		panic("OOM in task_clone");
 		return NULL;
 	}
+	#ifndef USE_BIG_KERNEL_LOCK
+	spin_lock(&task->task_lock);
+	#endif
 	memcpy(&child->task_frame, &task->task_frame, sizeof(task->task_frame));
 
 
@@ -94,6 +97,10 @@ struct task *task_clone(struct task *task)
 		if(!child_vma){
 			panic("unable to create vma in task_clone");
 			task_free(child);
+
+			#ifndef USE_BIG_KERNEL_LOCK
+			spin_unlock(&task->task_lock);
+			#endif
 			return NULL;
 		}
 
@@ -112,6 +119,9 @@ struct task *task_clone(struct task *task)
 	spin_unlock(&runq_lock);
 	#endif
 	list_add(&task->task_children, &child->task_child);
+	#ifndef USE_BIG_KERNEL_LOCK
+	spin_unlock(&task->task_lock);
+	#endif
 	nuser_tasks++;
 	return child;
 }

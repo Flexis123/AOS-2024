@@ -24,13 +24,21 @@ size_t runq_len = 0;//every core attempts to hold runq_len / ncpus tasks in thei
 
 //give priority that wait for a longer time
 static inline int64_t vruntime(struct task* task){
+	#ifndef USE_BIG_KERNEL_LOCK
+	spin_lock(&task->task_lock);
+	#endif
 	uint64_t waiting_time = task->task_start_waiting ? read_tsc() - task->task_start_waiting : 0;
-	return (int64_t)task->task_cpu_time - (int64_t)(waiting_time / (runq_len + 1));
+	int64_t vruntime = (int64_t)task->task_cpu_time - (int64_t)(waiting_time / (runq_len + 1));
+	#ifndef USE_BIG_KERNEL_LOCK
+	spin_unlock(&task->task_lock);
+	#endif
+	return vruntime;
 }
 
 void sched_init(void)
 {
 	rb_init(&runq);
+	sched_init_mp();
 }
 
 void sched_init_mp(void)
@@ -57,19 +65,29 @@ int runq_add(struct task* task){//add to global runq
 		dir = (vruntime_task >= vruntime(task_tmp));
 		node = node->child[dir];
 	}
-
+	#ifndef USE_BIG_KERNEL_LOCK
+	spin_lock(&task->task_lock);
+	#endif
 	if (!parent){
 		runq.root = &task->task_runq_node;
 	} else {
 		parent->child[dir] = &task->task_runq_node;
 		task->task_runq_node.parent = parent;
 	}
+	#ifndef USE_BIG_KERNEL_LOCK
+	spin_unlock(&task->task_lock);
+	#endif
 
 	if (rb_balance(&runq, &task->task_runq_node) < 0) {
 		return -1;
 	}
-
+	#ifndef USE_BIG_KERNEL_LOCK
+	spin_lock(&task->task_lock);
+	#endif
 	task->is_in_runq = true;
+	#ifndef USE_BIG_KERNEL_LOCK
+	spin_unlock(&task->task_lock);
+	#endif
 	runq_len++;
 	return 0;
 }
@@ -86,10 +104,15 @@ struct task* runq_pop(){//for global runq
 
 	struct task* task = container_of(node, struct task, task_runq_node);
 	rb_remove(&runq, &task->task_runq_node);
-
+	#ifndef USE_BIG_KERNEL_LOCK
+	spin_lock(&task->task_lock);
+	#endif
 	rb_node_init(&task->task_runq_node);
 
 	task->is_in_runq = false;
+	#ifndef USE_BIG_KERNEL_LOCK
+	spin_unlock(&task->task_lock);
+	#endif
 	runq_len--;
 	return task;
 }
@@ -127,16 +150,24 @@ void sched_yield(void)
 	task_run(task);
 
 #else
+	if(cur_task){
+		#ifndef USE_BIG_KERNEL_LOCK
+		spin_lock(&cur_task->task_lock);
+		#endif
+	}
 	if(cur_task && (cur_task->task_status == TASK_RUNNABLE || cur_task->task_status == TASK_RUNNING)){
 		list_add(&this_cpu->nextq, &cur_task->task_local_runq_node);
+		#ifndef USE_BIG_KERNEL_LOCK
+		spin_unlock(&cur_task->task_lock);
+		#endif
 	}
 
 	if(list_is_empty(&this_cpu->runq)){
 		if(spin_trylock(&runq_lock)){
 			//do migration
 			size_t target_runq_len = (runq_len + this_cpu->runq_len) / ncpus;
-			if(target_runq_len == 0 &&runq_len > 0){
-				target_runq_len = 1;
+			if(target_runq_len == 0){
+				target_runq_len = MAX(runq_len, this_cpu->runq_len);
 			}
 			while(this_cpu->runq_len < target_runq_len && runq_len > 0){
 				struct task *task = runq_pop();
@@ -145,7 +176,7 @@ void sched_yield(void)
 				this_cpu->runq_len++;
 			}
 			while(this_cpu->runq_len > target_runq_len){
-				assert(!list_is_empty(&this_cpu->runq));
+				assert(!list_is_empty(&this_cpu->nextq));
 				struct task *task = container_of(list_pop(&this_cpu->nextq), struct task, task_local_runq_node);
 				assert(task);
 				runq_add(task);
@@ -155,8 +186,14 @@ void sched_yield(void)
 		}
 		//swap the next queue with the run queue
 		struct list *tmp = list_head(&this_cpu->nextq);
-		list_del(&this_cpu->nextq);
-		list_add(&this_cpu->runq, tmp);
+		if(tmp){
+			list_del(&this_cpu->nextq);
+			list_add(&this_cpu->runq, tmp);
+		}
+		else{
+			assert(list_is_empty(&this_cpu->nextq));
+			assert(list_is_empty(&this_cpu->runq));
+		}
 		this_cpu->runq_len = 0;
 	}
 
@@ -168,18 +205,59 @@ void sched_yield(void)
 		*/
 		sched_halt();
 	}
-	
-	task = container_of(list_pop(&this_cpu->runq), struct task, task_local_runq_node);
+	if(!list_is_empty(&this_cpu->runq)){
+		struct list *task_list2 = list_head(&this_cpu->runq);
+		struct task *debug_task = container_of(task_list2, struct task, task_local_runq_node);
+	}
+	else{
+		assert(false);
+	}
+	struct list *task_list = list_pop(&this_cpu->runq);
+	task = container_of(task_list, struct task, task_local_runq_node);
 	assert(task);
 	this_cpu->runq_len++;
-	cprintf("running task: %d, runq: cpu: %d\n", task->task_pid, this_cpu->cpu_id);
 	task_run(task);
 #endif
 }
 /* For now jump into the kernel monitor. */
 void sched_halt()
 {
-	while (1) {
-		monitor(NULL);
+	#ifndef USE_BIG_KERNEL_LOCK
+	while(true){
+		spin_lock(&runq_lock);
+
+		if(runq_len > 0){
+			struct task *task = runq_pop();
+			assert(task);
+
+			spin_lock(&task->task_lock);
+			list_add(&this_cpu->runq, &task->task_local_runq_node);
+			spin_unlock(&task->task_lock);
+			spin_unlock(&runq_lock);
+			assert(!list_is_empty(&this_cpu->runq));
+			return;
+		}
+		if(nuser_tasks == 0){
+
+			if(this_cpu == boot_cpu){
+				spin_unlock(&runq_lock);
+				monitor(NULL);
+			}
+			else{
+				xchg(&this_cpu->cpu_status, CPU_HALTED);
+				spin_unlock(&runq_lock);
+				asm volatile(
+				"cli\n"
+				"hlt\n");
+			}
+			assert(false);
+		}
+		spin_unlock(&runq_lock);
 	}
+	assert(false);
+	#endif
+
+	asm volatile(
+		"cli\n"
+		"hlt\n");
 }

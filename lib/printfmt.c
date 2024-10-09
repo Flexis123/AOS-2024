@@ -10,14 +10,11 @@
 #include <stdarg.h>
 #include <error.h>
 
-#ifndef USE_BIG_KERNEL_LOCK
-extern struct spinlock console_lock;
-#endif
 /*
  * Space or zero padding and a field width are supported for the numeric
  * formats only.
  *
- * The special format %e takes an integver error code and prints a string
+ * The special format %e takes an integer error code and prints a string
  * describing the error.
  * The integer may be positive or negative, so that -E_NO_MEM and E_NO_MEM are
  * equivalent.
@@ -54,7 +51,7 @@ static void printnum(void (*putch)(int, void*), void *putdat,
 }
 
 /*
- * Get an unsigned int of various possible sizes from a varargs list,	spin_lock(&buddy_lock);
+ * Get an unsigned int of various possible sizes from a varargs list,
  * depending on the lflag parameter.
  */
 static unsigned long long getuint(va_list *ap, int lflag)
@@ -87,9 +84,6 @@ void printfmt(void (*putch)(int, void*), void *putdat, const char *fmt, ...);
 void vprintfmt(void (*putch)(int, void*), void *putdat, const char *fmt,
 		va_list tmp_ap)
 {
-	#ifndef USE_BIG_KERNEL_LOCK
-	spin_lock(&console_lock);
-	#endif
 	va_list ap;
 	register const char *p;
 	register int ch, err;
@@ -102,9 +96,6 @@ void vprintfmt(void (*putch)(int, void*), void *putdat, const char *fmt,
 	while (1) {
 		while ((ch = *(unsigned char *) fmt++) != '%') {
 			if (ch == '\0')
-				#ifndef USE_BIG_KERNEL_LOCK
-				spin_unlock(&console_lock);
-				#endif
 				return;
 			putch(ch, putdat);
 		}
@@ -254,9 +245,6 @@ void vprintfmt(void (*putch)(int, void*), void *putdat, const char *fmt,
 			break;
 		}
 	}
-	#ifndef USE_BIG_KERNEL_LOCK
-	spin_unlock(&console_lock);
-	#endif
 }
 
 void printfmt(void (*putch)(int, void*), void *putdat, const char *fmt, ...)

@@ -8,7 +8,9 @@ void show_vmas(struct task *task)
 {
 	struct vma *vma;
 	struct list *node;
-
+	#ifndef USE_BIG_KERNEL_LOCK
+	spin_lock(&task->task_lock);
+	#endif
 	cprintf("[PID %5u] VMAs:\n", task->task_pid);
 
 	list_foreach(&task->task_mmap, node) {
@@ -27,5 +29,8 @@ void show_vmas(struct task *task)
 
 		cprintf("\"%s\"\n", vma->vm_name);
 	}
+	#ifndef USE_BIG_KERNEL_LOCK
+	spin_unlock(&task->task_lock);
+	#endif
 }
 

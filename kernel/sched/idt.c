@@ -243,7 +243,14 @@ void int_dispatch(struct int_frame *frame)
 	}
 
 	/* Unexpected trap: The user process or the kernel has a bug. */
+	#ifndef USE_BIG_KERNEL_LOCK
+	spin_lock(&cur_task->task_lock);
+	#endif
+
 	cprintf("Unxpected intterupt with id\n cur task: %d cpu: %d\n", cur_task->task_pid, this_cpu->cpu_id);
+	#ifndef USE_BIG_KERNEL_LOCK
+	spin_unlock(&cur_task->task_lock);
+	#endif
 	print_int_frame(frame);
 
 	if (frame->cs == GDT_KCODE) {
@@ -265,6 +272,11 @@ void int_handler(struct int_frame *frame)
 	 */
 	assert(!(read_rflags() & FLAGS_IF));
 
+	#ifndef USE_BIG_KERNEL_LOCK
+	spin_lock(&cur_task->task_lock);
+	#endif
+
+
 	if ((frame->cs & 3) == 3) {
 		/* Interrupt from user mode. */
 		assert(cur_task);
@@ -281,6 +293,10 @@ void int_handler(struct int_frame *frame)
 
 	/* Dispatch based on the type of interrupt that occurred. */
 	cur_task->task_frame.rflags |= FLAGS_IF;
+
+	#ifndef USE_BIG_KERNEL_LOCK
+	spin_unlock(&cur_task->task_lock);
+	#endif
 	int_dispatch(frame);
 
 	/* Return to the current task, which should be running. */
@@ -306,7 +322,15 @@ void page_fault_handler(struct int_frame *frame)
 	if(task_page_fault_handler(cur_task, fault_va, frame->err_code) < 0){
 	//	cprintf("entry pa: %p\n", page2pa(page));
 
+		#ifndef USE_BIG_KERNEL_LOCK
+		spin_lock(&cur_task->task_lock);
+		#endif
+
 		cprintf("[PID %5u] user fault is invalid!\n", cur_task->task_pid);
+		#ifndef USE_BIG_KERNEL_LOCK
+		spin_unlock(&cur_task->task_lock);
+		#endif
+	
 		print_int_frame(frame);
 		task_destroy(cur_task);
 	}

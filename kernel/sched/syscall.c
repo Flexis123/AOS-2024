@@ -64,7 +64,14 @@ static int sys_cgetc(void)
 /* Returns the PID of the current task. */
 static pid_t sys_getpid(void)
 {
-	return cur_task->task_pid;
+	#ifndef USE_BIG_KERNEL_LOCK
+	spin_lock(&cur_task->task_lock);
+	#endif
+	pid_t pid = cur_task->task_pid;
+	#ifndef USE_BIG_KERNEL_LOCK
+	spin_unlock(&cur_task->task_lock);
+	#endif
+	return pid;
 }
 
 static int sys_kill(pid_t pid)
@@ -76,10 +83,16 @@ static int sys_kill(pid_t pid)
 	if (!task) {
 		return -1;
 	}
+	#ifndef USE_BIG_KERNEL_LOCK
+	spin_lock(&task->task_lock);
+	#endif
 
 	if(task->task_ppid != 0){
 		struct task *parent = pid2task(task->task_ppid, false);
 		assert(parent);
+		#ifndef USE_BIG_KERNEL_LOCK
+		spin_lock(&parent->task_lock);//TODO maybe unlock in between
+		#endif
 		assert(parent->task_pid == task->task_ppid);
 		task->task_status = TASK_DYING;
 		
@@ -101,11 +114,19 @@ static int sys_kill(pid_t pid)
 		if(task != cur_task){
 			lapic_ipi(IRQ_TIMER);//force other cores to reschedule in case the child process is still running.
 		}
+		#ifndef USE_BIG_KERNEL_LOCK
+		spin_unlock(&task->task_lock);
+		spin_unlock(&parent->task_lock);
+		#endif
 		sched_yield();
 		return 0;
 	}
 
 	cprintf("[PID %5u] Exiting gracefully\n", task->task_pid);
+
+	#ifndef USE_BIG_KERNEL_LOCK
+	spin_unlock(&task->task_lock);
+	#endif
 	task_destroy(task);
 
 	return 0;
@@ -113,7 +134,6 @@ static int sys_kill(pid_t pid)
 
 static int sys_getcpuid(void)
 {
-	/* LAB 6: your code here. */
 	return this_cpu->cpu_id;
 }
 
@@ -207,8 +227,14 @@ void syscall_handler(uint64_t syscallno, uint64_t a1, uint64_t a2, uint64_t a3,
 	assert(cur_task);
 
 	/* Avoid using the frame on the stack. */
-	frame = &cur_task->task_frame;
 
+	#ifndef USE_BIG_KERNEL_LOCK
+	spin_lock(&cur_task->task_lock);
+	#endif
+	frame = &cur_task->task_frame;
+	#ifndef USE_BIG_KERNEL_LOCK
+	spin_unlock(&cur_task->task_lock);
+	#endif
 	/* Issue the syscall. */
 	frame->rax = syscall(syscallno, a1, a2, a3, a4, a5, a6);
 

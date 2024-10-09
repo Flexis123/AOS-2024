@@ -63,9 +63,28 @@ struct task *pid2task(pid_t pid, int check_perm)
 	/* Check if the task is the current task or if the current task is the
 	 * parent. If not, then the current task has insufficient permissions.
 	 */
+
+	#ifndef USE_BIG_KERNEL_LOCK
+	spin_lock(&cur_task->task_lock);
+	
+	if(task != cur_task){
+		spin_lock(&task->task_lock);
+	}
+	#endif
 	if (task != cur_task && task->task_ppid != cur_task->task_pid) {
+		#ifndef USE_BIG_KERNEL_LOCK
+		spin_unlock(&cur_task->task_lock);
+		spin_unlock(&task->task_lock);
+		#endif
 		return NULL;
 	}
+	#ifndef USE_BIG_KERNEL_LOCK
+	spin_unlock(&cur_task->task_lock);
+	
+	if(task != cur_task){
+		spin_unlock(&task->task_lock);
+	}
+	#endif
 
 	return task;
 }
@@ -325,18 +344,26 @@ void task_create(uint8_t *binary, enum task_type type)
  */
 void task_free(struct task *task)
 {
+	#ifndef USE_BIG_KERNEL_LOCK
+	spin_lock(&task->task_lock);
+	#endif
 	nuser_tasks--;
 	assert(nuser_tasks >= 0);
 	struct task *waiting;
 	assert(task);
-	struct task *parent = pid2task(task->task_ppid, false);
 
 	struct list *current_child = NULL;
 	struct list *next = NULL;
 	list_foreach_safe (&task->task_children, current_child, next){
 		struct task *child_task = container_of(current_child, struct task, task_child);
+		#ifndef USE_BIG_KERNEL_LOCK
+		spin_lock(&child_task->task_lock);
+		#endif
 		list_del(&child_task->task_child);
 		child_task->task_ppid = 0;
+		#ifndef USE_BIG_KERNEL_LOCK
+		spin_unlock(&child_task->task_lock);
+		#endif
 
 		//if(child_task->task_status == TASK_DYING) task_free(child_task);
 	}
@@ -356,6 +383,10 @@ void task_free(struct task *task)
 
 	/* Unmap the task from the PID map. */
 	tasks[task->task_pid] = NULL;
+
+	#ifndef USE_BIG_KERNEL_LOCK
+	spin_unlock(&task->task_lock);
+	#endif
 
 	/* Unmap the user pages. */
 	unmap_user_pages(task->task_pml4);
@@ -438,8 +469,18 @@ void task_run(struct task *task)
 	 *  and make sure you have set the relevant parts ofcur_task
 	 *  e->task_frame to sensible values.
 	 */
+
+	#ifndef USE_BIG_KERNEL_LOCK
+	spin_lock(&task->task_lock);
+	#endif
+
 	if(task->task_status == TASK_DYING || task->task_status == TASK_NOT_RUNNABLE){
 		cprintf("dying or unrunnable task in task_run: %d, calling sched_yield\n", task->task_pid);
+
+		#ifndef USE_BIG_KERNEL_LOCK
+		spin_unlock(&task->task_lock);
+		#endif
+
 		if(task == cur_task)cur_task = NULL;
 		sched_yield();
 	}
@@ -447,6 +488,10 @@ void task_run(struct task *task)
 
 	if(cur_task != task){
 		uint64_t curr_time = read_tsc();
+
+		#ifndef USE_BIG_KERNEL_LOCK
+		if(cur_task)spin_lock(&cur_task->task_lock);
+		#endif
 
 		if(cur_task){
 
@@ -478,6 +523,9 @@ void task_run(struct task *task)
 				runq_add(cur_task);
 				#endif
 			}
+			#ifndef USE_BIG_KERNEL_LOCK
+			if(cur_task)spin_unlock(&cur_task->task_lock);
+			#endif
 		}
 		cur_task = task;
 		cur_task->task_status = TASK_RUNNING;
@@ -487,5 +535,9 @@ void task_run(struct task *task)
 	}
 	assert(cur_task);
 	load_pml4((struct page_table*)PADDR(cur_task->task_pml4));
+	#ifndef USE_BIG_KERNEL_LOCK
+	if(cur_task)spin_unlock(&cur_task->task_lock);
+	#endif
+
 	task_pop_frame(&cur_task->task_frame);
 }

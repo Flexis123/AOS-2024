@@ -10,8 +10,13 @@ void remove_vma(struct task *task, struct vma *vma)
 	if (!task || !vma) {
 		return;
 	}
-
+	#ifndef USE_BIG_KERNEL_LOCK
+	spin_lock(&task->task_lock);
+	#endif
 	rb_remove(&task->task_rb, &vma->vm_rb);
+	#ifndef USE_BIG_KERNEL_LOCK
+	spin_unlock(&task->task_lock);
+	#endif
 	rb_node_init(&vma->vm_rb);
 	list_del(&vma->vm_mmap);
 }
@@ -34,10 +39,23 @@ int do_remove_vma(struct task *task, void *base, size_t size, struct vma *vma,
 	void* actual_end = MIN(vma->vm_end, base + size);
 
 	struct vma* new_vma = split_vmas(task, vma, actual_base, (size_t)(actual_end - actual_base));
+
+	#ifndef USE_BIG_KERNEL_LOCK
+	spin_lock(&task->task_lock);
+	#endif
+
 	if(actual_end == base + size && actual_base != base) new_vma = container_of(list_prev(&task->task_mmap, &new_vma->vm_mmap), struct vma, vm_mmap);
-	
+	#ifndef USE_BIG_KERNEL_LOCK
+	spin_unlock(&task->task_lock);
+	#endif
 	remove_vma(task, new_vma);
+	#ifndef USE_BIG_KERNEL_LOCK
+	spin_lock(&task->task_lock);
+	#endif
 	unmap_page_range(task->task_pml4, actual_base, (size_t) (actual_end - actual_base));
+	#ifndef USE_BIG_KERNEL_LOCK
+	spin_unlock(&task->task_lock);
+	#endif
 	kfree(new_vma);
 
 	return 0;
@@ -61,8 +79,13 @@ int do_unmap_vma(struct task *task, void *base, size_t size, struct vma *vma,
 
 	void* actual_base = MAX(vma->vm_base, base);
 	void* actual_end = MIN(vma->vm_end, base + size);
-
+	#ifndef USE_BIG_KERNEL_LOCK
+	spin_lock(&task->task_lock);
+	#endif
 	unmap_page_range_non_dirty(task->task_pml4, actual_base, (size_t) (actual_end - actual_base));
+	#ifndef USE_BIG_KERNEL_LOCK
+	spin_unlock(&task->task_lock);
+	#endif
 
 	return 0;
 }

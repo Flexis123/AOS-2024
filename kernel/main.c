@@ -19,6 +19,7 @@ extern struct spinlock kernel_lock;
 #ifndef USE_BIG_KERNEL_LOCK
 extern struct spinlock buddy_lock;
 extern struct spinlock console_lock;
+extern struct spinlock runq_lock;
 #endif
 
 void kmain(struct boot_info *boot_info)
@@ -35,6 +36,7 @@ void kmain(struct boot_info *boot_info)
 	/* Initialize the console.
 	 * Can't call cprintf until after we do this! */
 	cons_init();
+	spin_init(&console_lock, "console_lock");
 	cprintf("\n");
 
 	/* Set up segmentation, interrupts and system calls. */
@@ -66,17 +68,16 @@ void kmain(struct boot_info *boot_info)
 	spin_lock(&kernel_lock);
 	#else
 	spin_init(&buddy_lock, "buddy_lock");
-	spin_init(&console_lock, "console_lock");
-	//intializie runq lock
+	spin_init(&runq_lock, "runq_lock");
 	#endif
-
 	assert(this_cpu->cpu_id == boot_cpu->cpu_id);
-	cprintf("boot processor is: %d\n", this_cpu->cpu_id);
 
 	boot_cpus();
 
 #ifdef USE_BIG_KERNEL_LOCK
 	cprintf("BIG KERNEL LOCK IN USE!\n");
+#else
+	cprintf("FINE GRAINED LOCKING IN USE\n");
 #endif
 
 #if defined(TEST)

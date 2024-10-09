@@ -28,10 +28,14 @@ int do_populate_vma(struct task *task, void *base, size_t size,
 	void* actual_base = MAX(vma->vm_base, base);
 	void* actual_end = MIN(vma->vm_end, base + size);
 	size_t actual_size = actual_end - actual_base;
-
+	#ifndef USE_BIG_KERNEL_LOCK
+	spin_lock(&task->task_lock);
+	#endif
 
 	populate_region(task->task_pml4, actual_base, actual_size, flags);
-
+	#ifndef USE_BIG_KERNEL_LOCK
+	spin_unlock(&task->task_lock);
+	#endif
 	if(vma->vm_src){	
 		void * write_pos = MAX(vma->vm_base + vma->src_offset, actual_base);
 		void *read_pos = vma->vm_src + (actual_base - vma->vm_base);
@@ -44,7 +48,13 @@ int do_populate_vma(struct task *task, void *base, size_t size,
 		size_t remaining_in_file = vma->vm_len + (size_t)vma->vm_src - (uintptr_t)read_pos;
 		memcpy(write_pos, read_pos, MIN(actual_size, remaining_in_file));
 	}
+	#ifndef USE_BIG_KERNEL_LOCK
+	spin_lock(&task->task_lock);
+	#endif
 	populate_region(task->task_pml4, actual_base, actual_size, flags);
+	#ifndef USE_BIG_KERNEL_LOCK
+	spin_unlock(&task->task_lock);
+	#endif
 	return 0;
 }
 
