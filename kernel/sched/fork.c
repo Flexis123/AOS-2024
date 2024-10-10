@@ -8,6 +8,7 @@
 #include <kernel/sched.h>
 #include <kernel/vma.h>
 #include <kernel/sched/task.h>
+#include <atomic.h>
 
 extern size_t nuser_tasks;
 extern struct spinlock runq_lock;
@@ -121,7 +122,10 @@ struct task *task_clone(struct task *task)
 	#ifndef USE_BIG_KERNEL_LOCK
 	spin_unlock(&task->task_lock);
 	#endif
-	nuser_tasks++;
+	atomic_inc(&nuser_tasks);
+	cprintf("nusertasks incremented in fork\n");
+
+	assert(nuser_tasks >= 2);
 	return child;
 }
 
@@ -129,6 +133,7 @@ struct task *task_clone(struct task *task)
 pid_t sys_fork(void)
 {
 	struct task* child = task_clone(cur_task);
+	cprintf("child pid is: %d\n", child->task_pid);
 	if (!child) return -ENOMEM;
 
 	child->task_frame.rax = 0;

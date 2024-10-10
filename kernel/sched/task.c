@@ -11,6 +11,7 @@
 #include <kernel/vma/insert.h>
 
 #include <kernel/mem/vma.h>
+#include <atomic.h>
 
 pid_t pid_max = 1 << 16;
 struct task **tasks = (struct task **)PIDMAP_BASE;
@@ -311,7 +312,8 @@ void task_create(uint8_t *binary, enum task_type type)
 	task_load_elf(task, binary);
 	task->task_type = type;
 
-	if(type == TASK_TYPE_USER) nuser_tasks++;
+	if(type == TASK_TYPE_USER) atomic_inc(&nuser_tasks);
+	cprintf("nusertasks incremented in task create\n");
 	#ifndef USE_BIG_KERNEL_LOCK
 	spin_lock(&runq_lock);
 	#endif
@@ -328,7 +330,8 @@ void task_free(struct task *task)
 	#ifndef USE_BIG_KERNEL_LOCK
 	spin_lock(&task->task_lock);
 	#endif
-	nuser_tasks--;
+	atomic_dec(&nuser_tasks);
+	cprintf("nusertasks decremented in task_free\n");
 	assert(nuser_tasks >= 0);
 	struct task *waiting;
 	assert(task);
@@ -392,7 +395,8 @@ void task_destroy(struct task *task)
 	task_free(task);
 
 	if(task == cur_task){
-		if(nuser_tasks == 0){
+		cprintf("current task destroyed\n");
+		if(atomic_cmpxchg(&nuser_tasks, 0, 0)){
 			cprintf("Destroyed the only task - nothing more to do!\n");
 			monitor(NULL);
 		}
@@ -456,18 +460,6 @@ void task_run(struct task *task)
 	spin_lock(&task->task_lock);
 	#endif
 
-	if(task->task_status == TASK_DYING || task->task_status == TASK_NOT_RUNNABLE){
-		cprintf("dying or unrunnable task in task_run: %d, calling sched_yield\n", task->task_pid);
-
-		#ifndef USE_BIG_KERNEL_LOCK
-		spin_unlock(&task->task_lock);
-		#endif
-
-		if(task == cur_task)cur_task = NULL;
-		sched_yield();
-	}
-	assert(task->task_status == TASK_RUNNABLE || task->task_status == TASK_RUNNING);
-
 	if(cur_task != task){
 		uint64_t curr_time = read_tsc();
 
@@ -489,8 +481,10 @@ void task_run(struct task *task)
 				break;
 			}
 			case TASK_RUNNABLE:
-			case TASK_NOT_RUNNABLE:{
 				assert(cur_task->task_wait && cur_task->task_wait->task_pid == task->task_pid);
+				break;
+			case TASK_NOT_RUNNABLE:{
+				assert(cur_task->task_wait);
 				break;
 			}		
 			default:

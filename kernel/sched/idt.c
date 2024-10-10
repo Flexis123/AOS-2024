@@ -300,6 +300,7 @@ void int_handler(struct int_frame *frame)
 	int_dispatch(frame);
 
 	/* Return to the current task, which should be running. */
+	cprintf("running task run in idt.c for %d\n", cur_task->task_pid);
 	task_run(cur_task);
 }
 

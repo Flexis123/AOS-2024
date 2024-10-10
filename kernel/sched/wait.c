@@ -61,14 +61,12 @@ pid_t sys_waitpid(pid_t pid, int *rstatus, int opts)
 			spin_lock(&kernel_lock);
 			#endif
 
-			lapic_ipi(IRQ_TIMER);
 		}//busy wait for the zombie task to be descheduled by cores who
 											//did not notice the state change to DYING
 		#ifndef USE_BIG_KERNEL_LOCK
 		if(zombie)spin_unlock(&zombie->task_lock);
 		spin_unlock(&cur_task->task_lock);
 		#endif
-
 
 		task_destroy(zombie);
 		return zombie_pid;

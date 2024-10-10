@@ -72,8 +72,6 @@ void kmain(struct boot_info *boot_info)
 	#endif
 	assert(this_cpu->cpu_id == boot_cpu->cpu_id);
 
-	boot_cpus();
-
 #ifdef USE_BIG_KERNEL_LOCK
 	cprintf("BIG KERNEL LOCK IN USE!\n");
 #else
@@ -83,6 +81,7 @@ void kmain(struct boot_info *boot_info)
 #if defined(TEST)
 	TASK_CREATE(TEST, TASK_TYPE_USER);
 	sched_yield();
+	boot_cpus();
 #else
 	lab3_check_kmem();
 

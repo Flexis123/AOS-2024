@@ -82,6 +82,7 @@ void mp_main(void)
 	//cprintf("DEBUG, lock lock is at: %p\n", &kernel_lock);
 	spin_lock(&kernel_lock);
 	#endif
-	
+
+
 	sched_yield();
 }

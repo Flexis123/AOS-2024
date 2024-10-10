@@ -7,6 +7,7 @@
 #include <kernel/mem.h>
 #include <kernel/monitor.h>
 #include <kernel/sched.h>
+#include <atomic.h>
 
 struct rb_tree runq;//the global runq, used by cores to balance tasks
 
@@ -154,11 +155,26 @@ void sched_yield(void)
 	task_run(task);
 
 #else
+	cprintf("printing runq before fill\n");
+	struct list* node;
+	list_foreach(&this_cpu->runq, node){
+		cprintf("%d,", container_of(node, struct task, task_local_runq_node)->task_pid);
+	}
+	cprintf("\n");
+	if(this_cpu->runq_len == 0) assert(list_is_empty(&this_cpu->nextq));
 	if(cur_task){
+
+		spin_lock(&cur_task->task_lock);
+		cprintf("curr task  %d\n", cur_task->task_pid);
+		spin_unlock(&cur_task->task_lock);
+
 		if(cur_task->task_status == TASK_RUNNABLE || cur_task->task_status == TASK_RUNNING){
 			spin_lock(&cur_task->task_lock);
+			cprintf("curr task adedd to nextq %d\n", cur_task->task_pid);
+			cprintf("runqlen %lu\n", this_cpu->runq_len + 1);
 			list_add(&this_cpu->nextq, &cur_task->task_local_runq_node);
 			spin_unlock(&cur_task->task_lock);
+			this_cpu->runq_len++;
 		}
 		else{
 			spin_lock(&cur_task->task_lock);
@@ -167,14 +183,19 @@ void sched_yield(void)
 			cur_task = NULL;
 		}
 	}
+	cprintf("cur_task checked in sched yield\n");
 	
-	if(list_is_empty(&this_cpu->runq)){
+	cprintf("runq_len before migration: %lu\n", runq_len);
+	cprintf("this_cpu->runq_len before: %lu\n", this_cpu->runq_len);
+	while(list_is_empty(&this_cpu->runq)){
+		if(atomic_cmpxchg(&nuser_tasks, 0, 0)) sched_halt();
 		if(spin_trylock(&runq_lock)){
 			//do migration
 			size_t target_runq_len = (runq_len + this_cpu->runq_len) / ncpus;
 			if(target_runq_len == 0){
 				target_runq_len = MAX(runq_len, this_cpu->runq_len);
 			}
+			assert(target_runq_len != 0);
 			while(this_cpu->runq_len < target_runq_len && runq_len > 0){
 				struct task *task = runq_pop();
 				assert(task);
@@ -188,91 +209,54 @@ void sched_yield(void)
 				runq_add(task);
 				this_cpu->runq_len--;
 			}
+			cprintf("this_cpu->runq_len - target_runq_len = %d\n", (int) this_cpu->runq_len - target_runq_len);
 			spin_unlock(&runq_lock);
 		}
 		//swap the next queue with the run queue
 		struct list *tmp = list_head(&this_cpu->nextq);
 		if(tmp){
-			list_del(&this_cpu->nextq);
-			list_add(&this_cpu->runq, tmp);
-		}
-		else{
-			assert(list_is_empty(&this_cpu->nextq));
 			assert(list_is_empty(&this_cpu->runq));
+
+			list_del(&this_cpu->nextq);
+			
+			this_cpu->runq.next = tmp;
+			this_cpu->runq.prev = tmp->prev;
+
+			struct list* tmp_tail = tmp->prev;
+			tmp->prev = &this_cpu->runq;
+			tmp_tail->next = &this_cpu->runq;
+
+			this_cpu->runq_len = 0;
 		}
-		this_cpu->runq_len = 0;
 	}
 
-	if(list_is_empty(&this_cpu->runq)){
-		/*
-		we get here if the nextq is empty even after checking the global queue as the lobal queue is empty
-		so we halt the scheduling
-
-		*/
-		sched_halt();
-	}
-	if(!list_is_empty(&this_cpu->runq)){
-		struct list *task_list2 = list_head(&this_cpu->runq);
-		struct task *debug_task = container_of(task_list2, struct task, task_local_runq_node);
-	}
-	else{
-		assert(false);
-	}
+		
 	struct list *task_list = list_pop(&this_cpu->runq);
 	task = container_of(task_list, struct task, task_local_runq_node);
 	assert(task);
-	this_cpu->runq_len++;
+
 	task_run(task);
 #endif
 }
 /* For now jump into the kernel monitor. */
 void sched_halt()
 {
-	#ifndef USE_BIG_KERNEL_LOCK
-	while(true){
-		//cprintf("cpu: %d waiting for work in sched_halt\n", this_cpu->cpu_id);
-		spin_lock(&runq_lock);
+	xchg(&this_cpu->cpu_status, CPU_HALTED);
 
-		if(runq_len > 0){
+	cprintf("Halted cpu %d\n", this_cpu->cpu_id);
 
-			if(this_cpu != boot_cpu && !boot_cpu->cpu_task){
-				spin_unlock(&runq_lock);
-				continue;
-			}
-			struct task *task = runq_pop();
-
-			if(!task){
-				cprintf("you fucked up bigtime. cpu is %d\n", this_cpu->cpu_id);
-			}
-			assert(task);
-
-			spin_lock(&task->task_lock);
-			list_add(&this_cpu->runq, &task->task_local_runq_node);
-			spin_unlock(&task->task_lock);
-			spin_unlock(&runq_lock);
-			assert(!list_is_empty(&this_cpu->runq));
-			return;
+	bool all_processors_halted = true;
+	for(int i = 0; i < NCPUS; i++){
+		if(cpus[i].cpu_status != CPU_HALTED){
+			all_processors_halted = false;
+			break;
 		}
-		if(nuser_tasks == 0){
-
-			if(this_cpu == boot_cpu){
-				//spin_unlock(&runq_lock);
-				//monitor(NULL);
-			}
-			else{
-				//cprintf("cpu: %d halting, nothing more to do\n", this_cpu->cpu_id);
-				//xchg(&this_cpu->cpu_status, CPU_HALTED);
-				//spin_unlock(&runq_lock);
-				//asm volatile(
-				//"cli\n"
-				//"hlt\n");
-			}
-			//assert(false);
-		}
-		spin_unlock(&runq_lock);
 	}
-	assert(false);
-	#endif
+
+	if(all_processors_halted) {
+		cprintf("Entering the monitor here\n");
+		monitor(NULL);
+	}
 
 	asm volatile(
 		"cli\n"

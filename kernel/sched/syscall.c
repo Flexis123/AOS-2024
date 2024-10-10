@@ -103,12 +103,14 @@ static int sys_kill(pid_t pid)
 		}
 		pid_t child_pid = task->task_pid;
 		pid_t parent_pid = task->task_ppid;
+
 		#ifndef USE_BIG_KERNEL_LOCK
 		spin_unlock(&task->task_lock);
 		#endif
 
 		struct task *parent = pid2task(parent_pid, false);
 		assert(parent);
+
 		#ifndef USE_BIG_KERNEL_LOCK
 		spin_lock(&parent->task_lock);
 		#endif
@@ -121,11 +123,15 @@ static int sys_kill(pid_t pid)
 			parent->task_status = TASK_RUNNABLE;
 			#ifndef USE_BIG_KERNEL_LOCK
 			spin_unlock(&parent->task_lock);
+			cprintf("parent waiting for a task attempting to getlock for runq\n");
 			spin_lock(&runq_lock);
 			#endif
+			cprintf("got lock for runq in sched/syscall.c:129\n");
 			runq_add(parent);
 			#ifndef USE_BIG_KERNEL_LOCK
 			spin_unlock(&runq_lock);
+
+			cprintf("attempting lock for &parent->task_lock in sched/syscall.c:134\n");
 			spin_lock(&parent->task_lock);
 			#endif
 		}
@@ -135,6 +141,8 @@ static int sys_kill(pid_t pid)
 		#ifndef USE_BIG_KERNEL_LOCK
 		spin_unlock(&parent->task_lock);
 		#endif
+
+		cprintf("calling sched_yield in wait\n");
 		sched_yield();
 		return 0;
 	}
@@ -222,7 +230,7 @@ int64_t syscall(uint64_t syscallno, uint64_t a1, uint64_t a2, uint64_t a3,
 			ret = sys_waitpid(a1, (int *)a2, a3);
 			break;
 		case SYS_fork:
-			cprintf("executing syscall fork\n");
+			cprintf("executing syscall fork %d\n", cur_task->task_pid);
 			ret = sys_fork();
 			break;
 
