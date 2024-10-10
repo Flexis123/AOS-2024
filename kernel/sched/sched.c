@@ -234,6 +234,11 @@ void sched_halt()
 		spin_lock(&runq_lock);
 
 		if(runq_len > 0){
+
+			if(this_cpu != boot_cpu && !boot_cpu->cpu_task){
+				spin_unlock(&runq_lock);
+				continue;
+			}
 			struct task *task = runq_pop();
 
 			if(!task){
