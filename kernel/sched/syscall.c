@@ -89,12 +89,6 @@ static int sys_kill(pid_t pid)
 	#endif
 
 	if(task->task_ppid != 0){
-		struct task *parent = pid2task(task->task_ppid, false);
-		assert(parent);
-		#ifndef USE_BIG_KERNEL_LOCK
-		spin_lock(&parent->task_lock);//TODO maybe unlock in between
-		#endif
-		assert(parent->task_pid == task->task_ppid);
 		task->task_status = TASK_DYING;
 		
 		if(task->is_in_runq){
@@ -107,6 +101,18 @@ static int sys_kill(pid_t pid)
 			spin_unlock(&runq_lock);
 			#endif
 		}
+		pid_t child_pid = task->task_pid;
+		pid_t parent_pid = task->task_ppid;
+		#ifndef USE_BIG_KERNEL_LOCK
+		spin_unlock(&task->task_lock);
+		#endif
+
+		struct task *parent = pid2task(parent_pid, false);
+		assert(parent);
+		#ifndef USE_BIG_KERNEL_LOCK
+		spin_lock(&parent->task_lock);
+		#endif
+		assert(parent->task_pid == parent_pid);
 
 		list_add(&parent->task_zombies, &task->task_zombie_node);
 		cprintf("[PID %5u] Reaping task with PID %u\n", cur_task->task_pid, task->task_pid);
@@ -127,7 +133,6 @@ static int sys_kill(pid_t pid)
 			lapic_ipi(IRQ_TIMER);//force other cores to reschedule in case the child process is still running.
 		}
 		#ifndef USE_BIG_KERNEL_LOCK
-		spin_unlock(&task->task_lock);
 		spin_unlock(&parent->task_lock);
 		#endif
 		sched_yield();
