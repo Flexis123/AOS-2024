@@ -14,6 +14,8 @@
 #include <kernel/mem/vma.h>
 #include <atomic.h>
 
+#include <kernel/acpi.h>
+
 pid_t pid_max = 1 << 16;
 struct task **tasks = (struct task **)PIDMAP_BASE;
 size_t nuser_tasks = 0;
