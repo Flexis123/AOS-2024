@@ -87,6 +87,7 @@ static int sys_kill(pid_t pid)
 	#ifndef USE_BIG_KERNEL_LOCK
 	spin_lock(&task->task_lock);
 	#endif
+	pid_t old_task_pid = cur_task->task_pid;
 
 	if(task->task_ppid != 0){
 		task->task_status = TASK_DYING;
@@ -115,10 +116,11 @@ static int sys_kill(pid_t pid)
 		assert(parent->task_pid == parent_pid);
 
 		list_add(&parent->task_zombies, &task->task_zombie_node);
-		cprintf("[PID %5u] Reaping task with PID %u\n", cur_task->task_pid, task->task_pid);
+		cprintf("[PID %5u] Reaping task with PID %u\n", old_task_pid, task->task_pid);
 
 		if(parent->task_wait == task){
 			parent->task_status = TASK_RUNNABLE;
+			cprintf("cpu: %d parent waiting for us, unlocking parent and locking runq\n", this_cpu->cpu_id);
 			#ifndef USE_BIG_KERNEL_LOCK
 			spin_unlock(&parent->task_lock);
 			spin_lock(&runq_lock);
@@ -127,9 +129,11 @@ static int sys_kill(pid_t pid)
 			#ifndef USE_BIG_KERNEL_LOCK
 			spin_unlock(&runq_lock);
 			spin_lock(&parent->task_lock);
+			cprintf("cpu: %d parent waiting for us,successfully added parent to runq\n", this_cpu->cpu_id);
 			#endif
 		}
 		if(task != cur_task){
+			cprintf("cpu: %d ipi because we kill another task\n", this_cpu->cpu_id);
 			lapic_ipi(IRQ_TIMER);//force other cores to reschedule in case the child process is still running.
 		}
 		#ifndef USE_BIG_KERNEL_LOCK
@@ -166,7 +170,7 @@ int64_t syscall(uint64_t syscallno, uint64_t a1, uint64_t a2, uint64_t a3,
 
 	switch (syscallno) {
 		case SYS_cputs:
-			cprintf("executing syscall cputs\n");
+			cprintf("cpu: %d executing syscall cputs\n", this_cpu->cpu_id);
 			sys_cputs((void*) a1, a2);
 			break;
 
@@ -176,12 +180,12 @@ int64_t syscall(uint64_t syscallno, uint64_t a1, uint64_t a2, uint64_t a3,
 			break;
 
 		case SYS_getpid:
-		cprintf("executing syscall getpid\n");
+		cprintf("cpu: %d executing syscall getpid\n", this_cpu->cpu_id);
 			ret = sys_getpid();
 			break;
 
 		case SYS_kill:
-		cprintf("executing syscall kill\n");
+		cprintf("cpu: %d executing syscall kill\n", this_cpu->cpu_id);
 			ret = sys_kill(a1);
 			break;
 		
@@ -210,19 +214,19 @@ int64_t syscall(uint64_t syscallno, uint64_t a1, uint64_t a2, uint64_t a3,
 			ret = sys_madvise((void *)a1, a2, a3);
 			break;
 		case SYS_yield:
-			cprintf("executing syscall yield\n");
+			cprintf("cpu: %d executing syscall yield\n", this_cpu->cpu_id);
 			sched_yield();
 			break;
 		case SYS_wait:
-			cprintf("executing syscall wait\n");
+			cprintf("cpu: %d executing syscall wait\n", this_cpu->cpu_id);
 			ret = sys_wait((int *)a1);
 			break;
 		case SYS_waitpid:
-			cprintf("executing syscall waitpid\n");
+			cprintf("cpu: %d executing syscall waitpid\n", this_cpu->cpu_id);
 			ret = sys_waitpid(a1, (int *)a2, a3);
 			break;
 		case SYS_fork:
-			cprintf("executing syscall fork\n");
+			cprintf("cpu: %d executing syscall fork\n", this_cpu->cpu_id);
 			ret = sys_fork();
 			break;
 

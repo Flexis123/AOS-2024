@@ -11,6 +11,11 @@
 extern struct page_info *pages;
 extern size_t npages;
 
+struct setzero_info{
+	size_t current_page;
+};
+#define SETZERO_PAGES_PER_RUN 100ULL
+void setzero(void *setzero_info);
 /*
  * This macro takes a kernel virtual address -- an address that points above
  * KERNBASE, where the machine's maximum 256MB of physical memory is mapped --

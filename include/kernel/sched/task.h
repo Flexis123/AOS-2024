@@ -2,6 +2,7 @@
 
 #include <task.h>
 #include <cpu.h>
+#include <kernel/mem/buddy.h>
 
 #define cur_task (this_cpu->cpu_task)
 
@@ -13,6 +14,10 @@ void task_free(struct task *task);
 void task_destroy(struct task *task);
 void task_pop_frame(struct int_frame *frame);
 void task_run(struct task *task);
+
+void task_kernel_setzero_create();//creates the setzero kernel task. setzero sets the physical memory of unused pages to 0.
+void task_run_kernel(struct task *kernel_task);//use this to run kernel tasks, not task_run
+
 
 /* Without this extra macro, we couldn't pass macros like TEST to TASK_CREATE()
  * because of the C preprocessor's argument prescan rule.

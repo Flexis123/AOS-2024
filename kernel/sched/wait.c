@@ -51,8 +51,14 @@ pid_t sys_waitpid(pid_t pid, int *rstatus, int opts)
 		list_del(&zombie->task_zombie_node);
 		list_del(&zombie->task_child);
 
+		int zombie_cpu_num = zombie->task_cpunum;
+		#ifndef USE_BIG_KERNEL_LOCK
+		if(zombie)spin_unlock(&zombie->task_lock);
+		spin_unlock(&cur_task->task_lock);
+		#endif
+
 		while(cpus[zombie->task_cpunum].cpu_task == zombie){
-			cprintf("Oh no! the zombie is still begin run on cpu: %d\n", zombie->task_cpunum);
+			cprintf("Oh no! the zombie is still begin run on cpu: %d\n", zombie_cpu_num);
 			#ifdef USE_BIG_KERNEL_LOCK
 			spin_unlock(&kernel_lock);
 			#endif
@@ -60,14 +66,9 @@ pid_t sys_waitpid(pid_t pid, int *rstatus, int opts)
 			#ifdef USE_BIG_KERNEL_LOCK
 			spin_lock(&kernel_lock);
 			#endif
-
-			lapic_ipi(IRQ_TIMER);
 		}//busy wait for the zombie task to be descheduled by cores who
 											//did not notice the state change to DYING
-		#ifndef USE_BIG_KERNEL_LOCK
-		if(zombie)spin_unlock(&zombie->task_lock);
-		spin_unlock(&cur_task->task_lock);
-		#endif
+		
 
 
 		task_destroy(zombie);

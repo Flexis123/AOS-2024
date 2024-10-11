@@ -381,3 +381,40 @@ int buddy_map_chunk(struct page_table *pml4, size_t index)
 
 	return 0;
 }
+
+void setzero(void *setzero_info){
+	assert(setzero_info);
+	struct setzero_info *info = (struct setzero_info*)setzero_info;
+
+	size_t pages_processed = 0;
+	bool has_looped = false;
+
+	while(pages_processed < SETZERO_PAGES_PER_RUN){
+
+		for(size_t i = info->current_page; i < npages;){
+			struct page_info *page = &pages[i];
+			#ifndef USE_BIG_KERNEL_LOCK
+			spin_lock(&buddy_lock);
+			#endif
+			size_t page_size = (1 << page->pp_order) * PAGE_SIZE; 
+			if(!page->pp_free){
+				i += page_size;
+				#ifndef USE_BIG_KERNEL_LOCK
+				spin_unlock(&buddy_lock);
+				#endif
+				continue;
+			}
+			//memset(page2kva(page), 0, page_size);
+			pages_processed += page_size / PAGE_SIZE;
+			#ifndef USE_BIG_KERNEL_LOCK
+			spin_unlock(&buddy_lock);
+			#endif
+			i += page_size;
+		}
+		info->current_page = 0;
+		if(has_looped){
+			return;
+		}
+		has_looped = true;
+	}
+}

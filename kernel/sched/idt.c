@@ -221,7 +221,7 @@ void int_dispatch(struct int_frame *frame)
 	#ifdef USE_BIG_KERNEL_LOCK
 	spin_lock(&kernel_lock);
 	#endif
-	cprintf("interrupt received by cpu: %d, int no: %d\n", this_cpu->cpu_id, frame->int_no);
+	//cprintf("interrupt received by cpu: %d, int no: %d\n", this_cpu->cpu_id, frame->int_no);
 	//print_int_frame(frame);
 	switch (frame->int_no) {
 
@@ -236,7 +236,7 @@ void int_dispatch(struct int_frame *frame)
 			return;
 
 		case IRQ_TIMER:
-			cprintf("IRQ timer received for cpu: %d\n", this_cpu->cpu_id);
+			//cprintf("IRQ timer received for cpu: %d\n", this_cpu->cpu_id);
 			irq_timer_handler(frame); // this should not return and either call task_run or monitor!
 	
 		default: break;

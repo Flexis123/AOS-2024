@@ -9,6 +9,7 @@
 #include <kernel/sched.h>
 #include <kernel/vma/remove.h>
 #include <kernel/vma/insert.h>
+#include <kernel/mem/buddy.h>
 
 #include <kernel/mem/vma.h>
 
@@ -229,6 +230,7 @@ static void task_load_elf(struct task *task, uint8_t *binary)
 	 * You must also do something with the entry point of the program, to
 	 * make sure that the task starts executing there.
 	 */
+	//assert(task->task_type != TASK_TYPE_KERNEL);//do not overwrite kernel tasks
 
 	struct elf *elf = (struct elf *)binary;
 	if (elf->e_magic != ELF_MAGIC) {
@@ -325,8 +327,9 @@ void task_create(uint8_t *binary, enum task_type type)
  */
 void task_free(struct task *task)
 {
+	assert(task->task_type != TASK_TYPE_KERNEL);//do not free kernel tasks
 	#ifndef USE_BIG_KERNEL_LOCK
-	spin_lock(&task->task_lock);
+	if(task != cur_task)spin_lock(&task->task_lock);
 	#endif
 	nuser_tasks--;
 	assert(nuser_tasks >= 0);
@@ -355,6 +358,8 @@ void task_free(struct task *task)
 		task_free(zombie);
 	}
 
+	list_del(&task->task_zombie_node);
+
 	/* If we are freeing the current task, switch to the kernel_pml4
 	 * before freeing the page tables, just in case the page gets re-used.
 	 */
@@ -366,7 +371,7 @@ void task_free(struct task *task)
 	tasks[task->task_pid] = NULL;
 
 	#ifndef USE_BIG_KERNEL_LOCK
-	spin_unlock(&task->task_lock);
+	if(task != cur_task)spin_unlock(&task->task_lock);
 	#endif
 
 	/* Unmap the user pages. */
@@ -388,10 +393,12 @@ void task_free(struct task *task)
  */
 void task_destroy(struct task *task)
 {
+	//assert(task->task_type != TASK_TYPE_KERNEL);//do not destroy kernel tasks
 	cprintf("in task destroy, calling task_free on task: %d by cpu %d\n", task->task_pid, this_cpu->cpu_id);
 	task_free(task);
 
 	if(task == cur_task){
+		//cprintf("destroying task: %d, on cpu: %d, nusertasks %d\n", task->task_pid, this_cpu->cpu_id, nuser_tasks);
 		if(nuser_tasks == 0){
 			cprintf("Destroyed the only task - nothing more to do!\n");
 			monitor(NULL);
@@ -433,6 +440,10 @@ void task_pop_frame(struct int_frame *frame)
 void task_run(struct task *task)
 {
 	assert(task);
+
+	if(task->task_type == TASK_TYPE_KERNEL){
+		task_run_kernel(task);
+	}
 	/*
 	 * Step 1: If this is a context switch (a new task is running):
 	 *     1. Set the current task (if any) back to
@@ -522,4 +533,84 @@ void task_run(struct task *task)
 	#endif
 
 	task_pop_frame(&cur_task->task_frame);
+}
+
+void task_kernel_setzero_create(){
+	cprintf("in task_kernel setzero create\n");
+	struct task *kernel_task = task_alloc(0);
+
+	if(!kernel_task){
+		return;
+	}
+	tasks[kernel_task->task_pid] = NULL;
+
+	for(int i = pid_max -1; i > 0; i--){
+		if(!tasks[i]){
+			tasks[i] = kernel_task;
+			kernel_task->task_pid = i;
+			break;
+		}
+	}
+
+
+
+	kernel_task->task_type = TASK_TYPE_KERNEL;
+	memset(&kernel_task->task_frame, 0, sizeof(kernel_task->task_frame));
+	//the task_frame is not used because there are no syscalls/interrupts
+	struct setzero_info *info = kmalloc(sizeof(struct setzero_info));
+
+	if(!info){
+		kfree(kernel_task);
+		return;
+	}
+	info->current_page = 0;//start from 0;
+	kernel_task->task_frame.rax = (uint64_t)info;//rax always points to the info struct in kernel tasks
+	kernel_task->task_frame.rbx = (uint64_t)&(setzero);
+	#ifndef USE_BIG_KERNEL_LOCK
+	spin_lock(&runq_lock);
+	#endif
+	//runq_add(kernel_task);
+	#ifndef USE_BIG_KERNEL_LOCK
+	spin_unlock(&runq_lock);
+	#endif
+}
+
+
+
+
+
+void task_run_kernel(struct task *kernel_task){
+
+	cprintf("RUNNING A KERNEL TASK HERE NOW\n");
+	assert(kernel_task);
+
+	struct task *old_task = cur_task;
+	cur_task = kernel_task;
+	#ifndef USE_BIG_KERNEL_LOCK
+	spin_lock(&kernel_task->task_lock);
+	#endif
+	void (*kernel_function)(void*) = (void (*)(void *))kernel_task->task_frame.rbx;
+	void *kernel_args = (void*)kernel_task->task_frame.rax;
+	kernel_task->task_status = TASK_RUNNING;
+	#ifndef USE_BIG_KERNEL_LOCK
+	spin_unlock(&kernel_task->task_lock);
+	#endif
+	cprintf("START KERNEL FUNCTION\n");
+	//kernel_function(kernel_args);
+	cprintf("END KERNEL FUNCTION\n");
+	#ifndef USE_BIG_KERNEL_LOCK
+	spin_lock(&kernel_task->task_lock);
+	#endif
+	kernel_task->task_status = TASK_RUNNABLE;
+	#ifndef USE_BIG_KERNEL_LOCK
+	spin_unlock(&kernel_task->task_lock);
+	spin_lock(&runq_lock);
+	#endif
+	runq_add(kernel_task);
+	#ifndef USE_BIG_KERNEL_LOCK
+	spin_unlock(&runq_lock);
+	#endif
+
+
+	cur_task = old_task;
 }

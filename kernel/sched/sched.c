@@ -24,8 +24,11 @@ size_t runq_len = 0;//every core attempts to hold runq_len / ncpus tasks in thei
 
 //give priority that wait for a longer time
 static inline int64_t vruntime(struct task* task){
+	if(task->task_type == TASK_TYPE_KERNEL){
+		return __INT64_MAX__;
+	}
 	uint64_t waiting_time = task->task_start_waiting ? read_tsc() - task->task_start_waiting : 0;
-	return(int64_t)task->task_cpu_time - (int64_t)(waiting_time / (runq_len + 1));
+	return (int64_t)task->task_cpu_time - (int64_t)(waiting_time / (runq_len + 1));
 }
 
 void sched_init(void)
@@ -154,7 +157,9 @@ void sched_yield(void)
 	task_run(task);
 
 #else
+	cprintf("cpu: %d running sched_yield\n", this_cpu->cpu_id);
 	if(cur_task){
+		assert(!holding(&cur_task->task_lock));
 		if(cur_task->task_status == TASK_RUNNABLE || cur_task->task_status == TASK_RUNNING){
 			spin_lock(&cur_task->task_lock);
 			list_add(&this_cpu->nextq, &cur_task->task_local_runq_node);
@@ -209,6 +214,7 @@ void sched_yield(void)
 		so we halt the scheduling
 
 		*/
+		cprintf("cpu: %d sched_halting\n", this_cpu->cpu_id);
 		sched_halt();
 	}
 	if(!list_is_empty(&this_cpu->runq)){
@@ -222,6 +228,7 @@ void sched_yield(void)
 	task = container_of(task_list, struct task, task_local_runq_node);
 	assert(task);
 	this_cpu->runq_len++;
+	cprintf("cpu: %d sche_yield run with task %p pid: %d\n", this_cpu->cpu_id, task, task->task_pid);
 	task_run(task);
 #endif
 }
@@ -234,11 +241,25 @@ void sched_halt()
 		spin_lock(&runq_lock);
 
 		if(runq_len > 0){
-
 			if(this_cpu != boot_cpu && !boot_cpu->cpu_task){
 				spin_unlock(&runq_lock);
 				continue;
 			}
+			/*
+
+			bool allowed_to_run = true;
+			for(int i = this_cpu->cpu_id -1; i > 0; i--){
+
+
+				if(!cpus[i].cpu_task){
+					allowed_to_run = false;
+					break;
+				}
+			}
+			if(!allowed_to_run){
+				spin_unlock(&runq_lock);
+				continue;
+			}*/
 			struct task *task = runq_pop();
 
 			if(!task){
@@ -251,6 +272,7 @@ void sched_halt()
 			spin_unlock(&task->task_lock);
 			spin_unlock(&runq_lock);
 			assert(!list_is_empty(&this_cpu->runq));
+			cprintf("cpu: %d found work after halting.\n", this_cpu->cpu_id);
 			return;
 		}
 		if(nuser_tasks == 0){
