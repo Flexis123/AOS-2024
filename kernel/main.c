@@ -71,7 +71,7 @@ void kmain(struct boot_info *boot_info)
 	spin_init(&runq_lock, "runq_lock");
 	#endif
 	assert(this_cpu->cpu_id == boot_cpu->cpu_id);
-	//task_kernel_setzero_create();
+	task_kernel_setzero_create();
 	boot_cpus();
 
 #ifdef USE_BIG_KERNEL_LOCK

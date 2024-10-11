@@ -441,9 +441,6 @@ void task_run(struct task *task)
 {
 	assert(task);
 
-	if(task->task_type == TASK_TYPE_KERNEL){
-		task_run_kernel(task);
-	}
 	/*
 	 * Step 1: If this is a context switch (a new task is running):
 	 *     1. Set the current task (if any) back to
@@ -462,6 +459,7 @@ void task_run(struct task *task)
 	 *  and make sure you have set the relevant parts ofcur_task
 	 *  e->task_frame to sensible values.
 	 */
+
 
 	#ifndef USE_BIG_KERNEL_LOCK
 	spin_lock(&task->task_lock);
@@ -535,82 +533,124 @@ void task_run(struct task *task)
 	task_pop_frame(&cur_task->task_frame);
 }
 
-void task_kernel_setzero_create(){
-	cprintf("in task_kernel setzero create\n");
-	struct task *kernel_task = task_alloc(0);
+struct contigous_area{
+	void* start;
+	size_t target_len_pages;
+	size_t len_pages;
+	uint64_t flags;
+};
 
-	if(!kernel_task){
-		return;
+static int check_pte_if_free(physaddr_t *entry, uintptr_t base, uintptr_t end,
+    struct page_walker *walker){
+
+	struct contigous_area *ca = walker->udata;
+	if(ca->len_pages != ca->target_len_pages){
+		if(!(*entry & PAGE_PRESENT)){
+
+			if(!ca->start){
+				ca->start = (void*) base;
+			}
+			ca->len_pages++;
+		}else{
+			//zap ca
+			ca->len_pages = 0;
+			ca->start = NULL;
+		}
+
+	}else{
+		//we found our va 
+		//ret -2 to make the walker stop and indicate sucess even if val is negative
+		return -2;
 	}
-	tasks[kernel_task->task_pid] = NULL;
 
+	return 0;
+}
+
+static void* find_contigous_free_va(size_t pages){
+
+	struct contigous_area ca = {
+		.start = NULL,
+		.target_len_pages = pages,
+		.len_pages = 0,
+	};
+	
+	struct page_walker wlk = {
+		.pte_callback = check_pte_if_free,
+		.udata = &ca
+	};
+	
+	int ret = walk_kernel_pages(kernel_pml4, &wlk);
+	if(ret < 0 && ret != -2) return NULL;
+	return ca.start;
+}
+
+#define KTHREAD_STACK_SIZE_PAGES 2
+
+struct task* create_kthread(void (*fn)(void*), void* data){
+	struct task* task = task_alloc(0);
+
+	struct page_info* stack_page_0 = page_alloc(ALLOC_ZERO);
+	struct page_info* stack_page_1 = page_alloc(ALLOC_ZERO);
+
+	if(!stack_page_0 || !stack_page_1) goto err_kthread_create;;
+
+	void* rsp = find_contigous_free_va(KTHREAD_STACK_SIZE_PAGES);
+	if(!rsp) goto err_kthread_create;
+
+	populate_region(kernel_pml4, rsp, KTHREAD_STACK_SIZE_PAGES, PAGE_NO_EXEC | PAGE_WRITE | PAGE_PRESENT);
+
+	task->task_frame.rsp = (uint64_t) rsp;
+	task->task_frame.ds = GDT_KDATA | 3;
+	task->task_frame.ss = GDT_KDATA | 3;
+	task->task_frame.cs = GDT_KCODE | 3;
+	task->task_type = TASK_TYPE_KERNEL;
+	task->task_frame.rip = (uint64_t) fn;
+
+	task->task_frame.rdi = (uint64_t) data;
+
+	//fuck this interface and these tests
+	//have to do this bs so it wont be assigned to pid 1 or 2 or 3 so the tests work
+	//fuck this
+
+	tasks[task->task_pid] = NULL;
+	bool assigned_pid = false;
 	for(int i = pid_max -1; i > 0; i--){
 		if(!tasks[i]){
-			tasks[i] = kernel_task;
-			kernel_task->task_pid = i;
+			tasks[i] = task;
+			task->task_pid = i;
+			assigned_pid = true;
 			break;
 		}
 	}
 
+	if(!assigned_pid) goto err_kthread_create;
 
+	return task;
 
-	kernel_task->task_type = TASK_TYPE_KERNEL;
-	memset(&kernel_task->task_frame, 0, sizeof(kernel_task->task_frame));
-	//the task_frame is not used because there are no syscalls/interrupts
+err_kthread_create:
+	task_free(task);
+	return NULL;
+}
+
+void task_kernel_setzero_create(){
+	cprintf("in task_kernel setzero create\n");
+
 	struct setzero_info *info = kmalloc(sizeof(struct setzero_info));
 
 	if(!info){
-		kfree(kernel_task);
-		return;
+		panic("failed to create kernel thread setzero, couldnt allocate setzero_info\n");
 	}
 	info->current_page = 0;//start from 0;
-	kernel_task->task_frame.rax = (uint64_t)info;//rax always points to the info struct in kernel tasks
-	kernel_task->task_frame.rbx = (uint64_t)&(setzero);
+
+	struct task* kthread = create_kthread(setzero, (void*) info);
+	if(!kthread) panic("could not create setzero kthread\n");
+
+
 	#ifndef USE_BIG_KERNEL_LOCK
 	spin_lock(&runq_lock);
 	#endif
-	//runq_add(kernel_task);
+	runq_add(kthread);
 	#ifndef USE_BIG_KERNEL_LOCK
 	spin_unlock(&runq_lock);
 	#endif
-}
-
-
-
-
-
-void task_run_kernel(struct task *kernel_task){
-
-	cprintf("RUNNING A KERNEL TASK HERE NOW\n");
-	assert(kernel_task);
-
-	struct task *old_task = cur_task;
-	cur_task = kernel_task;
-	#ifndef USE_BIG_KERNEL_LOCK
-	spin_lock(&kernel_task->task_lock);
-	#endif
-	void (*kernel_function)(void*) = (void (*)(void *))kernel_task->task_frame.rbx;
-	void *kernel_args = (void*)kernel_task->task_frame.rax;
-	kernel_task->task_status = TASK_RUNNING;
-	#ifndef USE_BIG_KERNEL_LOCK
-	spin_unlock(&kernel_task->task_lock);
-	#endif
-	cprintf("START KERNEL FUNCTION\n");
-	//kernel_function(kernel_args);
-	cprintf("END KERNEL FUNCTION\n");
-	#ifndef USE_BIG_KERNEL_LOCK
-	spin_lock(&kernel_task->task_lock);
-	#endif
-	kernel_task->task_status = TASK_RUNNABLE;
-	#ifndef USE_BIG_KERNEL_LOCK
-	spin_unlock(&kernel_task->task_lock);
-	spin_lock(&runq_lock);
-	#endif
-	runq_add(kernel_task);
-	#ifndef USE_BIG_KERNEL_LOCK
-	spin_unlock(&runq_lock);
-	#endif
-
-
-	cur_task = old_task;
 }
