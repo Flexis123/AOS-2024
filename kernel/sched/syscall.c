@@ -14,10 +14,11 @@
 
 extern void syscall64(void);
 extern struct rb_tree runq;
+extern size_t runq_len;
 
 #ifndef USE_BIG_KERNEL_LOCK
 extern struct spinlock runq_lock;
-extern size_t runq_len;
+
 #endif
 
 void syscall_init(void)

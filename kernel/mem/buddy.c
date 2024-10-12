@@ -386,35 +386,28 @@ void setzero(void *setzero_info){
 	assert(setzero_info);
 	struct setzero_info *info = (struct setzero_info*)setzero_info;
 
-	size_t pages_processed = 0;
-	bool has_looped = false;
-
-	while(pages_processed < SETZERO_PAGES_PER_RUN){
-
-		for(size_t i = info->current_page; i < npages;){
-			struct page_info *page = &pages[i];
+	for(size_t i = 0; i < SETZERO_PAGES_PER_RUN; i++){
+		struct page_info *page = &pages[info->current_page];
+		#ifndef USE_BIG_KERNEL_LOCK
+		spin_lock(&buddy_lock);
+		#endif
+		if(!page->pp_free){
 			#ifndef USE_BIG_KERNEL_LOCK
-			spin_lock(&buddy_lock);
-			#endif
-			size_t page_size = (1 << page->pp_order) * PAGE_SIZE; 
-			if(!page->pp_free){
-				i += page_size;
-				#ifndef USE_BIG_KERNEL_LOCK
-				spin_unlock(&buddy_lock);
-				#endif
-				continue;
+
+			if(page->pp_order > 0){
+				i += (1 << page->pp_order) -1;
 			}
-			//memset(page2kva(page), 0, page_size);
-			pages_processed += page_size / PAGE_SIZE;
-			#ifndef USE_BIG_KERNEL_LOCK
 			spin_unlock(&buddy_lock);
 			#endif
-			i += page_size;
+			info->current_page++;
+			info->current_page %= npages;
+			continue;
 		}
-		info->current_page = 0;
-		if(has_looped){
-			return;
-		}
-		has_looped = true;
+		memset(page2kva(page), 0, PAGE_SIZE);
+		#ifndef USE_BIG_KERNEL_LOCK
+		spin_unlock(&buddy_lock);
+		#endif
+		info->current_page++;
+		info->current_page %= npages;
 	}
 }

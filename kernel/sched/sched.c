@@ -92,6 +92,7 @@ int local_runq_add(struct task* task, struct rb_tree* tree){
 		tree->root = &task->task_runq_node;
 		assert(container_of(tree->root, struct task, task_runq_node)->task_pml4);
 	} else {
+		assert(parent != &task->task_runq_node);
 		parent->child[dir] = &task->task_runq_node;
 		task->task_runq_node.parent = parent;
 	}
@@ -128,8 +129,9 @@ struct task* local_runq_pop(struct rb_tree* tree){
 
 
 int runq_add(struct task* task){//add to global runq
-	assert(task);
+	#ifndef USE_BIG_KERNEL_LOCK
 	assert(holding(&runq_lock));
+	#endif
 	int ret = local_runq_add(task, &runq);
 	if(ret >= 0) {
 		runq_len++;
@@ -140,7 +142,9 @@ int runq_add(struct task* task){//add to global runq
 
 struct task* runq_pop(){//for global runq
 	assert(runq_len > 0);
+	#ifndef USE_BIG_KERNEL_LOCK
 	assert(holding(&runq_lock));
+	#endif
 
 	struct task* task = local_runq_pop(&runq);
 	if(task) {
@@ -183,7 +187,7 @@ void sched_yield(void)
 		}
 	}
 	task = runq_pop();
-	cprintf("running task: %d, runq: %p cpu: %d\n", task->task_pid, &runq, this_cpu->cpu_id);
+	cprintf("running task: %d, runq: %p cpu: %d, nusertasks: %d\n", task->task_pid, &runq, this_cpu->cpu_id, nuser_tasks);
 	task_run(task);
 #else
 	if(cur_task){
@@ -267,7 +271,9 @@ void sched_halt()
 	}
 
 	cprintf("Halted cpu %d\n", this_cpu->cpu_id);
+	#ifndef USE_BIG_KERNEL_LOCK
 	spin_unlock(&runq_lock);
+	#endif
 	asm volatile(
 		"cli\n"
 		"hlt\n");

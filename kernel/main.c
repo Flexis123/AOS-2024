@@ -36,7 +36,9 @@ void kmain(struct boot_info *boot_info)
 	/* Initialize the console.
 	 * Can't call cprintf until after we do this! */
 	cons_init();
+	#ifndef USE_BIG_KERNEL_LOCK
 	spin_init(&console_lock, "console_lock");
+	#endif
 	cprintf("\n");
 
 	/* Set up segmentation, interrupts and system calls. */
