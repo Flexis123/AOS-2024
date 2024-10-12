@@ -232,6 +232,7 @@ void int_dispatch(struct int_frame *frame)
 			return page_fault_handler(frame);
 
 		case INT_SYSCALL:
+			//cprintf("got syscall\n");
 			frame->rax = syscall(frame->rdi, frame->rsi, frame->rdx, frame->rcx, frame->r8, frame->r9, frame->rbp);
 			return;
 
@@ -247,7 +248,7 @@ void int_dispatch(struct int_frame *frame)
 	spin_lock(&cur_task->task_lock);
 	#endif
 
-	cprintf("Unxpected intterupt with id\n cur task: %d cpu: %d\n", cur_task->task_pid, this_cpu->cpu_id);
+	//cprintf("Unxpected intterupt with id\n cur task: %d cpu: %d\n", cur_task->task_pid, this_cpu->cpu_id);
 	#ifndef USE_BIG_KERNEL_LOCK
 	spin_unlock(&cur_task->task_lock);
 	#endif
@@ -275,7 +276,6 @@ void int_handler(struct int_frame *frame)
 	#ifndef USE_BIG_KERNEL_LOCK
 	spin_lock(&cur_task->task_lock);
 	#endif
-
 
 	if ((frame->cs & 3) == 3) {
 		/* Interrupt from user mode. */
@@ -340,7 +340,8 @@ void page_fault_handler(struct int_frame *frame)
 
 void irq_timer_handler(struct int_frame *frame){
 	lapic_eoi();
-	cprintf("shced yled IRQ timer\n");
+	//cprintf("IRQ timer in core %d\n", this_cpu->cpu_id);
+	//assert(this_cpu->cpu_id == 0);
 	sched_yield();
 }
 

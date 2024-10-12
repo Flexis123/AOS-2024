@@ -89,5 +89,6 @@ void mp_main(void)
 	
 	while (atomic_cmpxchg(&nuser_tasks, 0, nuser_tasks)); //busy wait
 	
+	//cprintf("cpu %d is getting into yield \n", this_cpu->cpu_id); 
 	sched_yield();
 }

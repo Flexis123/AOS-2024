@@ -3,7 +3,7 @@
 for i in {1..100}
 do
     echo "$i%"
-    make grade >& /dev/null
+    make grade CPUS=16 >& /dev/null
 
     # Check the exit status of the executable
     if [ $? -eq 0 ]; then

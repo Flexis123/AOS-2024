@@ -30,7 +30,7 @@ static inline int64_t vruntime(struct task* task){
 	uint64_t waiting_time = task->task_start_waiting ? read_tsc() - task->task_start_waiting : 0;
 	int64_t runtime = (int64_t)task->task_cpu_time - (int64_t)(waiting_time / (runq_len + 1));
 
-	return (task->task_type == TASK_TYPE_KERNEL) ? runtime * VRUNTIME_PENALTY_KTASK : runtime;
+	return (task->task_type == TASK_TYPE_KERNEL) ? __INT64_MAX__ : runtime;
 }
 
 void sched_init(void)
@@ -204,6 +204,7 @@ void sched_yield(void)
 			if(target_runq_len == 0){
 				target_runq_len = MAX(runq_len, this_cpu->runq_len);
 			}
+
 			
 			while(this_cpu->runq_len < target_runq_len && runq_len > 0){
 				struct task *task = runq_pop();
@@ -236,6 +237,7 @@ void sched_yield(void)
 	//cprintf("popped task %d from the runq in cpu %d\n", task->task_pid, this_cpu->cpu_id);
 	assert(task);
 
+
 	task_run(task);
 #endif
 }
@@ -243,9 +245,10 @@ void sched_yield(void)
 
 void sched_halt()
 {
+	#ifndef USE_BIG_KERNEL_LOCK
 	spin_lock(&runq_lock);
+	#endif
 	xchg(&this_cpu->cpu_status, CPU_HALTED);
-	cprintf("Halted cpu %d\n", this_cpu->cpu_id);
 
 	bool all_processors_halted = true;
 	for(int i = 0; i < ncpus; i++){
@@ -257,11 +260,13 @@ void sched_halt()
 
 	if(all_processors_halted) {
 		cprintf("Destroyed the only task - nothing more to do!\n");
+		#ifndef USE_BIG_KERNEL_LOCK
 		spin_unlock(&runq_lock);
+		#endif
 		monitor(NULL);
 	}
 
-	cprintf("Halting cpu %d\n", this_cpu->cpu_id);
+	cprintf("Halted cpu %d\n", this_cpu->cpu_id);
 	spin_unlock(&runq_lock);
 	asm volatile(
 		"cli\n"

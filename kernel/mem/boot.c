@@ -3,7 +3,6 @@
 
 #include <kernel/mem.h>
 
-//does this shit need checking for reserved pieces of memory?
 
 /* This simple physical memory allocator is used only while OpenLSD is setting up
  * its virtual memory system.

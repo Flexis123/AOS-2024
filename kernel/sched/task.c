@@ -333,8 +333,7 @@ void task_free(struct task *task)
 	if(task != cur_task)spin_lock(&task->task_lock);
 	#endif
 	atomic_dec(&nuser_tasks);
-	cprintf("nuser_tasks = %d\n", nuser_tasks);
-	//assert(nuser_tasks >= 0);
+	
 	struct task *waiting;
 	assert(task);
 
@@ -395,8 +394,6 @@ void task_free(struct task *task)
  */
 void task_destroy(struct task *task)
 {
-	//assert(task->task_type != TASK_TYPE_KERNEL);//do not destroy kernel tasks
-	cprintf("in task destroy, calling task_free on task: %d by cpu %d\n", task->task_pid, this_cpu->cpu_id);
 	task_free(task);
 
 	if(task == cur_task){
@@ -419,6 +416,7 @@ void task_pop_frame(struct int_frame *frame)
 	spin_unlock(&kernel_lock);
 	#endif
 
+	frame->rflags |= FLAGS_IF; //enable back interrupts
 	switch (frame->int_no) {
 #ifdef LAB3_SYSCALL
 	case 0x80: sysret64(frame); break;
@@ -461,6 +459,7 @@ void task_run(struct task *task)
 	#ifndef USE_BIG_KERNEL_LOCK
 	spin_lock(&task->task_lock);
 	#endif
+
 
 	if(task->task_type == TASK_TYPE_KERNEL){
 		void (*fn)(void*) = (void (*)(void*)) task->task_frame.rip;
@@ -556,9 +555,6 @@ struct task* create_kthread(void (*fn)(void*), void* data){
 	task->task_frame.rip = (uint64_t) fn;
 	task->task_frame.rdi = (uint64_t) data;
 
-	//fuck this interface and these tests
-	//have to do this bs so it wont be assigned to pid 1 or 2 or 3 so the tests work
-	//fuck this
 
 	tasks[task->task_pid] = NULL;
 	bool assigned_pid = false;
