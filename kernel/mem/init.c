@@ -81,13 +81,11 @@ int pml4_setup(struct boot_info *boot_info)
 	 * stack. The kernel stack grows down from virtual address KSTACK_TOP.
 	 * Map 'bootstack' to [KSTACK_TOP - KSTACK_SIZE, KSTACK_TOP).
 	 */
-	cprintf("init stack, no exec\n");
 
 	boot_map_region(kernel_pml4, (void*)KSTACK_TOP_FOR(this_cpu->cpu_id) - KSTACK_SIZE, KSTACK_SIZE, (physaddr_t) bootstack, PAGE_PRESENT | PAGE_WRITE | PAGE_NO_EXEC);
 
 
 	/* Map in the pages from the buddy allocator as RW-. */
-	cprintf("map buddy pages as rw\n");
 	boot_map_region(kernel_pml4, (void*) KPAGES, npages * sizeof(struct page_info), PADDR(pages), PAGE_PRESENT | PAGE_WRITE | PAGE_NO_EXEC);
 
 
@@ -188,14 +186,13 @@ void mem_init(struct boot_info *boot_info)
 	/* Check the paging functions. */
 	lab2_check_paging();
 
-	cprintf("starting page init ext\n");
 	/* Add the rest of the physical memory to the buddy allocator. */
 
 	/* Check the buddy allocator. */
 	lab2_check_buddy(boot_info);
 	/* Add the rest of the physical memory to the buddy allocator. */
 	page_init_ext(boot_info);
-	cprintf("page init ext complete\n");
+
 	/* Check the buddy allocator. */
 	lab2_check_buddy(boot_info);
 }
@@ -264,7 +261,6 @@ void page_init(struct boot_info *boot_info)
 	for (i = 0; i < boot_info->mmap_len; ++i, ++entry) {
 
 		if(entry->type != MMAP_FREE){
-			cprintf("RESERVED addr space from %p to %p made up of %lu pages\n", entry->addr, entry->addr + entry->len, entry->len / PAGE_SIZE);
 			continue;
 		}
 
@@ -313,11 +309,8 @@ void page_init_ext(struct boot_info *boot_info)
 	
 	for (i = 0; i < boot_info->mmap_len; ++i, ++entry) {
 		if(entry->type != MMAP_FREE){
-			cprintf("RESERVED addr space from %p to %p made up of %lu pages\n", entry->addr, entry->addr + entry->len, entry->len / PAGE_SIZE);
 			continue;
 		}
-
-		//cprintf("free addr space from %p to %p made up of %lu pages\n", entry->addr, entry->addr + entry->len, entry->len / PAGE_SIZE);
 
 		for(physaddr_t addr = entry->addr; addr < entry->addr + entry->len; addr += PAGE_SIZE){
 			if(addr < BOOT_MAP_LIM) continue;

@@ -504,7 +504,6 @@ void task_run(struct task *task)
 			switch (cur_task->task_status)
 			{
 			case TASK_DYING:{
-				//assert(cur_task->task_ppid != 0);
 				//parent destroys dying tasks
 				break;
 			}
@@ -586,7 +585,6 @@ void task_kernel_setzero_create(){
 
 	struct task* kthread = create_kthread(setzero, (void*) info);
 	if(!kthread) panic("could not create setzero kthread\n");
-
 
 	#ifndef USE_BIG_KERNEL_LOCK
 	spin_lock(&runq_lock);

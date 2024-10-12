@@ -221,8 +221,7 @@ void int_dispatch(struct int_frame *frame)
 	#ifdef USE_BIG_KERNEL_LOCK
 	spin_lock(&kernel_lock);
 	#endif
-	//cprintf("interrupt received by cpu: %d, int no: %d\n", this_cpu->cpu_id, frame->int_no);
-	//print_int_frame(frame);
+
 	switch (frame->int_no) {
 
 		case INT_BREAK:
@@ -232,12 +231,10 @@ void int_dispatch(struct int_frame *frame)
 			return page_fault_handler(frame);
 
 		case INT_SYSCALL:
-			//cprintf("got syscall\n");
 			frame->rax = syscall(frame->rdi, frame->rsi, frame->rdx, frame->rcx, frame->r8, frame->r9, frame->rbp);
 			return;
 
 		case IRQ_TIMER:
-			//cprintf("IRQ timer received for cpu: %d\n", this_cpu->cpu_id);
 			irq_timer_handler(frame); // this should not return and either call task_run or monitor!
 	
 		default: break;
@@ -248,7 +245,6 @@ void int_dispatch(struct int_frame *frame)
 	spin_lock(&cur_task->task_lock);
 	#endif
 
-	//cprintf("Unxpected intterupt with id\n cur task: %d cpu: %d\n", cur_task->task_pid, this_cpu->cpu_id);
 	#ifndef USE_BIG_KERNEL_LOCK
 	spin_unlock(&cur_task->task_lock);
 	#endif
@@ -320,7 +316,6 @@ void page_fault_handler(struct int_frame *frame)
 	}
 
 	if(task_page_fault_handler(cur_task, fault_va, frame->err_code) < 0){
-	//	cprintf("entry pa: %p\n", page2pa(page));
 
 		#ifndef USE_BIG_KERNEL_LOCK
 		spin_lock(&cur_task->task_lock);
@@ -334,14 +329,10 @@ void page_fault_handler(struct int_frame *frame)
 		print_int_frame(frame);
 		task_destroy(cur_task);
 	}
-	//show_vmas(cur_task);
-	//task_pop_frame(frame);
 }
 
 void irq_timer_handler(struct int_frame *frame){
 	lapic_eoi();
-	//cprintf("IRQ timer in core %d\n", this_cpu->cpu_id);
-	//assert(this_cpu->cpu_id == 0);
 	sched_yield();
 }
 

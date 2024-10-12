@@ -65,20 +65,10 @@ int local_runq_add(struct task* task, struct rb_tree* tree){
 		assert(task->task_pml4);
 
 		#ifndef USE_BIG_KERNEL_LOCK
-		//cprintf("task_tmp->task_pid == %d and task->task_pid == %d\n", task_tmp->task_pid, task->task_pid);
 		if(task_tmp != task){
 			spin_lock(&task_tmp->task_lock);
 		}
 		#endif
-
-		/*
-		if(task_tmp->task_pid == task->task_pid) {
-			#ifndef USE_BIG_KERNEL_LOCK
-			spin_unlock(&task_tmp->task_lock);
-			#endif
-			return -1;
-		}
-		*/
 
 		dir = (vruntime_task >= vruntime(task_tmp));
 		#ifndef USE_BIG_KERNEL_LOCK
@@ -92,7 +82,7 @@ int local_runq_add(struct task* task, struct rb_tree* tree){
 		tree->root = &task->task_runq_node;
 		assert(container_of(tree->root, struct task, task_runq_node)->task_pml4);
 	} else {
-		assert(parent != &task->task_runq_node);
+		if(parent == &task->task_runq_node)return -1;
 		parent->child[dir] = &task->task_runq_node;
 		task->task_runq_node.parent = parent;
 	}
@@ -154,27 +144,21 @@ struct task* runq_pop(){//for global runq
 	return task;
 }
 
-static void debug_print_runq(struct rb_tree *tree, char* runqname){
-	if(tree->root){
-//		cprintf("printing %s\n", runqname);
-//		cprintf("root = %d\n", container_of(tree->root, struct task, task_runq_node)->task_pid);
-		//if(runq.root->child[RB_LEFT]) cprintf("root.left = %d\n", container_of(tree->root->child[RB_LEFT], struct task, task_runq_node)->task_pid);
-		//if(runq.root->child[RB_RIGHT]) cprintf("root.right = %d\n", container_of(tree->root->child[RB_RIGHT], struct task, task_runq_node)->task_pid);
-	}
-}
 /* Runs the next runnable task. */
 void sched_yield(void)
 {	
 	struct task* task;
 #ifdef USE_BIG_KERNEL_LOCK
 	if(runq.root == NULL){
-		if(nuser_tasks == 0) monitor(NULL);
+		if(nuser_tasks == 0){
+			cprintf("Destroyed the only task - nothing more to do!\n");
+			monitor(NULL);
+		}
 		else if(cur_task && cur_task->task_status == TASK_RUNNING){
-			cprintf("running only task available: %d,cpu: %d\n", cur_task->task_pid, this_cpu->cpu_id);	
 			task_run(cur_task);
 		}
 		cur_task = NULL;
-		//this is just for BKL i thinktask_run(
+
 		spin_unlock(&kernel_lock);
 		while(true){
 			spin_lock(&kernel_lock);
@@ -186,8 +170,21 @@ void sched_yield(void)
 			spin_unlock(&kernel_lock);
 		}
 	}
+	if(cur_task){
+		if(cur_task->task_status == TASK_RUNNABLE || cur_task->task_status == TASK_RUNNING){
+			runq_add(cur_task);
+		}
+		else{
+			cur_task = NULL;
+		}
+	}
 	task = runq_pop();
-	cprintf("running task: %d, runq: %p cpu: %d, nusertasks: %d\n", task->task_pid, &runq, this_cpu->cpu_id, nuser_tasks);
+	if(task->task_type == TASK_TYPE_KERNEL){
+		spin_unlock(&kernel_lock);
+		uint64_t start = read_tsc();
+		while(read_tsc() < start + 10000000);
+		spin_lock(&kernel_lock);
+	}
 	task_run(task);
 #else
 	if(cur_task){
@@ -209,7 +206,6 @@ void sched_yield(void)
 				target_runq_len = MAX(runq_len, this_cpu->runq_len);
 			}
 
-			
 			while(this_cpu->runq_len < target_runq_len && runq_len > 0){
 				struct task *task = runq_pop();
 				assert(task);
@@ -238,9 +234,6 @@ void sched_yield(void)
 	assert(this_cpu->runq.root);
 	this_cpu->runq_len = 0;
 	task = local_runq_pop(&this_cpu->runq);
-	//cprintf("popped task %d from the runq in cpu %d\n", task->task_pid, this_cpu->cpu_id);
-	assert(task);
-
 
 	task_run(task);
 #endif
@@ -269,8 +262,6 @@ void sched_halt()
 		#endif
 		monitor(NULL);
 	}
-
-	cprintf("Halted cpu %d\n", this_cpu->cpu_id);
 	#ifndef USE_BIG_KERNEL_LOCK
 	spin_unlock(&runq_lock);
 	#endif

@@ -30,7 +30,6 @@ pid_t sys_waitpid(pid_t pid, int *rstatus, int opts)
 
 		return -ECHILD;
 	}
-	//cprintf("running sys_waitpid on pid: %d\n", pid);
 
 	if(pid != 0 && !pid2task(pid, true)){
 		#ifndef USE_BIG_KERNEL_LOCK
@@ -58,7 +57,6 @@ pid_t sys_waitpid(pid_t pid, int *rstatus, int opts)
 		#endif
 
 		while(cpus[zombie->task_cpunum].cpu_task == zombie){
-			//cprintf("Oh no! the zombie is still begin run on cpu: %d\n", zombie_cpu_num);
 			#ifdef USE_BIG_KERNEL_LOCK
 			spin_unlock(&kernel_lock);
 			#endif
@@ -66,10 +64,7 @@ pid_t sys_waitpid(pid_t pid, int *rstatus, int opts)
 			#ifdef USE_BIG_KERNEL_LOCK
 			spin_lock(&kernel_lock);
 			#endif
-		}//busy wait for the zombie task to be descheduled by cores who
-											//did not notice the state change to DYING
-		
-
+		}//busy wait for the zombie task to be descheduled by cores who did not notice the state change to DYING	
 
 		task_destroy(zombie);
 		return zombie_pid;

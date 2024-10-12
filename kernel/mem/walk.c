@@ -6,7 +6,7 @@
 /* Given an address addr, this function returns the sign extended address. */
 static uintptr_t sign_extend(uintptr_t addr)
 {
-	return (addr < USER_LIM) ? addr : (0xffff000000000000ull | addr); //TODO check edge case of USER_LIM
+	return (addr < USER_LIM) ? addr : (0xffff000000000000ull | addr);
 }
 
 /* Given an addresss addr, this function returns the page boundary. */

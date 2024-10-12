@@ -21,8 +21,6 @@ struct vma *merge_vma(struct task *task, struct vma *lhs, struct vma *rhs)
 		panic("no task in merge_vma");
 	}
 
-	//assert(!lhs || !rhs || !task);
-
 	if(lhs->vm_end != rhs->vm_base){
 		return NULL;
 	}
