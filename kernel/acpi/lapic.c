@@ -46,7 +46,7 @@ void lapic_init(void)
 	 */
 	lapic_write(LAPIC_TDCR, LAPIC_X1);
 	lapic_write(LAPIC_TIMER, LAPIC_PERIODIC | IRQ_TIMER);
-	lapic_write(LAPIC_TICR, 10000000);
+	lapic_write(LAPIC_TICR, 10000000); //10000000
 
 	/* Leave LAPIC_LINT0 of the BSP (bootstrap processor) enabled, such
 	 * that it can get interrupts from the 8259A chip.

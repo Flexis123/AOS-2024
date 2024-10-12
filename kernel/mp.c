@@ -6,6 +6,7 @@
 #include <kernel/mem.h>
 #include <kernel/sched.h>
 #include <spinlock.h>
+#include <atomic.h>
 
 /* While boot_cpus() is booting a given CPU, it communicates the per-core stack
  * pointer that should be loaded by boot_ap().
@@ -13,6 +14,7 @@
 void *mpentry_kstack;
 extern int mem_init_mp(void);
 extern struct spinlock kernel_lock;
+extern size_t nuser_tasks;
 
 void boot_cpus(void)
 {
@@ -82,6 +84,10 @@ void mp_main(void)
 	//cprintf("DEBUG, lock lock is at: %p\n", &kernel_lock);
 	spin_lock(&kernel_lock);
 	#endif
+
+	asm volatile("cli");
+	
+	while (atomic_cmpxchg(&nuser_tasks, 0, nuser_tasks)); //busy wait
 	
 	sched_yield();
 }

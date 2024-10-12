@@ -71,8 +71,9 @@ void kmain(struct boot_info *boot_info)
 	spin_init(&runq_lock, "runq_lock");
 	#endif
 	assert(this_cpu->cpu_id == boot_cpu->cpu_id);
-	task_kernel_setzero_create();
+	asm volatile("cli");
 	boot_cpus();
+	task_kernel_setzero_create();
 
 #ifdef USE_BIG_KERNEL_LOCK
 	cprintf("BIG KERNEL LOCK IN USE!\n");

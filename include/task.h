@@ -71,7 +71,7 @@ struct task {
 	struct rb_node task_runq_node;
 
 	/* The anchor node for local (or next) run queue, see struct cpu*/
-	struct list task_local_runq_node;
+	struct rb_node task_local_runq_node;
 
 	/* The anchor node for zombie */
 	struct list task_zombie_node;

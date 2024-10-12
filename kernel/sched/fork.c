@@ -8,6 +8,7 @@
 #include <kernel/sched.h>
 #include <kernel/vma.h>
 #include <kernel/sched/task.h>
+#include <atomic.h>
 
 extern size_t nuser_tasks;
 extern struct spinlock runq_lock;
@@ -121,7 +122,7 @@ struct task *task_clone(struct task *task)
 	#ifndef USE_BIG_KERNEL_LOCK
 	spin_unlock(&task->task_lock);
 	#endif
-	nuser_tasks++;
+	atomic_inc(&nuser_tasks);
 	return child;
 }
 

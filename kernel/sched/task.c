@@ -12,6 +12,7 @@
 #include <kernel/mem/buddy.h>
 
 #include <kernel/mem/vma.h>
+#include <atomic.h>
 
 pid_t pid_max = 1 << 16;
 struct task **tasks = (struct task **)PIDMAP_BASE;
@@ -173,7 +174,7 @@ struct task *task_alloc(pid_t ppid)
 	list_init(&task->task_zombies);
 	list_init(&task->task_zombie_node);
 	rb_node_init(&task->task_runq_node);
-	list_init(&task->task_local_runq_node);
+	rb_node_init(&task->task_local_runq_node);
 	#ifndef USE_BIG_KERNEL_LOCK
 	spin_init(&task->task_lock, "task_lock");
 	#endif
@@ -313,7 +314,7 @@ void task_create(uint8_t *binary, enum task_type type)
 	task_load_elf(task, binary);
 	task->task_type = type;
 
-	if(type == TASK_TYPE_USER) nuser_tasks++;
+	if(type == TASK_TYPE_USER) atomic_inc(&nuser_tasks);
 	#ifndef USE_BIG_KERNEL_LOCK
 	spin_lock(&runq_lock);
 	#endif
@@ -331,8 +332,9 @@ void task_free(struct task *task)
 	#ifndef USE_BIG_KERNEL_LOCK
 	if(task != cur_task)spin_lock(&task->task_lock);
 	#endif
-	nuser_tasks--;
-	assert(nuser_tasks >= 0);
+	atomic_dec(&nuser_tasks);
+	cprintf("nuser_tasks = %d\n", nuser_tasks);
+	//assert(nuser_tasks >= 0);
 	struct task *waiting;
 	assert(task);
 
@@ -398,11 +400,6 @@ void task_destroy(struct task *task)
 	task_free(task);
 
 	if(task == cur_task){
-		//cprintf("destroying task: %d, on cpu: %d, nusertasks %d\n", task->task_pid, this_cpu->cpu_id, nuser_tasks);
-		if(nuser_tasks == 0){
-			cprintf("Destroyed the only task - nothing more to do!\n");
-			monitor(NULL);
-		}
 		cur_task = NULL;
 		load_pml4((struct page_table *)PADDR(kernel_pml4));
 		sched_yield();
@@ -465,6 +462,25 @@ void task_run(struct task *task)
 	spin_lock(&task->task_lock);
 	#endif
 
+	if(task->task_type == TASK_TYPE_KERNEL){
+		void (*fn)(void*) = (void (*)(void*)) task->task_frame.rip;
+		void* arg = (void*) task->task_frame.rdi;
+
+		fn(arg);
+
+		#ifndef USE_BIG_KERNEL_LOCK
+		spin_unlock(&task->task_lock);
+		spin_lock(&runq_lock);
+		#endif
+		runq_add(task);
+		#ifndef USE_BIG_KERNEL_LOCK
+		spin_unlock(&runq_lock);
+		#endif
+
+		cur_task = NULL;
+		sched_yield();
+	}
+
 	if(task->task_status == TASK_DYING || task->task_status == TASK_NOT_RUNNABLE){
 		cprintf("dying or unrunnable task in task_run: %d, calling sched_yield\n", task->task_pid);
 
@@ -489,7 +505,7 @@ void task_run(struct task *task)
 			switch (cur_task->task_status)
 			{
 			case TASK_DYING:{
-				assert(cur_task->task_ppid != 0);
+				//assert(cur_task->task_ppid != 0);
 				//parent destroys dying tasks
 				break;
 			}
@@ -533,79 +549,11 @@ void task_run(struct task *task)
 	task_pop_frame(&cur_task->task_frame);
 }
 
-struct contigous_area{
-	void* start;
-	size_t target_len_pages;
-	size_t len_pages;
-	uint64_t flags;
-};
-
-static int check_pte_if_free(physaddr_t *entry, uintptr_t base, uintptr_t end,
-    struct page_walker *walker){
-
-	struct contigous_area *ca = walker->udata;
-	if(ca->len_pages != ca->target_len_pages){
-		if(!(*entry & PAGE_PRESENT)){
-
-			if(!ca->start){
-				ca->start = (void*) base;
-			}
-			ca->len_pages++;
-		}else{
-			//zap ca
-			ca->len_pages = 0;
-			ca->start = NULL;
-		}
-
-	}else{
-		//we found our va 
-		//ret -2 to make the walker stop and indicate sucess even if val is negative
-		return -2;
-	}
-
-	return 0;
-}
-
-static void* find_contigous_free_va(size_t pages){
-
-	struct contigous_area ca = {
-		.start = NULL,
-		.target_len_pages = pages,
-		.len_pages = 0,
-	};
-	
-	struct page_walker wlk = {
-		.pte_callback = check_pte_if_free,
-		.udata = &ca
-	};
-	
-	int ret = walk_kernel_pages(kernel_pml4, &wlk);
-	if(ret < 0 && ret != -2) return NULL;
-	return ca.start;
-}
-
-#define KTHREAD_STACK_SIZE_PAGES 2
-
 struct task* create_kthread(void (*fn)(void*), void* data){
 	struct task* task = task_alloc(0);
 
-	struct page_info* stack_page_0 = page_alloc(ALLOC_ZERO);
-	struct page_info* stack_page_1 = page_alloc(ALLOC_ZERO);
-
-	if(!stack_page_0 || !stack_page_1) goto err_kthread_create;;
-
-	void* rsp = find_contigous_free_va(KTHREAD_STACK_SIZE_PAGES);
-	if(!rsp) goto err_kthread_create;
-
-	populate_region(kernel_pml4, rsp, KTHREAD_STACK_SIZE_PAGES, PAGE_NO_EXEC | PAGE_WRITE | PAGE_PRESENT);
-
-	task->task_frame.rsp = (uint64_t) rsp;
-	task->task_frame.ds = GDT_KDATA | 3;
-	task->task_frame.ss = GDT_KDATA | 3;
-	task->task_frame.cs = GDT_KCODE | 3;
 	task->task_type = TASK_TYPE_KERNEL;
 	task->task_frame.rip = (uint64_t) fn;
-
 	task->task_frame.rdi = (uint64_t) data;
 
 	//fuck this interface and these tests
@@ -623,17 +571,15 @@ struct task* create_kthread(void (*fn)(void*), void* data){
 		}
 	}
 
-	if(!assigned_pid) goto err_kthread_create;
+	if(!assigned_pid){
+		task_free(task);
+		return NULL;
+	}
 
 	return task;
-
-err_kthread_create:
-	task_free(task);
-	return NULL;
 }
 
 void task_kernel_setzero_create(){
-	cprintf("in task_kernel setzero create\n");
 
 	struct setzero_info *info = kmalloc(sizeof(struct setzero_info));
 

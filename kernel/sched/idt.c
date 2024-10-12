@@ -340,6 +340,7 @@ void page_fault_handler(struct int_frame *frame)
 
 void irq_timer_handler(struct int_frame *frame){
 	lapic_eoi();
+	cprintf("shced yled IRQ timer\n");
 	sched_yield();
 }
 

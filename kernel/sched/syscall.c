@@ -75,6 +75,16 @@ static pid_t sys_getpid(void)
 	return pid;
 }
 
+static void debug_print_runq(struct rb_tree *tree, char* runqname){
+	cprintf("printing %s\n", runqname);
+	if(tree->root){
+		//cprintf("printing %s\n", runqname);
+		cprintf("root = %d\n", container_of(tree->root, struct task, task_runq_node)->task_pid);
+		//if(runq.root->child[RB_LEFT]) cprintf("root.left = %d\n", container_of(tree->root->child[RB_LEFT], struct task, task_runq_node)->task_pid);
+		//if(runq.root->child[RB_RIGHT]) cprintf("root.right = %d\n", container_of(tree->root->child[RB_RIGHT], struct task, task_runq_node)->task_pid);
+	}
+}
+
 static int sys_kill(pid_t pid)
 {
 	struct task *task;
@@ -89,6 +99,8 @@ static int sys_kill(pid_t pid)
 	#endif
 	pid_t old_task_pid = cur_task->task_pid;
 
+	debug_print_runq(&runq, "global runq in sys_kill");
+
 	if(task->task_ppid != 0){
 		task->task_status = TASK_DYING;
 		
@@ -102,6 +114,7 @@ static int sys_kill(pid_t pid)
 			spin_unlock(&runq_lock);
 			#endif
 		}
+		debug_print_runq(&this_cpu->nextq, "global runq in sys_kill after task removed from runq");
 		pid_t child_pid = task->task_pid;
 		pid_t parent_pid = task->task_ppid;
 		#ifndef USE_BIG_KERNEL_LOCK
@@ -117,6 +130,8 @@ static int sys_kill(pid_t pid)
 
 		list_add(&parent->task_zombies, &task->task_zombie_node);
 		cprintf("[PID %5u] Reaping task with PID %u\n", old_task_pid, task->task_pid);
+
+		cprintf("parent pid: %d\n", parent->task_pid);
 
 		if(parent->task_wait == task){
 			parent->task_status = TASK_RUNNABLE;
@@ -134,11 +149,13 @@ static int sys_kill(pid_t pid)
 		}
 		if(task != cur_task){
 			cprintf("cpu: %d ipi because we kill another task\n", this_cpu->cpu_id);
-			lapic_ipi(IRQ_TIMER);//force other cores to reschedule in case the child process is still running.
+			//lapic_ipi(IRQ_TIMER);//force other cores to reschedule in case the child process is still running.
 		}
 		#ifndef USE_BIG_KERNEL_LOCK
 		spin_unlock(&parent->task_lock);
 		#endif
+
+		debug_print_runq(&this_cpu->nextq, "global runq in sys_kill after task removed from runq");
 		sched_yield();
 		return 0;
 	}
