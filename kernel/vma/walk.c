@@ -19,23 +19,14 @@ int walk_vma_range(struct task *task, void *base, size_t size,
 	/* Find the VMA with an end address greater than the base, but also the
 	 * closest to the base.
 	 */
-	#ifndef USE_BIG_KERNEL_LOCK
-	spin_lock(&task->task_lock);
-	#endif
+	
 	vma = find_vma(NULL, NULL, &task->task_rb, base);
-	#ifndef USE_BIG_KERNEL_LOCK
-	spin_unlock(&task->task_lock);
-	#endif
+	
 	if (!vma || end <= vma->vm_base) {
 		return -1;
 	}
-	#ifndef USE_BIG_KERNEL_LOCK
-	spin_lock(&task->task_lock);
-	#endif
+
 	next = list_next(&task->task_mmap, &vma->vm_mmap);
-	#ifndef USE_BIG_KERNEL_LOCK
-	spin_unlock(&task->task_lock);
-	#endif
 
 	/* Now call get_vma() on each VMA as long as there is a VMA and as long
 	 * as each VMA has a base address less than the end address.
@@ -48,13 +39,9 @@ int walk_vma_range(struct task *task, void *base, size_t size,
 		}
 
 		node = next;
-		#ifndef USE_BIG_KERNEL_LOCK
-		spin_lock(&task->task_lock);
-		#endif
+		
 		next = list_next(&task->task_mmap, &vma->vm_mmap);
-		#ifndef USE_BIG_KERNEL_LOCK
-		spin_unlock(&task->task_lock);
-		#endif
+		
 		vma = node ? container_of(node, struct vma, vm_mmap) : NULL;
 	}
 

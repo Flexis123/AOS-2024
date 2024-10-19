@@ -5,5 +5,6 @@ void sched_init_mp(void);
 void sched_yield(void);
 void sched_halt(void);
 
-int runq_add(struct task* task);
+void schedule_task(struct task *task);
+void deschedule_task(struct task *task);
 

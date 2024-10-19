@@ -71,7 +71,7 @@ struct task {
 	struct rb_node task_runq_node;
 
 	/* The anchor node for local (or next) run queue, see struct cpu*/
-	struct rb_node task_local_runq_node;
+	struct list task_local_runq_node;
 
 	/* The anchor node for zombie */
 	struct list task_zombie_node;
@@ -81,7 +81,7 @@ struct task {
 
 	uint64_t task_start_waiting;
 
-	bool is_in_runq : 1;
+	bool is_in_local_runq : 1;
 
 #ifndef USE_BIG_KERNEL_LOCK
 	/* Per-task lock */

@@ -28,13 +28,9 @@ int sys_mquery(struct vma_info *info, void *addr)
 	/* Find the VMA with an end address that is greater than the requested
 	 * address, but also the closest to the requested address.
 	 */
-	#ifndef USE_BIG_KERNEL_LOCK
-	spin_lock(&cur_task->task_lock);
-	#endif
+	
 	vma = find_vma(NULL, NULL, &cur_task->task_rb, addr);
-	#ifndef USE_BIG_KERNEL_LOCK
-	spin_unlock(&cur_task->task_lock);
-	#endif
+	
 
 	if (!vma) {
 		/* If there is no such VMA, it means the address is greater
@@ -43,13 +39,9 @@ int sys_mquery(struct vma_info *info, void *addr)
 		 * space. The base address of this free gap is the end address
 		 * of the highest VMA and the end address is simply USER_LIM.
 		 */
-		#ifndef USE_BIG_KERNEL_LOCK
-		spin_lock(&cur_task->task_lock);
-		#endif
+		
 		node = list_tail(&cur_task->task_mmap);
-		#ifndef USE_BIG_KERNEL_LOCK
-		spin_lock(&cur_task->task_lock);
-		#endif
+		
 		info->vm_end = (void *)USER_LIM;
 
 		if (!node) {
@@ -69,13 +61,9 @@ int sys_mquery(struct vma_info *info, void *addr)
 		 * VMA. The end address of the free gap is the base address of
 		 * the VMA that we found.
 		 */
-		#ifndef USE_BIG_KERNEL_LOCK
-		spin_lock(&cur_task->task_lock);
-		#endif
+		
 		node = list_prev(&cur_task->task_mmap, &vma->vm_mmap);
-		#ifndef USE_BIG_KERNEL_LOCK
-		spin_lock(&cur_task->task_lock);
-		#endif
+		
 		info->vm_end = vma->vm_base;
 
 		if (!node) {
@@ -98,16 +86,12 @@ int sys_mquery(struct vma_info *info, void *addr)
 	info->vm_type = vma->vm_src ? VMA_EXECUTABLE : VMA_ANONYMOUS;
 
 	/* Check if the address is backed by a physical page. */
-	#ifndef USE_BIG_KERNEL_LOCK
-	spin_lock(&cur_task->task_lock);
-	#endif
+	
 
 	if (page_lookup(cur_task->task_pml4, addr, &entry)) {
 		info->vm_mapped = (*entry & PAGE_HUGE) ? VM_2M_PAGE : VM_4K_PAGE;
 	}
-	#ifndef USE_BIG_KERNEL_LOCK
-	spin_unlock(&cur_task->task_lock);
-	#endif
+	
 	return 0;
 }
 
@@ -180,13 +164,7 @@ int sys_madvise(void *addr, size_t len, int advise)
 	switch (advise)
 	{
 	case MADV_DONTNEED:
-		#ifndef USE_BIG_KERNEL_LOCK
-		spin_lock(&cur_task->task_lock);
-		#endif
 		unmap_page_range_non_dirty(cur_task->task_pml4, addr, len);
-		#ifndef USE_BIG_KERNEL_LOCK
-		spin_lock(&cur_task->task_lock);
-		#endif
 		break;
 
 	case MADV_WILLNEED:

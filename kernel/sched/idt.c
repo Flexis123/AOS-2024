@@ -90,8 +90,6 @@ static const struct int_info int_infos[256] = {
 	[IRQ_ERROR] = INT_INFO(IRQ_ERROR, "error irq"),
 };
 
-extern struct spinlock kernel_lock;
-
 static struct idt_entry entries[256];
 static struct idtr idtr = {
 	.limit = sizeof(entries) - 1,
@@ -218,9 +216,7 @@ void idt_init_mp(void)
 
 void int_dispatch(struct int_frame *frame)
 {
-	#ifdef USE_BIG_KERNEL_LOCK
-	spin_lock(&kernel_lock);
-	#endif
+	KLOCK;
 
 	switch (frame->int_no) {
 
@@ -241,16 +237,10 @@ void int_dispatch(struct int_frame *frame)
 	}
 
 	/* Unexpected trap: The user process or the kernel has a bug. */
-	#ifndef USE_BIG_KERNEL_LOCK
-	spin_lock(&cur_task->task_lock);
-	#endif
-
-	#ifndef USE_BIG_KERNEL_LOCK
-	spin_unlock(&cur_task->task_lock);
-	#endif
 	print_int_frame(frame);
 
 	if (frame->cs == GDT_KCODE) {
+		TASK_UNLOCK(cur_task);
 		panic("unhandled interrupt in kernel");
 	} else {
 		task_destroy(cur_task);
@@ -269,9 +259,7 @@ void int_handler(struct int_frame *frame)
 	 */
 	assert(!(read_rflags() & FLAGS_IF));
 
-	#ifndef USE_BIG_KERNEL_LOCK
-	spin_lock(&cur_task->task_lock);
-	#endif
+	TASK_LOCK(cur_task);
 
 	if ((frame->cs & 3) == 3) {
 		/* Interrupt from user mode. */
@@ -290,9 +278,6 @@ void int_handler(struct int_frame *frame)
 	/* Dispatch based on the type of interrupt that occurred. */
 	cur_task->task_frame.rflags |= FLAGS_IF;
 
-	#ifndef USE_BIG_KERNEL_LOCK
-	spin_unlock(&cur_task->task_lock);
-	#endif
 	int_dispatch(frame);
 
 	/* Return to the current task, which should be running. */
@@ -316,15 +301,8 @@ void page_fault_handler(struct int_frame *frame)
 	}
 
 	if(task_page_fault_handler(cur_task, fault_va, frame->err_code) < 0){
-
-		#ifndef USE_BIG_KERNEL_LOCK
-		spin_lock(&cur_task->task_lock);
-		#endif
-
 		cprintf("[PID %5u] user fault is invalid!\n", cur_task->task_pid);
-		#ifndef USE_BIG_KERNEL_LOCK
-		spin_unlock(&cur_task->task_lock);
-		#endif
+		
 	
 		print_int_frame(frame);
 		task_destroy(cur_task);

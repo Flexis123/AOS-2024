@@ -97,6 +97,8 @@ void assert_user_mem(struct task *task, void *va, size_t size, uint64_t flags)
 		flags | PAGE_USER) < 0) {
 		cprintf("[PID %5u] Access violation for va %p\n",
 			task->task_pid, fault_va);
+
+		TASK_LOCK(task);
 		task_destroy(task);
 	}
 }

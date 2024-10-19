@@ -28,13 +28,9 @@ int do_protect_vma(struct task *task, void *base, size_t size, struct vma *vma,
 	if(!(flags & VM_EXEC)) pflags |= PAGE_NO_EXEC;
 
 	new_vma->vm_flags = flags;
-	#ifndef USE_BIG_KERNEL_LOCK
-	spin_lock(&task->task_lock);
-	#endif
+	
 	protect_region(task->task_pml4, new_vma->vm_base, (size_t)(actual_end - actual_base), pflags);
-	#ifndef USE_BIG_KERNEL_LOCK
-	spin_unlock(&task->task_lock);
-	#endif
+	
 	merge_vmas(task, vma);
 	return 0;
 }

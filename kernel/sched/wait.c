@@ -5,10 +5,9 @@
 #include <kernel/mem.h>
 #include <kernel/sched.h>
 
-extern struct rb_tree runq;
+extern struct rb_tree global_runq;
 extern struct task **tasks;
 extern size_t nuser_tasks;
-extern struct spinlock kernel_lock;
 
 pid_t sys_wait(int *rstatus)
 {	
@@ -18,78 +17,46 @@ pid_t sys_wait(int *rstatus)
 pid_t sys_waitpid(pid_t pid, int *rstatus, int opts)
 {
 	assert(!opts); // we dont support opts for now
-	#ifndef USE_BIG_KERNEL_LOCK
-	spin_lock(&cur_task->task_lock);
-	#endif
+	pid_t target_pid = 0;
+	struct task *target_task;
+	
+	if(list_is_empty(&cur_task->task_children)) return -ECHILD;
 
-	if(list_is_empty(&cur_task->task_children)){
+	target_task = pid2task(pid, true);
+	if(pid != 0 && !target_task) return -ECHILD;
+	else if(pid == -1) {
+		target_task = container_of(list_head(&cur_task->task_zombies), struct task, task_zombie_node);
 
-		#ifndef USE_BIG_KERNEL_LOCK
-		spin_unlock(&cur_task->task_lock);
-		#endif
+		assert(target_task->task_status == TASK_DYING);
 
-		return -ECHILD;
+		if(target_task) TASK_LOCK(target_task);
 	}
 
-	if(pid != 0 && !pid2task(pid, true)){
-		#ifndef USE_BIG_KERNEL_LOCK
-		spin_unlock(&cur_task->task_lock);
-		#endif
-		return -ECHILD;
+	//check if it is a zombie, if it is go ahead an destroy it
+	if(target_task && target_task->task_status == TASK_DYING){
+		
+		target_pid = target_task->task_pid;
+		list_del(&target_task->task_zombie_node);
+		list_del(&target_task->task_child);
+
+		task_destroy(target_task);
+		return target_pid;
+
 	}
-	struct task *zombie = (pid == -1)? container_of(list_head(&cur_task->task_zombies), struct task, task_zombie_node) : pid2task(pid, true);
+	
+	if(!target_task){ // we get here
+		target_task = container_of(list_head(&cur_task->task_children), struct task, task_child);
 
-	#ifndef USE_BIG_KERNEL_LOCK
-	if(zombie)spin_lock(&zombie->task_lock);
-	#endif
+		if(target_task && target_task != cur_task) TASK_LOCK(target_task);
 
-	if(zombie && zombie->task_status == TASK_DYING){
-		assert(zombie->task_ppid == cur_task->task_pid);
-		assert(zombie != cur_task);
-		int zombie_pid = zombie->task_pid;
-		list_del(&zombie->task_zombie_node);
-		list_del(&zombie->task_child);
-
-		int zombie_cpu_num = zombie->task_cpunum;
-		#ifndef USE_BIG_KERNEL_LOCK
-		if(zombie)spin_unlock(&zombie->task_lock);
-		spin_unlock(&cur_task->task_lock);
-		#endif
-
-		while(cpus[zombie->task_cpunum].cpu_task == zombie){
-			#ifdef USE_BIG_KERNEL_LOCK
-			spin_unlock(&kernel_lock);
-			#endif
-			lapic_ipi(IRQ_TIMER);
-			#ifdef USE_BIG_KERNEL_LOCK
-			spin_lock(&kernel_lock);
-			#endif
-		}//busy wait for the zombie task to be descheduled by cores who did not notice the state change to DYING	
-
-		task_destroy(zombie);
-		return zombie_pid;
+	}else{
+		target_pid = target_task->task_pid;
 	}
-	pid_t return_pid = 0;
-	if(!zombie){
-		assert(pid == -1);
-		zombie = container_of(list_head(&cur_task->task_children), struct task, task_child);
 
-		#ifndef USE_BIG_KERNEL_LOCK
-		spin_lock(&zombie->task_lock);
-		#endif
-
-		return_pid = zombie->task_pid;
-	}
-	else{
-		return_pid = zombie->task_pid;
-	}
 	cur_task->task_status = TASK_NOT_RUNNABLE;//the child is not a zombie yet
-	cur_task->task_wait = zombie;
+	cur_task->task_wait = target_task;
 
-	#ifndef USE_BIG_KERNEL_LOCK
-	spin_unlock(&zombie->task_lock);
-	spin_unlock(&cur_task->task_lock);
-	#endif
+	if(target_task && target_task != cur_task) TASK_UNLOCK(target_task);
 
-	return return_pid;	
+	return target_pid;	
 }

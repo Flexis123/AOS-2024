@@ -80,9 +80,7 @@ void mp_main(void)
 		"cli\n"
 		"hlt\n");
 	*/
-	#ifdef USE_BIG_KERNEL_LOCK
-	spin_lock(&kernel_lock);
-	#endif
+	KUNLOCK;
 
 	asm volatile("cli");
 	

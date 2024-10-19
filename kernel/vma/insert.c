@@ -15,9 +15,6 @@ int insert_vma(struct task *task, struct vma *vma)
 	struct rb_node *node, *parent = NULL;
         struct vma *vma_tmp = NULL;
 	int dir;
-	#ifndef USE_BIG_KERNEL_LOCK
-	spin_lock(&task->task_lock);
-	#endif
 	node = task->task_rb.root;
 
 	while (node) {
@@ -28,10 +25,6 @@ int insert_vma(struct task *task, struct vma *vma)
 		if (!dir) {
 		    /* If dir == 0 check if we don't overlap vma_tmp */
                     if (vma->vm_end > vma_tmp->vm_base){
-
-						#ifndef USE_BIG_KERNEL_LOCK
-						spin_unlock(&task->task_lock);
-						#endif
                         return -1;
                     }
 		}
@@ -48,9 +41,7 @@ int insert_vma(struct task *task, struct vma *vma)
 
         /* Balance the RED-BLACK tree after VMA insertion */
 	if (rb_balance(&task->task_rb, &vma->vm_rb) < 0) {
-		#ifndef USE_BIG_KERNEL_LOCK
-		spin_unlock(&task->task_lock);
-		#endif
+	
 		return -1;
 	}
 
@@ -64,9 +55,6 @@ int insert_vma(struct task *task, struct vma *vma)
 			list_insert_before(&vma_tmp->vm_mmap, &vma->vm_mmap);
 		}
 	}
-	#ifndef USE_BIG_KERNEL_LOCK
-	spin_unlock(&task->task_lock);
-	#endif
 	return 0;
 }
 

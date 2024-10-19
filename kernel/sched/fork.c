@@ -11,7 +11,7 @@
 #include <atomic.h>
 
 extern size_t nuser_tasks;
-extern struct spinlock runq_lock;
+
 struct copy_info{
 	struct page_table* child_pml4;
 };
@@ -65,18 +65,19 @@ static int copy_region(struct page_table *parent_pml4, struct page_table* child_
 /* Allocates a task struct for the child process and copies the register state,
  * the VMAs and the page tables. Once the child task has been set up, it is
  * added to the run queue.
+ * 
+ * ASSUMPTION: the task is always the cur_task for now
  */
 struct task *task_clone(struct task *task)
 {
+	assert(task == cur_task); //ASSUMPTION: the task is always the cur_task for now
 	struct task *child = task_alloc(task->task_pid);
 
 	if(!child){
 		panic("OOM in task_clone");
 		return NULL;
 	}
-	#ifndef USE_BIG_KERNEL_LOCK
-	spin_lock(&task->task_lock);
-	#endif
+	
 	memcpy(&child->task_frame, &task->task_frame, sizeof(task->task_frame));
 
 
@@ -98,9 +99,6 @@ struct task *task_clone(struct task *task)
 			panic("unable to create vma in task_clone");
 			task_free(child);
 
-			#ifndef USE_BIG_KERNEL_LOCK
-			spin_unlock(&task->task_lock);
-			#endif
 			return NULL;
 		}
 
@@ -111,18 +109,11 @@ struct task *task_clone(struct task *task)
 	//add child to run queue and to the list of children of the parent
 	assert(child != task);
 
-	#ifndef USE_BIG_KERNEL_LOCK
-	spin_lock(&runq_lock);
-	#endif
-	runq_add(child);
-	#ifndef USE_BIG_KERNEL_LOCK
-	spin_unlock(&runq_lock);
-	#endif
+	//schedule_task will lock the task!
+	//what to do? well we dont lock the child so nothing lol
 	list_add(&task->task_children, &child->task_child);
-	#ifndef USE_BIG_KERNEL_LOCK
-	spin_unlock(&task->task_lock);
-	#endif
 	atomic_inc(&nuser_tasks);
+
 	return child;
 }
 
@@ -133,6 +124,9 @@ pid_t sys_fork(void)
 	if (!child) return -ENOMEM;
 
 	child->task_frame.rax = 0;
-	
-	return child->task_pid;
+	pid_t child_pid = child->task_pid;
+
+	schedule_task(child);
+
+	return child_pid;
 }

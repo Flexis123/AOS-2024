@@ -14,14 +14,6 @@
 #include <string.h>
 
 extern int mem_init_mp(void);
-extern struct spinlock kernel_lock;
-
-#ifndef USE_BIG_KERNEL_LOCK
-extern struct spinlock buddy_lock;
-extern struct spinlock console_lock;
-extern struct spinlock runq_lock;
-#endif
-
 void kmain(struct boot_info *boot_info)
 {
 	extern char edata[], end[];
@@ -67,11 +59,12 @@ void kmain(struct boot_info *boot_info)
 	#ifdef USE_BIG_KERNEL_LOCK
 	//cprintf("DEBUG, lock lock is at: %p\n", &kernel_lock);
 	spin_init(&kernel_lock, "BKL");
-	spin_lock(&kernel_lock);
+	KLOCK;
 	#else
 	spin_init(&buddy_lock, "buddy_lock");
-	spin_init(&runq_lock, "runq_lock");
+	spin_init(&global_runq_lock, "runq_lock");
 	#endif
+
 	assert(this_cpu->cpu_id == boot_cpu->cpu_id);
 	asm volatile("cli");
 	boot_cpus();

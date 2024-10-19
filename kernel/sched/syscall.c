@@ -16,10 +16,6 @@ extern void syscall64(void);
 extern struct rb_tree runq;
 extern size_t runq_len;
 
-#ifndef USE_BIG_KERNEL_LOCK
-extern struct spinlock runq_lock;
-
-#endif
 
 void syscall_init(void)
 {
@@ -66,92 +62,60 @@ static int sys_cgetc(void)
 /* Returns the PID of the current task. */
 static pid_t sys_getpid(void)
 {
-	#ifndef USE_BIG_KERNEL_LOCK
-	spin_lock(&cur_task->task_lock);
-	#endif
-	pid_t pid = cur_task->task_pid;
-	#ifndef USE_BIG_KERNEL_LOCK
-	spin_unlock(&cur_task->task_lock);
-	#endif
-	return pid;
+	return cur_task->task_pid;
 }
 
 
 
 static int sys_kill(pid_t pid)
 {
-	struct task *task;
+	struct task *target_task;
 
-	task = pid2task(pid, 1);
+	target_task = pid2task(pid, 1);
 
-	if (!task) {
+	if (!target_task) {
 		return -1;
 	}
-	#ifndef USE_BIG_KERNEL_LOCK
-	spin_lock(&task->task_lock);
-	#endif
+	
 	pid_t old_task_pid = cur_task->task_pid;
 
-	if(task->task_ppid != 0){
-		task->task_status = TASK_DYING;
+	//remove task from the runq or local runq
+	//and set it to dying
+	
+	if(target_task->task_ppid != 0){
+		deschedule_task(target_task); //removes task from runqueues and marks it as dying
+
+		pid_t child_pid = target_task->task_pid;
+		pid_t parent_pid = target_task->task_ppid;
 		
-		if(task->is_in_runq){
-			#ifndef USE_BIG_KERNEL_LOCK
-			spin_lock(&runq_lock);
-			#endif
-			rb_remove(&runq, &task->task_runq_node);
-			runq_len--;
-			#ifndef USE_BIG_KERNEL_LOCK
-			spin_unlock(&runq_lock);
-			#endif
-		}
-		
-		pid_t child_pid = task->task_pid;
-		pid_t parent_pid = task->task_ppid;
-		#ifndef USE_BIG_KERNEL_LOCK
-		spin_unlock(&task->task_lock);
-		#endif
+		if(target_task != cur_task) TASK_UNLOCK(target_task);
 
 		struct task *parent = pid2task(parent_pid, false);
-		assert(parent);
-		#ifndef USE_BIG_KERNEL_LOCK
-		spin_lock(&parent->task_lock);
-		#endif
-		assert(parent->task_pid == parent_pid);
+		list_add(&parent->task_zombies, &target_task->task_zombie_node);
+		cprintf("[PID %5u] Reaping task with PID %u\n", old_task_pid, target_task->task_pid);
 
-		list_add(&parent->task_zombies, &task->task_zombie_node);
-		cprintf("[PID %5u] Reaping task with PID %u\n", old_task_pid, task->task_pid);
-
-
-		if(parent->task_wait == task){
+		if(parent->task_wait == target_task){
 			parent->task_status = TASK_RUNNABLE;
-			#ifndef USE_BIG_KERNEL_LOCK
-			spin_unlock(&parent->task_lock);
-			spin_lock(&runq_lock);
-			#endif
-			runq_add(parent);
-			#ifndef USE_BIG_KERNEL_LOCK
-			spin_unlock(&runq_lock);
-			spin_lock(&parent->task_lock);
-			#endif
+			
+			TASK_UNLOCK(parent);
+
+			schedule_task(parent);
+
+			TASK_LOCK(parent);
 		}
-		if(task != cur_task){
+
+		if(target_task != cur_task){
 			lapic_ipi(IRQ_TIMER);//force other cores to reschedule in case the child process is still running.
 		}
-		#ifndef USE_BIG_KERNEL_LOCK
-		spin_unlock(&parent->task_lock);
-		#endif
+		TASK_UNLOCK(parent);
 
-		sched_yield();
+		//sched_yield();//we dont need to schedule yield the syscall just returns, only if this is the current task
 		return 0;
 	}
 
-	cprintf("[PID %5u] Exiting gracefully\n", task->task_pid);
+	cprintf("[PID %5u] Exiting gracefully\n", target_task->task_pid);
 
-	#ifndef USE_BIG_KERNEL_LOCK
-	spin_unlock(&task->task_lock);
-	#endif
-	task_destroy(task);
+	task_destroy(target_task);
 
 	return 0;
 }
@@ -227,28 +191,4 @@ int64_t syscall(uint64_t syscallno, uint64_t a1, uint64_t a2, uint64_t a3,
 			ret = -ENOSYS;
 	}
 	return ret;
-}
-
-void syscall_handler(uint64_t syscallno, uint64_t a1, uint64_t a2, uint64_t a3,
-    uint64_t a4, uint64_t a5, uint64_t a6)
-{
-	struct int_frame *frame;
-
-	/* Syscall from user mode. */
-	assert(cur_task);
-
-	/* Avoid using the frame on the stack. */
-
-	#ifndef USE_BIG_KERNEL_LOCK
-	spin_lock(&cur_task->task_lock);
-	#endif
-	frame = &cur_task->task_frame;
-	#ifndef USE_BIG_KERNEL_LOCK
-	spin_unlock(&cur_task->task_lock);
-	#endif
-	/* Issue the syscall. */
-	frame->rax = syscall(syscallno, a1, a2, a3, a4, a5, a6);
-
-	/* Return to the current task, which should be running. */
-	task_run(cur_task);
 }

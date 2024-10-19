@@ -233,9 +233,7 @@ struct page_info *buddy_find(size_t req_order)
  */
 struct page_info *page_alloc(int alloc_flags)
 {
-	#ifndef USE_BIG_KERNEL_LOCK
-	spin_lock(&buddy_lock);
-	#endif
+	BUDDY_LOCK;
 	struct page_info* page;
 
 
@@ -249,9 +247,7 @@ struct page_info *page_alloc(int alloc_flags)
 		}
 	}
 	assert(page != NULL);
-	#ifndef USE_BIG_KERNEL_LOCK
-	spin_unlock(&buddy_lock);
-	#endif
+	BUDDY_UNLOCK;
 	return page;
 }
 
@@ -295,16 +291,12 @@ void page_free(struct page_info *pp)
  */
 void page_decref(struct page_info *pp)
 {
-	#ifndef USE_BIG_KERNEL_LOCK
-	spin_lock(&buddy_lock);
-	#endif
+	BUDDY_LOCK;
 
 	if (--pp->pp_ref == 0) {
 		page_free(pp);
 	}
-	#ifndef USE_BIG_KERNEL_LOCK
-	spin_unlock(&buddy_lock);
-	#endif
+	BUDDY_UNLOCK;
 }
 
 static int in_page_range(void *p)
@@ -388,25 +380,20 @@ void setzero(void *setzero_info){
 
 	for(size_t i = 0; i < SETZERO_PAGES_PER_RUN; i++){
 		struct page_info *page = &pages[info->current_page];
-		#ifndef USE_BIG_KERNEL_LOCK
-		spin_lock(&buddy_lock);
-		#endif
+		BUDDY_LOCK;
 		if(!page->pp_free){
-			#ifndef USE_BIG_KERNEL_LOCK
+			
 
 			if(page->pp_order > 0){
 				i += (1 << page->pp_order) -1;
 			}
-			spin_unlock(&buddy_lock);
-			#endif
+			BUDDY_UNLOCK;
 			info->current_page++;
 			info->current_page %= npages;
 			continue;
 		}
 		memset(page2kva(page), 0, PAGE_SIZE);
-		#ifndef USE_BIG_KERNEL_LOCK
-		spin_unlock(&buddy_lock);
-		#endif
+		BUDDY_UNLOCK;
 		info->current_page++;
 		info->current_page %= npages;
 	}

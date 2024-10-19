@@ -56,13 +56,7 @@ struct vma *find_vma(struct rb_node **out_parent, int *out_dir,
 struct vma *task_find_vma(struct task *task, void *addr)
 {
 	struct vma *vma;
-	#ifndef USE_BIG_KERNEL_LOCK
-	spin_lock(&task->task_lock);
-	#endif
 	vma = find_vma(NULL, NULL, &task->task_rb, addr);
-	#ifndef USE_BIG_KERNEL_LOCK
-	spin_unlock(&task->task_lock);
-	#endif
 	if (!vma || addr < vma->vm_base) {
 		return NULL;
 	}
