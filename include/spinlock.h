@@ -18,6 +18,8 @@ struct spinlock {
 	 */
 	const char *file;
 	int line;
+
+	char last_unlock[128];
 };
 
 #define spin_lock(lock) __spin_lock(lock, __FILE__, __LINE__)

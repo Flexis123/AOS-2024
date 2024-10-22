@@ -45,114 +45,173 @@ void sched_init_mp(void)
 	this_cpu->runq_len = 0;
 }
 
-/*
-* Add to the the 'runq' the 'task' and keeps the
-* 'task' locked
-*/
-int _runq_add(struct task* task, struct rb_tree* runq){
+bool _is_task_scheduled(struct rb_tree* tree, struct task* task, size_t runq_node_offset, struct rb_node** _parent, int* _dir){
 	struct rb_node *node, *parent = NULL;
     struct task *task_tmp = NULL;
+	bool ret = false;
 	int dir;
-	node = runq->root;
+
+	node = tree->root;
 	
-
-	//check if the task became a zombiei n the meanwhile can this happen?
-
 	int64_t vruntime_task = vruntime(task);
 
 	while (node) {
-		task_tmp = container_of(node, struct task, task_runq_node);
+		task_tmp = container_of_from_offset(node, struct task, runq_node_offset);
+
+		if(task_tmp == task) {
+			ret = true;
+			break;
+		} //duplicate entries not allowed!
+		
+		if(task != task_tmp) TASK_LOCK(task_tmp);
+
 		parent = node;
 	
 		dir = (vruntime_task >= vruntime(task_tmp));
+		if(task != task_tmp) TASK_UNLOCK(task_tmp);
 		
 		node = node->child[dir];
 		assert(task->task_pml4);
 	}
 
+	if(_dir) *_dir = dir;
+	if(_parent) *_parent = parent;
+
+	return ret;
+}
+
+int _runq_add(struct rb_tree* tree, struct task* task, size_t runq_node_offset){
+
+	assert(holding(&task->task_lock));
+
+	struct rb_node *node, *parent = NULL;
+    struct task *task_tmp = NULL;
+	int dir;
+
+	if(_is_task_scheduled(tree, task, runq_node_offset, &parent, &dir)) return -1;
+
+	struct rb_node* task_runq_node = field_from_offset(task, struct rb_node, runq_node_offset);
+
 	if (!parent){
-		runq->root = &task->task_runq_node;
-		assert(container_of(runq->root, struct task, task_runq_node)->task_pml4);
+		tree->root = task_runq_node;
 	} else {
-		if(parent == &task->task_runq_node)return -1;
-		parent->child[dir] = &task->task_runq_node;
-		task->task_runq_node.parent = parent;
+		parent->child[dir] = task_runq_node;
+		task_runq_node->parent = parent;
 	}
-	if (rb_balance(runq, &task->task_runq_node) < 0) {
+
+	if (rb_balance(tree, task_runq_node) < 0) {
 		return -1;
 	}
 
 	return 0;
 }
 
-/*
-* Remove a task from the 'runq' and returns the task locked if the runq is not empty.
-*/
-struct task* _runq_pop(struct rb_tree* runq){
-	struct rb_node* node = rb_first(runq);
+struct task* _runq_pop(struct rb_tree* tree, size_t runq_node_offset){
+	struct rb_node* node = rb_first(tree);
 	if(!node){
 		return NULL;
 	}
 
-	struct task* task = container_of(node, struct task, task_runq_node);
+	struct task* task = container_of_from_offset(node, struct task, runq_node_offset);
 	TASK_LOCK(task);
 
-	rb_remove(runq, &task->task_runq_node);
-	rb_node_init(&task->task_runq_node);
-
+	rb_remove(tree, node);
+	
 	return task;
 }
 
-
+/*
+ * Adds the 'task' to the global runq.
+ * The task is expected to be locked before inserting
+ * Also the global runq is expected to be locked!
+*/
 int global_runq_add(struct task* task){//add to global runq
-	int ret = _runq_add(task, &global_runq);
-	if(ret >= 0) {
+	assert(holding(&global_runq_lock));
+	int ret = _runq_add(&global_runq, task, offsetof(struct task, task_global_runq_node));
+	if(ret >= 0){
 		runq_len++;
-		task->task_cpunum = -1; // a cpunum of -1 means tha it isnt scheduled on any core
+		task->task_cpunum = -1; 
 	}
-
 	return ret;
 }
 
 struct task* global_runq_pop(){//for global runq
-	struct task* task = _runq_pop(&global_runq);
-	if(task) {
+	assert(holding(&global_runq_lock));
+	struct task* task = _runq_pop(&global_runq, offsetof(struct task, task_global_runq_node));
+	
+	if(task){
 		runq_len--;
-		task->task_cpunum = this_cpu->cpu_id; // a normal cpu value means that the task is scheduled on a core
-	}
-
+		task->task_cpunum = this_cpu->cpu_id;
+	} // a normal cpu value means that the task is scheduled on a core
+	
 	return task;
 }
 
+int local_runq_add(struct rb_tree *tree, struct task* task){
+	assert(holding(&this_cpu->runq_lock));
+	return _runq_add(tree, task, offsetof(struct task, task_local_runq_node));
+}
+
+struct task* local_runq_pop(struct rb_tree *tree){
+	assert(holding(&this_cpu->runq_lock));
+	return _runq_pop(tree, offsetof(struct task, task_local_runq_node));
+}
+
+bool is_scheduled_in_nextq(struct task* task){
+	return _is_task_scheduled(&this_cpu->nextq, task, offsetof(struct task, task_local_runq_node), NULL, NULL);
+}
+
+bool is_scheduled_in_runq(struct task* task){
+	return _is_task_scheduled(&this_cpu->runq, task, offsetof(struct task, task_local_runq_node), NULL, NULL);
+}
+
+//TASK NEEDS TO BE LOCKED
 void schedule_task(struct task *task){
-	//TASK NEEDS TO BE LOCKED
 	GLOBAL_RUNQ_LOCK;
 	global_runq_add(task);
 	GLOBAL_RUNQ_UNLOCK;
 }
 
-void deschedule_task(struct task *task){
-	//assert(holding(&task->task_lock));
-	
-	TASK_LOCK(task);
+/*
+ *removes task from every runqueue and is put in a dying state
 
+ *the task may be still running after this operation
+ * This functionn expects the task to be locked already
+ * 
+*/
+void deschedule_task(struct task *task){
+    if(!holding(&task->task_lock)){
+		panic("task lock should be held in deschedule task\n");
+	}
+	
 	task->task_status = TASK_DYING;
-	struct rb_node *global_runq_node = &task->task_runq_node;
-	struct list *local_runq_node = &task->task_local_runq_node;
-	int task_cpunum = task->task_cpunum;
+
+	struct rb_node* task_global_runq_node = &task->task_global_runq_node;
+	struct rb_node* task_local_runq_node = &task->task_local_runq_node;
 
 	TASK_UNLOCK(task);
 
-	if(task_cpunum == -1){
-		GLOBAL_RUNQ_LOCK;
-		assert(rb_remove(&global_runq, global_runq_node) >= 0);
-		GLOBAL_RUNQ_UNLOCK;
-	}else{
-		LOCAL_RUNQ_LOCK;
-		list_del(local_runq_node);
-		LOCAL_RUNQ_UNLOCK;
+	GLOBAL_RUNQ_LOCK;
+	LOCAL_RUNQ_LOCK;
+
+	TASK_LOCK(task);
+	
+	if(task->task_cpunum == -1){
+		rb_remove(&global_runq, &task->task_global_runq_node);
+		runq_len--;
+	}else if(is_scheduled_in_nextq(task)){
+		rb_remove(&this_cpu->nextq, &task->task_local_runq_node);
+		this_cpu->runq_len--;
+	}else if(is_scheduled_in_runq(task)){
+		rb_remove(&this_cpu->runq, &task->task_local_runq_node);
 	}
 
+	TASK_UNLOCK(task);
+
+	GLOBAL_RUNQ_UNLOCK;
+	LOCAL_RUNQ_UNLOCK;
+
+	TASK_LOCK(task);
 }
 
 /* Runs the next runnable task. */
@@ -161,21 +220,29 @@ void sched_yield(void)
 	struct task* task;
 
 	if(cur_task){
-		assert(holding(&cur_task->task_lock));
+		TASK_LOCK(cur_task);
 
 		if(cur_task->task_status == TASK_RUNNABLE || cur_task->task_status == TASK_RUNNING){
 			LOCAL_RUNQ_LOCK;
-			list_add(&this_cpu->runq, cur_task);
-			this_cpu->runq_len++;
+			if(local_runq_add(&this_cpu->nextq, cur_task) >= 0) this_cpu->runq_len++;
 			LOCAL_RUNQ_UNLOCK;
+
+			TASK_UNLOCK(cur_task);
 		}
-		else cur_task = NULL;
+		else {
+			TASK_UNLOCK(cur_task);
+			cur_task = NULL;
+		}
 	}
 	
 	LOCAL_RUNQ_LOCK;
-	while(list_is_empty(&this_cpu->runq)){
-	
-		if(atomic_cmpxchg(&nuser_tasks, 0, 0)) sched_halt();
+	while(this_cpu->runq.root == NULL){
+		
+		if(atomic_cmpxchg(&nuser_tasks, 0, 0)) {
+			LOCAL_RUNQ_UNLOCK;
+			sched_halt();
+		}
+
 		if(spin_trylock(&global_runq_lock)){
 			//do migration
 			size_t target_runq_len = (runq_len + this_cpu->runq_len) / ncpus;
@@ -187,16 +254,17 @@ void sched_yield(void)
 				task = global_runq_pop(); 
 				assert(task);
 				
-				if(task->task_status != TASK_DYING) list_add(&this_cpu->nextq, &task->task_local_runq_node);	
-				else task_destroy(task);
-				//TASK_UNLOCK(task);
+				if(task->task_status != TASK_DYING && local_runq_add(&this_cpu->nextq, task) >= 0) {
+					this_cpu->runq_len++;	
+				}
+				TASK_UNLOCK(task);
 			}
 			
 			while(this_cpu->runq_len > target_runq_len){
-				task = container_of(list_pop(&this_cpu->nextq), struct task, task_local_runq_node);
-				TASK_LOCK(task);
+				task = local_runq_pop(&this_cpu->nextq);
 				
-				if(task->task_status != TASK_DYING) global_runq_add(task);
+				if(!task) break;
+				else if(task->task_status != TASK_DYING) global_runq_add(task);
 			
 				TASK_UNLOCK(task);
 				this_cpu->runq_len--;
@@ -205,14 +273,15 @@ void sched_yield(void)
 		}
 		//swap the next queue with the run queue
 		
-		struct list tmp = this_cpu->nextq;
+		struct rb_tree tmp = this_cpu->nextq;
 		this_cpu->nextq = this_cpu->runq;
 		this_cpu->runq = tmp;
 	}
 
-	assert(!list_is_empty(this_cpu->runq_len));
 	this_cpu->runq_len = 0;
-	task = container_of(list_pop(&this_cpu->runq), struct task, task_local_runq_node);
+	task = local_runq_pop(&this_cpu->runq);
+
+	//here it is out of the runq and the task can either go inside the nextq or be desched
 
 	LOCAL_RUNQ_UNLOCK;
 
@@ -241,7 +310,10 @@ void sched_halt()
 	
 	GLOBAL_RUNQ_UNLOCK;
 
+	assert(!cur_task);
 	asm volatile(
+		"core_suspend:\n"
 		"cli\n"
-		"hlt\n");
+		"hlt\n"
+		"jmp core_suspend\n");
 }

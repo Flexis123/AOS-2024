@@ -29,7 +29,7 @@ struct spinlock task_table_lock;
  * current task or if the current task is the parent of the task that the PID
  * maps to.
  * 
- * The task is returnd locked if the operation is sucesfull
+ * The task is returnd locked if the operation is sucesfull.
  */
 struct task *pid2task(pid_t pid, int check_perm)
 {
@@ -37,6 +37,8 @@ struct task *pid2task(pid_t pid, int check_perm)
 
 	/* PID 0 is the current task. */
 	if (pid == 0) {
+		PROC_TABLE_LOCK;
+		TASK_LOCK(cur_task);
 		return cur_task;
 	}
 
@@ -56,13 +58,15 @@ struct task *pid2task(pid_t pid, int check_perm)
 		return NULL;
 	}
 
-	if(task != cur_task) TASK_LOCK(task);
+	while(!spin_trylock(&task->task_lock)){
+		PROC_TABLE_UNLOCK;
+		PROC_TABLE_LOCK;
+	}
 
 	/* If we don't have to do a permission check, we can simply return the
 	 * task.
 	 */
 	if (!check_perm) {
-		PROC_TABLE_UNLOCK;
 		return task;
 	}
 
@@ -72,11 +76,10 @@ struct task *pid2task(pid_t pid, int check_perm)
 
 	if (task != cur_task && task->task_ppid != cur_task->task_pid) {
 		PROC_TABLE_UNLOCK;
-		if(task != cur_task) TASK_UNLOCK(task);
+		TASK_UNLOCK(task);
 		return NULL;
 	}
 
-	PROC_TABLE_UNLOCK;
 	return task;
 }
 
@@ -112,7 +115,7 @@ static int task_setup_vas(struct task *task)
 }
 
 /* Allocates and initializes a new task.
- * On success, the new task is returned.
+ * On success, the new task is returned and the task is locked.
  */
 struct task *task_alloc(pid_t ppid)
 {
@@ -135,6 +138,7 @@ struct task *task_alloc(pid_t ppid)
 	/* Find a free PID for the task in the PID mapping and associate the
 	 * task with that PID.
 	 */
+	PROC_TABLE_LOCK;
 	for (pid = 1; pid < pid_max; ++pid) {
 		if (!tasks[pid]) {
 			tasks[pid] = task;
@@ -167,7 +171,7 @@ struct task *task_alloc(pid_t ppid)
 
 	task->task_start_time = 0;
 	task->task_cpu_time = 0;
-	
+
 	//init vma stuff
 	rb_init(&task->task_rb); 
 	list_init(&task->task_mmap);
@@ -177,7 +181,7 @@ struct task *task_alloc(pid_t ppid)
 	list_init(&task->task_child);
 	list_init(&task->task_zombies);
 	list_init(&task->task_zombie_node);
-	rb_node_init(&task->task_runq_node);
+	rb_node_init(&task->task_global_runq_node);
 	rb_node_init(&task->task_local_runq_node);
 	#ifndef USE_BIG_KERNEL_LOCK
 	spin_init(&task->task_lock, "task_lock");
@@ -185,6 +189,9 @@ struct task *task_alloc(pid_t ppid)
 
 	cprintf("[PID %5u] New task with PID %u\n",
 	        cur_task ? cur_task->task_pid : 0, task->task_pid);
+
+	TASK_LOCK(task);
+	PROC_TABLE_UNLOCK;
 
 	return task;
 }
@@ -320,43 +327,45 @@ void task_create(uint8_t *binary, enum task_type type)
 
 	if(type == TASK_TYPE_USER) atomic_inc(&nuser_tasks);
 	schedule_task(task);
+	TASK_UNLOCK(task);
 }
 
 /* Free the task and all of the memory that is used by it.
-*  It expects the task to be locked already!
+*  It expects the process table to be locked!
+*  It will unlock the process table when this function finishes executing.
  */
 void task_free(struct task *task)
 {
-	assert(task->task_type != TASK_TYPE_KERNEL);//do not free kernel tasks
-	assert(holding(&task->task_lock));
+	assert(holding(&task_table_lock));
+	
+	atomic_dec(&nuser_tasks);
 
-
-	//stop competing threads from a double free situation
-	PROC_TABLE_LOCK;
 	if(tasks[task->task_pid] == NULL){
 		PROC_TABLE_UNLOCK;
 		return; // the task is already freed or being freed
 	}
+
+	assert(task->task_type != TASK_TYPE_KERNEL);
 	tasks[task->task_pid] = NULL;
-	PROC_TABLE_UNLOCK;
 
-	//if(task != cur_task) TASK_LOCK(task);
-
-	atomic_dec(&nuser_tasks);
+	TASK_LOCK(task);
 
 	deschedule_task(task);
-	
+
 	//also check if the task is still the current task of the processor it is scheduled on
 	//if it is contionously send ipi's until a new task is there
-	if(task != cur_task){
-		int task_cpunum = task->task_cpunum;
-
-		while (cpus[task_cpunum].cpu_task != task){
-			if(task != cur_task) TASK_UNLOCK(task);
+	if(task != cur_task && task->task_cpunum != this_cpu->cpu_id && task->task_cpunum != -1){
+		
+		while (cpus[task->task_cpunum].cpu_task == task){
+			TASK_UNLOCK(task);
+			PROC_TABLE_UNLOCK;
 			lapic_ipi(IRQ_TIMER);
-			if(task != cur_task) TASK_LOCK(task);
+			PROC_TABLE_LOCK;
+			TASK_LOCK(task);
 		}
 	}
+
+	TASK_UNLOCK(task);
 
 	//now that the task cant be scheduled anymore and it is not running
 	// we can sfely remove the task as no more operations will be done on it
@@ -367,17 +376,18 @@ void task_free(struct task *task)
 	list_foreach_safe (&task->task_children, current_child, next){
 		struct task *child_task = container_of(current_child, struct task, task_child);
 
-		if(child_task != cur_task) TASK_LOCK(child_task);
+		TASK_LOCK(child_task);
 
 		list_del(&child_task->task_child);
 		child_task->task_ppid = 0;
 
-		if(child_task != cur_task) TASK_UNLOCK(child_task);
+		TASK_UNLOCK(child_task);
 	}
 
 
 	struct list *current_zombie = NULL;
 	list_foreach_safe (&task->task_zombies, current_zombie, next){
+		struct task* zombie = container_of(current_zombie, struct task, task_zombie_node);
 		task_free(container_of(current_zombie, struct task, task_zombie_node));
 	}
 
@@ -400,24 +410,19 @@ void task_free(struct task *task)
 	    cur_task ? cur_task->task_pid : task->task_ppid,
  	    task->task_pid);
 
-	PROC_TABLE_LOCK;
-	tasks[task->task_pid] = NULL;
-	PROC_TABLE_UNLOCK;
-
-	
-	TASK_UNLOCK(task);
-
 	/* Free the task. */
 	kfree(task);
 }
 
 /* Frees the task. If the task is the currently running task, then this
  * function runs a new task (and does not return to the caller).
- * It expects the task to be locked already! task free will unlock it.
+ * It expects the process table to be locked already!
  */
 void task_destroy(struct task *task)
 {
+	assert(holding(&task_table_lock));
 	task_free(task);
+	PROC_TABLE_UNLOCK;
 
 	if(task == cur_task){
 		cur_task = NULL;
@@ -455,7 +460,9 @@ void task_pop_frame(struct int_frame *frame)
  */
 void task_run(struct task *task)
 {
-	assert(task);
+	if( !task || !holding(&task->task_lock)){
+		panic("fuck you\n");
+	}
 
 	/*
 	 * Step 1: If this is a context switch (a new task is running):
@@ -476,10 +483,6 @@ void task_run(struct task *task)
 	 *  e->task_frame to sensible values.
 	 */
 
-	struct task* last_running_task = cur_task;
-
-	if(task != cur_task) TASK_LOCK(task);
-
 
 	if(task->task_type == TASK_TYPE_KERNEL){
 		void (*fn)(void*) = (void (*)(void*)) task->task_frame.rip;
@@ -487,17 +490,15 @@ void task_run(struct task *task)
 
 		fn(arg);
 
-		
 		schedule_task(task);
+		TASK_UNLOCK(task);
 
-		if(task != cur_task) TASK_UNLOCK(task);
-
-		cur_task = NULL;
 		sched_yield();
+		return;
 	}
 
 	if(task->task_status == TASK_DYING || task->task_status == TASK_NOT_RUNNABLE){
-		cur_task = NULL;
+		TASK_UNLOCK(task);
 		sched_yield();
 		return;
 	}
@@ -536,17 +537,16 @@ void task_run(struct task *task)
 		cur_task->task_start_time = curr_time;
 	}
 	
-	load_pml4((struct page_table*)PADDR(cur_task->task_pml4));
+	load_pml4((struct page_table*)PADDR(task->task_pml4));
 	
-	if(cur_task != last_running_task) TASK_UNLOCK(cur_task);
-	if(last_running_task) TASK_UNLOCK(last_running_task);
+	TASK_UNLOCK(task);
 	
-
-	task_pop_frame(&cur_task->task_frame);
+	task_pop_frame(&task->task_frame);
 }
 
 struct task* create_kthread(void (*fn)(void*), void* data){
 	struct task* task = task_alloc(0);
+
 
 	task->task_type = TASK_TYPE_KERNEL;
 	task->task_frame.rip = (uint64_t) fn;
@@ -564,13 +564,13 @@ struct task* create_kthread(void (*fn)(void*), void* data){
 			break;
 		}
 	}
-
-	PROC_TABLE_UNLOCK;
 	
 	if(!assigned_pid){
 		task_free(task);
+		PROC_TABLE_UNLOCK;
 		return NULL;
 	}
+	PROC_TABLE_UNLOCK;
 
 	return task;
 }
@@ -588,4 +588,6 @@ void task_kernel_setzero_create(){
 	if(!kthread) panic("could not create setzero kthread\n");
 
 	schedule_task(kthread);
+
+	TASK_UNLOCK(kthread);
 }

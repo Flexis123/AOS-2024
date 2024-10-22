@@ -68,6 +68,7 @@ void kmain(struct boot_info *boot_info)
 	assert(this_cpu->cpu_id == boot_cpu->cpu_id);
 	asm volatile("cli");
 	boot_cpus();
+	
 	task_kernel_setzero_create();
 
 #ifdef USE_BIG_KERNEL_LOCK

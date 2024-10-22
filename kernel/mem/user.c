@@ -99,6 +99,7 @@ void assert_user_mem(struct task *task, void *va, size_t size, uint64_t flags)
 			task->task_pid, fault_va);
 
 		TASK_LOCK(task);
+		PROC_TABLE_LOCK;
 		task_destroy(task);
 	}
 }

@@ -8,7 +8,6 @@ int main(void)
 	child = fork();
 
 	if (child > 0) {
-		printf("Child is %p\n", child);
 		sched_yield();
 		sched_yield();
 		sched_yield();

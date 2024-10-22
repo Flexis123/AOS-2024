@@ -30,6 +30,8 @@ void spin_init(struct spinlock *lock, const char *name)
 #endif
 }
 
+extern char operation[128];
+
 void __spin_lock(struct spinlock *lock, const char *file, int line)
 {
 #ifdef DEBUG_SPINLOCK
@@ -39,7 +41,8 @@ void __spin_lock(struct spinlock *lock, const char *file, int line)
 	if (holding(lock)) {
 		panic("\n"
 		      "%s:%d: cpu %2d: attempt to lock %s twice\n"
-		      "%s:%d: cpu %2d: currently locked here\n",
+		      "%s:%d: cpu %2d: currently locked here\n"
+			 ,
 		      file, line,
 		      lapic_cpunum(),
 		      lock->name ? lock->name : "anonymous",
@@ -98,10 +101,10 @@ void __spin_unlock(struct spinlock *lock, const char *file, int line)
 	/* Check if the lock is actually locked before unlocking. */
 	if (!lock->locked) {
 		panic("\n"
-		      "%s:%d: cpu %2d:%s not locked\n",
+		      "%s:%d: cpu %2d:%s not locked\n Last lock was %s\n",
 		      file, line,
 		      lapic_cpunum(),
-		      lock->name ? lock->name : "anonymous");
+		      lock->name ? lock->name : "anonymous", lock->last_unlock);
 	}
 
 	/* Check if the lock that we are about to unlock is actually owned by
@@ -120,6 +123,7 @@ void __spin_unlock(struct spinlock *lock, const char *file, int line)
 	lock->cpu = NULL;
 	lock->file = NULL;
 	lock->line = 0;
+	snprintf(lock->last_unlock, 128, "last unlock was at %s:%d, cpu: %d\n", file, line, this_cpu->cpu_id);
 #endif
 
 	atomic_barrier();

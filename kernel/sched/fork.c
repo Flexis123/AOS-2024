@@ -70,7 +70,8 @@ static int copy_region(struct page_table *parent_pml4, struct page_table* child_
  */
 struct task *task_clone(struct task *task)
 {
-	assert(task == cur_task); //ASSUMPTION: the task is always the cur_task for now
+	TASK_LOCK(task);
+	
 	struct task *child = task_alloc(task->task_pid);
 
 	if(!child){
@@ -96,9 +97,12 @@ struct task *task_clone(struct task *task)
 		}
 
 		if(!child_vma){
-			panic("unable to create vma in task_clone");
-			task_free(child);
+			TASK_UNLOCK(task);
+			TASK_UNLOCK(child);
 
+			PROC_TABLE_LOCK;
+			task_free(child);
+			PROC_TABLE_UNLOCK;
 			return NULL;
 		}
 
@@ -112,8 +116,11 @@ struct task *task_clone(struct task *task)
 	//schedule_task will lock the task!
 	//what to do? well we dont lock the child so nothing lol
 	list_add(&task->task_children, &child->task_child);
-	atomic_inc(&nuser_tasks);
+	TASK_UNLOCK(task);
 
+
+	atomic_inc(&nuser_tasks);
+	
 	return child;
 }
 
@@ -121,12 +128,15 @@ struct task *task_clone(struct task *task)
 pid_t sys_fork(void)
 {
 	struct task* child = task_clone(cur_task);
-	if (!child) return -ENOMEM;
+	if (!child) {
+		return -ENOMEM;
+	}
 
 	child->task_frame.rax = 0;
 	pid_t child_pid = child->task_pid;
 
 	schedule_task(child);
 
+	TASK_UNLOCK(child);
 	return child_pid;
 }

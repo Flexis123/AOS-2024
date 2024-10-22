@@ -119,7 +119,8 @@ syscall64:
 	movq %r10, %rcx
 	pushq %rbp
 	pushq $0
-	jmp syscall_handler
+	//uncommnet if we integrate back syscall/sysret
+	//jmp syscall_handler
 
 .global iret64
 iret64:

@@ -44,6 +44,12 @@ enum { false, true };
 #define container_of(ptr, type, member) \
 	((type *)((char *)(ptr) - offsetof(type, member)))
 
+#define container_of_from_offset(ptr, type, offset) \
+    ((type *)((char *)(ptr) - offset))
+
+#define field_from_offset(ptr, type, offset) \
+    ((type *)((char *)(ptr) + offset))
+
 #define length_of(a) (sizeof(a) / sizeof((a)[0]))
 
 #define __always_inline         inline __attribute__((always_inline))

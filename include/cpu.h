@@ -48,7 +48,7 @@ struct cpuinfo {
 	struct kmem_cache kmem;
 
 	/* Per-CPU run queue */
-	struct list runq, nextq;
+	struct rb_tree runq, nextq;
 	size_t runq_len;//this holds the length of nextq after runq has been depleted.
 
 	struct spinlock runq_lock;

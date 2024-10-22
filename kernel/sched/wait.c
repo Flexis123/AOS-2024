@@ -18,18 +18,28 @@ pid_t sys_waitpid(pid_t pid, int *rstatus, int opts)
 {
 	assert(!opts); // we dont support opts for now
 	pid_t target_pid = 0;
-	struct task *target_task;
+	struct task *target_task = NULL;
+	struct list *target_task_node = NULL;
 	
-	if(list_is_empty(&cur_task->task_children)) return -ECHILD;
+	TASK_LOCK(cur_task);
+	if(list_is_empty(&cur_task->task_children)) {
+		TASK_UNLOCK(cur_task);
+		return -ECHILD;
+	}
+
+	TASK_UNLOCK(cur_task);
 
 	target_task = pid2task(pid, true);
-	if(pid != 0 && !target_task) return -ECHILD;
+	if(pid != 0 && !target_task) {
+		return -ECHILD;
+	}
 	else if(pid == -1) {
-		target_task = container_of(list_head(&cur_task->task_zombies), struct task, task_zombie_node);
+		target_task_node = list_head(&cur_task->task_zombies);
 
-		assert(target_task->task_status == TASK_DYING);
-
-		if(target_task) TASK_LOCK(target_task);
+		if(target_task_node){
+			target_task = container_of(target_task_node, struct task, task_zombie_node);
+			TASK_LOCK(target_task);
+		}
 	}
 
 	//check if it is a zombie, if it is go ahead an destroy it
@@ -39,24 +49,30 @@ pid_t sys_waitpid(pid_t pid, int *rstatus, int opts)
 		list_del(&target_task->task_zombie_node);
 		list_del(&target_task->task_child);
 
+		TASK_UNLOCK(target_task);
 		task_destroy(target_task);
 		return target_pid;
 
 	}
 	
-	if(!target_task){ // we get here
-		target_task = container_of(list_head(&cur_task->task_children), struct task, task_child);
+	PROC_TABLE_UNLOCK;
 
-		if(target_task && target_task != cur_task) TASK_LOCK(target_task);
+	if(!target_task){ 
+		target_task_node = list_head(&cur_task->task_children);
+
+		if(target_task) {
+			target_task = container_of(target_task_node, struct task, task_child);
+			TASK_LOCK(target_task);
+		}
 
 	}else{
 		target_pid = target_task->task_pid;
 	}
 
-	cur_task->task_status = TASK_NOT_RUNNABLE;//the child is not a zombie yet
+	cur_task->task_status = TASK_NOT_RUNNABLE;
 	cur_task->task_wait = target_task;
 
-	if(target_task && target_task != cur_task) TASK_UNLOCK(target_task);
+	if(target_task) TASK_UNLOCK(target_task);
 
 	return target_pid;	
 }

@@ -65,8 +65,6 @@ static pid_t sys_getpid(void)
 	return cur_task->task_pid;
 }
 
-
-
 static int sys_kill(pid_t pid)
 {
 	struct task *target_task;
@@ -82,39 +80,49 @@ static int sys_kill(pid_t pid)
 	//remove task from the runq or local runq
 	//and set it to dying
 	
-	if(target_task->task_ppid != 0){
+	if(target_task->task_ppid != 0 && target_task->task_pid != 0){
+		PROC_TABLE_UNLOCK;
 		deschedule_task(target_task); //removes task from runqueues and marks it as dying
+		
+
+		cprintf("[PID %5u] Reaping task with PID %u\n", old_task_pid, target_task->task_pid);
 
 		pid_t child_pid = target_task->task_pid;
 		pid_t parent_pid = target_task->task_ppid;
 		
-		if(target_task != cur_task) TASK_UNLOCK(target_task);
-
+        TASK_UNLOCK(target_task);
 		struct task *parent = pid2task(parent_pid, false);
-		list_add(&parent->task_zombies, &target_task->task_zombie_node);
-		cprintf("[PID %5u] Reaping task with PID %u\n", old_task_pid, target_task->task_pid);
 
-		if(parent->task_wait == target_task){
-			parent->task_status = TASK_RUNNABLE;
-			
+		if(parent){
+			PROC_TABLE_UNLOCK;
+			list_add(&parent->task_zombies, &target_task->task_zombie_node);
+
+			if(parent->task_wait == target_task){
+				parent->task_status = TASK_RUNNABLE;
+				schedule_task(parent);
+			}
+
+			if(target_task != cur_task){
+				lapic_ipi(IRQ_TIMER);//force other cores to reschedule in case the child process is still running.
+			}
 			TASK_UNLOCK(parent);
-
-			schedule_task(parent);
-
-			TASK_LOCK(parent);
 		}
+		
+		TASK_LOCK(target_task);
 
-		if(target_task != cur_task){
-			lapic_ipi(IRQ_TIMER);//force other cores to reschedule in case the child process is still running.
+		if(target_task->task_ppid == 0){
+			TASK_UNLOCK(target_task);
+			PROC_TABLE_LOCK;
+			task_destroy(target_task);
 		}
-		TASK_UNLOCK(parent);
+		TASK_UNLOCK(target_task);
 
-		//sched_yield();//we dont need to schedule yield the syscall just returns, only if this is the current task
 		return 0;
 	}
 
 	cprintf("[PID %5u] Exiting gracefully\n", target_task->task_pid);
 
+	TASK_UNLOCK(target_task);
 	task_destroy(target_task);
 
 	return 0;
@@ -125,14 +133,9 @@ static int sys_getcpuid(void)
 	return this_cpu->cpu_id;
 }
 
-/* Dispatches to the correct kernel function, passing the arguments. */
-int64_t syscall(uint64_t syscallno, uint64_t a1, uint64_t a2, uint64_t a3,
-        uint64_t a4, uint64_t a5, uint64_t a6)
-{
-	/*
-	 * Call the function corresponding to the 'syscallno' parameter.
-	 * Return any appropriate return value.
-	 */
+int64_t _syscall(uint64_t syscallno, uint64_t a1, uint64_t a2, uint64_t a3,
+        uint64_t a4, uint64_t a5, uint64_t a6){
+
 	int64_t ret = 0;
 
 	switch (syscallno) {
@@ -189,6 +192,36 @@ int64_t syscall(uint64_t syscallno, uint64_t a1, uint64_t a2, uint64_t a3,
 			break;
 		default:
 			ret = -ENOSYS;
+	}
+	return ret;
+}
+
+/* Dispatches to the correct kernel function, passing the arguments. */
+int64_t syscall(uint64_t syscallno, uint64_t a1, uint64_t a2, uint64_t a3,
+        uint64_t a4, uint64_t a5, uint64_t a6)
+{
+	/*
+	 * Call the function corresponding to the 'syscallno' parameter.
+	 * Return any appropriate return value.
+	 */
+	int64_t ret = 0;
+
+	switch (syscallno) {
+
+		case SYS_getpid:
+		case SYS_mquery:
+		case SYS_mmap:
+		case SYS_munmap:
+		case SYS_mprotect:
+		case SYS_madvise:
+			TASK_LOCK(cur_task);
+			ret = _syscall(syscallno, a1, a2, a3, a4, a5, a6);
+			TASK_UNLOCK(cur_task);
+			break;
+
+		default:
+			ret = _syscall(syscallno, a1, a2, a3, a4, a5, a6);
+			break;
 	}
 	return ret;
 }

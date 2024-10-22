@@ -214,6 +214,8 @@ void idt_init_mp(void)
 	load_idt(&idtr);
 }
 
+char operation[128];
+
 void int_dispatch(struct int_frame *frame)
 {
 	KLOCK;
@@ -232,6 +234,7 @@ void int_dispatch(struct int_frame *frame)
 
 		case IRQ_TIMER:
 			irq_timer_handler(frame); // this should not return and either call task_run or monitor!
+			return;
 	
 		default: break;
 	}
@@ -243,6 +246,7 @@ void int_dispatch(struct int_frame *frame)
 		TASK_UNLOCK(cur_task);
 		panic("unhandled interrupt in kernel");
 	} else {
+		PROC_TABLE_LOCK;
 		task_destroy(cur_task);
 		return;
 	}
@@ -260,7 +264,6 @@ void int_handler(struct int_frame *frame)
 	assert(!(read_rflags() & FLAGS_IF));
 
 	TASK_LOCK(cur_task);
-
 	if ((frame->cs & 3) == 3) {
 		/* Interrupt from user mode. */
 		assert(cur_task);
@@ -278,10 +281,16 @@ void int_handler(struct int_frame *frame)
 	/* Dispatch based on the type of interrupt that occurred. */
 	cur_task->task_frame.rflags |= FLAGS_IF;
 
+	TASK_UNLOCK(cur_task);
+
 	int_dispatch(frame);
 
 	/* Return to the current task, which should be running. */
+	//cprintf("about to go back to user mode with task %p\n", cur_task);
+	
+	TASK_LOCK(cur_task);
 	task_run(cur_task);
+	
 }
 
 void page_fault_handler(struct int_frame *frame)
@@ -293,20 +302,25 @@ void page_fault_handler(struct int_frame *frame)
 	/* Read the CR2 register to find the faulting address. */
 	fault_va = (void *)read_cr2();
 
+	TASK_LOCK(cur_task);
 
 	/* Handle kernel-mode page faults. */
 	if(!(frame->err_code & PF_USER) && cur_task && task_page_fault_handler(cur_task, fault_va, frame->err_code) < 0){
 		print_int_frame(frame);
+		TASK_UNLOCK(cur_task);
 		panic("Page fault originated from the kernel");
 	}
 
 	if(task_page_fault_handler(cur_task, fault_va, frame->err_code) < 0){
-		cprintf("[PID %5u] user fault is invalid!\n", cur_task->task_pid);
-		
-	
+		cprintf("[PID %5u] user page fault is invalid for adress %p!\n", cur_task->task_pid, fault_va);
+
 		print_int_frame(frame);
+		
+		PROC_TABLE_LOCK;
+		TASK_UNLOCK(cur_task);
 		task_destroy(cur_task);
 	}
+	TASK_UNLOCK(cur_task);
 }
 
 void irq_timer_handler(struct int_frame *frame){
