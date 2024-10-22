@@ -31,6 +31,7 @@ void kmain(struct boot_info *boot_info)
 	cons_init();
 	#ifndef USE_BIG_KERNEL_LOCK
 	spin_init(&console_lock, "console_lock");
+	spin_init(&task_table_lock, "task_table_lock");
 	#endif
 	cprintf("\n");
 
@@ -43,6 +44,7 @@ void kmain(struct boot_info *boot_info)
 
 	/* Set up the slab allocator. */
 	kmem_init();
+	swap_init();
 
 	/* Set up the interrupt controller and timers */
 	pic_init();

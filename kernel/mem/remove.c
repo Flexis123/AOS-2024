@@ -1,6 +1,6 @@
 #include <types.h>
 #include <paging.h>
-
+#include <kernel/sched/task.h>
 #include <kernel/mem.h>
 
 struct remove_info {
@@ -13,6 +13,7 @@ static void remove_page(physaddr_t *entry, struct remove_info *info){
 	if((*entry & PAGE_DIRTY) && !(info->remove_dirty)) return;
 
 	struct page_info *page = pa2page(PAGE_ADDR(*entry));
+	remove_reverse_map(page, info->va, pml4_to_task(info->pml4));
 	page_decref(page);
 	*entry = 0;
 	tlb_invalidate(info->pml4, info->va);

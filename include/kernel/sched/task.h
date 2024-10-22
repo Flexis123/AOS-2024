@@ -17,7 +17,7 @@ void task_run(struct task *task);
 
 void task_kernel_setzero_create();//creates the setzero kernel task. setzero sets the physical memory of unused pages to 0.
 void task_run_kernel(struct task *kernel_task);//use this to run kernel tasks, not task_run
-
+struct task *pml4_to_task(struct page_table *pml4);
 
 /* Without this extra macro, we couldn't pass macros like TEST to TASK_CREATE()
  * because of the C preprocessor's argument prescan rule.

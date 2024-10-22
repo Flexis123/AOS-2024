@@ -85,4 +85,5 @@ struct task {
 	struct spinlock task_lock;
 	struct spinlock task_del_lock;
 #endif
+	size_t task_rss_pages;
 };

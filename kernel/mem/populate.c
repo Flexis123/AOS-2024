@@ -1,11 +1,12 @@
 #include <types.h>
 #include <paging.h>
-
+#include <kernel/sched/task.h>
 #include <kernel/mem.h>
 
 struct populate_info {
 	uint64_t flags;
 	uintptr_t base, end;
+	struct page_table *pml4;
 };
 
 static int populate_pte(physaddr_t *entry, uintptr_t base, uintptr_t end,
@@ -25,6 +26,7 @@ static int populate_pte(physaddr_t *entry, uintptr_t base, uintptr_t end,
 	if(!page)return -1;
 	page->pp_ref++;
 	*entry = page2pa(page) | info->flags;
+	add_reverse_map(page, (void*)base, pml4_to_task(info->pml4));
 	return 0;
 }
 
@@ -57,6 +59,7 @@ void populate_region(struct page_table *pml4, void *va, size_t size,
 		.flags = flags,
 		.base = ROUNDDOWN((uintptr_t)va, PAGE_SIZE),
 		.end = ROUNDUP((uintptr_t)va + size, PAGE_SIZE) - 1,
+		.pml4 = pml4,
 	};
 	struct page_walker walker = {
 		.pte_callback = populate_pte,

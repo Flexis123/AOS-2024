@@ -368,6 +368,8 @@ int buddy_map_chunk(struct page_table *pml4, size_t index)
 	for (i = 0; i < nblocks; ++i) {
 		page = base + i;
 		list_init(&page->pp_node);
+		list_init(&page->pp_lru_node);
+		reverse_mapping_init(&page->pp_reverse_map);
 	}
 	npages = index + nblocks;
 

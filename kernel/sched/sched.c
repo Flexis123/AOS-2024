@@ -222,11 +222,6 @@ void deschedule_task(struct task *task){
 	TASK_LOCK(task);
 }
 
-void sched_init_mp(void)
-{
-	/* LAB 6: your code here. */
-}
-
 /* Runs the next runnable task. */
 void sched_yield(void)
 {	

@@ -173,6 +173,7 @@ struct task *task_alloc(pid_t ppid)
 
 	task->task_start_time = 0;
 	task->task_cpu_time = 0;
+	task->task_rss_pages = 0;
 
 	//init vma stuff
 	rb_init(&task->task_rb); 
@@ -592,4 +593,27 @@ void task_kernel_setzero_create(){
 	schedule_task(kthread);
 
 	TASK_UNLOCK(kthread);
+}
+
+struct task *pml4_to_task(struct page_table *pml4){
+	if(pml4 == kernel_pml4 || pml4 == NULL){
+		return NULL;
+	}
+	bool use_locking = !holding(&task_table_lock);
+
+	if(use_locking)PROC_TABLE_LOCK;
+
+	for(int i = 1; i < pid_max; i++){
+
+		if(!tasks[i]){
+			continue;
+		}
+		if(tasks[i]->task_pml4 == pml4){
+			struct task *task = tasks[i];
+			if(use_locking)PROC_TABLE_UNLOCK;
+			return task;
+		}
+	}
+	if(use_locking)PROC_TABLE_UNLOCK;
+	return NULL;
 }

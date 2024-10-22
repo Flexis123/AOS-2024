@@ -238,6 +238,8 @@ void page_init(struct boot_info *boot_info)
 	for (i = 0; i < npages; ++i) {
 		page = pages + i;
 		list_init(&page->pp_node);
+		list_init(&page->pp_lru_node);
+		reverse_mapping_init(&page->pp_reverse_map);
 		page->pp_ref = 0;
 		page->pp_free = false;
 		page->pp_order = 0;

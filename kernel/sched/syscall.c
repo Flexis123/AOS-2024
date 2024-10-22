@@ -35,11 +35,6 @@ void syscall_init_mp(void)
 	/* LAB 6: your code here. */
 }
 
-void syscall_init_mp(void)
-{
-	/* LAB 6: your code here. */
-}
-
 /*
  * Print a string to the system console.
  * The string is exactly 'len' characters long.
