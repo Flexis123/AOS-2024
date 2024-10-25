@@ -74,7 +74,9 @@ void kmain(struct boot_info *boot_info)
 	asm volatile("cli");
 	boot_cpus();
 	
+	//create kthreads
 	task_kernel_setzero_create();
+	create_lru_kthread();
 
 #ifdef USE_BIG_KERNEL_LOCK
 	cprintf("BIG KERNEL LOCK IN USE!\n");

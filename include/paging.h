@@ -6,11 +6,6 @@
 #include <task.h>
 
 
-struct reverse_mapping{
-	struct list node;
-	void *va;
-	struct task *task;
-};
 #ifndef __ASSEMBLER__
 /*
  * Page descriptor structures, mapped at USER_PAGES.
@@ -41,8 +36,15 @@ struct page_info {
 
 	/* Reserved. */
 	uint64_t pp_zero;
+
 	struct list pp_lru_node;
-	struct reverse_mapping pp_reverse_map;
+	struct list pp_pte_entries; // list of 
+	struct list pp_swap_out_queue_node;
+
+	bool is_enqued_for_swap_out;
+	bool is_in_lru;
 };
+
+void _init_page(struct page_info* page);
 #endif /* !__ASSEMBLER__ */
 

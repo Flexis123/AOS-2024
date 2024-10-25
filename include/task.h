@@ -83,7 +83,7 @@ struct task {
 #ifndef USE_BIG_KERNEL_LOCK
 	/* Per-task lock */
 	struct spinlock task_lock;
-	struct spinlock task_del_lock;
 #endif
 	size_t task_rss_pages;
+	struct rb_node task_oom_node;
 };

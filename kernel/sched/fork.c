@@ -20,10 +20,10 @@ static int copy_page_and_setup_cow(physaddr_t *entry, uintptr_t base, uintptr_t 
 	struct page_info* parent_page = pa2page(PAGE_ADDR(*entry));
 
 	//inherit the flags from the parent but zap the write flag to setup COW
-	physaddr_t copy_flags = (*entry & PAGE_MASK) & ~(PAGE_WRITE | PAGE_DIRTY | PAGE_ACCESSED);
+	physaddr_t copy_flags = (*entry & PAGE_MASK) & ~(PAGE_WRITE); // was zapping the accessed and dirty bit
 
 	//zap the write flag also for the parent
-	*entry &= ~(PAGE_WRITE | PAGE_DIRTY | PAGE_ACCESSED);
+	*entry &= ~(PAGE_WRITE); // was zapping the accessed and dirty bit
 
 	struct copy_info* cpy_inf = (struct copy_info*) walker->udata;
 	return page_insert(cpy_inf->child_pml4, parent_page, (void*) base, copy_flags);
@@ -81,6 +81,9 @@ struct task *task_clone(struct task *task)
 	
 	memcpy(&child->task_frame, &task->task_frame, sizeof(task->task_frame));
 
+	//got to copy the swap pages also!!
+	//we already copy all the pages stored inside the vma's 
+	//those can be any type of entries that are stored inside the vma's.
 
 	struct list *vma_entry = NULL;
 	list_foreach(&task->task_mmap, vma_entry){

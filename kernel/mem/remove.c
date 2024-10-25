@@ -12,9 +12,16 @@ struct remove_info {
 static void remove_page(physaddr_t *entry, struct remove_info *info){
 	if((*entry & PAGE_DIRTY) && !(info->remove_dirty)) return;
 
-	struct page_info *page = pa2page(PAGE_ADDR(*entry));
-	remove_reverse_map(page, info->va, pml4_to_task(info->pml4));
-	page_decref(page);
+	struct swap_page* si = pte_to_swap_info(*entry);
+
+	if(si){
+		swapper_remove_page_entry(si, entry);
+	}else{
+		struct page_info *page = pa2page(PAGE_ADDR(*entry));
+		swapper_remove_page_entry(page, entry);
+		page_decref(page);
+	}
+
 	*entry = 0;
 	tlb_invalidate(info->pml4, info->va);
 	

@@ -214,8 +214,6 @@ void idt_init_mp(void)
 	load_idt(&idtr);
 }
 
-char operation[128];
-
 void int_dispatch(struct int_frame *frame)
 {
 	KLOCK;

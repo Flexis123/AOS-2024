@@ -26,7 +26,8 @@ static int populate_pte(physaddr_t *entry, uintptr_t base, uintptr_t end,
 	if(!page)return -1;
 	page->pp_ref++;
 	*entry = page2pa(page) | info->flags;
-	add_reverse_map(page, (void*)base, pml4_to_task(info->pml4));
+
+	swapper_add_page(page, entry);
 	return 0;
 }
 
@@ -36,14 +37,13 @@ static int populate_pde(physaddr_t *entry, uintptr_t base, uintptr_t end,
 	struct page_info *page;
 	struct populate_info *info = walker->udata;
 
-	if(hpage_aligned(base) && (end - base) + 1 >= HPAGE_SIZE){
+	if(*entry & PAGE_PRESENT){
+		return 0;
+	}else if(hpage_aligned(base) && (end - base) + 1 >= HPAGE_SIZE){
 		page = page_alloc(ALLOC_HUGE);
 		if(!page)return -1;
 		page->pp_ref++;
 		*entry = page2pa(page) | info->flags | PAGE_HUGE;
-		return 0;
-	}
-	if(*entry & PAGE_PRESENT){
 		return 0;
 	}
 	return ptbl_alloc(entry, base, end, walker);

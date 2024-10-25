@@ -15,6 +15,7 @@ void task_destroy(struct task *task);
 void task_pop_frame(struct int_frame *frame);
 void task_run(struct task *task);
 
+struct task* create_kthread(void (*fn)(void*), void* data);
 void task_kernel_setzero_create();//creates the setzero kernel task. setzero sets the physical memory of unused pages to 0.
 void task_run_kernel(struct task *kernel_task);//use this to run kernel tasks, not task_run
 struct task *pml4_to_task(struct page_table *pml4);

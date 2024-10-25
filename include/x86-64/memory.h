@@ -1,6 +1,7 @@
 #pragma once
 
 #include <x86-64/paging.h>
+#include <kernel/mem.h>
 
 /* At IOPHYSMEM (640K) there is a 384K hole for I/O.  From the kernel,
  * IOPHYSMEM can be addressed at KERNBASE + IOPHYSMEM.  The hole ends
@@ -24,6 +25,8 @@
 #else
 #define KPAGES UINT64_C(0xFFFFFF8000000000)
 #endif
+
+#define SPAGES KPAGES + npages * sizeof(struct page_info*)
 
 /* Memory mapped I/O. */
 #define MMIO_LIM KPAGES

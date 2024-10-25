@@ -193,6 +193,9 @@ struct task *task_alloc(pid_t ppid)
 	cprintf("[PID %5u] New task with PID %u\n",
 	        cur_task ? cur_task->task_pid : 0, task->task_pid);
 
+
+	add_task_to_oom_candidates(task);
+
 	TASK_LOCK(task);
 	PROC_TABLE_UNLOCK;
 
@@ -354,6 +357,7 @@ void task_free(struct task *task)
 	TASK_LOCK(task);
 
 	deschedule_task(task);
+	remove_task_from_oom_candidates(task);
 
 	//also check if the task is still the current task of the processor it is scheduled on
 	//if it is contionously send ipi's until a new task is there
@@ -487,19 +491,6 @@ void task_run(struct task *task)
 	 */
 
 
-	if(task->task_type == TASK_TYPE_KERNEL){
-		void (*fn)(void*) = (void (*)(void*)) task->task_frame.rip;
-		void* arg = (void*) task->task_frame.rdi;
-
-		fn(arg);
-
-		schedule_task(task);
-		TASK_UNLOCK(task);
-
-		sched_yield();
-		return;
-	}
-
 	if(task->task_status == TASK_DYING || task->task_status == TASK_NOT_RUNNABLE){
 		TASK_UNLOCK(task);
 		sched_yield();
@@ -539,6 +530,20 @@ void task_run(struct task *task)
 		cur_task->task_runs++;
 		cur_task->task_start_time = curr_time;
 	}
+
+	if(task->task_type == TASK_TYPE_KERNEL){
+		void (*fn)(void*) = (void (*)(void*)) task->task_frame.rip;
+		void* arg = (void*) task->task_frame.rdi;
+
+		fn(arg);
+
+		schedule_task(task);
+		TASK_UNLOCK(task);
+
+		sched_yield();
+		return;
+	}
+
 	
 	load_pml4((struct page_table*)PADDR(task->task_pml4));
 	
@@ -547,9 +552,16 @@ void task_run(struct task *task)
 	task_pop_frame(&task->task_frame);
 }
 
+
+/*
+ * Creates a kthread that executes the given 'fn' with the args specified in 'data' pointer
+ * This function returns the kthread locked if the function is sucessfull!
+ *
+ * 
+*/
 struct task* create_kthread(void (*fn)(void*), void* data){
 	struct task* task = task_alloc(0);
-
+	if(!task) return NULL;
 
 	task->task_type = TASK_TYPE_KERNEL;
 	task->task_frame.rip = (uint64_t) fn;
@@ -569,6 +581,7 @@ struct task* create_kthread(void (*fn)(void*), void* data){
 	}
 	
 	if(!assigned_pid){
+		TASK_UNLOCK(task);
 		task_free(task);
 		PROC_TABLE_UNLOCK;
 		return NULL;

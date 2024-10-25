@@ -215,6 +215,19 @@ void mem_init_mp(void)
 	}
 }
 
+
+void _init_page(struct page_info* page){
+	list_init(&page->pp_node);
+	list_init(&page->pp_lru_node);
+	list_init(&page->pp_swap_out_queue_node);
+	list_init(&page->pp_pte_entries);
+	page->pp_ref = 0;
+	page->pp_free = false;
+	page->pp_order = 0;
+	page->is_enqued_for_swap_out = false;
+	page->is_in_lru = false;
+}
+
 /*
  * Initialize page structure and memory free list. After this is done, NEVER
  * use boot_alloc() again. After this function has been called to set up the
@@ -237,12 +250,7 @@ void page_init(struct boot_info *boot_info)
 
 	for (i = 0; i < npages; ++i) {
 		page = pages + i;
-		list_init(&page->pp_node);
-		list_init(&page->pp_lru_node);
-		reverse_mapping_init(&page->pp_reverse_map);
-		page->pp_ref = 0;
-		page->pp_free = false;
-		page->pp_order = 0;
+		_init_page(page);
 	}
 
 	entry = (struct mmap_entry *)KADDR(boot_info->mmap_addr);
@@ -331,12 +339,11 @@ void page_init_ext(struct boot_info *boot_info)
 				//if(PAGE_INDEX(addr + (j * PAGE_SIZE)) >= npages) break;
 
 				struct page_info* page = pa2page(addr + (j * PAGE_SIZE));
-				page->pp_order = 0;
-				page->pp_ref = 0;
+				_init_page(page); //wtf is happening here!?!?
 				page_free(page);
-        }
-		assert(hpage_aligned(addr));
-		addr += HPAGE_SIZE - PAGE_SIZE;		
+       		}
+			assert(hpage_aligned(addr));
+			addr += HPAGE_SIZE - PAGE_SIZE;		
 		}
 	}
 	boot_map_region(kernel_pml4, (void *)KERNEL_VMA, npages * PAGE_SIZE, 0, PAGE_PRESENT | PAGE_WRITE);

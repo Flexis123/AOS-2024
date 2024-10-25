@@ -20,9 +20,18 @@ static int insert_pte(physaddr_t *entry, uintptr_t base, uintptr_t end,
 	struct insert_info *info = walker->udata;
 	
 	if(*entry & PAGE_PRESENT){
-		struct page_info *page = pa2page(PAGE_ADDR(*entry));
-		page_decref(page);
-		tlb_invalidate(info->pml4, page2kva(page));
+
+		struct swap_page* si = pte_to_swap_info(*entry);
+
+		if(si){
+			swapper_remove_page_entry(si, entry);
+		}else{
+			struct page_info *page = pa2page(PAGE_ADDR(*entry));
+			swapper_remove_page_entry(page, entry);
+			page_decref(page);
+		}
+		
+		tlb_invalidate(info->pml4, (void*) base);
 	}
 	if(info->page->pp_order == BUDDY_2M_PAGE){
 		return 0;
@@ -30,6 +39,8 @@ static int insert_pte(physaddr_t *entry, uintptr_t base, uintptr_t end,
 	info->page->pp_ref++;
 	assert(!info->page->pp_free);
 	*entry = page2pa(info->page) | info->flags | PAGE_PRESENT;
+
+	swapper_add_page(info->page, entry);
 	return 0;
 }
 
