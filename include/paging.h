@@ -38,7 +38,7 @@ struct page_info {
 	uint64_t pp_zero;
 
 	struct list pp_lru_node;
-	struct list pp_pte_entries; // list of 
+	struct reverse_mapping rmap; // list of 
 	struct list pp_swap_out_queue_node;
 
 	bool is_enqued_for_swap_out;

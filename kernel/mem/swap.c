@@ -31,7 +31,7 @@ void swap_init(){
         list_init(&sp->sp_pte_entries);
         list_init(&sp->sp_free_list_node);
         list_init(&sp->sp_swap_in_queue_node);
-        sp->is_enqued_for_swap_out = false;
+        sp->is_enqued_for_swap_in = false;
         list_add(&swap_free_list, &sp->sp_free_list_node);
     }
 }
@@ -67,7 +67,7 @@ struct swap_page* swap_in_queue_pop(){
 
 void lru_add(struct page_info* page){
     if(!page->is_in_lru){
-        list_add(&lru, &page->pp_lru_node);
+        list_add_tail(&lru, &page->pp_lru_node);
         lru_size++;
     }
 }
@@ -82,7 +82,7 @@ void lru_remove(struct page_info* page){
 struct page_info* lru_pop(){
     if(lru_size > 0){
         lru_size--;
-        return  container_of(list_pop_tail(&lru), struct page_info, pp_lru_node);
+        return  container_of(list_pop(&lru), struct page_info, pp_lru_node);
     }
     return NULL;
 }
@@ -104,18 +104,19 @@ void lru_swapper_kthread(void* data){
             struct pte_entry *rmap = container_of(reverse_map_node, struct pte_entry, node);
             
             page_is_used = ((*rmap->pte_entry) & PAGE_DIRTY) || ((*rmap->pte_entry) & PAGE_ACCESSED);
-            if(page_is_used)break;  
+            if(page_is_used){
+                break;  
+            }
         }
 
         if(page_is_used){
+            
+            //TODO unset all the dirty and accesed bits of all thedamn entries
             lru_add(page); //add back page as its used
             continue;
         }
 
-        //enqueue a swap info
-        struct swap_page* swap_page = container_of(list_pop(&swap_free_list), struct swap_page, sp_free_list_node);
-        if(swap_page) swap_in_queue_insert(swap_page);
-        
+        swap_out_queue_insert(page);
     }
 }
 
@@ -130,16 +131,16 @@ void create_lru_kthread(){
     TASK_UNLOCK(lru_kthread);
 }
 
-void remove_pte_entry(void* page, size_t offsetof_pte_list, physaddr_t *entry){
+void remove_pte_entry(void* page, size_t offsetof_rmap, physaddr_t *entry){
     if(!(*entry & PAGE_USER)) return;
 
     //search for entry inside of page
     struct list* pte_entry_node = NULL;
     struct list* next = NULL;
-    struct list* pte_list = page + offsetof_pte_list;
 
-    list_foreach_safe(pte_list, pte_entry_node, next){
+    struct reverse_mapping* rmap = page + offsetof_rmap;
 
+    list_foreach_safe(&rmap->pte_entries, pte_entry_node, next){
         struct pte_entry* pt_en = container_of(pte_entry_node, struct pte_entry, node);
         if(entry == pt_en->pte_entry){
             list_del(pte_entry_node);
@@ -149,14 +150,17 @@ void remove_pte_entry(void* page, size_t offsetof_pte_list, physaddr_t *entry){
     }
 }
 
+//for the 2 remove functions below, also remove the task when needed if needed
 void swapper_remove_swap_page_entry(struct swap_page *page, physaddr_t *entry){
-   remove_pte_entry(page, offsetof(struct swap_page, sp_pte_entries), entry);
-   if(list_is_empty(&page->sp_pte_entries)) list_add(&swap_free_list, &page->sp_free_list_node); //swap page has no morerefs add it tos swap page free list
+   remove_pte_entry(page, offsetof(struct swap_page, rmap), entry);
+   //remove task from rmap
+   if(list_is_empty(&page->rmap.pte_entries)) list_add(&swap_free_list, &page->sp_free_list_node); //swap page has no morerefs add it tos swap page free list
 }
 
 void swapper_remove_page_entry(struct page_info *page, physaddr_t *entry) {
-    remove_pte_entry(page, offsetof(struct page_info, pp_pte_entries), entry);
-    if(list_is_empty(&page->pp_pte_entries)) lru_remove(page);
+    remove_pte_entry(page, offsetof(struct page_info, rmap), entry);
+     //remove task from rmap
+    if(list_is_empty(&page->rmap.pte_entries)) lru_remove(page);
 }
 
 void swapper_add_page(struct page_info *page, physaddr_t *entry){
@@ -164,7 +168,9 @@ void swapper_add_page(struct page_info *page, physaddr_t *entry){
 
     struct pte_entry* en = kmalloc(sizeof(struct pte_entry));
     en->pte_entry = entry;
-    list_add(&page->pp_pte_entries, &en->node);
+
+    //TODO add task also to rmap
+    list_add(&page->rmap.pte_entries, &en->node);
 
     if(page->pp_ref == 1) lru_add(page);
 }
@@ -185,32 +191,15 @@ struct swap_info *pte_to_swap_info(physaddr_t swap_pte){
     return swap_pages + index;
 }
 
-physaddr_t swap_info_to_swap_pte(struct swap_page* swap){
-    assert(swap >= swap_pages && swap <= swap_pages + NSWAP_PAGES);
-
-    physaddr_t index = swap_info_to_index(swap);
-    return (index << PAGE_TABLE_SHIFT) | PAGE_SWAP;
-}
-
-
 void  attempt_swap_out(){
-
     if(!disk_poll(cur_disk) || list_is_empty(&swap_out_queue)){
         return;
     }
 
-    //disk is ready to get oiled up! p diddy style
     struct page_info* page = swap_out_queue_pop();
-    
-
-    //attempt to write to disk
     struct swap_page *sp = container_of(list_head(&swap_free_list), struct swap_page, sp_free_list_node);
 
-    if(!sp){
-        //TODO we do oom kill here right?
-    }
-
-    if(disk_write(cur_disk, page, PAGE_SIZE, swap_info_to_index(sp) * PAGE_SIZE) == -EAGAIN){
+    if(!sp || disk_write(cur_disk, page2kva(page), PAGE_SIZE, swap_info_to_index(sp) * PAGE_SIZE) == -EAGAIN){
         swap_out_queue_insert(page);
         return;
     }
@@ -218,22 +207,20 @@ void  attempt_swap_out(){
     list_del(&sp->sp_free_list_node); //remove swap page from swap free list a its occupied now
 
     //copy the pte_list of the page to the swap_page and change all ptes to match new state
-    sp->sp_pte_entries = page->pp_pte_entries;
+    sp->rmap.pte_entries = page->rmap.pte_entries;
 
     struct list* pte_entry_node;
+
+    //convert previous entries from normal entries to swap entries
     list_foreach(&sp->sp_pte_entries, pte_entry_node){
         physaddr_t *entry = container_of(pte_entry_node, struct pte_entry, node)->pte_entry;
 
-
+        *entry &= PAGE_MASK;
+        *entry |= (swap_info_to_index(sp) << PAGE_TABLE_SHIFT) | PAGE_SWAP;
     }
 
-    //reset swapping state of the page
-    list_init(&page->pp_lru_node);
-	list_init(&page->pp_swap_out_queue_node);
+    //empty out pte list
 	list_init(&page->pp_pte_entries);
-	page->is_enqued_for_swap_out = false;
-	page->is_in_lru = false;
-
 
     //free page
     page_free(page);
@@ -249,7 +236,7 @@ void attempt_swap_in(){
 
     struct page_info* page = page_alloc(ALLOC_ZERO); //this will oom if there is not enough space
     
-    if(disk_read(cur_disk, page, PAGE_SIZE, swap_info_to_index(sp) * PAGE_SIZE) == -EAGAIN){
+    if(disk_read(cur_disk, page2kva(page), PAGE_SIZE, swap_info_to_index(sp) * PAGE_SIZE) == -EAGAIN){
         //disk read failed so reset state and try again later
         page_free(page);
         swap_in_queue_insert(sp);
@@ -258,6 +245,20 @@ void attempt_swap_in(){
 
     list_add(&swap_free_list, &sp->sp_free_list_node); // swap page is swaped in so now the place in dis its free real estate ;)))
 
-    page->pp_pte_entries = sp->sp_pte_entries; //copy back all the pte 
+    page->rmap.pte_entries = sp->rmap.pte_entries; //copy back all the pte 
+
+    //mark all entries as normal entries now
+    //clear the swap flag and put it the adress of the new page
+    struct list* pte_entry_node;
+    list_foreach(&page->pp_pte_entries, pte_entry_node){
+        physaddr_t *entry = container_of(pte_entry_node, struct pte_entry, node)->pte_entry;
+
+        *entry &= ~(PAGE_SWAP);
+        *entry &= PAGE_MASK;
+        *entry &= page2pa(page);
+    }
+
+    //empty out pte list of swap page
+    list_init(&sp->sp_pte_entries);
 }
 

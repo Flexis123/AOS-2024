@@ -53,8 +53,13 @@ void remove_task_from_oom_candidates(struct task *task){
 
 
 void _attempt_oom_kill(void* data){
-   struct task* task = rb_last(&oom_candidates);
-   if(task) task_free(task);
+    struct rb_node* task_rbnode = rb_last(&oom_candidates);
+    if(task_rbnode) {
+        struct task* task = container_of(task_rbnode, struct task, task_oom_node);
+
+        PROC_TABLE_LOCK;
+        task_destroy(task);
+    }
 }
 
 void attempt_oom_kill(){

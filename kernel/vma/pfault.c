@@ -51,11 +51,8 @@ int task_page_fault_handler(struct task *task, void *va, int flags)
 
 	if(((flags & (PF_WRITE | PF_PRESENT)) == (PF_WRITE | PF_PRESENT)) && (vm->vm_flags & VM_WRITE)){//handle copy on write
 		return task_page_fault_cow_handler(task, va, flags);
-	}else if(){
-
 	}
 
 	populate_vma_range(task, ROUNDDOWN(va, PAGE_SIZE), PAGE_SIZE, vm->vm_flags);
-	task->task_rss_pages++;
 	return 0;
 }

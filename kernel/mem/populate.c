@@ -28,6 +28,7 @@ static int populate_pte(physaddr_t *entry, uintptr_t base, uintptr_t end,
 	*entry = page2pa(page) | info->flags;
 
 	swapper_add_page(page, entry);
+
 	return 0;
 }
 

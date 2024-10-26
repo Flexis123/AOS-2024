@@ -12,8 +12,13 @@ struct pte_entry {
 	physaddr_t *pte_entry;
 };
 
+struct reverse_mapping{
+	struct list pte_entries;
+	struct list owning_tasks;
+};
+
 struct swap_page {
-	struct list sp_pte_entries; // pte_list head
+	struct reverse_mapping rmap; // pte_list head
     struct list sp_free_list_node; //for the free list.
 	struct list sp_swap_in_queue_node;
 	bool is_enqued_for_swap_in;
@@ -49,3 +54,6 @@ void attempt_swap_out();
 void attempt_swap_in();
 
 void create_lru_kthread();
+
+void add_task_to_rmap(struct reverse_mapping rmap);
+//void add_task_to_rmap(struct reverse_mapping rmap);

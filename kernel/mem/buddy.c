@@ -244,7 +244,7 @@ struct page_info *page_alloc(int alloc_flags)
 		if(alloc_flags & ALLOC_ZERO) {
 			memset(page2kva(page), 0, 1 << (page->pp_order + PAGE_TABLE_SHIFT));
 		}
-	}
+	}else attempt_oom_kill();
 
 	assert(page != NULL);
 	BUDDY_UNLOCK;
